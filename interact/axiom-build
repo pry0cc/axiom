@@ -1,3 +1,15 @@
 #!/bin/bash
 
-packer -var-file ~/.axiom/axiom.json ~/.axiom/packer.json
+cd ~/.axiom/
+packer build -var-file ~/.axiom/axiom.json ~/.axiom/packer.json
+if [ "$?" == 0 ]
+then
+    echo "Your build completed successfully!"
+    echo "To initialize an instance, run axiom-init"
+    notify-send "Axiom Info" "Build completed successfully!"
+else
+    echo "Your build failed :( Please take a look at the errors!"
+    notify-send "Axiom Info" "Build failed :("
+fi
+
+
