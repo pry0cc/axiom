@@ -129,7 +129,7 @@
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gron'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/anti-burl'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/kxss'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/gf'",
+				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gf'",
                 "touch /home/op/.profile",
                 "touch /home/op/.z",
                 "chown -R op:users /home/op",
