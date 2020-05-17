@@ -1,7 +1,7 @@
 #!/bin/bash
 
 name=$1
-domain="pry0.cc"
+domain=$(cat ~/.axiom.json| jq -r '.domain')
 if [ -z "$1" ]
 then
     ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
