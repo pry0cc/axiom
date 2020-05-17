@@ -2,7 +2,7 @@
 
 cd ~/.axiom/
 packer build -var-file ~/.axiom/axiom.json ~/.axiom/packer.json
-if [ "$?" == 0 ]
+if [ "$?" == "0" ]
 then
     echo "Your build completed successfully!"
     echo "To initialize an instance, run axiom-init"
