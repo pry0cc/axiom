@@ -1,0 +1,7 @@
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+export GOPATH=~/Go
+
+alias msfconsole="rvmsudo ~/Pentesting/Exploitation/msf/msfconsole"
+alias ls="ls --color=auto"

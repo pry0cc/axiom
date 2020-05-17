@@ -1,0 +1,13 @@
+#!/bin/bash
+
+name=$1
+domain="pry0.cc"
+if [ -z "$1" ]
+then
+    ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
+    doctl compute domain records delete $domain $(doctl compute domain records list $domain | grep $ans | awk '{ print $1 }')
+    doctl compute droplet delete $ans
+else
+    doctl compute droplet delete $1
+    doctl compute domain records delete $domain $(doctl compute domain records list $domain | grep $1 | awk '{ print $1 }')
+fi

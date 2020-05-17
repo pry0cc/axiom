@@ -1,0 +1,3 @@
+#!/bin/bash
+
+doctl compute droplet list | awk '{ print $2  " "  $3 }'| column -t
