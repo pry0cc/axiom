@@ -1,0 +1,3 @@
+#!/bin/bash
+
+packer -var-file ~/.axiom/axiom.json ~/.axiom/packer.json
