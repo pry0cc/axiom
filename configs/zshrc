@@ -87,7 +87,7 @@ postfiledumphere() {
 
 
 export EDITOR='vim'
-export GOPATH=/home/op/tmp/golang/ 
+export GOPATH=/home/op/go 
 export TERM="xterm-256color"
 export HOME=/home/op
 
