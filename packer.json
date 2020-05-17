@@ -3,7 +3,7 @@
     {
       "type": "digitalocean",
       "ssh_username": "root",
-      "snapshot_name":"hackbox-{{timestamp}}",
+      "snapshot_name":"axiom-{{timestamp}}",
       "api_token": "{{ user `do_key` }}", 
       "image": "ubuntu-19-10-x64",
       "region": "{{ user `region`  }}",
