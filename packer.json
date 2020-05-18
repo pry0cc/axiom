@@ -145,7 +145,6 @@
                 "echo 'Installing getJS'",
 				"/bin/su -l op -c 'go get -u github.com/003random/getJS'",
                 "echo 'Installing dalfox'",
-				"/bin/su -l op -c 'go get -u github.com/hahwul/dalfox'",
                 "echo 'Installing gau'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
                 "echo 'Installing fprobe'",
