@@ -7,7 +7,7 @@ function bin2sc {
 
 export ZSH=/home/op/.oh-my-zsh
 
-ZSH_THEME="powerlevel9k/powerlevel9k"
+ZSH_THEME="powerlevel9k/powerlevel9lk"
 plugins=(dircycle github z autojump rails archlinux zsh-navigation-tools docker vagrant cp ruby)
 source $ZSH/oh-my-zsh.sh
 
