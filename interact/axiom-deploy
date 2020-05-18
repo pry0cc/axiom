@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+then
+    profile=$(ls ~/.axiom/profiles | cat | fzf)
+
+fi

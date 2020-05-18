@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ans=$(cat ~/.axiom/profile.json | jq -r '.instance')
+ip=$(doctl compute droplet list | grep $ans | awk '{ print $3 }')
+ssh -p2266 op@$ip

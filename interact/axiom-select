@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+then
+    ans=$(doctl compute droplet list | awk '{ print $2  }' | fzf)
+    echo "{\"instance\":\"$ans\"}" | jq > ~/.axiom/profile.json
+else
+    echo "{\"instance\":\"$1\"}" | jq > ~/.axiom/profile.json
+fi
+
