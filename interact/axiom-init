@@ -5,7 +5,7 @@ names=("allen" "almeida" "agnesi" "archimedes" "austin" "babbage" "banach" "banz
 gen_name="${names[$RANDOM % ${#names[@]} ]}-$((10 + RANDOM % 20))"
 region=$(cat ~/.axiom.json | jq -r '.region')
 size=$(cat ~/.axiom.json | jq -r '.default_size')
-domain=$(cat ~/.axiom.json | jq -r '.domain')
+#domain=$(cat ~/.axiom.json | jq -r '.domain')
 
 box_name=""
 connect_shell=false
@@ -45,7 +45,7 @@ echo "Still initializing, please wait a minute for initializing to complete..."
 
 sleep 30
 ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
-dns=$(doctl compute domain records create $domain --record-type A --record-name $name --record-data $ip)
+#dns=$(doctl compute domain records create $domain --record-type A --record-name $name --record-data $ip)
 
 if [ $connect_shell == true ]
 then
@@ -53,7 +53,7 @@ then
     ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
     ssh -p2266 op@$ip
 else
-    echo "Initialized! Instance accessible at '$name.$domain' or '$ip'!"
+    echo "Initialized! Instance accessible at '$ip'!"
     echo "To connect, run 'axiom-ssh $name'"
 fi
 

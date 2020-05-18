@@ -15,12 +15,13 @@ echo -n "Key >> "
 read do_key
 echo "Setting up doctl!..."
 doctl auth init -t $do_key
-echo "What would you like to pick for region? nyc3, sfo2 <-- this one is best"
-echo -n "Region >> "
-read region
-echo "What domain do you use?"
-echo -n "Domain >> "
-read domain
+#echo "What would you like to pick for region? nyc3, sfo2 <-- this one is best"
+region="sfo2"
+#echo -n "Region >> "
+#read region
+#echo "What domain do you use?"
+#echo -n "Domain >> "
+#read domain
 #echo "What is your Hunter key? (optional)"
 #echo -n "Key >> "
 hunter_key=""
