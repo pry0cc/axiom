@@ -57,6 +57,6 @@ else
     echo "To connect, run 'axiom-ssh $name'"
 fi
 
-notify-send "Axiom Info" "$name successfully initialized at $ip!"
 echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
-
+sleep 30
+notify-send "Axiom Info" "$name successfully initialized at $ip!"
