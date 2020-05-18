@@ -142,8 +142,6 @@
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gf'",
                 "echo 'Installing hakrawler'",
 				"/bin/su -l op -c 'go get -u github.com/hakluke/hakrawler'",
-                "echo 'Installing subjack'",
-				"/bin/su -l op -c 'go get -u github.com/haccer/subjack'",
                 "echo 'Installing getJS'",
 				"/bin/su -l op -c 'go get -u github.com/003random/getJS'",
                 "echo 'Installing dalfox'",
