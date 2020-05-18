@@ -3,8 +3,8 @@
 names=("allen" "almeida" "agnesi" "archimedes" "austin" "babbage" "banach" "banzai" "bardeen" "bartik" "bassi" "beaver" "bell" "benz" "black" "blackburn" "blackwell" "bohr" "booth" "borg" "bose" "bouman" "boyd" "brown" "buck" "burnell" "cannon" "carson" "cartwright" "cerf" "chatelet" "cohen" "chaum" "clarke" "colden" "cori" "cray" "curie" "darwin" "davinci" "diffie" "dirac" "dubinsky" "easley" "edison" "einstein" "elbakyan" "elion" "ellis" "engelbart" "euclid" "euler" "faraday" "fermat" "fermi" "franklin" "gagarin" "galileo" "gates" "gauss" "goldberg" "goldstine" "goodall" "gould" "greider" "haibt" "hamilton" "haslett" "hawking" "hellman" "heisenberg" "hermann" "herschel" "hertz" "hodgkin" "hoover" "hopper" "hugle" "hypatia" "jackson" "jang" "jennings" "jepsen" "johnson" "joliot" "jones" "kalam" "kare" "keller" "kepler" "kilby" "kirch" "knuth" "lalande" "lamar" "lamport" "leakey" "lederberg" "lehmann" "lewin" "liskov" "lovelace" "lumiere" "margulis" "matsumoto" "maxwell" "mayer" "mccarthy" "mclaren" "mclean" "mcnulty" "mendel" "mendeleev" "meitner" "meninsky" "merkle" "moore" "morse" "murdock" "moser" "napier" "nash" "neumann" "newton" "nightingale" "nobel" "noyce" "panini" "pare" "pascal" "pasteur" "payne" "perlman" "pike" "ptolemy" "raman" "ride" "ritchie" "rhodes" "robinson" "roentgen" "rosalind" "rubin" "saha" "sammet" "sanderson" "satoshi" "shamir" "shannon" "shaw" "shirley" "sinoussi" "snyder" "solomon" "spence" "stonebraker" "sutherland" "swanson" "swartz" "swirles" "tesla" "tharp" "thompson" "torvalds" "tu" "turing" "volhard" "villani" "wescoff" "wilbur" "wiles" "williams" "williamson" "wilson" "wing" "wozniak" "wright" "wu" "yalow" "yonath")
 
 gen_name="${names[$RANDOM % ${#names[@]} ]}-$((10 + RANDOM % 20))"
-region=$(cat ~/.axiom.json | jq -r '.region')
-size=$(cat ~/.axiom.json | jq -r '.default_size')
+region=$(cat ~/.axiom/axiom.json | jq -r '.region')
+size=$(cat ~/.axiom/axiom.json | jq -r '.default_size')
 #domain=$(cat ~/.axiom.json | jq -r '.domain')
 
 box_name=""
