@@ -135,7 +135,7 @@
                 "wget -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /home/op/go/bin/aquatone",
                 "wget -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.6.0/amass_v3.6.0_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_v3.6.0_linux_amd64/amass /home/op/go/bin/amass",
                 "wget -O /tmp/subfinder.tar https://github.com/projectdiscovery/subfinder/releases/download/v2.3.3/subfinder-linux-amd64.tar && cd /tmp/ && tar -xvf /tmp/subfinder.tar && mv /tmp/subfinder-linux-amd64 /home/op/go/bin/subfinder",
-                "/bin/su -l op -c 'mkdir -p /home/op/go/src/github.com/zmap/ && git clone https://github.com/zmap/zdns.git /home/op/src/github.com/zmap/zdns  && cd /home/op/go/src/github.com/zmap/zdns/zdns && go build && go install'",
+                "/bin/su -l op -c 'mkdir -p /home/op/go/src/github.com/zmap/ && git clone https://github.com/zmap/zdns.git /home/op/go/src/github.com/zmap/zdns  && cd /home/op/go/src/github.com/zmap/zdns/zdns && go build && go install'",
                 "touch /home/op/.profile",
                 "touch /home/op/.z",
                 "chown -R op:users /home/op",
