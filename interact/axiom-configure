@@ -22,6 +22,7 @@ region="sfo2"
 #echo "What domain do you use?"
 #echo -n "Domain >> "
 #read domain
+domain=""
 #echo "What is your Hunter key? (optional)"
 #echo -n "Key >> "
 hunter_key=""
