@@ -21,7 +21,7 @@ read region
 echo "What domain do you use? Must be in digitalocean!"
 echo -n "Domain >> "
 read domain
-echo "What is your Hunter key?"
+echo "What is your Hunter key? (optional)"
 echo -n "Key >> "
 read hunter_key
 size="s-1vcpu-1gb"
