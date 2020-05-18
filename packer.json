@@ -132,7 +132,7 @@
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/kxss'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gf'",
 				"/bin/su -l op -c 'go get -u github.com/hakluke/hakrawler'",
-                "wget -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone ~/go/bin/aquatone",
+                "wget -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /home/op/go/bin/aquatone",
                 "touch /home/op/.profile",
                 "touch /home/op/.z",
                 "chown -R op:users /home/op",
