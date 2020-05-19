@@ -79,9 +79,35 @@ fzf is everywhere too, doctl can be a bit tricky (using snap to do that on ubunt
 
 # Fun Screenshots
 
-A fun out of the box one-liner that gets subdomains with subfinder, looks them up and resolves them, passes the
+A fun out of the box one-liner that gets subdomains with subfinder, looks them up and resolves them, passes the resolved and HTTP prob'ed response to have screenshots taken for further review! 
 
 ![https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%207.png](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%207.png)
+
+# Pre-installed History Feature
+
+So since we have ZSH, with some pretty badass backward lookup features, I am plannning on building an extensive one-liner ZSH-History so that you can just `ctrl+r`and search for a command and get a demo command that has been tested on a wildcard bug bounty platform.
+
+That way, you can just literally type "sub[up arrow]" and be auto completed to a huge subfinder one liner, on a brand new box, this brings a homely feel to the machine and can massively increase your productivity.
+
+# Deployment Profiles
+
+These are a work in progress, also, my vision for the deployment profiles, is for quick deployment of 'optional extras' that you might want to deploy after your machine is already live and running. Such as openvpn and covenant (both have the setup scripts ready to go). 
+
+# Instance Profile Selectors
+
+One little tid-bit for the power users out there, I've added both the `axiom-select` , and `axiom-connect` script. Axiom-select allows you to select an instance name, and have it stored in a state-file called 'profile.json' in the ~/.axiom/ directory. This selection also occurs when you initialize a new server. Now, with an instance selected, you can run `axiom-select` from anywhere and get dropped into an SSH shell. This is really useful for creating 'transparent' connections to your VPS hackbox and can hook up to keybindings for opening new terminal windows.
+
+Because of the heavy integration of notify-send, you can basically use this entire ecosystem heedlessly  (about to get better too).
+
+Hint, if you're running MacOS, drop this in your bin path:
+
+`notify-send`
+
+```jsx
+#!/bin/bash
+
+ osascript -e "display notification \"$2\" with title \"$1\""
+```
 
 # Packages To Date
 
@@ -89,7 +115,7 @@ A fun out of the box one-liner that gets subdomains with subfinder, looks them u
 - [x]  httprobe
 - [x]  subfinder
 - [x]  assetfinder
-- [x]  gf w/ filters
+- [x]  gf
 - [x]  masscan
 - [x]  kxss
 - [x]  jq
@@ -104,10 +130,10 @@ A fun out of the box one-liner that gets subdomains with subfinder, looks them u
 - [x]  Zdns
 - [x]  ffuf
 - [x]  gau
-- [x]  dalfox
 - [x]  dirb
 - [x]  subjack
 - [x]  SQLMap
 - [x]  fbrobe
 - [x]  getjs
 - [x]  openvpn
+- [ ]  dalfox
