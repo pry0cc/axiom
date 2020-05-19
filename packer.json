@@ -76,6 +76,11 @@
             "source":"./configs/tmux.conf",
             "destination":"/home/op/.tmux.conf"
         },
+		{
+            "type":"file",
+            "source":"./configs/zsh_history",
+            "destination":"/home/op/.zsh_history"
+        },
         {
             "type":"file",
             "source":"./configs/00-header",
@@ -144,9 +149,10 @@
 				"/bin/su -l op -c 'go get -u github.com/hakluke/hakrawler'",
                 "echo 'Installing getJS'",
 				"/bin/su -l op -c 'go get -u github.com/003random/getJS'",
-                "echo 'Installing dalfox'",
                 "echo 'Installing gau'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
+                "echo 'Installing subjack'",
+				"/bin/su -l op -c 'go get -u github.com/haccer/subjack'",
                 "echo 'Installing fprobe'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/theblackturtle/fprobe'",
                 "wget -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /home/op/go/bin/aquatone",
