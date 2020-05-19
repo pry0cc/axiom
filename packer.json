@@ -113,7 +113,7 @@
                 "chown -R op:users /home/op",
                 "cd /tmp && wget -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.0.1/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
                 "sudo wget https://raw.githubusercontent.com/xero/figlet-fonts/master/Bloody.flf -O /usr/share/figlet/Bloody.flf",
-                "/bin/su -l op -c 'gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'",
+                "/bin/su -l op -c 'gpg2 --keyserver hkp://keys.gnupg.net:80 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'",
                 "/bin/su -l op -c 'curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python3'",
                 "git clone https://github.com/navisecdelta/EmailGen.git /home/op/recon/emailgen",
                 "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
