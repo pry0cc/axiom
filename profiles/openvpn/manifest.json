@@ -6,7 +6,9 @@
 		"wget https://gist.githubusercontent.com/pry0cc/0a464e11dd15acc7b3e82fd4565f94ba/raw/64739cdad670f520dbb91ccfd44ab23c3abd6ca3/openvpn-install.sh",
 		"chmod +x openvpn-install.sh",
 		"sudo ufw allow 443",
-		"sudo ./openvpn-install.sh"
+		"sudo ./openvpn-install.sh",
+        "sudo cp /root/client.ovpn /home/op/client.ovpn",
+        "sudo chown op:users /home/op/client.ovpn"
 	],
-    "success_message":"Wordpress has been deployed! Use the `vpn` CLI command or `getprofile` here to get the VPN profile."
+    "success_message":"OpenVPN has been successfully installed. Use the axiom-vpn CLI command to download and connect to the VPN server."
 }

@@ -1,7 +1,29 @@
 #!/bin/bash
 
+profile=""
+
 if [ -z "$1" ]
 then
     profile=$(ls ~/.axiom/profiles | cat | fzf)
-
+else
+    exists=$(ls ~/.axiom/profiles | cat | grep "\<$1\>" | wc -l)
+    if [ "$exists" == "1" ]
+    then
+        profile="$1"
+    else
+        echo "Profile doesnt exist, launching selector"
+        profile=$(ls ~/.axiom/profiles | cat | fzf)
+    fi
 fi
+
+instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
+id="$RANDOM"
+filename="/tmp/$id.sh"
+cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
+chmod +x $filename
+
+echo "Installing profile '$profile' on '$instance' at '$ip'..."
+
+scp -P2266 $filename op@$ip:$filename
+ssh -p2266 op@$ip "chmod +x $filename && $filename"
