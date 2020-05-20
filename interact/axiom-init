@@ -58,5 +58,5 @@ else
 fi
 
 echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
-sleep 30
+sleep 60
 notify-send "Axiom Info" "$name successfully initialized at $ip!"
