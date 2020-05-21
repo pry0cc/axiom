@@ -49,7 +49,7 @@
                 "systemctl enable tor",
                 "ufw --force enable",
                 "useradd -G sudo,docker -s /usr/bin/zsh -m op",
-                "mkdir -p /home/op/{.ssh,c2,lists}",
+                "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists",
                 "chown -R op:users /home/op",
                 "echo 'op:{{ user `do_key` }}' | chpasswd",
                 "rm /etc/resolv.conf",
