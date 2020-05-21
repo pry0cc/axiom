@@ -133,14 +133,14 @@ fi
 
 if [ "$SHELL" == "/usr/local/bin/zsh" ]; then
     echo "You're running ZSH! Installing Axiom to \$PATH..."
-    echo "export PATH=\"\$PATH:~/.axiom/interact\"" >> ~/.zshrc
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.zshrc
 elif [ "$SHELL" == "/bin/bash" ]; then
     echo "You're running Bash! Installing Axiom to \$PATH..."
-    echo "export PATH=\"\$PATH:~/.axiom/interact\"" >> ~/.bashrc
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.zshrc
 else
     echo "I don't have a predefined setup for your shell!"
     echo "Please add ~/.axiom/interact to your \$PATH!"
-    echo "(export PATH=\"\$PATH:~/.axiom/interact\")"
+    echo "(export PATH=\"\$PATH:$HOME/.axiom/interact\")"
 fi 
 
 echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > ~/.axiom/axiom.json
