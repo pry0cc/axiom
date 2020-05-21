@@ -107,12 +107,23 @@
             "destination":"/etc/sudoers"
         },
         {
+            "type":"file",
+            "source":"./configs/keys/105BD0E739499BDB.asc",
+            "destination":"/tmp/105BD0E739499BDB.asc"
+        },
+        {
+            "type":"file",
+            "source":"./configs/keys/3804BB82D39DC0E3.asc",
+            "destination":"/tmp/3804BB82D39DC0E3.asc"
+        },
+        {
             "type":"shell",
             "inline": [
                 "chattr +i /etc/resolv.conf",
                 "chown -R op:users /home/op",
                 "cd /tmp && wget -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.0.1/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
                 "sudo wget https://raw.githubusercontent.com/xero/figlet-fonts/master/Bloody.flf -O /usr/share/figlet/Bloody.flf",
+                "/bin/su -l op -c 'gpg2 --import /tmp/3804BB82D39DC0E3.asc /tmp/105BD0E739499BDB.asc'",
                 "/bin/su -l op -c 'curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python3'",
                 "git clone https://github.com/navisecdelta/EmailGen.git /home/op/recon/emailgen",
                 "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
