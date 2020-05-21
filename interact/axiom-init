@@ -50,12 +50,12 @@ ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
 
 if [ $connect_shell == true ]
 then
-    sleep 60
+    sleep 90
     echo "Connecting..."
     ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
     ssh -p2266 op@$ip
 else
-    sleep 60
+    sleep 70
     echo "Initialized! Instance accessible at '$ip'!"
     echo "To connect, run 'axiom-ssh $name'"
 fi
