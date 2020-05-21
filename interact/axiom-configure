@@ -115,14 +115,14 @@ size="s-1vcpu-1gb"
 
 if [ -f ~/.ssh/id_rsa.pub ]
 then
-    echo "Detected SSH public key, would you like me to install this for your axiom setup? y/n"
+    echo "Detected SSH public key, would you like me to install this for your axiom setup? y/n "
     read ans
     if [ $ans == "y" ]
     then
         cat ~/.ssh/id_rsa.pub > ~/.axiom/configs/authorized_keys
     fi
 else
-    echo "No SSH public key detected, would you like to generate a fresh pair? y/n"
+    echo "No SSH public key detected, would you like to generate a fresh pair? y/n "
     read ans
     if [ $ans == "y" ]
     then
