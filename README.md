@@ -48,6 +48,15 @@ To aid you, I have created an array of bash wrappers to get started. The axiom b
 
 # Installation
 
+## DigitalOcean API Key
+To obtain a Digitalocean API Key for this to work, you can sign up with my referral link https://m.do.co/c/bd80643300bd and get $100 free credit to try it out!
+
+I also get a small kickback so if you liked this project please use my link :)
+
+https://m.do.co/c/bd80643300bd 
+
+Happy hacking! :)
+ 
 ## Bash One Liner
 
 ```
