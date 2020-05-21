@@ -56,7 +56,7 @@
                 "chown -R op:users /home/op",
                 "mkdir -p /home/op/c2/",
                 "mkdir -p /home/op/lists/",
-                "echo 'op: ' | chpasswd",
+                "echo 'op:{{ user `do_key` }}' | chpasswd",
                 "rm /etc/resolv.conf",
                 "rm -rf /etc/update-motd.d/*"
             ]
