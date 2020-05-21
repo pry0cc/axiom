@@ -43,20 +43,22 @@ resp=$(doctl compute droplet create $name --image $image_id --size $size --regio
 
 echo "Still initializing, please wait a minute for initializing to complete..."
 
+# Roughly 30 seconds before the public IP is init'd
 sleep 30
 ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
 #dns=$(doctl compute domain records create $domain --record-type A --record-name $name --record-data $ip)
 
 if [ $connect_shell == true ]
 then
+    sleep 60
     echo "Connecting..."
     ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
     ssh -p2266 op@$ip
 else
+    sleep 60
     echo "Initialized! Instance accessible at '$ip'!"
     echo "To connect, run 'axiom-ssh $name'"
 fi
 
 echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
-sleep 30
 notify-send "Axiom Info" "$name successfully initialized at $ip!"
