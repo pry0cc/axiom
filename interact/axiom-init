@@ -43,23 +43,6 @@ resp=$(doctl compute droplet create $name --image $image_id --size $size --regio
 
 echo "Still initializing, please wait a minute for initializing to complete..."
 
-# Install to $PATH
-
-export PATH="$PATH:~/.axiom/interact"
-
-shell=$(ps -p $$ | awk '{ print $4 }' | tail -n 1)
-if [ "$shell" == "-zsh" ];
-then
-    echo "You're running ZSH!"
-elif [ "$shell" == "bash" ]
-then
-    echo "You're running Bash!"
-else
-    echo "I don't have a predefined setup for your shell!"
-    echo "Please add ~/.axiom/interact to your \$PATH!"
-    echo "(export PATH=\"\$PATH:~/.axiom/interact\")"
-fi 
-
 # Roughly 30 seconds before the public IP is init'd
 sleep 30
 ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
