@@ -11,5 +11,5 @@
 		"docker rm -f covenant",
 		"sudo rm -r /home/op/Covenant"
 	],
-	"success_message":"echo \"Covenant has been deployed at: https://$instance:7443/\""
+	"success_message":"echo \"Covenant has been deployed at: https://$ip:7443/\""
 }
