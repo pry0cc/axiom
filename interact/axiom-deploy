@@ -2,11 +2,34 @@
 
 profile=""
 
+# Reset
+Color_Off='\033[0m'       # Text Reset
+
+# Regular Colors
+Black='\033[0;30m'        # Black
+Red='\033[0;31m'          # Red
+Green='\033[0;32m'        # Green
+Yellow='\033[0;33m'       # Yellow
+Blue='\033[0;34m'         # Blue
+Purple='\033[0;35m'       # Purple
+Cyan='\033[0;36m'         # Cyan
+White='\033[0;37m'        # White
+
+# Bold
+BBlack='\033[1;30m'       # Black
+BRed='\033[1;31m'         # Red
+BGreen='\033[1;32m'       # Green
+BYellow='\033[1;33m'      # Yellow
+BBlue='\033[1;34m'        # Blue
+BPurple='\033[1;35m'      # Purple
+BCyan='\033[1;36m'        # Cyan
+BWhite='\033[1;37m'       # White
+
 if [ -z "$1" ]
 then
     profile=$(ls ~/.axiom/profiles | cat | fzf)
 else
-    exists=$(ls ~/.axiom/profiles | cat | grep "\<$1\>" | wc -l)
+    exists=$(ls ~/.axiom/profiles | cat | grep "\<$1\>" | wc -l | awk '{ print $1 }')
     if [ "$exists" == "1" ]
     then
         profile="$1"
@@ -24,10 +47,13 @@ filename="/tmp/$id.sh"
 cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
 chmod +x $filename
 
-echo "Installing profile '$profile' on '$instance' at '$ip'..."
+echo -e "${BWhite}Installing profile '$profile' on '$instance' at '$ip'...${Color_Off}"
 
 scp -P2266 $filename op@$ip:$filename
-echo -e "\033[0;35m"
+echo ""
+echo -e "${BBlue}Deployment Output: ${Blue}"
 ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "\033[0m"
-bash -c $success_command
+echo -e "${Green}"
+bash -c "instance=$(cat ~/.axiom/profile.json | jq -r '.instance') $success_command"
+echo -e "${Color_Off}"
