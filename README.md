@@ -123,7 +123,8 @@ Hint, if you're running MacOS, drop this in your bin path:
 ```
 
 # All The Commands - Explained
-## `axiom-backup`
+
+## `axiom-backup`
 `axiom-backup` is a command used for backing up the instance of your choice, this command works as follows:
 ```
 axiom-backup <instance>
@@ -159,7 +160,7 @@ When you initialise a new instance, the profile selector is automatically set to
 axiom-select instance-32
 ```
 
-## `axiom-deploy`
+## `axiom-deploy`
 `axiom-deploy` is a command that can be used to deploy profiles after a machine has been initialised. You might not want an openvpn server or a covenant team server out of the box, but you might want to deploy it after!
 
 Using `axiom-deploy`, once you have an instance selected, you can deploy profiles as the following:
@@ -187,13 +188,13 @@ Once you've updated your axiom setup with `axiom-update`, you can rebuild an ima
 Personally, I have this mapped to a keybinding with `termite -e axiom-connect`, so after I've initialised a new instance, I can open a new SSH connection to the machine (like its local!).
 
 
-## `axiom-ls`
+## `axiom-ls`
 `axiom-ls` is used to list your current instances (and any other droplets you have running).
 
 It requries no arguments.
 
 
-## `axiom-rm`
+## `axiom-rm`
 `axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`
 
 
