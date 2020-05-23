@@ -1,13 +1,29 @@
 #!/bin/bash
 
-if [ -z "$1" ] 
+no_menu=false
+
+for var in "$@"
+do
+    if [ $var == "--now" ]
+    then
+        no_menu=true
+    fi
+done
+
+if [ -z "$1" ]  || [ $1 == "--now" ]
 then
     ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
     ip=$(doctl compute droplet list | grep $ans | awk '{ print $3 }')
-	ssh -p2266 op@$ip -t 'ranger'
+    if [[ $no_menu == false ]]
+	then
+		ssh -p2266 op@$ip -t 'ranger'
+	fi
 	rsync -avz -e "ssh -p2266" --progress op@$ip:/home/op/down/ ./down/
 else
     ip=$(doctl compute droplet list | grep $1 | awk '{ print $3 }')
-	ssh -p2266 op@$ip -t 'ranger'
+    if [[ $no_menu == false ]]
+	then
+		ssh -p2266 op@$ip -t 'ranger'
+	fi
 	rsync -avz -e "ssh -p2266" --progress op@$ip:/home/op/down/ ./down/
 fi
