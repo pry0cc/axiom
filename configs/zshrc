@@ -72,7 +72,7 @@ export EDITOR='vim'
 export GOPATH=/home/op/go 
 export TERM="xterm-256color"
 export HOME=/home/op
-export PATH="$PATH:$HOME/.rvm/bin:/home/op/go/bin" # Add RVM to PATH for scripting
+export PATH="$PATH:$HOME/.rvm/bin:/home/op/go/bin:/home/op/bin" # Add RVM to PATH for scripting
 
 export BIG="/home/op/lists/seclists/Discovery/Web-Content/big.txt"
 export WEB="/home/op/lists/seclists/Discovery/Web-Content/"

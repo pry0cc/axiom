@@ -49,7 +49,7 @@
                 "systemctl enable tor",
                 "ufw --force enable",
                 "useradd -G sudo,docker -s /usr/bin/zsh -m op",
-                "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists",
+                "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists /home/op/bin",
                 "chown -R op:users /home/op",
                 "echo 'op:{{ user `do_key` }}' | chpasswd",
                 "rm /etc/resolv.conf",
@@ -60,6 +60,11 @@
             "type":"file",
             "source":"./configs/resolv.conf",
             "destination":"/etc/resolv.conf"
+        },
+        {
+            "type":"file",
+            "source":"./configs/add-path",
+            "destination":"/home/op/bin/add-path"
         },
         {
             "type":"file",
@@ -143,6 +148,8 @@
 				"/bin/su -l op -c 'go get -u github.com/hakluke/hakrawler'",
                 "echo 'Installing getJS'",
 				"/bin/su -l op -c 'go get -u github.com/003random/getJS'",
+				"echo 'Installing concurl'",
+				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/concurl'",
                 "echo 'Installing gau'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
                 "echo 'Installing fprobe'",
