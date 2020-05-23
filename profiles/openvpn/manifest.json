@@ -10,5 +10,5 @@
         "sudo cp /root/client.ovpn /home/op/client.ovpn",
         "sudo chown op:users /home/op/client.ovpn"
 	],
-    "success_message":"OpenVPN has been successfully installed. Use the axiom-vpn CLI command to download and connect to the VPN server."
+    "success_message":"echo \"OpenVPN has been successfully installed. Use the command 'axiom-vpn $instance' to download and connect to the VPN server.\""
 }

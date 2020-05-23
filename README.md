@@ -121,6 +121,100 @@ Hint, if you're running MacOS, drop this in your bin path:
  osascript -e "display notification \"$2\" with title \"$1\""
 ```
 
+# All The Commands - Explained
+## `axiom-backup`
+`axiom-backup` is a command used for backing up the instance of your choice, this command works as follows:
+```
+axiom-backup <instance>
+```
+
+What this will do on the backend, is run an rsync transfer against the `~/` directory of the `op` user. This rsync transfer will exclude the main current directories and pre-installed files. So you will only transfer the files that you have put in the main directory. I recommend making a `work` directory and storing any text files / recon loot you might accumulate in there. You can run `axiom-backup <instance>` periodically as much as you want and synchronise in near realtime. 
+
+This way, if you need to quickly shut down that instance, you can do so, and you can quickly restore using the next command.
+
+## `axiom-restore`
+`axiom-restore` will restore a previously backed up box (as shown in the above command). Backed-up boxes are stored in `~/.axiom/boxes/<box-name>`, if you would like to add custom files to your box on restore, you can make a custom file/folder structure in a directory in `~/.axiom/boxes/<box>`. One case might synchronising custom wordlists. I'm considering backing up the $GOPATH/bin path too in future so that you can sync custom binaries and go tools. Please open a issue if this sounds like a good idea to you!
+
+`axiom-restore` is another command that uses profile selectors. When you initialise a new machine using the `axiom-init` command, the instance's name will be put into the `~/.axiom/profile.json` file. This file describes the state of the profile selector. You can modify which machine is 'selected' by using the `axiom-select` command (covered below).
+
+A typical example of the `axiom-restore` command can be demonstrated as such:
+```
+axiom-init
+axiom-restore originalbox-13
+
+# Selecting a different box
+
+axiom-select anotherbox-5
+axiom-restore originalbox-13
+``` 
+
+## `axiom-select`
+`axiom-select` is the command that is responsible for perfoming manual profile selects. When you run `axiom-select <instance>`, it will set the profile to that instance, and it will remember which instance you mean when you run commands such as `axiom-connect`, `axiom-restore` and `axiom-deploy`.
+
+When you initialise a new instance, the profile selector is automatically set to that new instance. However, what if you want to deploy something on another box? Or what if you want to restore one config from one machine to another?
+
+```
+axiom-select instance-32
+```
+
+## `axiom-deploy`
+`axiom-deploy` is a command that can be used to deploy profiles after a machine has been initialised. You might not want an openvpn server or a covenant team server out of the box, but you might want to deploy it after!
+
+Using `axiom-deploy`, once you have an instance selected, you can deploy profiles as the following:
+```
+axiom-select instance-32
+axiom-deploy openvpn
+```
+
+And then that's it! It will be completely hands-free from here while your profile is installed :) I'd be appreciative to anybody who would like to add some more profiles here, at the time of writing it's just `covenant` and `openvpn`, but theres no reason why we can't write a Wireguard install profile or a cobalt strike c2 profile!
+
+If you want some examples, just look at the ~/.axiom/profiles/openvpn/manifset.json file
+ 
+## `axiom-update`
+`axiom-update` is dead simple, it just runs a full system-wide update for axiom. Cd's  into the ~/.axiom/ directory, runs git pull. Easy!
+
+## `axiom-build`
+Once you've updated your axiom setup with `axiom-update`, you can rebuild an image using `axiom-build`. It is important to build new images regularly as there may be security improvements or new features! 
+
+## `axiom-connect`
+`axiom-connect` is another command that can be used to SSH into an Axiom instance. The fun thing with this command however, is that it requires absolutely no arguments, it will just read whatever instance is currently in the selection profile, and it will connnect!
+
+Personally, I have this mapped to a keybinding with `termite -e axiom-connect`, so after I've initialised a new instance, I can open a new SSH connection to the machine (like its local!).
+
+## `axiom-ls`
+`axiom-ls` is used to list your current instances (and any other droplets you have running).
+
+It requries no arguments.
+
+## `axiom-rm`
+`axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`
+
+## `axiom-vpn`
+`axiom-vpn` is used for connecting to a deploy openvpn server (using the deployment script).
+
+After you have run `axiom-deploy openvpn`, you can run `axiom-vpn <instance>` and it will download the openvpn connection file, and run openvpn against it.
+
+## `axiom-configure`
+`axiom-configure` is a command that can be used for configuration, ideally it should only be run once, if you've made a mistake and messed up your configuration, I would recommend running `sudo rm -rf ~/.axoim/` and then run the bash one liner to install above ^^
+
+This command will install deps, download and clone the axiom repository, add the interact/ folder to your $PATH and then run your first build. You will need a single Digitalocean API key.
+
+
+## `axiom-ssh`
+`axiom-ssh` is used for SSH'ing to your machines, you can use it as follows:
+```
+axiom-ssh <instance>
+axiom-ssh <instance> --tmux
+```
+
+If you use the `--tmux` flag, it will drop you into a tmux session named `main` on the axiom box. However, if the tmux session already exists, it will simply reattach you. This can be useful for doing work on the go or in a place with perhaps bad connectivity (a plane!) or running mulitple tasks.
+
+# Contributors
+Below is a list of amazing people that have contributed to this project! Thank you to everybody on this list! If I missed you out, just make a PR for this readme and I'll make sure you're added! There are some amazing people here :)
+- Ash Clamp
+- @Mcrmonkey
+- Dan GITC (@ghostinthecable)
+
 # Packages To Date
 
 - [x]  aquatone

@@ -17,6 +17,7 @@ else
 fi
 
 instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+success_command=$(cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.success_message')
 ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
 id="$RANDOM"
 filename="/tmp/$id.sh"
@@ -26,5 +27,7 @@ chmod +x $filename
 echo "Installing profile '$profile' on '$instance' at '$ip'..."
 
 scp -P2266 $filename op@$ip:$filename
-echo -e "\033[0;31m"
+echo -e "\033[0;35m"
 ssh -p2266 op@$ip "chmod +x $filename && $filename"
+echo -e "\033[0m"
+bash -c $success_command
