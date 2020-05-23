@@ -25,7 +25,17 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
-if [ -z "$1" ]
+remove=false
+
+for var in "$@"
+do
+    if [ $var == "--remove" ]
+    then
+        remove=true
+    fi
+done
+
+if [ -z "$1" ] || [ "$1" == "--remove" ]
 then
     profile=$(ls ~/.axiom/profiles | cat | fzf)
 else
@@ -44,10 +54,23 @@ success_command=$(cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.success
 ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
 id="$RANDOM"
 filename="/tmp/$id.sh"
-cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
+
+if [ $remove == false ]
+then
+	cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
+elif [ $remove == true ]
+	then
+	cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.remove_commands[]' > $filename
+fi
 chmod +x $filename
 
-echo -e "${BWhite}Installing profile '$profile' on '$instance' at '$ip'...${Color_Off}"
+if [ $remove == false ]
+then
+	echo -e "${BWhite}Installing profile '$profile' on '$instance' at '$ip'...${Color_Off}"
+elif [ $remove == true ]
+	then
+	echo -e "${BWhite}Uninstalling profile '$profile' on '$instance' at '$ip'...${Color_Off}"
+fi
 
 scp -P2266 $filename op@$ip:$filename
 echo ""
@@ -55,5 +78,10 @@ echo -e "${BBlue}Deployment Output: ${Blue}"
 ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "\033[0m"
 echo -e "${Green}"
-bash -c "instance=$(cat ~/.axiom/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
+if [ $remove == false ]
+then
+	bash -c "instance=$(cat ~/.axiom/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
+else 
+	echo "Profile succesfully removed from '$instance'!"
+fi
 echo -e "${Color_Off}"
