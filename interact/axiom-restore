@@ -1,0 +1,25 @@
+#!/bin/bash
+
+no_menu=false
+
+for var in "$@"
+do
+    if [ $var == "--now" ]
+    then
+        no_menu=true
+    fi
+done
+
+if [ -z "$1" ]  || [ $1 == "--now" ]
+then
+    instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+    ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
+	ans=$(ls ~/.axiom/boxes/ | fzf)
+	echo "Restoring $ans to $instance at $ip"
+    rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$ans/* op@$ip:~/
+else
+    instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+    ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
+	echo "Restoring $1 to $instance at $ip"
+    rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$1/* op@$ip:~/
+fi
