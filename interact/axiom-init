@@ -30,6 +30,20 @@ region=$(cat ~/.axiom/axiom.json | jq -r '.region')
 size=$(cat ~/.axiom/axiom.json | jq -r '.default_size')
 #domain=$(cat ~/.axiom.json | jq -r '.domain')
 
+spin()
+{
+  spinner="/|\\-/|\\-"
+  while :
+  do
+    for i in `seq 0 7`
+    do
+      echo -n "${spinner:$i:1}"
+      echo -en "\010"
+      sleep 1
+    done
+  done
+}
+
 box_name=""
 connect_shell=false
 silent=false
@@ -64,6 +78,11 @@ then
     echo -e "${BWhite}Initializing '$name'"
 
 fi
+
+spin &
+SPIN_PID=$!
+trap "kill -9 $SPIN_PID" `seq 0 15`
+
 image_name="axiom"
 image_id=$(doctl compute image list | grep $image_name | tail -n 1 | awk '{ print $1 }')
 
@@ -80,11 +99,13 @@ ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
 if [ $connect_shell == true ]
 then
     sleep 90
+    kill -9 $SPIN_PID
     echo -e "${Blue} Connecting... ${Color_Off}"
     ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
     ssh -p2266 op@$ip
 else
     sleep 70
+    kill -9 $SPIN_PID
     echo -e "${Green}Initialized! Instance accessible at '$ip'!"
     echo -e "To connect, run 'axiom-ssh $name' ${Color_Off}"
 fi
