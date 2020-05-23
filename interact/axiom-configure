@@ -1,11 +1,34 @@
 #!/bin/bash
 
-echo "Hello! Welcome to Axiom configuration :)"
-echo "To begin, I will ask you a few questions"
-echo "Press enter to continue"
+# Reset
+Color_Off='\033[0m'       # Text Reset
+
+# Regular Colors
+Black='\033[0;30m'        # Black
+Red='\033[0;31m'          # Red
+Green='\033[0;32m'        # Green
+Yellow='\033[0;33m'       # Yellow
+Blue='\033[0;34m'         # Blue
+Purple='\033[0;35m'       # Purple
+Cyan='\033[0;36m'         # Cyan
+White='\033[0;37m'        # White
+
+# Bold
+BBlack='\033[1;30m'       # Black
+BRed='\033[1;31m'         # Red
+BGreen='\033[1;32m'       # Green
+BYellow='\033[1;33m'      # Yellow
+BBlue='\033[1;34m'        # Blue
+BPurple='\033[1;35m'      # Purple
+BCyan='\033[1;36m'        # Cyan
+BWhite='\033[1;37m'       # White
+
+echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+echo -e "To begin, I will ask you a few questions"
+echo -e "Press enter to continue${Color_Off}"
 read
 
-echo "Now to deps! Please wait :)"
+echo -e "${BWhite} Now to deps! Please wait :) ${Color_Off}"
 BASEOS="`uname`"
 case $BASEOS in
   'Linux')
@@ -33,8 +56,8 @@ then
     OS=$(lsb_release -i | awk '{ print $3 }')
     if [ $OS == "Arch" ]
     then
-        echo "Congrats, you run arch..."
-        echo "Ok so you need doctl - so get that from the AUR :) You're smart! You installed arch!"
+        echo -e "${Blue}Congrats, you run arch..."
+        echo -e "Ok so you need doctl - so get that from the AUR :) yay -S doctl! You're smart! You installed arch! ${Color_Off}"
         sudo pacman -S fzf packer jq
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ]
     then
@@ -47,14 +70,14 @@ fi
 
 #install go
 if [[ -z "$GOPATH" ]];then
-echo "It looks like go is not installed, would you like to install it now"
+echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
 PS3="Please select an option : "
 choices=("yes" "no")
 select choice in "${choices[@]}"; do
         case $choice in
                 yes)
 
-					echo "Installing Golang"
+					echo -e "${Blue}Installing Golang${Color_Off}"
 					wget https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz
 					sudo tar -xvf go1.13.4.linux-amd64.tar.gz
 					sudo mv go /usr/local
@@ -69,8 +92,8 @@ select choice in "${choices[@]}"; do
 					break
 					;;
 				no)
-					echo "Please install go and rerun this script"
-					echo "Aborting installation..."
+					echo -e "${Red}Please install go and rerun this script"
+					echo -e "Aborting installation...${Color_Off}"
 					exit 1
 					;;
 	esac	
@@ -79,7 +102,7 @@ fi
 
 if [ $BASEOS == "Mac" ]
 then
-    echo "Installing packer now..."
+    echo -e "${Blue}Installing packer now...${Color_Off}"
     brew install doctl
     brew install jq
     mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
@@ -95,10 +118,10 @@ else
     cd ~/.axiom && git pull
 fi
 
-echo "What is your DigitalOcean API key? "
-echo -n "Key >> "
+echo -e "${BBlue} What is your DigitalOcean API key? ${Color_Off}"
+echo -e -n "${Blue}Key >> ${Color_Off}"
 read do_key
-echo "Setting up doctl!..."
+echo -e "${Blue}Setting up doctl!...${Color_Off}"
 doctl auth init -t $do_key
 #echo "What would you like to pick for region? nyc3, sfo2 <-- this one is best"
 region="sfo2"
@@ -115,14 +138,14 @@ size="s-1vcpu-1gb"
 
 if [ -f ~/.ssh/id_rsa.pub ]
 then
-    echo "Detected SSH public key, would you like me to install this for your axiom setup? y/n "
+    echo -e "${Blue} Detected SSH public key, would you like me to install this for your axiom setup? y/n ${Color_Off}"
     read ans
     if [ $ans == "y" ]
     then
         cat ~/.ssh/id_rsa.pub > ~/.axiom/configs/authorized_keys
     fi
 else
-    echo "No SSH public key detected, would you like to generate a fresh pair? y/n "
+    echo -e "${Blue} No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
     read ans
     if [ $ans == "y" ]
     then
@@ -132,20 +155,20 @@ else
 fi
 
 if [ "$SHELL" == "/usr/local/bin/zsh" ]; then
-    echo "You're running ZSH! Installing Axiom to \$PATH..."
+    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.zshrc
 elif [ "$SHELL" == "/bin/bash" ]; then
-    echo "You're running Bash! Installing Axiom to \$PATH..."
+    echo -e "${Green} You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.bashrc
 else
-    echo "I don't have a predefined setup for your shell!"
-    echo "Please add ~/.axiom/interact to your \$PATH!"
+    echo -e  "${Red}I don't have a predefined setup for your shell!"
+    echo "Please add ~/.axiom/interact to your \$PATH! ${Color_Off}"
     echo "(export PATH=\"\$PATH:$HOME/.axiom/interact\")"
 fi 
 
 echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > ~/.axiom/axiom.json
 
-echo "Beginning first packer build..."
+echo "${BWhite}Beginning first packer build...${Color_Off}"
 cd ~/.axiom/
 packer build -var-file ~/.axiom/axiom.json ~/.axiom/packer.json
 cd

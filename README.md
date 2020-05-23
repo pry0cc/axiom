@@ -169,7 +169,7 @@ axiom-deploy openvpn
 
 And then that's it! It will be completely hands-free from here while your profile is installed :) I'd be appreciative to anybody who would like to add some more profiles here, at the time of writing it's just `covenant` and `openvpn`, but theres no reason why we can't write a Wireguard install profile or a cobalt strike c2 profile!
 
-If you want some examples, just look at the ~/.axiom/profiles/openvpn/manifset.json file
+If you want some examples, just look at the ~/.axiom/profiles/openvpn/manifest.json file
 
 
 ## `axiom-update`
