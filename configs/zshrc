@@ -83,4 +83,5 @@ export FILES_SMALL="/home/op/lists/seclists/Discovery/Web-Content/raft-small-fil
 
 alias ls=" ls --color -sh"
 alias wclone="wget -H -p -k"
+alias vim="nvim"
 
