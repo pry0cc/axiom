@@ -132,6 +132,7 @@ What this will do on the backend, is run an rsync transfer against the `~/` dire
 
 This way, if you need to quickly shut down that instance, you can do so, and you can quickly restore using the next command.
 
+
 ## `axiom-restore`
 `axiom-restore` will restore a previously backed up box (as shown in the above command). Backed-up boxes are stored in `~/.axiom/boxes/<box-name>`, if you would like to add custom files to your box on restore, you can make a custom file/folder structure in a directory in `~/.axiom/boxes/<box>`. One case might synchronising custom wordlists. I'm considering backing up the $GOPATH/bin path too in future so that you can sync custom binaries and go tools. Please open a issue if this sounds like a good idea to you!
 
@@ -169,30 +170,37 @@ axiom-deploy openvpn
 And then that's it! It will be completely hands-free from here while your profile is installed :) I'd be appreciative to anybody who would like to add some more profiles here, at the time of writing it's just `covenant` and `openvpn`, but theres no reason why we can't write a Wireguard install profile or a cobalt strike c2 profile!
 
 If you want some examples, just look at the ~/.axiom/profiles/openvpn/manifset.json file
- 
+
+
 ## `axiom-update`
 `axiom-update` is dead simple, it just runs a full system-wide update for axiom. Cd's  into the ~/.axiom/ directory, runs git pull. Easy!
 
+
 ## `axiom-build`
 Once you've updated your axiom setup with `axiom-update`, you can rebuild an image using `axiom-build`. It is important to build new images regularly as there may be security improvements or new features! 
+
 
 ## `axiom-connect`
 `axiom-connect` is another command that can be used to SSH into an Axiom instance. The fun thing with this command however, is that it requires absolutely no arguments, it will just read whatever instance is currently in the selection profile, and it will connnect!
 
 Personally, I have this mapped to a keybinding with `termite -e axiom-connect`, so after I've initialised a new instance, I can open a new SSH connection to the machine (like its local!).
 
+
 ## `axiom-ls`
 `axiom-ls` is used to list your current instances (and any other droplets you have running).
 
 It requries no arguments.
 
+
 ## `axiom-rm`
 `axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`
+
 
 ## `axiom-vpn`
 `axiom-vpn` is used for connecting to a deploy openvpn server (using the deployment script).
 
 After you have run `axiom-deploy openvpn`, you can run `axiom-vpn <instance>` and it will download the openvpn connection file, and run openvpn against it.
+
 
 ## `axiom-configure`
 `axiom-configure` is a command that can be used for configuration, ideally it should only be run once, if you've made a mistake and messed up your configuration, I would recommend running `sudo rm -rf ~/.axoim/` and then run the bash one liner to install above ^^
