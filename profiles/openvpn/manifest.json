@@ -11,7 +11,8 @@
         "sudo chown op:users /home/op/client.ovpn"
 	],
 	"remove_commands":[
-		"echo 'Not added removal support (yet), you can do it interactively though on the server itself...'"
+		"echo \"3\nY\" | sudo /home/op/openvpn-install.sh",
+		"rm /home/op/openvpn-install.sh /home/op/client.ovpn"
 	],
     "success_message":"echo \"OpenVPN has been successfully installed. Use the command 'axiom-vpn $instance' to download and connect to the VPN server.\""
 }
