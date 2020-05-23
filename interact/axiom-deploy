@@ -44,7 +44,7 @@ else
     then
         profile="$1"
     else
-        echo "Profile doesnt exist, launching selector"
+        echo "Profile doesnt exist, launching selector..."
         profile=$(ls ~/.axiom/profiles | cat | fzf)
     fi
 fi
@@ -73,11 +73,9 @@ elif [ $remove == true ]
 fi
 
 scp -P2266 $filename op@$ip:$filename
-echo ""
 echo -e "${BBlue}Deployment Output: ${Blue}"
 ssh -p2266 op@$ip "chmod +x $filename && $filename"
-echo -e "\033[0m"
-echo -e "${Green}"
+echo -n -e "${Green}"
 if [ $remove == false ]
 then
 	bash -c "instance=$(cat ~/.axiom/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
