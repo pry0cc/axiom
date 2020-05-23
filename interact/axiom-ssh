@@ -1,11 +1,31 @@
 #!/bin/bash
 
-if [ -z "$1" ]
+use_tmux=false
+
+for var in "$@"
+do
+    if [ $var == "--tmux" ]
+    then
+        use_tmux=true
+    fi
+done
+
+if [ -z "$1" ] || [ "$1" == "--tmux" ]
 then
     ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
     ip=$(doctl compute droplet list | grep $ans | awk '{ print $3 }')
-    ssh -p2266 op@$ip
+    if [ $use_tmux == true ]
+    then
+		ssh -p2266 op@$ip -t 'tmux new-session -t main'
+	else
+		ssh -p2266 op@$ip
+	fi
 else
     ip=$(doctl compute droplet list | grep $1 | awk '{ print $3 }')
-    ssh -p2266 op@$ip
+    if [ $use_tmux == true ]
+	then
+		ssh -p2266 op@$ip -t 'tmux new-session -t main'
+	else
+		ssh -p2266 op@$ip
+	fi
 fi
