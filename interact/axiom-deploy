@@ -26,4 +26,5 @@ chmod +x $filename
 echo "Installing profile '$profile' on '$instance' at '$ip'..."
 
 scp -P2266 $filename op@$ip:$filename
+echo -e "\033[0;31m"
 ssh -p2266 op@$ip "chmod +x $filename && $filename"
