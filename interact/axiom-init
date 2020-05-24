@@ -34,7 +34,7 @@ box_name=""
 connect_shell=false
 restore=false
 
-if [ -z "$1" ] || [ "$1" == "--shell" ] | [[ $1 =~ "restore" ]];
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]];
 then
     name="$gen_name"
 else
@@ -61,7 +61,7 @@ image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ p
 
 resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region")
 
-echo -e "This usually takes about 1 minute and 50 seconds to fully initialize!"
+echo -e "This will take about 1:50 minutes... "
 echo -e "Go make yourself a nice tasty beverage!"
 
 # Roughly 30 seconds before the public IP is init'd
@@ -72,17 +72,18 @@ ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
 if [ "$connect_shell" == true ]
 then
     sleep 90
-    echo -e "${Blue} Connecting... ${Color_Off}"
+	echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
+	notify-send "Axiom Info" "$name successfully initialized at $ip!"
+    echo -e "${BBlue}Connecting... ${Color_Off}"
     ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
     ssh -p2266 op@"$ip"
 else
     sleep 70
+	echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
+	notify-send "Axiom Info" "$name successfully initialized at $ip!"
     echo -e "${Green}Initialized! Instance accessible at '${BGreen}$ip${Green}'!"
     echo -e "To connect, run '${BGreen}axiom-ssh $name${Green}'${Color_Off}"
 fi
-
-echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
-notify-send "Axiom Info" "$name successfully initialized at $ip!"
 
 [ "$restore" != false ] &&
 	sleep 30
