@@ -105,7 +105,6 @@ fi
 if [ "$restore" != false ]
 then
 	echo -e "${BWhite}Waiting 30 seconds before restore...${Color_Off}"
-	sleep 30
-	echo $restore
-    #~/.axiom/interact/axiom-restore "$restore"
+	sleep 15
+    ~/.axiom/interact/axiom-restore "$restore"
 fi
