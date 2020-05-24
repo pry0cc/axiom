@@ -1,22 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 no_menu=false
 
 for var in "$@"
 do
-    if [ $var == "--now" ]
+    if [ "$var" == "--now" ]
     then
         no_menu=true
     fi
 done
 
-if [ -z "$1" ]  || [ $1 == "--now" ]
+if [ -z "$1" ]  || [ "$1" == "--now" ]
 then
-    ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
-    mkdir -p ~/.axiom/boxes/$ans
-    ip=$(doctl compute droplet list | grep $ans | awk '{ print $3 }')
-    rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@$ip:~/ ~/.axiom/boxes/$ans
+    ans="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
+    mkdir -p ~/.axiom/boxes/"$ans"
+    ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
+    rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@"$ip":~/ ~/.axiom/boxes/"$ans"
 else
-    ip=$(doctl compute droplet list | grep $1 | awk '{ print $3 }')
-    rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@$ip:~/ ~/.axiom/boxes/$1
+    ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
+    rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@"$ip":~/ ~/.axiom/boxes/"$1"
 fi
