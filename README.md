@@ -108,7 +108,7 @@ These are a work in progress, also, my vision for the deployment profiles, is fo
 
 # Instance Profile Selectors
 
-One little tid-bit for the power users out there, I've added both the `axiom-select` , and `axiom-connect` script. Axiom-select allows you to select an instance name, and have it stored in a state-file called 'profile.json' in the ~/.axiom/ directory. This selection also occurs when you initialize a new server. Now, with an instance selected, you can run `axiom-connect` from anywhere and get dropped into an SSH shell. This is really useful for creating 'transparent' connections to your VPS hackbox and can hook up to keybindings for opening new terminal windows.
+One little tid-bit for the power users out there, I've added both the `axiom-select` , and `axiom-connect` script. Axiom-select allows you to select an instance name, and have it stored in a state-file called 'profile.json' in the ~/.axiom/ directory. This selection also occurs when you initialize a new server. Now, with an instance selected, you can run `axiom-select` from anywhere and get dropped into an SSH shell. This is really useful for creating 'transparent' connections to your VPS hackbox and can hook up to keybindings for opening new terminal windows.
 
 Because of the heavy integration of notify-send, you can basically use this entire ecosystem heedlessly  (about to get better too).
 

@@ -86,7 +86,6 @@ then
     ssh -p2266 op@$ip
 else
     sleep 70
-    kill -9 $SPIN_PID
     echo -e "${Green}Initialized! Instance accessible at '$ip'!"
     echo -e "To connect, run 'axiom-ssh $name' ${Color_Off}"
 fi
