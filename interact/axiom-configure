@@ -157,6 +157,11 @@ fi
 if [ "$SHELL" == "/usr/local/bin/zsh" ]; then
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.zshrc
+    echo "source $HOME/.axiom/functions/autocomplete.zsh" >> ~/.zshrc
+    echo "compdef _axiom-ssh axiom-rm" >> ~/.zshrc
+    echo "compdef _axiom-ssh axiom-ssh" >> ~/.zshrc
+    echo "compdef _axiom-ssh axiom-backup" >> ~/.zshrc
+
 elif [ "$SHELL" == "/bin/bash" ]; then
     echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.bashrc
