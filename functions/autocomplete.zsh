@@ -12,3 +12,7 @@ function _axiom-restore(){
 	local state
 	_arguments "1: :($(ls ~/.axiom/boxes/))"
 }
+function _axiom-deploy(){
+	local state
+	_arguments "1: :($(ls ~/.axiom/profiles/))"
+}
