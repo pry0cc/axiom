@@ -75,5 +75,5 @@ then
 	esac
 
 else
-	echo -e "Usage:\n\t axiom-boxes ls\n\t axiom-boxes-new\n\t axiom-boxes cd <BOX> "
+	echo -e "Usage:\n\t axiom-backups ls\n\t axiom-backups new <BOX>\n\t axiom-backups cd <BOX> "
 fi
