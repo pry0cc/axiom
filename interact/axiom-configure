@@ -160,7 +160,9 @@ if [ "$SHELL" == "/usr/local/bin/zsh" ]; then
     echo "source $HOME/.axiom/functions/autocomplete.zsh" >> ~/.zshrc
     echo "compdef _axiom-ssh axiom-rm" >> ~/.zshrc
     echo "compdef _axiom-ssh axiom-ssh" >> ~/.zshrc
+    echo "compdef _axiom-ssh axiom-select" >> ~/.zshrc
     echo "compdef _axiom-ssh axiom-backup" >> ~/.zshrc
+    echo "compdef _axiom-ssh axiom-vpn" >> ~/.zshrc
     echo "compdef _axiom-restore axiom-restore" >> ~/.zshrc
     echo "compdef _axiom-deploy axiom-deploy" >> ~/.zshrc
 
