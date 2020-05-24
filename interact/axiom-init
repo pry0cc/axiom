@@ -32,10 +32,9 @@ size="$(jq -r '.default_size' ~/.axiom/axiom.json)"
 
 box_name=""
 connect_shell=false
-silent=false
 restore=false
 
-if [ -z "$1" ] || [ "$1" == "--shell" ] || [ "$1" == "--silent" ] || [[ $1 =~ "restore" ]];
+if [ -z "$1" ] || [ "$1" == "--shell" ] | [[ $1 =~ "restore" ]];
 then
     name="$gen_name"
 else
@@ -48,10 +47,6 @@ do
     then
         connect_shell=true
     fi
-    if [ "$var" == "--silent" ]
-    then
-        silent=true
-    fi
     if [[ "$var" =~ "--restore" ]]
     then
         restore="$(echo "$@" | sed 's/=/ /g' | awk '{ print $2 }')"
@@ -59,11 +54,7 @@ do
 done
 
 notify-send "Axiom Info" "Initializing '$name'..."
-if [ ! "$silent" ]
-then
-    echo -e "${BWhite}Initializing '$name'"
-
-fi
+echo -e "${BWhite}Initializing '$name'"
 
 image_name="axiom"
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
