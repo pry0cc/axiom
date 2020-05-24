@@ -47,9 +47,10 @@ do
     then
         connect_shell=true
     fi
-    if [[ "$var" =~ "--restore" ]]
+    if [[ $var =~ "--restore" ]]
     then
-        restore="$(echo "$@" | sed 's/=/ /g' | awk '{ print $2 }')"
+        restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+        echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"
     fi
 done
 
@@ -105,5 +106,6 @@ if [ "$restore" != false ]
 then
 	echo -e "${BWhite}Waiting 30 seconds before restore...${Color_Off}"
 	sleep 30
-    ~/.axiom/interact/axiom-restore "$restore"
+	echo $restore
+    #~/.axiom/interact/axiom-restore "$restore"
 fi
