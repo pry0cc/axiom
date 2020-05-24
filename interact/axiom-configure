@@ -161,6 +161,7 @@ if [ "$SHELL" == "/usr/local/bin/zsh" ]; then
     echo "compdef _axiom-ssh axiom-rm" >> ~/.zshrc
     echo "compdef _axiom-ssh axiom-ssh" >> ~/.zshrc
     echo "compdef _axiom-ssh axiom-backup" >> ~/.zshrc
+    echo "compdef _axiom-restore axiom-restore" >> ~/.zshrc
 
 elif [ "$SHELL" == "/bin/bash" ]; then
     echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
