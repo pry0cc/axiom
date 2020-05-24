@@ -16,5 +16,6 @@ then
     rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@"$ip":~/ ~/.axiom/boxes/"$ans"
 else
     ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
+    mkdir -p ~/.axiom/boxes/"$1"
     rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@"$ip":~/ ~/.axiom/boxes/"$1"
 fi
