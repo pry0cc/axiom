@@ -4,10 +4,8 @@ no_menu=false
 
 for var in "$@"
 do
-    if [ "$var" == "--now" ]
-    then
+    [ "$var" == "--now" ] &&
         no_menu=true
-    fi
 done
 
 if [ -z "$1" ]  || [ "$1" == "--now" ]
