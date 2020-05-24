@@ -64,7 +64,7 @@ then
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
         sudo apt-get update && sudo apt-get install fzf git
-        snap install doctl
+        sudo snap install doctl
     fi
 fi
 
@@ -118,7 +118,7 @@ else
     cd ~/.axiom && git pull
 fi
 
-echo -e "${BBlue} What is your DigitalOcean API key? ${Color_Off}"
+echo -e "${BBlue}What is your DigitalOcean API key? ${Color_Off}"
 echo -e -n "${Blue}Key >> ${Color_Off}"
 read do_key
 echo -e "${Blue}Setting up doctl!...${Color_Off}"
@@ -165,6 +165,9 @@ else
     echo "Please add ~/.axiom/interact to your \$PATH! ${Color_Off}"
     echo "(export PATH=\"\$PATH:$HOME/.axiom/interact\")"
 fi 
+
+
+export PATH="$PATH:$HOME/.axiom/interact"
 
 echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > ~/.axiom/axiom.json
 
