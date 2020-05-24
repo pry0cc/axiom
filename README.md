@@ -8,6 +8,25 @@ Project Axiom is a set of utilities for managing a small dynamic infrastructure 
 
 **Axiom right now is perfect for teams as small as one person, without costing you much at all to run.**
 
+# Installation
+
+## DigitalOcean API Key
+
+To obtain a Digitalocean API Key for this to work, you can sign up with my referral link https://m.do.co/c/bd80643300bd and get $100 free credit to try it out!
+
+I also get a small kickback so if you liked this project please use my link :)
+
+https://m.do.co/c/bd80643300bd 
+
+Happy hacking! :)
+ 
+## Bash One Liner
+
+(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
+
+```
+bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
+```
 
 ![](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-demo.gif)
 
@@ -62,6 +81,8 @@ https://m.do.co/c/bd80643300bd
 Happy hacking! :)
  
 ## Bash One Liner
+
+(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
 
 ```
 bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
