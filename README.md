@@ -242,8 +242,12 @@ If you use the `--tmux` flag, it will drop you into a tmux session named `main` 
 
 # Contributors
 Below is a list of amazing people that have contributed to this project! Thank you to everybody on this list! If I missed you out, just make a PR for this readme and I'll make sure you're added! There are some amazing people here :)
-- Ash Clamp
-- @Mcrmonkey
+- maverickNerd
+- t3chbits
+- paralax
+- mcrmonkey
+- razcodesdotdev
+- icyphox
 - Dan GITC (@ghostinthecable)
 
 # Packages To Date
