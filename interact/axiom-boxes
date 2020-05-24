@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# Reset
+Color_Off='\033[0m'       # Text Reset
+
+# Regular Colors
+export Black='\033[0;30m'        # Black
+export Red='\033[0;31m'          # Red
+export Green='\033[0;32m'        # Green
+export Yellow='\033[0;33m'       # Yellow
+export Blue='\033[0;34m'         # Blue
+export Purple='\033[0;35m'       # Purple
+export Cyan='\033[0;36m'         # Cyan
+export White='\033[0;37m'        # White
+
+# Bold
+export BBlack='\033[1;30m'       # Black
+export BRed='\033[1;31m'         # Red
+export BGreen='\033[1;32m'       # Green
+export BYellow='\033[1;33m'      # Yellow
+export BBlue='\033[1;34m'        # Blue
+export BPurple='\033[1;35m'      # Purple
+export BCyan='\033[1;36m'        # Cyan
+export BWhite='\033[1;37m'       # White
+
+if [ ! -z "$1" ]
+then
+	case $1 in
+	ls*)
+		echo -e "${BWhite}Available Backup Boxes${Color_Off}"
+		echo -n -e "${Blue}"
+		ls  ~/.axiom/boxes/ | cat
+		echo -n -e "${Color_Off}"
+		;;
+	cd*)
+		box_path="$HOME/.axiom/boxes/$2"
+
+		if [ -d "$box_path" ]
+		then
+			echo -e "${BWhite}Changing directory to box '$2'...${Color_Off}"
+		
+			cd "${box_path}"
+			exec $SHELL
+		else
+			echo -e  "${BRed}Box doesn't exist${Color_Off}"
+		fi
+		;;
+	rm*)
+		box_path="$HOME/.axiom/boxes/$2"
+
+		if [ -d "$box_path" ]
+		then
+			echo -e "${BWhite}Deleting box backup '$2'...${Color_Off}"
+			rm -r "$box_path"
+		else
+			echo -e  "${BRed}Box doesn't exist${Color_Off}"
+		fi
+
+		;;
+	new*)
+		box_path="$HOME/.axiom/boxes/$2"
+
+		if [ ! -d "$box_path" ]
+		then
+			echo -e "${BWhite}Creating box '$2'...${Color_Off}"
+			mkdir -p "$box_path"
+		else
+			echo -e "${BRed}Box already exists${Color_Off}"
+		fi
+
+		;;
+	*)
+		echo "Command '$1' not found..."
+		;;
+	esac
+
+else
+	echo -e "Usage:\n\t axiom-boxes ls\n\t axiom-boxes-new\n\t axiom-boxes cd <BOX> "
+fi
