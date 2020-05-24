@@ -12,8 +12,8 @@ then
     doctl compute droplet delete "$ans"
     echo "{\"instance\":\"false\"}" | jq > ~/.axiom/profile.json
 else
-    doctl compute droplet delete "$1"
     echo -e "${Red}Deleting '$1'...${Color_Off}"
+    doctl compute droplet delete "$1"
     echo "{\"instance\":\"false\"}" | jq > ~/.axiom/profile.json
 #    doctl compute domain records delete $domain $(doctl compute domain records list $domain | grep $1 | awk '{ print $1 }')
 fi
