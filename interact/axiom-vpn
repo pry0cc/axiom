@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ -z "$1" ]
 then
-    ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
-    ip=$(doctl compute droplet list | grep $ans | awk '{ print $3 }')
-    scp -P2266 op@$ip:/home/op/client.ovpn /tmp/$ans.ovpn
-    sudo openvpn /tmp/$ans.ovpn
+    ans="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
+    ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
+    scp -P2266 op@"$ip":/home/op/client.ovpn /tmp/"$ans".ovpn
+    sudo openvpn /tmp/"$ans".ovpn
 else
-    ip=$(doctl compute droplet list | grep $1 | awk '{ print $3 }')
-    scp -P2266 op@$ip:/home/op/client.ovpn /tmp/$1.ovpn
-    sudo openvpn /tmp/$1.ovpn
+    ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
+    scp -P2266 op@"$ip:"/home/op/client.ovpn /tmp/"$1".ovpn
+    sudo openvpn /tmp/"$1".ovpn
 fi
