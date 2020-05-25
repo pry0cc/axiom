@@ -63,7 +63,7 @@ then
 		if [ ! -d "$box_path" ]
 		then
 			echo -e "${BWhite}Creating box '$2'...${Color_Off}"
-			mkdir -p "$box_path"
+			mkdir -p "$box_path/work"
 		else
 			echo -e "${BRed}Box already exists${Color_Off}"
 		fi
