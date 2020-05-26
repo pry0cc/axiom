@@ -76,7 +76,7 @@ ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
 if [ "$connect_shell" == true ]
 then
 
-	secs=$((30))
+	secs=$((80))
 	while [ $secs -gt 0 ]; do
 		echo -ne ">> T-Minus $secs to connect...\033[0K\r"
 		sleep 1
@@ -85,7 +85,7 @@ then
 
 	echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
 	notify-send "Axiom Info" "$name successfully initialized at $ip!"
-    echo -e "${BBlue}Connecting... ${Color_Off}"
+    echo -e "${BBlue}Connecting...                          ${Color_Off}"
     ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
     ssh -p2266 op@"$ip"
 else
