@@ -30,10 +30,14 @@ then
     ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
 	ans=$(ls ~/.axiom/boxes/ | fzf)
 	echo -e "${BWhite}Restoring $ans to $instance at $ip ${Color_Off}"
+	echo -n -e "${Blue}" 
     rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$ans/* op@$ip:~/
+	echo -n -e "${Color_Off}" 
 else
     instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
     ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
 	echo -e "${BWhite}Restoring $1 to $instance at $ip ${Color_Off}"
+	echo -n -e "${Blue}" 
     rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$1/* op@$ip:~/
+	echo -n -e "${Color_Off}" 
 fi

@@ -13,7 +13,7 @@ then
     echo "{\"instance\":\"false\"}" | jq > ~/.axiom/profile.json
 else
     echo -e "${Red}Deleting '$1'...${Color_Off}"
-	if [ $2 == "-f" ]
+	if [ "$2" == "-f" ]
 	then
 		echo -e "${BBlue}Force delete specified...${Color_Off}"
 		doctl compute droplet delete -f "$1"	
