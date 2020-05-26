@@ -62,8 +62,8 @@ image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ p
 
 resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region")
 
-secs=$((70))
-while [ $secs -gt 40 ]; do
+secs=$((60))
+while [ $secs -gt 30 ]; do
    echo -ne ">> T-Minus $secs to stage-1 Lift Off!\033[0K\r"
    sleep 1
    : $((secs--))
@@ -76,7 +76,7 @@ ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
 if [ "$connect_shell" == true ]
 then
 
-	secs=$((40))
+	secs=$((30))
 	while [ $secs -gt 0 ]; do
 		echo -ne ">> T-Minus $secs to connect...\033[0K\r"
 		sleep 1
@@ -89,7 +89,7 @@ then
     ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
     ssh -p2266 op@"$ip"
 else
-	secs=$((40))
+	secs=$((30))
 	while [ $secs -gt 0 ]; do
 		echo -ne ">> T-Minus $secs to full initialization...\033[0K\r"
 		sleep 1
@@ -98,7 +98,7 @@ else
 
 	echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
 	notify-send "Axiom Info" "$name successfully initialized at $ip!"
-    echo -e "${Green}Initialized! Instance accessible at '${BGreen}$ip${Green}'!"
+    echo -e "${BWhite}Initialized! Instance accessible at '${BGreen}$ip${BWhite}'!"
     echo -e "To connect, run '${BGreen}axiom-ssh $name${Green}'${Color_Off}"
 fi
 
