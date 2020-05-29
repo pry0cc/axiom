@@ -226,7 +226,7 @@ After you have run `axiom-deploy openvpn`, you can run `axiom-vpn <instance>` an
 
 
 ## `axiom-configure`
-`axiom-configure` is a command that can be used for configuration, ideally it should only be run once, if you've made a mistake and messed up your configuration, I would recommend running `sudo rm -rf ~/.axoim/` and then run the bash one liner to install above ^^
+`axiom-configure` is a command that can be used for configuration, ideally it should only be run once, if you've made a mistake and messed up your configuration, I would recommend running `sudo rm -rf ~/.axiom/` and then run the bash one liner to install above ^^
 
 This command will install deps, download and clone the axiom repository, add the interact/ folder to your $PATH and then run your first build. You will need a single Digitalocean API key.
 
