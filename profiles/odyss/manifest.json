@@ -12,8 +12,8 @@
 		"sudo ./openvpn-install.sh",
         "sudo cp /root/client.ovpn /home/op/client.ovpn",
         "sudo chown op:users /home/op/client.ovpn",
-        "sudo caddy reverse-proxy --from remote.navisec.xyz --to 127.0.0.1:8080",
-        "sudo gem install sinatra-json"
+        "sudo gem install sinatra-json",
+		"sudo rm -rf bin c2 go hashes lists recon openvpn-install.sh"
 	],
 	"remove_commands":[
 		"echo \"3\nY\" | sudo /home/op/openvpn-install.sh",
