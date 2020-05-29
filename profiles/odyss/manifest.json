@@ -14,7 +14,7 @@
         "sudo chown op:users /home/op/client.ovpn",
         "sudo gem install sinatra-json",
 		"sudo rm -rf bin c2 go hashes lists recon openvpn-install.sh",
-		"git clone git@github.com:pry0cc/odyss.git /tmp/odyss",
+		"git clone https://github.com/pry0cc/odyss.git /tmp/odyss",
 		"cp -r /tmp/odyss/* /home/op/",
 		"mkdir -p /home/op/profiles /home/op/public/downloads/"
 	],
