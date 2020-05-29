@@ -16,7 +16,8 @@
 		"sudo rm -rf bin c2 go hashes lists recon openvpn-install.sh",
 		"git clone https://github.com/pry0cc/odyss.git /tmp/odyss",
 		"cp -r /tmp/odyss/* /home/op/",
-		"mkdir -p /home/op/profiles /home/op/public/downloads/"
+		"mkdir -p /home/op/profiles /home/op/public/downloads/",
+		"wget -O /tmp/caddy.deb https://github.com/caddyserver/caddy/releases/download/v2.0.0/caddy_2.0.0_linux_amd64.deb && sudo dpkg -i /tmp/caddy.deb"
 	],
 	"remove_commands":[
 		"echo \"3\nY\" | sudo /home/op/openvpn-install.sh",
