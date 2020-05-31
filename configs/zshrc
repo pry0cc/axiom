@@ -1,7 +1,7 @@
 export TERM="xterm-256color"
 export ZSH=/home/op/.oh-my-zsh
 
-ZSH_THEME="gallifrey"
+ZSH_THEME="nicoulaj"
 plugins=(dircycle github z autojump rails archlinux zsh-navigation-tools docker vagrant cp ruby)
 
 source $ZSH/oh-my-zsh.sh
@@ -85,3 +85,7 @@ alias ls=" ls --color -sh"
 alias wclone="wget -H -p -k"
 alias vim="nvim"
 
+
+# added by pipsi (https://github.com/mitsuhiko/pipsi)
+export PATH="/home/op/.local/bin:$PATH"
+source /home/op/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
