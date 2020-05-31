@@ -67,6 +67,11 @@
             "source":"./configs/add-path",
             "destination":"/home/op/bin/add-path"
         },
+		 {
+            "type":"file",
+            "source":"./configs/tmux-splash.sh",
+            "destination":"/home/op/bin/tmux-splash.sh"
+        },
         {
             "type":"file",
             "source":"./configs/authorized_keys",

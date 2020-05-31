@@ -6,6 +6,7 @@ plugins=(dircycle github z autojump rails archlinux zsh-navigation-tools docker 
 
 source $ZSH/oh-my-zsh.sh
 source ~/.profile
+source $HOME/bin/tmux-splash.sh
 
 function bin2sc {
     # convert .bin to shellcode
