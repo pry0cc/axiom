@@ -51,7 +51,7 @@ then
 		if [ -d "$box_path" ]
 		then
 			echo -e "${BWhite}Deleting box backup '$2'...${Color_Off}"
-			rm -r "$box_path"
+			rm -rf "$box_path"
 		else
 			echo -e  "${BRed}Box doesn't exist${Color_Off}"
 		fi

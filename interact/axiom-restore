@@ -23,28 +23,33 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
+instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
+restore_box=""
 
 if [ -z "$1" ]
 then
-    instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
-    ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
-	ans=$(ls ~/.axiom/boxes/ | fzf)
-	echo -e "${BWhite}Restoring $ans to $instance at $ip ${Color_Off}"
-	echo -n -e "${Blue}" 
-    #rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$ans/.* op@$ip:~/
-    rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$ans/* op@$ip:~/
-	#ssh -p2266 op@"$ip" "tar -xvf .dotfiles.backup.tar.gz && tar -xvf .go.backup.tar.gz"
-	echo -n -e "${Color_Off}" 
-	echo -e "${BGreen}Restore of '$ns' to '$instance' successful!${Color_Off}" 
+	restore_box=$(ls ~/.axiom/boxes/ | fzf)
 else
-    instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
-    ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
-	echo -e "${BWhite}Restoring $1 to $instance at $ip ${Color_Off}"
-	echo -n -e "${Blue}" 
-    rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$1/* op@$ip:~/
-    #rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$1/.* op@$ip:~/
-	#ssh -p2266 op@"$ip" "tar -xvf .dotfiles.backup.tar.gz && tar -xvf .go.backup.tar.gz"
-	echo -n -e "${Color_Off}" 
-	echo -e "${BGreen}Restore of '$1' to '$instance' successful!${Color_Off}" 
+	restore_box="$1"
 fi
 
+echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
+echo -n -e "${Blue}" 
+
+hidden_files=$(ls -la ~/.axiom/boxes/$restore_box/ | grep "\." | wc -l | awk '{ print $1 }')
+non_hidden_files=$(ls -l ~/.axiom/boxes/$restore_box/ | wc -l | awk '{ print $1 }')
+
+if [ "$non_hidden_files" -gt 0 ]
+then
+	rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$restore_box/ op@$ip:~/
+fi
+
+if [ "$hidden_files" -gt 2 ]
+then
+	rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$restore_box/.[^.]* op@$ip:~/
+fi
+
+
+echo -n -e "${Color_Off}" 
+echo -e "${BGreen}Restore of '$restore_box' to '$instance' successful!${Color_Off}" 
