@@ -2,7 +2,7 @@
 
 # Project Axiom
 
-![](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo.png =250x)
+<img width="250px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo.png">
 
 Project Axiom is a set of utilities for managing a small dynamic infrastructure setup for bug bounty and pentesting.
 
