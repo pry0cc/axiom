@@ -1,0 +1,8 @@
+.zshrc
+.zsh_history
+.ssh
+.tmux.conf
+.oh-my-zsh
+.crobatrc
+.config/nvim
+.z
