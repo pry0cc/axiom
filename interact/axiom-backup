@@ -13,9 +13,9 @@ then
     ans="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
     mkdir -p ~/.axiom/boxes/"$ans"
     ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
-    rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@"$ip":~/ ~/.axiom/boxes/"$ans"
+    rsync -avz -e "ssh -p2266" --progress --delete --exclude=".cache" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/ ~/.axiom/boxes/"$ans"
 else
     ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
     mkdir -p ~/.axiom/boxes/"$1"
-    rsync -avz -e "ssh -p2266" --progress --delete --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" --exclude="go"  --exclude=".*" op@"$ip":~/ ~/.axiom/boxes/"$1"
+    rsync -avz -e "ssh -p2266" --progress --delete --exclude=".cache" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/ ~/.axiom/boxes/"$1"
 fi

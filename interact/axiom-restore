@@ -32,6 +32,7 @@ then
 	echo -e "${BWhite}Restoring $ans to $instance at $ip ${Color_Off}"
 	echo -n -e "${Blue}" 
     rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$ans/* op@$ip:~/
+    rsync -avz -e "ssh -p2266" --progress ~/.axiom/boxes/$ans/.* op@$ip:~/
 	echo -n -e "${Color_Off}" 
 	echo -e "${BGreen}Restore of '$ns' to '$instance' successful!${Color_Off}" 
 else
@@ -40,6 +41,7 @@ else
 	echo -e "${BWhite}Restoring $1 to $instance at $ip ${Color_Off}"
 	echo -n -e "${Blue}" 
     rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$1/* op@$ip:~/
+    rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$1/.* op@$ip:~/
 	echo -n -e "${Color_Off}" 
 	echo -e "${BGreen}Restore of '$1' to '$instance' successful!${Color_Off}" 
 fi
