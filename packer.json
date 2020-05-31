@@ -76,6 +76,11 @@
             "source":"./configs/tmux.conf",
             "destination":"/home/op/.tmux.conf"
         },
+        {
+            "type":"file",
+            "source":"./configs/tmux.conf.local",
+            "destination":"/home/op/.tmux.local"
+        },
 		{
             "type":"file",
             "source":"./configs/zsh_history",
