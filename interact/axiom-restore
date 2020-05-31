@@ -43,7 +43,7 @@ else
 	echo -n -e "${Blue}" 
     rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress "~/.axiom/boxes/$1/*" op@$ip:~/
     rsync -avz -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress "~/.axiom/boxes/$1/.*" op@$ip:~/
-	ssh -p2266 op@"$ip" "tar -xvf .dotfiles.backup.tar.gz && tar -xvf .go.tar.gz"
+	ssh -p2266 op@"$ip" "tar -xvf .dotfiles.backup.tar.gz && tar -xvf .go.backup.tar.gz"
 	echo -n -e "${Color_Off}" 
 	echo -e "${BGreen}Restore of '$1' to '$instance' successful!${Color_Off}" 
 fi
