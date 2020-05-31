@@ -15,13 +15,11 @@ then
     ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
     ssh -p2266 op@"$ip" "tar -cvzf .go.backup.tar.gz go && tar -cvzf dotfiles.backup.tar.gz .*"
     rsync -avz -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/ ~/.axiom/boxes/"$ans"
-    rsync -avz -e "ssh -p2266" --progress --delete  op@"$ip":~/.go.backup.tar.gz ~/.axiom/boxes/"$ans"/.go.backup.tar.gz
     rsync -avz -e "ssh -p2266" --progress --delete  op@"$ip":~/.dotfiles.backup.tar.gz ~/.axiom/boxes/"$ans"/.dotfiles.backup.tar.gz
 else
     ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
     mkdir -p ~/.axiom/boxes/"$1"
     ssh -p2266 op@"$ip" "tar -cvzf .go.backup.tar.gz go && tar -cvzf dotfiles.backup.tar.gz .*"
     rsync -avz -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/ ~/.axiom/boxes/"$1"
-    rsync -avz -e "ssh -p2266" --progress --delete  op@"$ip":~/.go.backup.tar.gz ~/.axiom/boxes/"$1"/.go.backup.tar.gz
     rsync -avz -e "ssh -p2266" --progress --delete  op@"$ip":~/.dotfiles.backup.tar.gz ~/.axiom/boxes/"$1"/.dotfiles.backup.tar.gz
 fi
