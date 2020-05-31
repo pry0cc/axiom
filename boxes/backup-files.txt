@@ -9,3 +9,4 @@
 go/bin
 lists/seclists/.git/config
 .local/share/nvim/rplugin.vim
+.tmux.conf.local
