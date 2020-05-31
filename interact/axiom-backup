@@ -47,8 +47,8 @@ mkdir -p ~/.axiom/boxes/"$1"
 echo -e "${BWhite}Backing up $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
-rsync -avzr -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/* ~/.axiom/boxes/"$1"/
-rsync -avzr -e "ssh -p2266" --progress --delete --files-from=/Users/pry/Documents/Red/Ops/axiom/boxes/backup-files.txt op@"$ip":~/ ~/.axiom/boxes/"$1"/
+rsync -avzr -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/* ~/.axiom/boxes/"$instance"/
+rsync -avzr -e "ssh -p2266" --progress --delete --files-from=~/.axiom/boxes/backup-files.txt op@"$ip":~/ ~/.axiom/boxes/"$instance"/
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}" 
