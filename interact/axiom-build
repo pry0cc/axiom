@@ -6,6 +6,7 @@ if [ "$?" == "0" ]
 then
     echo "Your build completed successfully!"
     echo "To initialize an instance, run axiom-init"
+	~/.axiom/interact/axiom-prune
     notify-send "Axiom Info" "Build completed successfully!"
 else
     echo "Your build failed :( Please take a look at the errors!"
