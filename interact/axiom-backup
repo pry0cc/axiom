@@ -1,5 +1,28 @@
 #!/usr/bin/env bash
 
+# Reset
+Color_Off='\033[0m'       # Text Reset
+
+# Regular Colors
+Black='\033[0;30m'        # Black
+Red='\033[0;31m'          # Red
+Green='\033[0;32m'        # Green
+Yellow='\033[0;33m'       # Yellow
+Blue='\033[0;34m'         # Blue
+Purple='\033[0;35m'       # Purple
+Cyan='\033[0;36m'         # Cyan
+White='\033[0;37m'        # White
+
+# Bold
+BBlack='\033[1;30m'       # Black
+BRed='\033[1;31m'         # Red
+BGreen='\033[1;32m'       # Green
+BYellow='\033[1;33m'      # Yellow
+BBlue='\033[1;34m'        # Blue
+BPurple='\033[1;35m'      # Purple
+BCyan='\033[1;36m'        # Cyan
+BWhite='\033[1;37m'       # White
+
 no_menu=false
 
 for var in "$@"
@@ -8,18 +31,24 @@ do
         no_menu=true
 done
 
+ip=""
+instance=""
+
 if [ -z "$1" ]  || [ "$1" == "--now" ]
 then
-    ans="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
-    mkdir -p ~/.axiom/boxes/"$ans"
-    ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
-#    ssh -p2266 op@"$ip" "tar -cvzf .go.backup.tar.gz go && tar -cvzf .dotfiles.backup.tar.gz .*"
-    rsync -avz -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/ ~/.axiom/boxes/"$ans"
-#    rsync -avz -e "ssh -p2266" --progress --delete  op@"$ip":~/.dotfiles.backup.tar.gz ~/.axiom/boxes/"$ans"/.dotfiles.backup.tar.gz
+    instance="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
 else
-    ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
-    mkdir -p ~/.axiom/boxes/"$1"
- #   ssh -p2266 op@"$ip" "tar -cvzf .go.backup.tar.gz go && tar -cvzf .dotfiles.backup.tar.gz .*"
-    rsync -avz -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/ ~/.axiom/boxes/"$1"
-#    rsync -avz -e "ssh -p2266" --progress --delete  op@"$ip":~/.dotfiles.backup.tar.gz ~/.axiom/boxes/"$1"/.dotfiles.backup.tar.gz
+	instance="$1"
 fi
+
+ip="$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')"
+mkdir -p ~/.axiom/boxes/"$1"
+
+echo -e "${BWhite}Backing up $instance at $ip ${Color_Off}"
+echo -n -e "${Blue}" 
+
+rsync -avzr -e "ssh -p2266" --progress --delete --exclude=".*" --exclude="go" --exclude="recon" --exclude="lists" --exclude="c2" --exclude="hashes" --exclude="bin" --exclude="down" op@"$ip":~/* ~/.axiom/boxes/"$1"/
+rsync -avzr -e "ssh -p2266" --progress --delete --files-from=/Users/pry/Documents/Red/Ops/axiom/boxes/backup-files.txt op@"$ip":~/ ~/.axiom/boxes/"$1"/
+
+echo -n -e "${Color_Off}" 
+echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}" 
