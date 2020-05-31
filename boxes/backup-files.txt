@@ -6,3 +6,4 @@
 .crobatrc
 .config/nvim
 .z
+go/bin
