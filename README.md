@@ -1,9 +1,7 @@
 # README
 
 # Project Axiom
-
 <img width="250px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo.png">
-
 Project Axiom is a set of utilities for managing a small dynamic infrastructure setup for bug bounty and pentesting.
 
 **Axiom right now is perfect for teams as small as one person, without costing you much at all to run.**
