@@ -1,12 +1,10 @@
 # README
 
 # Project Axiom
-
 <img width="250px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo.png">
-
 Project Axiom is a set of utilities for managing a small dynamic infrastructure setup for bug bounty and pentesting.
 
-**Axiom right now is perfect for teams as small as one person, without costing you much at all to run.**
+**Axiom right now is perfect for teams as small as one person, without costing you much at all to run.** And by not much to run at all, I mean, less than 5 bucks a month if you use responsibly, and a free two months with my referral link below. Read more about the economics at the bottom.
 
 # Installation
 
@@ -116,6 +114,19 @@ fzf is everywhere too, doctl can be a bit tricky (using snap to do that on ubunt
 A fun out of the box one-liner that gets subdomains with subfinder, looks them up and resolves them, passes the resolved and HTTP prob'ed response to have screenshots taken for further review! 
 
 ![https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%207.png](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%207.png)
+
+# Economics
+Some people come to me, and they say, pry, Digital Ocean is so much more than using a dedi or bare metal, why do you use it and how can you say its cheap?
+
+It's how you use it. A lot of hacker hobbyists or bug bounty people are only part time, they may be a weekend warrior, or they may be a student. As such, their budget may be limited, and paying 5-20 bucks a month on a VPS FOREVER doesn't sound particularly enticing, especially if you only need the "I need a public IP to catch a shell NOW" problem.
+
+With Axiom, you can spin up and down boxes, and only pay for what you use. You can run a command such as:
+```
+axiom-init hades --restore=hades && axiom-ssh --tmux && axiom-rm hades -f
+```
+Assuming you have a previous hades machine backup, performed with the `axiom-backup hades` command, all go binaries, ZSH setup, working directory files and tmux/nvim configs will be backed up. With the one liner above, it will initialise a new machine, restore the hades backup, ssh in with tmux, and then when you detach, kill the instance.
+
+If you're planning on doing bug bounty for say, 2 hours, and you use this command on your weekend hacking-session, with the default instance size with Axiom, this would cost you a total of: $0.014. Now I don't know about you, but considering if i was a student I could wash somebodies car once and have months worth of VPS time. Pretty nice.
 
 # Pre-installed History Feature
 
