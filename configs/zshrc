@@ -82,7 +82,7 @@ export DIRS_SMALL="/home/op/lists/seclists/Discovery/Web-Content/raft-small-dire
 export FILES_LARGE="/home/op/lists/seclists/Discovery/Web-Content/raft-large-files.txt"
 export FILES_SMALL="/home/op/lists/seclists/Discovery/Web-Content/raft-small-files.txt"
 
-alias ls=" ls --color -sh"
+alias ls=" ls --color"
 alias wclone="wget -H -p -k"
 alias vim="nvim"
 
