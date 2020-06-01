@@ -123,10 +123,10 @@ echo -e -n "${Blue}Key >> ${Color_Off}"
 read do_key
 echo -e "${Blue}Setting up doctl!...${Color_Off}"
 doctl auth init -t $do_key
-#echo "What would you like to pick for region? nyc3, sfo2 <-- this one is best"
-region="sfo2"
-#echo -n "Region >> "
-#read region
+echo "What would you like to pick for region? nyc1, ny2, nyc3, sfo1, sfo2, sgp1, fra1, ams1, ams2, ams3, lon1, blr1  <-- Choose the nearest Region to your location"
+#region="sfo2"
+echo -n "Region >> "
+read region
 #echo "What domain do you use?"
 #echo -n "Domain >> "
 #read domain
