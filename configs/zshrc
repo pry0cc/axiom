@@ -85,8 +85,16 @@ export FILES_SMALL="/home/op/lists/seclists/Discovery/Web-Content/raft-small-fil
 alias ls=" ls --color -sh"
 alias wclone="wget -H -p -k"
 alias vim="nvim"
-
+alias nmap="grc nmap"
 
 # added by pipsi (https://github.com/mitsuhiko/pipsi)
 export PATH="/home/op/.local/bin:$PATH"
 source /home/op/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+dirs(){
+        name=$(echo $1 | unfurl -u domains)
+        x=$(date +%Y%m%d%H%M%S)
+        mkdir -p ~/Reports
+        mkdir -p ~/Reports/$name
+        ffuf -w $FILES_LARGE -u $1FUZZ -D -e asp,aspx,cgi,cfml,CFM,htm,html,json,jsp,php,phtml,pl,py,sh,shtml,sql,txt,xml,xhtml,tar,tar.gz,tgz,war,zip,swp,src,jar,java,log,bin,js,db -t 150 -o ~/Reports/$name/$name_$x.json
+}
