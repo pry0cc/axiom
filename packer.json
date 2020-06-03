@@ -41,6 +41,7 @@
                 "UCF_FORCE_CONFFNEW=YES apt-get upgrade -qq",
                 "apt-get -qq install docker-ce",
                 "wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
+                "wget -O /tmp/caddy.deb https://github.com/caddyserver/caddy/releases/download/v2.0.0/caddy_2.0.0_linux_amd64.deb  && cd /tmp/ && dpkg -i /tmp/caddy.deb",
                 "wget https://bootstrap.pypa.io/get-pip.py",
                 "python3.7 get-pip.py",
                 "pip install aiodnsbrute docker-py",
@@ -75,6 +76,16 @@
             "type":"file",
             "source":"./configs/tmux.conf",
             "destination":"/home/op/.tmux.conf"
+        },
+        {
+            "type":"file",
+            "source":"./configs/tmux.conf.local",
+            "destination":"/home/op/.tmux.local"
+        },
+        {
+            "type":"file",
+            "source":"./configs/tmux-splash.sh",
+            "destination":"/home/op/bin/tmux-splash.sh"
         },
 		{
             "type":"file",
@@ -162,6 +173,8 @@
                 "echo 'Installing gau'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
                 "echo 'Installing fprobe'",
+                "echo 'Installing subgen'",
+				"/bin/su -l op -c 'go get -u github.com/pry0cc/subgen'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/theblackturtle/fprobe'",
                 "wget -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /home/op/go/bin/aquatone",
                 "wget -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.6.0/amass_v3.6.0_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_v3.6.0_linux_amd64/amass /home/op/go/bin/amass",
