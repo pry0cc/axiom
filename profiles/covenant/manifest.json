@@ -3,13 +3,13 @@
 	"description":"Deploy Covenant C2 Server",
 	"variables": [],
 	"commands": [
-		"git clone --recurse-submodules https://github.com/cobbr/Covenant /home/op/Covenant",
-		"cd /home/op/Covenant/Covenant && docker build -t covenant .",
-		"cd /home/op/Covenant/Covenant && docker run -d -p 7443:7443 -p 80:80 -p 443:443 --name covenant -v /home/op/Covenant/Covenant/Data:/app/Data covenant"
+		"git clone --recurse-submodules https://github.com/cobbr/Covenant /home/op/c2/Covenant",
+		"cd /home/op/c2/Covenant/Covenant && docker build -t covenant .",
+		"cd /home/op/c2/Covenant/Covenant && docker run -d -p 7443:7443 -p 80:80 -p 443:443 --name covenant -v /home/op/c2/Covenant/Covenant/Data:/app/Data covenant"
 	],
 	"remove_commands":[
 		"docker rm -f covenant",
-		"sudo rm -r /home/op/Covenant"
+		"sudo rm -r /home/op/c2/Covenant"
 	],
 	"success_message":"echo \"Covenant has been deployed at: https://$ip:7443/\""
 }
