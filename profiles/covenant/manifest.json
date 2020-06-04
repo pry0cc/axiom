@@ -3,6 +3,7 @@
 	"description":"Deploy Covenant C2 Server",
 	"variables": [],
 	"commands": [
+		"sudo killall caddy",
 		"git clone --recurse-submodules https://github.com/cobbr/Covenant /home/op/c2/Covenant",
 		"cd /home/op/c2/Covenant/Covenant && docker build -t covenant .",
 		"cd /home/op/c2/Covenant/Covenant && docker run -d -p 7443:7443 -p 80:80 -p 443:443 --name covenant -v /home/op/c2/Covenant/Covenant/Data:/app/Data covenant"
