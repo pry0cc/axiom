@@ -72,7 +72,7 @@ elif [ $remove == true ]
 	echo -e "${BWhite}Uninstalling profile '$profile' on '$instance' at '$ip'...${Color_Off}"
 fi
 
-scp -P2266 $filename op@$ip:$filename
+scp -o StrictHostKeyChecking=no -P2266 $filename op@$ip:$filename
 echo -e "${BBlue}Deployment Output: ${Blue}"
 ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "${Green}"

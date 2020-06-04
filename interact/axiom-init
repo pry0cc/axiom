@@ -33,8 +33,9 @@ size="$(jq -r '.default_size' ~/.axiom/axiom.json)"
 box_name=""
 connect_shell=false
 restore=false
+deploy=false
 
-if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]];
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]];
 then
     name="$gen_name"
 else
@@ -51,6 +52,11 @@ do
     then
         restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"
+    fi
+    if [[ "$var" =~ "--deploy" ]]
+    then
+        deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+        echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
     fi
 done
 
@@ -107,4 +113,11 @@ then
 	echo -e "${BWhite}Waiting 30 seconds before restore...${Color_Off}"
 	sleep 42
     ~/.axiom/interact/axiom-restore "$restore"
+fi
+
+if [ "$deploy" != false ]
+then
+	echo -e "${BWhite}Waiting 30 seconds before deploy... ${Color_Off}"
+	sleep 42
+	~/.axiom/interact/axiom-deploy "$deploy"
 fi
