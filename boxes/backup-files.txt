@@ -1,12 +1,21 @@
-.zshrc
-.zsh_history
-.ssh
-.tmux.conf
-.oh-my-zsh
-.crobatrc
-.config/nvim
-.z
-go/bin
-lists/seclists/.git/config
-.local/share/nvim/rplugin.vim
-.tmux.conf.local
++ .zsh_history
++ .zshrc
++ .ssh
++ .tmux.conf
++ .oh-my-zsh
++ .crobatrc
++ .config/nvim
++ .z
++ go/bin
++ lists/seclists/.git/config
++ .local/share/nvim/rplugin.vim
++ .tmux.conf.local
+- .*
+- recon
+- go
+- lists
+- c2
+- hashes
+- bin
+- down
++ *
