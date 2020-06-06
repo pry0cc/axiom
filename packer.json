@@ -80,7 +80,7 @@
         {
             "type":"file",
             "source":"./configs/tmux.conf.local",
-            "destination":"/home/op/.tmux.local"
+            "destination":"/home/op/.tmux.conf.local"
         },
         {
             "type":"file",
