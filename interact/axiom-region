@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ "$1" == "ls" ]
+then
+	doctl compute region list
+elif [ "$1" == "select" ]
+then
+	region_json=$(doctl compute region list -o json)
+	lines=$(echo $region_json | jq -r '.[].slug' | grep "$2" | wc -l | awk '{ print $1 }')
+	
+	if [ "$lines" -gt 0 ]
+	then
+		echo "Selected region $2"
+		cat ~/.axiom/axiom.json | jq ".region=\"$2\"" > ~/.axiom/axiom.json
+	fi
+else
+	echo "Usage:"
+	echo -e "\taxiom-region ls - List available regions"
+	echo -e "\taxiom-region select <nyc3> - Select region"
+fi
