@@ -196,11 +196,6 @@
                 "sudo chmod +x /etc/update-motd.d/00-header"
             ]
         },
-		{
-			"type":"file",
-			"source":"./configs/crobatrc",
-			"destination":"/home/op/.crobatrc"
-		},
         {
             "type":"shell",
             "inline": [
