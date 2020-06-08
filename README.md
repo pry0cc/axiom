@@ -1,4 +1,3 @@
-# README
 
 <p align="center">
 <img width="250px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo-new.png">
