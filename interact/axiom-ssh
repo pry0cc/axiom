@@ -1,31 +1,44 @@
 #!/bin/bash
 
 use_tmux=false
+use_mosh=false
+connected=false
 
 for var in "$@"
 do
     if [ $var == "--tmux" ]
     then
         use_tmux=true
-    fi
+    elif [  $var == "--mosh" ]
+	then
+		use_mosh=true
+	fi
 done
 
-if [ -z "$1" ] || [ "$1" == "--tmux" ]
+instance=""
+
+if [ -z "$1" ] || [ "$1" == "--tmux" ] || [ "$1" == "--mosh" ]
 then
-    ans=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
-    ip=$(doctl compute droplet list | grep $ans | awk '{ print $3 }')
-    if [ $use_tmux == true ]
-    then
-		ssh -p2266 op@$ip -t 'tmux new-session -t main'
-	else
-		ssh -p2266 op@$ip
-	fi
+    instance=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
 else
-    ip=$(doctl compute droplet list | grep $1 | awk '{ print $3 }')
-    if [ $use_tmux == true ]
-	then
-		ssh -p2266 op@$ip -t 'tmux new-session -t main'
-	else
-		ssh -p2266 op@$ip
-	fi
+	instance="$1"
+fi
+
+ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
+
+if [ $use_tmux == true ]
+then
+	connected=true
+	ssh -p2266 op@$ip -t 'tmux new-session -t main'
+fi
+
+if [ $use_mosh == true ]
+then
+	connected=true
+	mosh --ssh='ssh -p2266' op@$ip
+fi
+
+if [ $connected == false ]
+then
+	ssh -p2266 op@$ip
 fi
