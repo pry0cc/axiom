@@ -6,7 +6,7 @@ Project Axiom is a set of utilities for managing a small dynamic infrastructure 
 
 **Axiom right now is perfect for teams as small as one person, without costing you much at all to run.** And by not much to run at all, I mean, less than 5 bucks a month if you use responsibly, and a free two months with my referral link below. Read more about the economics at the bottom.
 
-# Installation
+# InstallationThank you so much for your contribution!
 
 ## DigitalOcean API Key
 
@@ -260,6 +260,11 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - razcodesdotdev
 - icyphox
 - Dan GITC (@ghostinthecable)
+- myrdn
+- Cgboal
+- ericho
+- mswell
+- kpcyrd
 
 # Packages To Date
 
@@ -269,6 +274,7 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  assetfinder
 - [x]  gf
 - [x]  masscan
+- [x]  sn0int
 - [x]  kxss
 - [x]  jq
 - [x]  SecLists
@@ -279,7 +285,8 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  anti-burl
 - [x]  Golang (setup, path configured, latest version)
 - [x]  hakrawler
-- [x]  Zdns
+- [x]  zdns
+- [x]  zmap
 - [x]  ffuf
 - [x]  gau
 - [x]  dirb
@@ -288,4 +295,21 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  fbrobe
 - [x]  getjs
 - [x]  openvpn
+- [x]  projectdiscovery chaos-client
+- [x]  projectdiscovery nuclei
+- [x]  projectdiscovery chaos
+- [x]  projectdiscovery shuffledns
+- [x]  dnsprobe
+- [x]  dnsvalidator
+- [x]  urlprobe
+- [x]  oh-my-zsh
+- [x]  tmux
+- [x]  masscan
+- [x]  subgen
+- [x]  proxychains w/ Tor setup
+- [x]  mosh
+- [x]  docker
+- [x]  metasploit
 - [ ]  dalfox
+- [ ]  subjack
+
