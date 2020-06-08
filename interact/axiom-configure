@@ -166,7 +166,7 @@ else
     fi
 fi
 
-if [ "$SHELL" == "/usr/local/bin/zsh" ]; then
+if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ]; then
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.zshrc
     echo "source $HOME/.axiom/functions/autocomplete.zsh" >> ~/.zshrc
