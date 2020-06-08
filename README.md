@@ -1,12 +1,11 @@
-# README
 
-# Project Axiom
-<img width="250px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo.png">
+<p align="center">
+<img width="400px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo-new.png">
+</p>
+
 Project Axiom is a set of utilities for managing a small dynamic infrastructure setup for bug bounty and pentesting.
 
 **Axiom right now is perfect for teams as small as one person, without costing you much at all to run.** And by not much to run at all, I mean, less than 5 bucks a month if you use responsibly, and a free two months with my referral link below. Read more about the economics at the bottom.
-
-# Installation
 
 ## DigitalOcean API Key
 
@@ -17,7 +16,9 @@ I also get a small kickback so if you liked this project please use my link :)
 https://m.do.co/c/bd80643300bd 
 
 Happy hacking! :)
- 
+
+![](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-demo.gif)
+
 ## Bash One Liner
 
 (You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
@@ -25,8 +26,6 @@ Happy hacking! :)
 ```
 bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
 ```
-
-![](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-demo.gif)
 
 When I first began trying to get up and running my own dynamic cloud hacking setup, I noticed that the array of tools and ecosystems were so large, and there were 50 different ways to do just about everything, do I use ansible for provisioning on server boot, do I load ansible with packer? How much do I configure for image builds? There were a few ‘red team’ infra setup tools and aids, but they all required so much legwork just to get off the ground. It felt like in a lot of cases people were just publishing what they use without any help/documentation on getting started.
 
@@ -260,6 +259,12 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - razcodesdotdev
 - icyphox
 - Dan GITC (@ghostinthecable)
+- myrdn
+- Cgboal
+- ericho
+- mswell
+- kpcyrd
+- s0mdev (made the logo!!!)
 
 # Packages To Date
 
@@ -269,6 +274,7 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  assetfinder
 - [x]  gf
 - [x]  masscan
+- [x]  sn0int
 - [x]  kxss
 - [x]  jq
 - [x]  SecLists
@@ -279,7 +285,8 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  anti-burl
 - [x]  Golang (setup, path configured, latest version)
 - [x]  hakrawler
-- [x]  Zdns
+- [x]  zdns
+- [x]  zmap
 - [x]  ffuf
 - [x]  gau
 - [x]  dirb
@@ -288,4 +295,21 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  fbrobe
 - [x]  getjs
 - [x]  openvpn
+- [x]  projectdiscovery chaos-client
+- [x]  projectdiscovery nuclei
+- [x]  projectdiscovery chaos
+- [x]  projectdiscovery shuffledns
+- [x]  dnsprobe
+- [x]  dnsvalidator
+- [x]  urlprobe
+- [x]  oh-my-zsh
+- [x]  tmux
+- [x]  masscan
+- [x]  subgen
+- [x]  proxychains w/ Tor setup
+- [x]  mosh
+- [x]  docker
+- [x]  metasploit
 - [ ]  dalfox
+- [ ]  subjack
+
