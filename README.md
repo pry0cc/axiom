@@ -269,6 +269,7 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  assetfinder
 - [x]  gf
 - [x]  masscan
+- [x]  sn0int
 - [x]  kxss
 - [x]  jq
 - [x]  SecLists
