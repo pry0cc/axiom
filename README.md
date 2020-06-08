@@ -1,6 +1,6 @@
 
 <p align="center">
-<img width="250px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo-new.png">
+<img width="450px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo-new.png">
 </p>
 
 Project Axiom is a set of utilities for managing a small dynamic infrastructure setup for bug bounty and pentesting.
