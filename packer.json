@@ -19,7 +19,7 @@
         {
             "type":"shell",
             "inline": [
-                "touch ~/.provisioned",
+            	"fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
                 "add-apt-repository -y ppa:longsleep/golang-backports",
                 "apt-get update -qq",
                 "apt-get upgrade -qq",
@@ -189,6 +189,8 @@
                 "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/projectdiscovery/chaos-client/cmd/chaos'",
                 "echo 'Installing unfurl'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/unfurl'",
+                "echo 'Installing suback - this takes a while'",
+				"/bin/su -l op -c 'go get -u github.com/haccer/subjack/'",
                 "echo 'Installing subgen'",
 				"/bin/su -l op -c 'go get -u github.com/pry0cc/subgen'",
 				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/theblackturtle/fprobe'",
