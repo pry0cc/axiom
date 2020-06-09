@@ -16,6 +16,5 @@
 - lists
 - c2
 - hashes
-- bin
 - down
 + *
