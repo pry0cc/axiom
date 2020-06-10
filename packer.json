@@ -45,7 +45,7 @@
                 "wget https://bootstrap.pypa.io/get-pip.py",
                 "python3.7 get-pip.py",
                 "pip install aiodnsbrute docker-py",
-                "gem install bundler wpscan",
+                "gem install bundler wpscan nmap2json",
                 "systemctl start docker",
                 "systemctl enable tor",
                 "ufw --force enable",

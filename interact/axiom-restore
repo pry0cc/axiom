@@ -37,19 +37,7 @@ fi
 echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
-hidden_files=$(ls -la ~/.axiom/boxes/$restore_box/ | grep "\." | wc -l | awk '{ print $1 }')
-non_hidden_files=$(ls -l ~/.axiom/boxes/$restore_box/ | wc -l | awk '{ print $1 }')
-
-if [ "$non_hidden_files" -gt 0 ]
-then
-	rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$restore_box/ op@$ip:~/
-fi
-
-if [ "$hidden_files" -gt 2 ]
-then
-	rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress ~/.axiom/boxes/$restore_box/.[^.]* op@$ip:~/
-fi
-
+rsync -avzr -e "ssh -p2266" --progress --include-from=$HOME/.axiom/boxes/backup-files.txt ~/.axiom/boxes/"$restore_box"/ op@"$ip":~/
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Restore of '$restore_box' to '$instance' successful!${Color_Off}" 
