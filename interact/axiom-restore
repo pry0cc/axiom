@@ -34,6 +34,11 @@ else
 	restore_box="$1"
 fi
 
+if [[ $restore_box =~ "/" ]]
+then
+    restore_box=$(echo $restore_box | sed 's/\//-/g')
+fi
+
 echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
