@@ -42,7 +42,7 @@ fi
 echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
-rsync -avzr -e "ssh -p2266" --progress --include-from=$HOME/.axiom/boxes/backup-files.txt ~/.axiom/boxes/"$restore_box"/ op@"$ip":~/
+rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress --include-from=$HOME/.axiom/boxes/backup-files.txt ~/.axiom/boxes/"$restore_box"/ op@"$ip":~/
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Restore of '$restore_box' to '$instance' successful!${Color_Off}" 
