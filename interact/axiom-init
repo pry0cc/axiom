@@ -112,7 +112,7 @@ if [ "$restore" != false ]
 then
 	echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
 	sleep 65
-    ~/.axiom/interact/axiom-restore "$restore"
+    ~/.axiom/interact/axiom-restore "$restore" "$name"
 fi
 
 if [ "$deploy" != false ]

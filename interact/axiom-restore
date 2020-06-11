@@ -24,8 +24,12 @@ BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
 instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
-ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
 restore_box=""
+
+if [ ! -z "$2" ]
+then
+    instance="$2"
+fi
 
 if [ -z "$1" ]
 then
@@ -39,6 +43,7 @@ then
     restore_box=$(echo $restore_box | sed 's/\//-/g')
 fi
 
+ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
 echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
