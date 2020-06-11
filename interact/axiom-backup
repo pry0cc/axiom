@@ -42,7 +42,12 @@ else
 fi
 
 ip="$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')"
-mkdir -p ~/.axiom/boxes/"$1"
+box_path="$HOME/.axiom/boxes/$1"
+
+if [ ! -d "$box_path" ]
+then
+    ~/.axiom/interact/axiom-boxes new "$1"
+fi
 
 echo -e "${BWhite}Backing up $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 

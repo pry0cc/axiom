@@ -64,6 +64,8 @@ then
 		then
 			echo -e "${BWhite}Creating box '$2'...${Color_Off}"
 			mkdir -p "$box_path/work"
+            cp ~/.axiom/configs/oh-my-zsh.tar.gz $box_path/.oh-my-zsh.tar.gz
+            cd $box_path/ && tar -xf .oh-my-zsh.tar.gz
 		else
 			echo -e "${BRed}Box already exists${Color_Off}"
 		fi
