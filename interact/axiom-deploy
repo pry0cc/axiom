@@ -35,7 +35,7 @@ do
     fi
 done
 
-if [ -z "$1" ] || [ "$1" == "--remove" ]
+if [ -z "$1" ] || [ "$1" == "--remove" ] || [ "$1" == "--instance" ]
 then
     profile=$(ls ~/.axiom/profiles | cat | fzf)
 else
