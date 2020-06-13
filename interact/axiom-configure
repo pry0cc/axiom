@@ -75,7 +75,7 @@ then
 fi
 
 #install go
-if [[ -z "$GOPATH" ]];then
+whereis go; if [ ! $? -eq 0 ] && [[ -z "$GOPATH" ]];then
 echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
 PS3="Please select an option : "
 choices=("yes" "no")
