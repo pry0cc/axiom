@@ -10,7 +10,10 @@ then
     notify-send "Axiom Info" "Build completed successfully!"
 else
     echo "Your build failed :( Please take a look at the errors!"
+    echo "Builds may fail every now and then, there are some known bugs in Ubuntu Server that cause this."
+	echo "Im sorry, but it just fails sometimes, just sit back and relax and we'll try again until  it works ;)"
     notify-send "Axiom Info" "Build failed :("
+    ~/.axiom/interact/axiom-build
 fi
 
 
