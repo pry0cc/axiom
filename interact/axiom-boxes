@@ -70,6 +70,15 @@ then
 			echo -e "${BRed}Box already exists${Color_Off}"
 		fi
 		;;
+	cp*)
+		box_path="$HOME/.axiom/boxes/$2"
+
+		if [ -d "$box_path" ]
+		then
+			echo -e "${BWhite}Coping box '$2' to '$3'${Color_Off}"
+			cp -r $box_path "$HOME/.axiom/boxes/$3"
+		fi
+		;;
 	get*)
 		repo="https://github.com/$2.git"
 		box=$(echo $2 | sed 's/\//-/g')
