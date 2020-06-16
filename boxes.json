@@ -1,0 +1,10 @@
+[
+	{
+		"name":"pry0cc/lazy",
+		"description":"The box I use for lazy enumeration, has a full blown enumeration script and custom zsh config."
+	},
+	{
+		"name":"vict0ni/lazy",
+		"description":"The original lazy.sh script, quicker than pry0cc's box"
+	}
+]
