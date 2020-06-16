@@ -153,7 +153,7 @@
                 "apt-get -y install sn0int",
                 "echo 'Installing Httprobe'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/httprobe'",
-				"/bin/su -l op -c '/snap/bin/doctl init -t {{ user `do_key` }}'",
+				"/bin/su -l op -c '/snap/bin/doctl auth init -t {{ user `do_key` }}'",
                 "echo 'Installing Neovim Plugin manager'",
                 "/bin/su -l op -c 'curl --create-dirs -fLo ~/.local/share/nvim/site/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'",
                 "echo 'Installing Meg'",
