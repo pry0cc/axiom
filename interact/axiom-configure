@@ -53,7 +53,12 @@ esac
 
 if [ $BASEOS == "Linux" ]
 then
-    OS=$(lsb_release -i | awk '{ print $3 }')
+    if $(uname -a | grep -q "Microsoft")
+    then
+        OS="UbuntuWSL"
+    else    
+        OS=$(lsb_release -i | awk '{ print $3 }')
+    fi    
     if [ $OS == "Arch" ]
     then
         echo -e "${Blue}Congrats, you run arch..."
@@ -70,6 +75,12 @@ then
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
         sudo dnf -y update && sudo dnf -y install fzf git
+        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+    elif [ $OS == "UbuntuWSL" ]
+    then
+        sudo apt-get update && sudo apt-get install fzf git unzip
+        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
         wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
     fi
 fi
