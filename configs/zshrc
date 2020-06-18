@@ -101,3 +101,11 @@ dirs(){
 
 # added by pipsi (https://github.com/mitsuhiko/pipsi)
 export PATH="/home/op/.local/bin:$PATH"
+
+axiom-ls() {
+    /snap/bin/doctl compute droplet list | awk '{ print $2 " " $3 }' | column -t
+}
+
+axiom-implode() {
+    /snap/bin/doctl compute droplet delete -f $(/snap/bin/doctl compute droplet list | awk '{ print $2 }' | grep $(hostname))
+}
