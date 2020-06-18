@@ -42,7 +42,6 @@
                 "UCF_FORCE_CONFFNEW=YES apt-get upgrade -qq",
                 "apt-get -qq install docker-ce",
                 "wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
-                "wget -O /tmp/caddy.deb https://github.com/caddyserver/caddy/releases/download/v2.0.0/caddy_2.0.0_linux_amd64.deb  && cd /tmp/ && dpkg -i /tmp/caddy.deb",
                 "wget https://bootstrap.pypa.io/get-pip.py",
                 "python3.7 get-pip.py",
                 "pip install aiodnsbrute docker-py",
@@ -63,6 +62,11 @@
             "source":"./configs/resolv.conf",
             "destination":"/etc/resolv.conf"
         },
+		{
+			"type":"file",
+			"source":"./configs/docker",
+			"destination":"/etc/default/docker"
+		},
         {
             "type":"file",
             "source":"./configs/add-path",
