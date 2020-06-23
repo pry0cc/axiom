@@ -121,3 +121,5 @@ then
 	sleep 42
 	~/.axiom/interact/axiom-deploy "$deploy"
 fi
+
+$HOME/.axiom/interact/header.sh
