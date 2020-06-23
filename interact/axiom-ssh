@@ -42,3 +42,5 @@ if [ $connected == false ]
 then
 	ssh -p2266 op@$ip
 fi
+
+$HOME/.axiom/interact/header.sh

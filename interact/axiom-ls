@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
 doctl compute droplet list | awk '{ print $2  " "  $3 }'| column -t
+$HOME/.axiom/interact/header.sh
