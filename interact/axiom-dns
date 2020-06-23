@@ -65,14 +65,14 @@ then
 		domains=$(echo $data | jq -r '.[].name' | grep $3 | wc -l | awk '{ print $1}')
 
 		if [ $domains -gt 0 ]
-		the
+		then
 			subdomains=$(doctl compute domain records list microsoftoinline.com -o json | jq '.[]')
 			exists=$(echo $subdomains | jq -r 'select(.type=="A")' | jq -r '.name' | grep $2 | wc -l | awk '{ print $1 }')
 			
 			if [ $exists -gt 0 ] 
 			then
 				echo -e "${BWhite}Deleting DNS record $2.$3... ${Color_Off}"
-				id=(echo $subdomains | jq -r 'select(.type=="A")' | jq "select(.name==\"$2\") | .id")
+#				id=(echo $subdomains | jq -r 'select(.type=="A")' | jq "select(.name==$2) | .id")
 
 				doctl compute domain records delete $3 $id
 			else
