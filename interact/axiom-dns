@@ -66,20 +66,18 @@ then
 
 		if [ $domains -gt 0 ]
 		then
-			subdomains=$(doctl compute domain records list microsoftoinline.com -o json | jq '.[]')
+			subdomains=$(doctl compute domain records list $3 -o json | jq '.[]')
 			exists=$(echo $subdomains | jq -r 'select(.type=="A")' | jq -r '.name' | grep $2 | wc -l | awk '{ print $1 }')
 			
 			if [ $exists -gt 0 ] 
 			then
 				echo -e "${BWhite}Deleting DNS record $2.$3... ${Color_Off}"
-#				id=(echo $subdomains | jq -r 'select(.type=="A")' | jq "select(.name==$2) | .id")
-
+				id=$(echo $subdomains | jq -r 'select(.type=="A")' | jq "select(.name==\"$2\") | .id")
+				
 				doctl compute domain records delete $3 $id
 			else
 				echo -e "${BRed}Subdomain doesn't exist${Color_Off}"
 			fi
-
-			doctl compute domain records create $domain --record-type A --record-name $2 --record-data $ip	
 		else
 			echo -e  "${BRed}Domain doesn't exist${Color_Off}"
 		fi
