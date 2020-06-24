@@ -45,4 +45,4 @@ echo -e "${BWhite}To run this instance for $hours hours, it would cost a total o
 echo -e "${Green}Would you like to proceed? [ENTER]"
 read
 
-axiom-init --size=$size
+axiom-init --size=$slug
