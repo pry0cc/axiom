@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Reset
+Color_Off='\033[0m'       # Text Reset
+
+# Regular Colors
+export Black='\033[0;30m'        # Black
+export Red='\033[0;31m'          # Red
+export Green='\033[0;32m'        # Green
+export Yellow='\033[0;33m'       # Yellow
+export Blue='\033[0;34m'         # Blue
+export Purple='\033[0;35m'       # Purple
+export Cyan='\033[0;36m'         # Cyan
+export White='\033[0;37m'        # White
+
+# Bold
+export BBlack='\033[1;30m'       # Black
+export BRed='\033[1;31m'         # Red
+export BGreen='\033[1;32m'       # Green
+export BYellow='\033[1;33m'      # Yellow
+export BBlue='\033[1;34m'        # Blue
+export BPurple='\033[1;35m'      # Purple
+export BCyan='\033[1;36m'        # Cyan
+export BWhite='\033[1;37m'       # White
+
+echo -e -n "${BWhite}Please enter your desired spend in dollars >> \$${White}"
+read spend
+
+echo -e -n "${BWhite}Please enter your run time in hours >> ${White}"
+read hours
+
+sizes=$(doctl compute size list -o json)
+spend_per_hour=$(bc <<< "scale=2; $spend/$hours")
+slug=$(echo $sizes | jq -r ".[] | select(.price_hourly < $spend_per_hour) | .slug" | tail -n 1)
+echo -e "${Green}Calculated your target hourly spend at: \$$spend_per_hour per hour${Color_Off}"
+instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
+cores=$(echo $instance_data | jq .vcpus)
+mem_big=$(echo $instance_data | jq .memory)
+price_hourly=$(echo $instance_data | jq .price_hourly)
+mem=$(expr $mem_big / 1024)
+disk=$(echo $instance_data | jq .disk)
+total=$(bc <<< "scale=2; $price_hourly * $hours")
+echo -e "${BWhite}Selected $slug, with $cores cores, $mem GB of RAM and $disk GB HDD, $price_hourly/h"
+echo -e "${BWhite}To run this instance for $hours hours, it would cost a total of \$$total"
+echo -e "${Green}Would you like to proceed? [ENTER]"
+read
+
+axiom-init --size=$size

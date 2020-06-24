@@ -35,7 +35,7 @@ connect_shell=false
 restore=false
 deploy=false
 
-if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]];
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]];
 then
     name="$gen_name"
 else
@@ -58,6 +58,11 @@ do
         deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
     fi
+    if [[ "$var" =~ "--size" ]]
+	then
+		size="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
+	fi
 done
 
 notify-send "Axiom Info" "Initializing '$name'..."
