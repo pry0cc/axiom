@@ -59,7 +59,7 @@ expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
 
 
-for (( i=1; i<=$amount; i++ ))
+for i in $(seq -f "%02g" 1 $amount)
 do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost exactly \$$total_spend_per_instance"
