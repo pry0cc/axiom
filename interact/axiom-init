@@ -34,8 +34,9 @@ box_name=""
 connect_shell=false
 restore=false
 deploy=false
+expire=false
 
-if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]];
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]];
 then
     name="$gen_name"
 else
@@ -62,6 +63,11 @@ do
 	then
 		size="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
+	fi
+	if [[ "$var" =~ "--expire" ]]
+	then
+		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		echo -e "${BWhite}Setting expiry to $expire hours...${Color_Off}"
 	fi
 done
 
@@ -126,5 +132,12 @@ then
 	sleep 42
 	~/.axiom/interact/axiom-deploy "$deploy"
 fi
+
+if [ "$expire" != false ]
+then
+	echo -e "${BWhite}Waiting 30 seconds before setting expiry... ${Color_Off}"
+	~/.axiom/interact/axiom-exec "set-expiry.sh $expire hours" "$name"
+fi
+
 
 $HOME/.axiom/interact/header.sh
