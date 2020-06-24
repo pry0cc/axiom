@@ -42,7 +42,7 @@ fi
 echo -e "${BWhite}Executing command on $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
-ssh -p2266 op@"$ip" -t "'$1'"
+ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" -t "'$1'"
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Execute on $instance' successful!${Color_Off}" 

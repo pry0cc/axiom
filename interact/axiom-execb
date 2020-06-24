@@ -42,8 +42,8 @@ ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
 echo -e "${BWhite}Executing in background to $instance at $ip ${Color_Off}"
 echo -n -e "${Blue}" 
 
-ssh -p2266 op@"$ip" 'tmux new-session -d -t main'
-ssh -p2266 op@"$ip" tmux send-keys "'$1' Enter"
+ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" 'tmux new-session -d -t main'
+ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" tmux send-keys "'$1' Enter"
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Execute on $instance' successful!${Color_Off}" 
