@@ -29,19 +29,24 @@ read spend
 echo -e -n "${BWhite}Please enter your run time in hours >> ${White}"
 read hours
 
+echo -e -n "${BWhite}Please enter how many instances you want to run >> ${White}"
+read amount
+
 sizes=$(doctl compute size list -o json)
 spend_per_hour=$(bc <<< "scale=2; $spend/$hours")
-slug=$(echo $sizes | jq -r ".[] | select(.price_hourly < $spend_per_hour) | .slug" | tail -n 1)
-echo -e "${Green}Calculated your target hourly spend at: \$$spend_per_hour per hour${Color_Off}"
+multi_instance_spend=$(bc <<< "scale=2; $spend_per_hour / $amount")
+slug=$(echo $sizes | jq -r ".[] | select(.price_hourly < $multi_instance_spend) | .slug" | tail -n 1)
+echo -e "${Green}Calculated your target hourly spend per instance at: \$$multi_instance_spend per hour${Color_Off}"
+echo -e "${Green}Calculated your target hourly spend total at: \$$spend_per_hour per hour${Color_Off}"
 instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
 cores=$(echo $instance_data | jq .vcpus)
 mem_big=$(echo $instance_data | jq .memory)
 price_hourly=$(echo $instance_data | jq .price_hourly)
 mem=$(expr $mem_big / 1024)
 disk=$(echo $instance_data | jq .disk)
-total=$(bc <<< "scale=2; $price_hourly * $hours")
+total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
 echo -e "${BWhite}Selected $slug, with $cores cores, $mem GB of RAM and $disk GB HDD, $price_hourly/h"
-echo -e "${BWhite}To run this instance for $hours hours, it would cost a total of \$$total"
+echo -e "${BWhite}To run $amount instance/s with the above specs for $hours hours, it would cost a total of \$$total"
 echo -e "${Green}Would you like to proceed? [ENTER]"
 read
 
