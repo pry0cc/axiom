@@ -67,5 +67,5 @@ do
    sleep 1
 done
 
-sleep 80
+sleep 180
 echo -e "${BGreen}Should be started succesfully! All instances will automatically implode after $expiry minutes or $hours hours. To extend the lifetime on an instance, set-expiry.sh \"10 hours\" etc.${Color_Off}" 
