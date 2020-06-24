@@ -59,6 +59,6 @@ for (( i=1; i<=$amount; i++ ))
 do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost exactly \$$total_spend_per_instance"
-   #axiom-init $name --size=$slug --selfdestruct=$hours
+   axiom-init $name --size=$slug --expire=$hours
 done
 
