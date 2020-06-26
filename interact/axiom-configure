@@ -59,7 +59,7 @@ then
     else    
         OS=$(lsb_release -i | awk '{ print $3 }')
     fi    
-    if [ $OS == "Arch" ]
+    if [ $OS == "Arch" ] || [$OS == "ManjaroLinux"]
     then
         echo -e "${Blue}Congrats, you run arch..."
         echo -e "Ok so you need doctl - so get that from the AUR :) yay -S doctl! You're smart! You installed arch! ${Color_Off}"
