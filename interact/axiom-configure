@@ -53,7 +53,7 @@ esac
 
 if [ $BASEOS == "Linux" ]
 then
-    if $(uname -a | grep -q "Microsoft")
+    if $(uname -a | grep -qi "Microsoft")
     then
         OS="UbuntuWSL"
     else    
