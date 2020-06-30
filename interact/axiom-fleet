@@ -30,7 +30,10 @@ if [ -z $1 ] || [[ $1 =~ "t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
 then
     gen_name="${names[$RANDOM % ${#names[@]} ]}"
 else
-    gen_name="$1"
+    if [ ! -z $1 ]
+    then
+        gen_name="$1"
+    fi
 fi
 
 spend=false
