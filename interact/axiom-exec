@@ -25,6 +25,7 @@ BWhite='\033[1;37m'       # White
 
 droplets=$(doctl compute droplet list -o json)
 instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+quiet=false
 command="$1"
 
 if [ ! -z "$2" ]
@@ -32,6 +33,10 @@ then
     instance="$2"
 fi
 
+if [ ! -z "$3" ]
+then
+    quiet=true
+fi
 
 if [ -z "$1" ]
 then
@@ -45,19 +50,22 @@ i=1
 for name in $selected
 do
     ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
-    echo -e "${BWhite}Executing inline on $name at $ip ${Color_Off}"
-    echo -n -e "${Blue}" 
-
-    
+    if [[ "$quiet" != "true" ]]
+    then
+        echo -e "${BWhite}Executing inline on $name at $ip ${Color_Off}"
+        echo -n -e "${Blue}" 
+    fi
 
     cmd="$1"
     rendered=$(echo $cmd | sed "s/\$i/$i/g")
 
-
     ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" "$rendered"
 
-    echo -n -e "${Color_Off}" 
-    echo -e "${BGreen}Execute on $name' successful!${Color_Off}" 
+    if [[ "$quiet" != "true" ]]
+    then
+        echo -n -e "${Color_Off}" 
+        echo -e "${BGreen}Execute on $name' successful!${Color_Off}" 
+    fi
     i=$((i+1))
 done
 
