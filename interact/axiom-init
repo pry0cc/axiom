@@ -74,7 +74,7 @@ done
 notify-send "Axiom Info" "Initializing '$name'..."
 echo -e "${BWhite}Initializing '$name'"
 
-image_name="axiom"
+image_name="axiom-$region"
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
 
 resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region")
