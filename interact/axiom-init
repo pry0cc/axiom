@@ -35,6 +35,7 @@ connect_shell=false
 restore=false
 deploy=false
 expire=false
+default_expiry=525600000
 quiet=false
 
 if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]];
@@ -73,6 +74,7 @@ do
 	if [[ "$var" =~ "--expire" ]]
 	then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+        default_expiry=$expire
 		echo -e "${BWhite}Setting expiry to $expire minutes...${Color_Off}"
 	fi
 done
@@ -83,7 +85,9 @@ echo -e "${BWhite}Initializing '$name'"
 image_name="axiom-$region"
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
 
-resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region")
+cat ~/.axiom/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > /tmp/$name.sh
+chmod +x /tmp/$name.sh
+resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --user-data-file /tmp/$name.sh)
 
 if [ "$quiet" != "true" ]
 then
@@ -134,13 +138,5 @@ then
 	sleep 65
 	~/.axiom/interact/axiom-deploy "$deploy"
 fi
-
-if [ "$expire" != false ]
-then
-	echo -e "${BWhite}Waiting 65 seconds before setting expiry... ${Color_Off}"
-	sleep 65
-	~/.axiom/interact/axiom-execb "set-expiry.sh \"$expire minutes\"" "$name"
-fi
-
 
 $HOME/.axiom/interact/header.sh
