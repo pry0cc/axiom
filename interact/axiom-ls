@@ -10,7 +10,7 @@ else
     fi
     if [[ "$1" == "--json" ]]
     then
-        doctl compute droplet list -o json
+        doctl compute droplet list -o json | jq
     fi
 fi
 $HOME/.axiom/interact/header.sh
