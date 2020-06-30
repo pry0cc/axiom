@@ -67,7 +67,7 @@ do
 	if [[ "$var" =~ "--expire" ]]
 	then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Setting expiry to $expire hours...${Color_Off}"
+		echo -e "${BWhite}Setting expiry to $expire minutes...${Color_Off}"
 	fi
 done
 
