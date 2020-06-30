@@ -54,7 +54,7 @@ do
     rendered=$(echo $cmd | sed "s/\$i/$i/g")
 
 
-    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" -t "'$rendered'"
+    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" "$rendered"
 
     echo -n -e "${Color_Off}" 
     echo -e "${BGreen}Execute on $name' successful!${Color_Off}" 
