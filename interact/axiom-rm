@@ -60,7 +60,7 @@ then
     echo -e "${Red}Deleting '$selected'...${Color_Off}"
     delete_instance "$selected" "$force"
 fi
-if [ $total -gt 2 ]
+if [ $total -gt 1 ]
 then
     i=1
     for name in $selected
