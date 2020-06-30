@@ -26,7 +26,7 @@ export BWhite='\033[1;37m'       # White
 
 gen_name=""
 
-if [ -z $1 ] || [[ $1 =~ "t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
+if [ -z $1 ] || [[ $1 =~ "-t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
 then
     gen_name="${names[$RANDOM % ${#names[@]} ]}"
 else
