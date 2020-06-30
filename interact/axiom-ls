@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
 
-doctl compute droplet list | awk '{ print $2  " "  $3 }'| column -t
+if [ -z $1 ]
+then
+    doctl compute droplet list | awk '{ print $2  " "  $3 }'| column -t
+else
+    if [[ "$1" == "-d" ]]
+    then
+        doctl compute droplet list | awk '{ print $2 }' | grep -v "Name"
+    fi
+    if [[ "$1" == "--json" ]]
+    then
+        doctl compute droplet list -o json
+    fi
+fi
 $HOME/.axiom/interact/header.sh
