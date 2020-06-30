@@ -27,7 +27,7 @@ export BWhite='\033[1;37m'       # White
 gen_name="${names[$RANDOM % ${#names[@]} ]}"
 
 
-if [ ! -z $1 ]
+if [ ! -z $1 ] || [[ $1 =~ "t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
 then
     gen_name="$1"
 fi
@@ -44,7 +44,7 @@ do
         spend="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         echo -e "${BWhite}Setting spend to \$$spend${Color_Off}"
     fi
-    if [[ "$var" =~ "--hours" ]]
+    if [[ "$var" =~ "--time" ]]
     then
         hours="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         echo -e "${BWhite}Setting expiry to $hours hours${Color_Off}"
