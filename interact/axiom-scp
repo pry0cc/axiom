@@ -1,0 +1,12 @@
+#!/bin/bash
+
+droplets=$(doctl compute droplet list -o json)
+
+echo -n "" > ~/.axiom/.sshconfig
+for name in $(echo "$droplets" | jq -r '.[].name')
+do 
+	ip=$(echo "$droplets" | jq -r '.[].networks.v4[].ip_address')
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> ~/.axiom/.sshconfig
+done
+
+scp -F ~/.axiom/.sshconfig "$@"
