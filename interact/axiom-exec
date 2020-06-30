@@ -23,15 +23,15 @@ BPurple='\033[1;35m'      # Purple
 BCyan='\033[1;36m'        # Cyan
 BWhite='\033[1;37m'       # White
 
+droplets=$(doctl compute droplet list -o json)
 instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
+command="$1"
 
 if [ ! -z "$2" ]
 then
     instance="$2"
 fi
 
-ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
-command="$1"
 
 if [ -z "$1" ]
 then
@@ -39,10 +39,25 @@ then
     exit 0
 fi
 
-echo -e "${BWhite}Executing command on $instance at $ip ${Color_Off}"
-echo -n -e "${Blue}" 
+selected=$(echo $droplets | jq -r '.[].name' | grep -E "$instance")
 
-ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" -t "'$1'"
+i=1
+for name in $selected
+do
+    ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
+    echo -e "${BWhite}Executing inline on $name at $ip ${Color_Off}"
+    echo -n -e "${Blue}" 
 
-echo -n -e "${Color_Off}" 
-echo -e "${BGreen}Execute on $instance' successful!${Color_Off}" 
+    
+
+    cmd="$1"
+    rendered=$(echo $cmd | sed "s/\$i/$i/g")
+
+
+    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" -t "'$rendered'"
+
+    echo -n -e "${Color_Off}" 
+    echo -e "${BGreen}Execute on $name' successful!${Color_Off}" 
+    i=$((i+1))
+done
+
