@@ -69,19 +69,27 @@ do
     if [[ "$var" =~ "--size" ]]
 	then
 		size="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
+		if [ "$quiet" != "true" ]
+		then
+			echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
+		fi
 	fi
 	if [[ "$var" =~ "--expire" ]]
 	then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         default_expiry=$expire
-		echo -e "${BWhite}Setting expiry to $expire minutes...${Color_Off}"
+		if [ "$quiet" != "true" ]
+		then
+			echo -e "${BWhite}Setting expiry to $expire minutes...${Color_Off}"
+		fi
 	fi
 done
 
-notify-send "Axiom Info" "Initializing '$name'..."
-echo -e "${BWhite}Initializing '$name'"
-
+if [[ "$quiet" != "true" ]]
+then
+	notify-send "Axiom Info" "Initializing '$name'..."
+	echo -e "${BWhite}Initializing '$name'"
+fi
 image_name="axiom-$region"
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
 
