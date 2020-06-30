@@ -24,7 +24,8 @@ export BCyan='\033[1;36m'        # Cyan
 export BWhite='\033[1;37m'       # White
 
 snapshot_data=$(doctl compute snapshot list -o json)
-image_name="axiom-"
+region=$(cat ~/.axiom/axiom.json | jq -r '.region')
+image_name="axiom-$region"
 latest_image=$(echo $snapshot_data | jq -r '.[].name' | grep "$image_name" | tail -n 1)
 
 echo -e "${BWhite}Pruning old Axiom images...${Color_Off}"
