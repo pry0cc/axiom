@@ -40,6 +40,7 @@ then
 fi
 
 selected=$(echo $droplets | jq -r '.[].name' | grep -E "$instance")
+total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 
 i=1
 for name in $selected
@@ -51,7 +52,7 @@ do
     
 
     cmd="$1"
-    rendered=$(echo $cmd | sed "s/\$i/$i/g")
+    rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
 
     ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" 'tmux new-session -d -t main'

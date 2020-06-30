@@ -3,25 +3,71 @@
 Color_Off='\033[0m'       # Text Reset
 Red='\033[0;31m'  
 
-#domain=$(cat ~/.axiom.json| jq -r '.domain')
 if [ -z "$1" ]
 then
-    ans="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
-#    doctl compute domain records delete $domain $(doctl compute domain records list $domain | grep $ans | awk '{ print $1 }')
-	echo -e "${Red}Deleting '$ans'...${Color_Off}"
-	doctl compute droplet delete "$ans"
-    echo "{\"instance\":\"false\"}" | jq > ~/.axiom/profile.json
-else
-    echo -e "${Red}Deleting '$1'...${Color_Off}"
-	if [ "$2" == "-f" ]
-	then
-		echo -e "${BBlue}Force delete specified...${Color_Off}"
-		doctl compute droplet delete -f "$1"	
-	else
-		doctl compute droplet delete "$1"
-	fi
 
-    echo "{\"instance\":\"false\"}" | jq > ~/.axiom/profile.json
-#    doctl compute domain records delete $domain $(doctl compute domain records list $domain | grep $1 | awk '{ print $1 }')
+	echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
+    exit
 fi
 
+force=false
+
+if [ ! -z "$2" ]
+then
+    if [[ "$2" == "-f" ]]
+    then
+	    echo -e "${Blue}Force delete enabled...${Color_Off}"
+        force=true
+    fi
+fi
+
+delete_instance() {
+    name="$1"
+    force="$2"
+
+    if [ "$force" == "true" ]
+        then
+        doctl compute droplet delete -f "$name"
+    else
+        doctl compute droplet delete "$name" 
+    fi
+
+}
+
+query="$1"
+droplets=$(doctl compute droplet list -o json)
+selected=""
+
+if [[ $query =~ "*" ]]
+then
+    selected=$(echo $droplets | jq -r '.[].name' | grep -E "$query")
+else
+    selected=$(echo $droplets | jq -r '.[].name' | grep -w "$query")
+fi
+
+total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+chars=$(echo $selected | wc -c | awk '{ print $1 }')
+if [ $total -eq 1 ]
+then
+    if [ $chars -lt 2 ]
+    then
+	    echo -e "${Red}Instance does not exist..${Color_Off}"
+        exit
+    fi
+    
+    selected=$(echo $droplets | jq -r '.[].name' | grep -w "$query")
+	
+    echo -e "${Red}Deleting '$selected'...${Color_Off}"
+    delete_instance "$selected" "$force"
+fi
+if [ $total -gt 2 ]
+then
+    i=1
+    for name in $selected
+    do
+	    echo -e "${Red}Deleting '$name'...${Color_Off}"
+        delete_instance "$name" "$force"
+
+        i=$((i+1))
+    done
+fi
