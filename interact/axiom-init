@@ -35,8 +35,9 @@ connect_shell=false
 restore=false
 deploy=false
 expire=false
+quiet=false
 
-if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]];
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]];
 then
     name="$gen_name"
 else
@@ -49,6 +50,11 @@ do
     then
         connect_shell=true
     fi
+    if [ "$var" == "--quiet" ]
+    then
+        quiet=true
+    fi
+
     if [[ $var =~ "--restore" ]]
     then
         restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
@@ -79,43 +85,39 @@ image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ p
 
 resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region")
 
-secs=$((60))
-while [ $secs -gt 30 ]; do
-   echo -ne ">> T-Minus $secs to stage-1 Lift Off!\033[0K\r"
-   sleep 1
-   : $((secs--))
-done
-
+if [ "$quiet" != "true" ]
+then
+    secs=$((60))
+    while [ $secs -gt 30 ]; do
+        echo -ne ">> T-Minus $secs to stage-1 Lift Off!\033[0K\r"
+        sleep 1
+        : $((secs--))
+    done
+else
+    sleep 60
+fi
 # Roughly 30 seconds before the public IP is init'd
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
 #dns=$(doctl compute domain records create $domain --record-type A --record-name $name --record-data $ip)
-
-if [ "$connect_shell" == true ]
+if [ "$quiet" != "true" ]
 then
-
-	secs=$((80))
-	while [ $secs -gt 0 ]; do
-		echo -ne ">> T-Minus $secs to connect...\033[0K\r"
-		sleep 1
-		: $((secs--))
-	done
-
-	echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
-	notify-send "Axiom Info" "$name successfully initialized at $ip!"
-    echo -e "${BBlue}Connecting...                          ${Color_Off}"
-    ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
-    ssh -p2266 op@"$ip"
+    secs=$((30))
+    while [ $secs -gt 0 ]; do
+	    echo -ne ">> T-Minus $secs to full initialization...\033[0K\r"
+	    sleep 1
+	    : $((secs--))
+    done
 else
-	secs=$((30))
-	while [ $secs -gt 0 ]; do
-		echo -ne ">> T-Minus $secs to full initialization...\033[0K\r"
-		sleep 1
-		: $((secs--))
-	done
+    sleep 30
+fi
 
-	echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
-	notify-send "Axiom Info" "$name successfully initialized at $ip!"
-    echo -e "${BWhite}Initialized! Instance accessible at '${BGreen}$ip${BWhite}'!"
+echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
+
+notify-send "Axiom Info" "$name successfully initialized at $ip!"
+echo -e "${BWhite}Initialized! Instance accessible at '${BGreen}$ip${BWhite}'!"
+
+if [ "$quiet" != "true" ]
+then
     echo -e "To connect, run '${BGreen}axiom-ssh $name${Green}'${Color_Off}"
 fi
 
@@ -128,14 +130,14 @@ fi
 
 if [ "$deploy" != false ]
 then
-	echo -e "${BWhite}Waiting 30 seconds before deploy... ${Color_Off}"
+	echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
 	sleep 65
 	~/.axiom/interact/axiom-deploy "$deploy"
 fi
 
 if [ "$expire" != false ]
 then
-	echo -e "${BWhite}Waiting 30 seconds before setting expiry... ${Color_Off}"
+	echo -e "${BWhite}Waiting 65 seconds before setting expiry... ${Color_Off}"
 	sleep 65
 	~/.axiom/interact/axiom-execb "set-expiry.sh \"$expire minutes\"" "$name"
 fi

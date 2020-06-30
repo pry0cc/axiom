@@ -114,8 +114,8 @@ do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost exactly \$$total_spend_per_instance"
    axiom-init $name --size=$slug --expire=$expiry &
-   sleep 1
+   sleep 0.3
 done
 
-sleep 180
+sleep 120
 echo -e "${BGreen}Should be started succesfully! All instances will automatically implode after $expiry minutes or $hours hours. To extend the lifetime on an instance, set-expiry.sh \"10 hours\" etc.${Color_Off}" 
