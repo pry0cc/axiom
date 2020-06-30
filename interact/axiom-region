@@ -11,7 +11,8 @@ then
 	if [ "$lines" -gt 0 ]
 	then
 		echo "Selected region $2"
-		cat ~/.axiom/axiom.json | jq ".region=\"$2\"" > ~/.axiom/axiom.json
+		cat ~/.axiom/axiom.json | jq -r ".region=\"$2\"" | jq -r > $HOME/.axiom/axiom.json.new
+        mv $HOME/.axiom/axiom.json.new $HOME/.axiom/axiom.json
 	fi
 else
 	echo "Usage:"
