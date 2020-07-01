@@ -16,7 +16,7 @@ if [ ! -z "$2" ]
 then
     if [[ "$2" == "-f" ]]
     then
-	    echo -e "${Blue}Force delete enabled...${Color_Off}"
+#	    echo -e "${Blue}Force delete enabled...${Color_Off}"
         force=true
     fi
 fi
