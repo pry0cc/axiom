@@ -66,7 +66,8 @@ then
     for name in $selected
     do
 	    echo -e "${Red}Deleting '$name'...${Color_Off}"
-        delete_instance "$name" "$force"
+        delete_instance "$name" "$force" &
+        sleep 0.3
 
         i=$((i+1))
     done
