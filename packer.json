@@ -69,6 +69,11 @@
 		},
         {
             "type":"file",
+            "source":"./configs/telegram",
+            "destination":"/home/op/bin/telegram"
+        },
+        {
+            "type":"file",
             "source":"./configs/add-path",
             "destination":"/home/op/bin/add-path"
         },
@@ -76,6 +81,11 @@
             "type":"file",
             "source":"./configs/authorized_keys",
             "destination":"/home/op/.ssh/authorized_keys"
+        },
+        {
+            "type":"file",
+            "source":"./configs/telegram.json",
+            "destination":"/home/op/.telegram.json"
         },
         {
             "type":"file",
