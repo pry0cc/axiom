@@ -27,13 +27,13 @@ export BWhite='\033[1;37m'       # White
 droplets=$(doctl compute droplet list -o json)
 instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
 command="$1"
-echo -e "${BWhite}Watching '$command' on '$instance'... This command will automatically backup and delete the instance after it detects the command is no longer running...  ${Color_Off}"
 
 if [ ! -z "$2" ]
 then
     instance="$2"
 fi
 
+echo -e "${BWhite}Watching '$command' on '$instance'... This command will automatically backup and delete the instance after it detects the command is no longer running...  ${Color_Off}"
 command="$1"
 
 exit=1
