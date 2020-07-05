@@ -41,7 +41,7 @@ while [[ "$exit" -gt 0 ]]
 do 
 	exit=$(axiom-exec "ps cax | pgrep "$command" | wc -l | awk '{ print \$1 }'" "$instance" -q)
 
-	sleep 1
+	sleep $(expr $RANDOM % 20)
 done
 
 echo -e "${BGreen}'$command' has completed! Backing up and deleting '$instance'..."
