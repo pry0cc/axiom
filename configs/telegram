@@ -24,8 +24,8 @@ export BCyan='\033[1;36m'        # Cyan
 export BWhite='\033[1;37m'       # White
 
 msg() {
-    bot_id=$(cat ~/.telegram.json | jq -r .bot_id)
-    chat_id=$(cat ~/.telegram.json | jq -r .chat_id)
+    bot_id=$(cat /home/op/.telegram.json | jq -r .bot_id)
+    chat_id=$(cat /home/op/.telegram.json | jq -r .chat_id)
     msg="$1"
 
     ans=$(curl -s -X POST -H 'Content-Type: application/json' -d "{\"chat_id\": \"$chat_id\", \"text\": \"$msg\"}" https://api.telegram.org/bot$bot_id/sendMessage)
@@ -39,7 +39,8 @@ then
     read bot_id
     echo -n "Please enter your chat id: "
     read chat_id
-    echo "{\"bot_id\":\"$bot_id\", \"chat_id\":\"$chat_id\"}"> ~/.telegram.json
+    echo "{\"bot_id\":\"$bot_id\", \"chat_id\":\"$chat_id\"}"> /home/op/.telegram.json
+    sudo chown -R op:users /home/op/.telegram.json
 else
     msg "$1"
 fi
