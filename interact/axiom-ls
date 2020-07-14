@@ -7,10 +7,24 @@ else
     if [[ "$1" == "-d" ]]
     then
         doctl compute droplet list | awk '{ print $2 }' | grep -v "Name"
-    fi
-    if [[ "$1" == "--json" ]]
+    elif [[ "$1" == "--json" ]]
     then
         doctl compute droplet list -o json | jq
-    fi
+	else
+		resp=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | grep -E "$1")
+		count=$(echo $resp | tr ' ' '\n'  | wc -l | awk '{ print $1 }')
+
+		if [[ "$count" -gt 1 ]]
+		then
+			i=1
+			for name in $resp
+			do
+				echo "$i $name"
+				i=$((i+1))
+			done
+		else
+			doctl compute droplet list | grep -E $1 | awk '{ print $3 }'
+		fi
+	fi
 fi
 $HOME/.axiom/interact/header.sh
