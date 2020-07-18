@@ -2,14 +2,20 @@
 
 echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_connect_time_out 8000,[ProxyList]," | tr ',' '\n' > proxychains.conf
 
+data=$(axiom-ls --json)
+
 axiom-ls $1 | while read line
 do 
 	i=$(echo $line | cut -d " " -f 1)
 	name=$(echo $line | cut -d " " -f 2)
-	ip=$(axiom-ls $name)
+	ip=$(echo $data | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
 	se=$(seq -f "%02g" $i $i)
 	port="50$se"
 	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -N &
 	echo "Proxy listener started on $port for $name:$i"
 	echo "socks5 127.0.0.1 $port" >> proxychains.conf
 done
+
+sleep 20
+
+echo "Done!"
