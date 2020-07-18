@@ -26,7 +26,7 @@ export BWhite='\033[1;37m'       # White
 
 gen_name=""
 
-if [ -z $1 ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
+if [ -z $1 ] || [[ $1 =~ "-t" ]] || [[ $1 =~ "time" ]] || [[ $1 =~ "spend" ]]
 then
     gen_name="${names[$RANDOM % ${#names[@]} ]}"
 else
@@ -43,7 +43,12 @@ prompt=false
 
 for var in "$@"
 do
-    if [[ "$var" =~ "-t" ]]
+    if [[ "$var" =~ "--spend" ]]
+    then
+        spend="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+        echo -e "${BWhite}Setting spend to \$$spend${Color_Off}"
+    fi
+    if [[ "$var" =~ "--time" ]]
     then
         hours="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         echo -e "${BWhite}Setting expiry to $hours hours${Color_Off}"
@@ -55,35 +60,54 @@ do
     fi
 done
 
+if [ "$spend" == "false" ]
+then
+    echo -e -n "${BWhite}Please enter your desired spend in dollars >> \$${White}"
+    read spend
+    prompt=true
+fi
 
 if [ "$hours" == "false" ]
 then
-    hours=1
+    echo -e -n "${BWhite}Please enter your run time in hours >> ${White}"
+    read hours
+    prompt=true
 fi
 
 if [ "$amount" == "false" ]
 then
-	amount=3
+    echo -e -n "${BWhite}Please enter how many instances you want to run >> ${White}"
+    read amount
+    prompt=true
 fi
 
-
 sizes=$(doctl compute size list -o json)
-slug="s-1vcpu-1gb"
+spend_per_hour=$(bc <<< "scale=2; $spend/$hours")
+multi_instance_spend=$(bc <<< "scale=2; $spend_per_hour / $amount")
+slug=$(echo $sizes | jq -r ".[] | select(.price_hourly < $multi_instance_spend) | .slug" | tail -n 1)
+echo -e "${Green}Calculated your target hourly spend per instance at: \$$multi_instance_spend per hour${Color_Off}"
+echo -e "${Green}Calculated your target hourly spend total at: \$$spend_per_hour per hour${Color_Off}"
 instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
-price_hourly=$(echo $instance_data | jq .price_hourly)
 cores=$(echo $instance_data | jq .vcpus)
 mem_big=$(echo $instance_data | jq .memory)
+price_hourly=$(echo $instance_data | jq .price_hourly)
 mem=$(expr $mem_big / 1024)
 disk=$(echo $instance_data | jq .disk)
 total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
-total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
-echo -e "${Green}Calculating cost to run a fleet of $amount instances with $cores core/s and ${mem}GB of RAM with a ${disk}GB SSD...\nThis fleet would run for $hours hours and would cost a total of \$$total\nThe hourly cost of each instance would be \$$price_hourly/h${Color_Off}"
-echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
+echo -e "${BWhite}Selected $slug, with $cores cores, $mem GB of RAM and $disk GB HDD, $price_hourly/h"
+echo -e "${BWhite}To run $amount instance/s with the above specs for $hours hours, it would cost a total of \$$total"
+echo -e "${Green}Would you like to proceed? [ENTER] ${Color_Off}"
 
-sleep 5
+if [ "$prompt" == "true" ]
+then
+    read
+fi
+
+total_spend_per_instance=$(bc <<< "scale=2; $multi_instance_spend * $hours")
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
+
 
 for i in $(seq -f "%02g" 1 $amount)
 do
