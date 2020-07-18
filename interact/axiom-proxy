@@ -7,7 +7,9 @@ do
 	i=$(echo $line | cut -d " " -f 1)
 	name=$(echo $line | cut -d " " -f 2)
 	ip=$(axiom-ls $name)
-	ssh -p2266 -o StrictHostKeyChecking=no -D 808$i op@$ip -N &
-	echo "Proxy listener started on 808$i for $name:$i"
-	echo "socks5 127.0.0.1 808$i" >> proxychains.conf
+	se=$(seq -f "%02g" $i $i)
+	port="50$se"
+	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -N &
+	echo "Proxy listener started on $port for $name:$i"
+	echo "socks5 127.0.0.1 $port" >> proxychains.conf
 done
