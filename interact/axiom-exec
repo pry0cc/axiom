@@ -45,11 +45,12 @@ then
 fi
 
 selected=$(echo $droplets | jq -r '.[].name' | grep -E "$instance")
+total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 
 i=1
 for name in $selected
 do
-    ip=$(doctl compute droplet list | grep $name | awk '{ print $3 }')
+	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
     if [[ "$quiet" != "true" ]]
     then
         echo -e "${BWhite}Executing inline on $name at $ip ${Color_Off}"
@@ -57,7 +58,7 @@ do
     fi
 
     cmd="$1"
-    rendered=$(echo $cmd | sed "s/\$i/$i/g")
+    rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
     ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" "$rendered"
 
