@@ -78,7 +78,8 @@ disk=$(echo $instance_data | jq .disk)
 total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
 total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\./0./')
 total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
-echo -e "${Green}Total estimated cost: \$$total_rounded${Clor_Off}"
+total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
+echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
 echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
 
 sleep 5
@@ -89,7 +90,7 @@ expiry=$(bc <<< "scale=2; $expiry - 8")
 for i in $(seq -f "%02g" 1 $amount)
 do
    name="$gen_name$i"
-   echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost exactly \$$total_spend_per_instance"
+   echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
    axiom-init $name --quiet --size=$slug --expire=$expiry &
    sleep 0.3
 done
