@@ -40,6 +40,7 @@ spend=false
 hours=false
 amount=false
 prompt=false
+region=false
 
 for var in "$@"
 do
@@ -52,6 +53,10 @@ do
     then
         amount="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         #echo -e "${BWhite}Setting number of instances to $amount...${Color_Off}"
+    fi
+	if [[ "$var" =~ "-r" ]]
+    then
+		regions=$(doctl compute snapshot list -o json | jq -r '.[] | select(.name | contains("axiom")) | .name'  | cut -d "-" -f 2 | sort -u)
     fi
 done
 
@@ -82,7 +87,8 @@ total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instanc
 echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
 echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
 
-sleep 5
+
+sleep 4
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
@@ -92,7 +98,7 @@ do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
    axiom-init $name --quiet --size=$slug --expire=$expiry &
-   sleep 0.3
+   sleep 0.1
 done
 
 secs=$((120))
