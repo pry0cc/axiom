@@ -19,7 +19,7 @@ else
 			i=1
 			for name in $resp
 			do
-				echo "$i $name"
+				echo "$i:$name"
 				i=$((i+1))
 			done
 		else
