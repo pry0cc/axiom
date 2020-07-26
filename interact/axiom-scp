@@ -9,4 +9,4 @@ do
 	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> ~/.axiom/.sshconfig
 done
 
-scp -o StrictHostKeyChecking=no -F ~/.axiom/.sshconfig "$@"
+scp -r -o StrictHostKeyChecking=no -F ~/.axiom/.sshconfig "$@"
