@@ -181,6 +181,7 @@
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/assetfinder'",
                 "echo 'Installing waybackurls'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/waybackurls'",
+				"/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/httpx/cmd/httpx'",
                 "echo 'Installing gron'",
 				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gron'",
                 "echo 'Installing anti-burl'",
