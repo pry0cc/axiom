@@ -126,13 +126,25 @@ then
 
 			if [[ "$ans" == "y" ]]
 			then
-				echo -e "${Blue}Generating new gpg key...${Color_Off}"
-				gpg --gen-key
-				email=$(gpg --list-secret-keys | grep uid | tail -n1 |  grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
-				echo -e "${Blue}Generated key for $email!${Color_Off}"
-				echo -e "${Blue}Please try the archive feature again now!${Color_Off}"
-				cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq > $HOME/.axiom/axiom.json.new
-				mv $HOME/.axiom/axiom.json.new $HOME/.axiom/axiom.json
+				echo -e "${BBlue}You have two choices... \n1) Generate a new key just for axiom (default)\n2) Use an existing key (manual)${Color_Off}"
+				echo -e -n "${Blue}>> ${Color_Off}"
+				read option
+				
+				if [[ "$option" -eq 1 ]]
+				then
+					echo -e "${Blue}Generating new gpg key...${Color_Off}"
+					gpg --gen-key
+					email=$(gpg --list-secret-keys | grep uid | tail -n1 |  grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
+					echo -e "${Blue}Generated key for $email!${Color_Off}"
+					echo -e "${Blue}Please try the archive feature again now!${Color_Off}"
+					cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq > $HOME/.axiom/axiom.json.new
+					mv $HOME/.axiom/axiom.json.new $HOME/.axiom/axiom.json
+				elif [[ "$option" -eq 2 ]]
+				then
+					echo -e -n "${Blue}Please enter your GPG recipient email: "
+					read email
+					cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq
+				fi
 			fi
 		fi
 
