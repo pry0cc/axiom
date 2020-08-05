@@ -151,7 +151,7 @@ then
 		;;
 	unarchive*)
 		box="$2"
-		echo "${BWhite}Unarchiving $box...${Color_Off}${Blue}"
+		echo -e "${BWhite}Unarchiving $box...${Color_Off}${Blue}"
 		cd ~/.axiom/archive/
 		gpg -o "$box.tar.gz" -d "$box.tar.gz.gpg"
 		rm "$box.tar.gz.gpg"
