@@ -111,14 +111,14 @@ then
 		if [[ "$email" != "null" ]]
 		then
 
-			echo -e "${BWhite}Archiving $box...${Color_Off}"
+			echo -e "${BWhite}Archiving $box...${Color_Off}${Blue}"
 			cd ~/.axiom/boxes/
-			tar -cvzf "$box.tar.gz" $box
+			tar -czf "$box.tar.gz" $box
 			rm -rf $box
 			gpg -r "$email" -e "$box.tar.gz"
 			rm "$box.tar.gz"
 			mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
-			echo "Archived $box successfully..."
+			echo "${BWhite}Archived $box successfully...${Color_Off}"
 		else
 			echo -e "${BWhite}GPG is not configured within axiom, would you like to set it up?${Color_Off}"
 			echo -e -n "${Blue}y/n: ${Color_Off}"
@@ -141,7 +141,7 @@ then
 					mv $HOME/.axiom/axiom.json.new $HOME/.axiom/axiom.json
 				elif [[ "$option" -eq 2 ]]
 				then
-					echo -e -n "${Blue}Please enter your GPG recipient email: "
+					echo -e -n "${Blue}Please enter your GPG recipient email: ${Color_Off}"
 					read email
 					cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq
 				fi
