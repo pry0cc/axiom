@@ -106,11 +106,12 @@ then
         ;;
     archive*)
 		box="$2"
-		echo "Archiving $box..."
 		email="$(cat $HOME/.axiom/axiom.json |  jq -r '.email?')"
 
 		if [[ "$email" != "null" ]]
 		then
+
+			echo -e "${BWhite}Archiving $box...${Color_Off}"
 			cd ~/.axiom/boxes/
 			tar -cvzf "$box.tar.gz" $box
 			rm -rf $box
@@ -119,7 +120,18 @@ then
 			mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
 			echo "Archived $box successfully..."
 		else
-			echo -e "${BWhite}GPG is not configured, would you like to set it up?${Color_Off}"
+			echo -e "${BWhite}GPG is not configured within axiom, would you like to set it up?${Color_Off}"
+			echo -e -n "${Blue}y/n: ${Color_Off}"
+			read ans
+
+			if [[ "$ans" == "y" ]]
+			then
+				echo -e "${Blue}Generating new gpg key...${Color_Off}"
+				gpg --gen-key
+				email=$(gpg --list-secret-keys | grep uid | tail -n1 |  grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
+				echo -e "${Blue}Generated key for $email!${Color_Off}"
+				cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq
+			fi
 		fi
 
 		;;
