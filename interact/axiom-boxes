@@ -130,7 +130,9 @@ then
 				gpg --gen-key
 				email=$(gpg --list-secret-keys | grep uid | tail -n1 |  grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 				echo -e "${Blue}Generated key for $email!${Color_Off}"
-				cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq
+				echo -e "${Blue}Please try the archive feature again now!${Color_Off}"
+				cat $HOME/.axiom/axiom.json | jq -r ".email |= \"$email\"" | jq > $HOME/.axiom/axiom.json.new
+				mv $HOME/.axiom/axiom.json.new $HOME/.axiom/axiom.json
 			fi
 		fi
 
