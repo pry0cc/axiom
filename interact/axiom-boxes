@@ -108,13 +108,20 @@ then
 		box="$2"
 		echo "Archiving $box..."
 		email="$(cat $HOME/.axiom/axiom.json |  jq -r .email)"
-		cd ~/.axiom/boxes/
-		tar -cvzf "$box.tar.gz" $box
-		rm -rf $box
-		gpg -r "$email" -e "$box.tar.gz"
-		rm "$box.tar.gz"
-		mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
-		echo "Archived $box successfully..."
+
+		if [[ "$email" != "" ]]
+		then
+			cd ~/.axiom/boxes/
+			tar -cvzf "$box.tar.gz" $box
+			rm -rf $box
+			gpg -r "$email" -e "$box.tar.gz"
+			rm "$box.tar.gz"
+			mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
+			echo "Archived $box successfully..."
+		else
+			echo -e "${BWhite}GPG is not configured, would you like to set it up?${Color_Off}"
+		fi
+
 		;;
 	unarchive*)
 		box="$2"
