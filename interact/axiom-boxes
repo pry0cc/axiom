@@ -27,10 +27,18 @@ if [ ! -z "$1" ]
 then
 	case $1 in
 	ls*)
-		echo -e "${BWhite}Available Backup Boxes${Color_Off}"
-		echo -n -e "${Blue}"
-		ls  ~/.axiom/boxes/ | grep -v "backup-files.txt" | cat
-		echo -n -e "${Color_Off}"
+		if [[ "$2" == "--archive" ]]
+		then
+			echo -e "${BWhite}Archived Boxes${Color_Off}"
+			echo -n -e "${Blue}"
+			ls ~/.axiom/archive/ | sed 's/.tar.gz.gpg//g' | cat
+			echo -n -e "${Color_Off}"
+		else
+			echo -e "${BWhite}Available Backup Boxes${Color_Off}"
+			echo -n -e "${Blue}"
+			ls  ~/.axiom/boxes/ | grep -v "backup-files.txt" | cat
+			echo -n -e "${Color_Off}"
+		fi
 		;;
 	cd*)
 		box_path="$HOME/.axiom/boxes/$2"
@@ -96,6 +104,30 @@ then
 		box=$(echo $2 | sed 's/\//-/g')
         cd ~/.axiom/boxes/$box && git pull 
         ;;
+    archive*)
+		box="$2"
+		echo "Archiving $box..."
+		email="$(cat $HOME/.axiom/axiom.json |  jq -r .email)"
+		cd ~/.axiom/boxes/
+		tar -cvzf "$box.tar.gz" $box
+		rm -rf $box
+		gpg -r "$email" -e "$box.tar.gz"
+		rm "$box.tar.gz"
+		mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
+		echo "Archived $box successfully..."
+		;;
+	unarchive*)
+		box="$2"
+		echo "Unarchiving $box..."
+		cd ~/.axiom/archive/
+		gpg -o "$box.tar.gz" -d "$box.tar.gz.gpg"
+		rm "$box.tar.gz.gpg"
+		tar -xf "$box.tar.gz"
+		rm "$box.tar.gz"
+		mv "$box" "$HOME/.axiom/boxes/"
+		echo "Unarchived $box successfully..."
+		;;
+
 	*)
 		echo "Command '$1' not found..."
 		;;
