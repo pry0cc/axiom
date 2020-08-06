@@ -111,14 +111,19 @@ then
 		if [[ "$email" != "null" ]]
 		then
 
-			echo -e "${BWhite}Archiving $box...${Color_Off}${Blue}"
-			cd ~/.axiom/boxes/
-			tar -czf "$box.tar.gz" $box
-			rm -rf $box
-			gpg -r "$email" -e "$box.tar.gz"
-			rm "$box.tar.gz"
-			mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
-			echo -e "${BWhite}Archived $box successfully...${Color_Off}"
+			if [ -d "$HOME/.axiom/boxes/$box/" ]
+			then
+				echo -e "${BWhite}Archiving $box...${Color_Off}${Blue}"
+				cd ~/.axiom/boxes/
+				tar -czf "$box.tar.gz" $box
+				rm -rf $box
+				gpg -r "$email" -e "$box.tar.gz"
+				rm "$box.tar.gz"
+				mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
+				echo -e "${BWhite}Archived $box successfully...${Color_Off}"
+			else
+				echo -e "${Red}Box does not exist...${Color_Off}"
+			fi
 		else
 			echo -e "${BWhite}GPG is not configured within axiom, would you like to set it up?${Color_Off}"
 			echo -e -n "${Blue}y/n: ${Color_Off}"
@@ -152,13 +157,18 @@ then
 	unarchive*)
 		box="$2"
 		echo -e "${BWhite}Unarchiving $box...${Color_Off}${Blue}"
-		cd ~/.axiom/archive/
-		gpg -o "$box.tar.gz" -d "$box.tar.gz.gpg"
-		rm "$box.tar.gz.gpg"
-		tar -xf "$box.tar.gz"
-		rm "$box.tar.gz"
-		mv "$box" "$HOME/.axiom/boxes/"
-		echo -e "${BWhite}Unarchived $box successfully...${Color_Off}"
+		if [ -f "$HOME/.axiom/archive/$box.tar.gz.gpg" ]
+		then
+			cd ~/.axiom/archive/
+			gpg -o "$box.tar.gz" -d "$box.tar.gz.gpg"
+			rm "$box.tar.gz.gpg"
+			tar -xf "$box.tar.gz"
+			rm "$box.tar.gz"
+			mv "$box" "$HOME/.axiom/boxes/"
+			echo -e "${BWhite}Unarchived $box successfully...${Color_Off}"
+		else
+			echo -e "${Red}Box is not archived.${Color_Off}"
+		fi
 		;;
 
 	*)
