@@ -31,12 +31,12 @@ then
 		then
 			echo -e "${BWhite}Archived Boxes${Color_Off}"
 			echo -n -e "${Blue}"
-			ls -l ~/.axiom/archive/ | sed 's/.tar.gz.gpg//g' | awk '{ print $6 " " $7 " " $8 " " $9 }'
+			ls -l ~/.axiom/archive/ | sed 's/.tar.gz.gpg//g' | awk '{ print $9 " " $6 " " $7 " " $8 }' | column -t
 			echo -n -e "${Color_Off}"
 		else
 			echo -e "${BWhite}Available Backup Boxes${Color_Off}"
 			echo -n -e "${Blue}"
-			ls -l  ~/.axiom/boxes/ | grep -v "backup-files.txt" | awk '{ print $6 " " $7 " " $8 " " $9 }'
+			ls -l  ~/.axiom/boxes/ | grep -v "backup-files.txt" | awk '{ print $9 " " $6 " " $7 " " $8 }' | column -t
 			echo -n -e "${Color_Off}"
 		fi
 		;;
