@@ -106,6 +106,7 @@ then
         ;;
     archive*)
 		box="$2"
+		email=""
 		recipient=""
 		for var in "$@"
 		do
@@ -114,11 +115,12 @@ then
 			fi
 		done
 
-		if [["$recipient"  != null ]];
+		if [[ "$recipient"  != null ]];
 		then
 			email="$recipient"
+		else
+			email="$(cat $HOME/.axiom/axiom.json |  jq -r '.email?')"
 		fi
-		email="$(cat $HOME/.axiom/axiom.json |  jq -r '.email?')"
 
 		if [[ "$email" != "null" ]]
 		then
