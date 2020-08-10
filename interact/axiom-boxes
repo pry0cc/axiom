@@ -110,13 +110,13 @@ then
 		recipient=""
 		for var in "$@"
 		do
-			if [ "$var" == "-r" ]
+			if [ "$var" =~ "-r" ]
 			then
 				 recipient="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 			fi
 		done
 
-		if [[ "$recipient"  != "null" ]];
+		if [[ "$recipient" != "null" ]];
 		then
 			email="$recipient"
 			echo "Using email '$email'"
