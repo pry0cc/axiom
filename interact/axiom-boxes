@@ -144,7 +144,7 @@ then
 				mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
 				echo -e "${BWhite}Archived $box successfully...${Color_Off}"
 
-				if [[ "$url" == "true" ]];
+				if [[ "$upload" == "true" ]];
 				then
 					url=$(curl -s -T "$HOME/.axiom/archive/$box.tar.gz.gpg" https://temp.sh)
 					echo -e "${BGreen}Your backup has been uploaded to: '$url'\nThis box is encrypted and decryptable by $email only...${Color_Off}"
