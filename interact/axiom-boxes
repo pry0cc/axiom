@@ -116,9 +116,10 @@ then
 			fi
 		done
 
-		if [[ "$recipient"  != null ]];
+		if [[ "$recipient"  != "null" ]];
 		then
 			email="$recipient"
+			echo "Using email '$email'"
 		else
 			email="$(cat $HOME/.axiom/axiom.json |  jq -r '.email?')"
 		fi
