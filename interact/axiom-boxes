@@ -108,11 +108,17 @@ then
 		box="$2"
 		email=""
 		recipient=""
+		upload=""
 		for var in "$@"
 		do
 			if [[ "$var" =~ "-r" ]]
 			then
 				 recipient="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+			fi
+
+			if [[ "$var" =~ "--upload" ]];
+			then
+				upload=true
 			fi
 		done
 
@@ -137,7 +143,13 @@ then
 				rm "$box.tar.gz"
 				mv "$box.tar.gz.gpg" "$HOME/.axiom/archive/"
 				echo -e "${BWhite}Archived $box successfully...${Color_Off}"
-			else
+
+				if [[ "$url" == "true" ]];
+				then
+					url=$(curl -s -T "$HOME/.axiom/archive/$box.tar.gz.gpg" https://temp.sh)
+					echo -e "${BGreen}Your backup has been uploaded to: '$url'\nThis box is encrypted and decryptable by $email only...${Color_Off}"
+				fi
+							else
 				echo -e "${Red}Box does not exist...${Color_Off}"
 			fi
 		else
