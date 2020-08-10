@@ -106,6 +106,18 @@ then
         ;;
     archive*)
 		box="$2"
+		recipient=""
+		for var in "$@"
+		do
+			if [ "$var" == "-r" ]
+				 recipient="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+			fi
+		done
+
+		if [["$recipient"  != null ]];
+		then
+			email="$recipient"
+		fi
 		email="$(cat $HOME/.axiom/axiom.json |  jq -r '.email?')"
 
 		if [[ "$email" != "null" ]]
