@@ -104,6 +104,27 @@ then
 		box=$(echo $2 | sed 's/\//-/g')
         cd ~/.axiom/boxes/$box && git pull 
         ;;
+    import*)
+		url="$2"
+		if [[ ! -z "$2" ]]
+		then
+			echo -e "${BWhite}Downloading '$url'...${Color_Off}"
+			filename=$(echo "$url" | sed 's/\// /g' | awk '{ print $NF }')
+			new_filename=$(echo $filename | sed 's/.gpg//g')
+			box=$(echo $new_filename | sed 's/.tar.gz//g')
+			wget -O "/tmp/$filename" "$url"
+			cd /tmp/
+			gpg -o $new_filename -d $filename 
+			mv /tmp/$new_filename $HOME/.axiom/boxes/$new_filename
+			rm /tmp/$filename
+			cd $HOME/.axiom/boxes/
+			tar -xf $new_filename
+			rm $new_filename
+			echo -e "${BGreen}Box '$box'  successfully imported.${Color_Off}"
+		else 
+			echo -e "${BRed}Please supply a URL to import... axiom-boxes import https://example.com/box.tar.gz.gpg${Color_off}"
+		fi
+		;;
     archive*)
 		box="$2"
 		email=""
