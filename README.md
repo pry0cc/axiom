@@ -312,6 +312,6 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  mosh
 - [x]  docker
 - [x]  metasploit
-- [ ]  dalfox
+- [x]  dalfox
 - [ ]  subjack
 
