@@ -4,9 +4,8 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
 gen_name="${names[$RANDOM % ${#names[@]} ]}$((10 + RANDOM % 20))"
-region="$(jq -r '.region' ~/.axiom/axiom.json)"
-size="$(jq -r '.default_size' ~/.axiom/axiom.json)"
-#domain=$(cat ~/.axiom.json | jq -r '.domain')
+region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
+size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
 
 box_name=""
 connect_shell=false
@@ -80,7 +79,7 @@ fi
 image_name="axiom-$region"
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
 
-cat ~/.axiom/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > /tmp/$name.sh
+cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > /tmp/$name.sh
 chmod +x /tmp/$name.sh
 resp=$(doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --user-data-file /tmp/$name.sh)
 
@@ -97,7 +96,6 @@ else
 fi
 # Roughly 30 seconds before the public IP is init'd
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
-#dns=$(doctl compute domain records create $domain --record-type A --record-name $name --record-data $ip)
 if [ "$quiet" != "true" ]
 then
     secs=$((30))
@@ -110,7 +108,7 @@ else
     sleep 30
 fi
 
-echo "{\"instance\":\"$name\"}" | jq > ~/.axiom/profile.json
+echo "{\"instance\":\"$name\"}" | jq > $AXIOM_PATH/profile.json
 
 notify-send "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized! Instance accessible at '${BGreen}$ip${BWhite}'!"
@@ -124,20 +122,20 @@ if [ "$restore" != false ]
 then
 	echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
 	sleep 65
-    ~/.axiom/interact/axiom-restore "$restore" "$name"
+    $AXIOM_PATH/interact/axiom-restore "$restore" "$name"
 fi
 
 if [ "$deploy" != false ]
 then
 	echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
 	sleep 65
-	~/.axiom/interact/axiom-deploy "$deploy"
+	$AXIOM_PATH/interact/axiom-deploy "$deploy"
 fi
 
 if [ "$domain" != false ]
 then
 	echo -e "${BWhite}Adding DNS record $name.$domain to -> $ip"
-	axiom-dns add $name $domain $ip
+	$AXIOM_PATH/interact/axiom-dns add $name $domain $ip
 fi
 
-$HOME/.axiom/interact/header.sh
+$AXIOM_PATH/interact/header.sh
