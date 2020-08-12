@@ -77,7 +77,7 @@ do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
    $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry &
-   sleep 0.1
+   sleep 0.7
 done
 
 secs=$((120))

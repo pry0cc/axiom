@@ -103,7 +103,10 @@ mkdir -p "$AXIOM_PATH/tmp/"
 cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >$AXIOM_PATH/tmp/$name.sh
 chmod +x $AXIOM_PATH/tmp/$name.sh
 doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$AXIOM_PATH/tmp/$name.sh" 2>&1 >>/dev/null &
-show_spinner "$!"
+PID="$!"
+if [ "$quiet" != "true" ]; then
+	show_spinner "$PID"
+fi
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
 if [ "$quiet" != "true" ]; then
