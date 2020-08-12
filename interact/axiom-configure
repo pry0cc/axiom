@@ -9,110 +9,103 @@ echo -e "Press enter to continue${Color_Off}"
 read
 
 echo -e "${BWhite}Installing deps! Please wait :) ${Color_Off}"
-BASEOS="`uname`"
+BASEOS="$(uname)"
 case $BASEOS in
-  'Linux')
-    BASEOS='Linux'
-    ;;
-  'FreeBSD')
-    BASEOS='FreeBSD'
-    alias ls='ls -G'
-    ;;
-  'WindowsNT')
-    BASEOS='Windows'
-    ;;
-  'Darwin') 
-    BASEOS='Mac'
-    ;;
-  'SunOS')
-    BASEOS='Solaris'
-    ;;
-  'AIX') ;;
-  *) ;;
+'Linux')
+	BASEOS='Linux'
+	;;
+'FreeBSD')
+	BASEOS='FreeBSD'
+	alias ls='ls -G'
+	;;
+'WindowsNT')
+	BASEOS='Windows'
+	;;
+'Darwin')
+	BASEOS='Mac'
+	;;
+'SunOS')
+	BASEOS='Solaris'
+	;;
+'AIX') ;;
+*) ;;
 esac
 
-if [ $BASEOS == "Linux" ]
-then
-    if $(uname -a | grep -qi "Microsoft")
-    then
-        OS="UbuntuWSL"
-    else    
-        OS=$(lsb_release -i | awk '{ print $3 }')
-    fi    
-    if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]
-    then
-        echo -e "${Blue}Congrats, you run arch..."
-        echo -e "Ok so you need doctl - so get that from the AUR :) yay -S doctl! You're smart! You installed arch! ${Color_Off}"
-        sudo pacman -S fzf packer jq
-    elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ]
-    then
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
-        sudo apt-get update && sudo apt-get install fzf git
-        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
-    elif [ $OS == "Fedora" ]
-    then
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
-        sudo dnf -y update && sudo dnf -y install fzf git
-        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
-    elif [ $OS == "UbuntuWSL" ]
-    then
-        sudo apt-get update && sudo apt-get install fzf git unzip
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
-        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
-    fi
+if [ $BASEOS == "Linux" ]; then
+	if $(uname -a | grep -qi "Microsoft"); then
+		OS="UbuntuWSL"
+	else
+		OS=$(lsb_release -i | awk '{ print $3 }')
+	fi
+	if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+		echo -e "${Blue}Congrats, you run arch..."
+		echo -e "Ok so you need doctl - so get that from the AUR :) yay -S doctl! You're smart! You installed arch! ${Color_Off}"
+		sudo pacman -S fzf packer jq
+	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ]; then
+		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		sudo apt-get update && sudo apt-get install fzf git
+		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+	elif [ $OS == "Fedora" ]; then
+		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		sudo dnf -y update && sudo dnf -y install fzf git
+		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+	elif [ $OS == "UbuntuWSL" ]; then
+		sudo apt-get update && sudo apt-get install fzf git unzip
+		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+	fi
 fi
 
 #install go
-whereis go; if [ ! $? -eq 0 ] && [[ -z "$GOPATH" ]];then
-echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
-PS3="Please select an option : "
-choices=("yes" "no")
-select choice in "${choices[@]}"; do
-        case $choice in
-                yes)
+whereis go
+if [ ! $? -eq 0 ] && [[ -z "$GOPATH" ]]; then
+	echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
+	PS3="Please select an option : "
+	choices=("yes" "no")
+	select choice in "${choices[@]}"; do
+		case $choice in
+		yes)
 
-					echo -e "${Blue}Installing Golang${Color_Off}"
-					wget https://golang.org/dl/go1.14.4.linux-amd64.tar.gz
-					sudo tar -xvf go1.14.4.linux-amd64.tar.gz
-					sudo mv go /usr/local
-					export GOROOT=/usr/local/go
-					export GOPATH=$HOME/go
-					export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-					echo 'export GOROOT=/usr/local/go' >> ~/.bash_profile
-					echo 'export GOPATH=$HOME/go'	>> ~/.bash_profile			
-					echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >> ~/.bash_profile	
-					source ~/.bash_profile
-					sleep 1
-					break
-					;;
-				no)
-					echo -e "${Red}Please install go and rerun this script"
-					echo -e "Aborting installation...${Color_Off}"
-					exit 1
-					;;
-	esac	
-done
+			echo -e "${Blue}Installing Golang${Color_Off}"
+			wget https://golang.org/dl/go1.14.4.linux-amd64.tar.gz
+			sudo tar -xvf go1.14.4.linux-amd64.tar.gz
+			sudo mv go /usr/local
+			export GOROOT=/usr/local/go
+			export GOPATH=$HOME/go
+			export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+			echo 'export GOROOT=/usr/local/go' >>~/.bash_profile
+			echo 'export GOPATH=$HOME/go' >>~/.bash_profile
+			echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >>~/.bash_profile
+			source ~/.bash_profile
+			sleep 1
+			break
+			;;
+		no)
+			echo -e "${Red}Please install go and rerun this script"
+			echo -e "Aborting installation...${Color_Off}"
+			exit 1
+			;;
+		esac
+	done
 fi
 
-if [ $BASEOS == "Mac" ]
-then
-    echo -e "${Blue}Installing packer now...${Color_Off}"
-    brew install doctl
-    brew install jq
-    mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
-    git clone https://github.com/hashicorp/packer.git
-    cd packer
-    make dev
+if [ $BASEOS == "Mac" ]; then
+	echo -e "${Blue}Installing packer now...${Color_Off}"
+	brew install doctl
+	brew install jq
+	mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
+	git clone https://github.com/hashicorp/packer.git
+	cd packer
+	make dev
 fi
 
-if [ ! -d $AXIOM_PATH ]
-then
-    git clone https://github.com/pry0cc/axiom $AXIOM_PATH
+if [ ! -d $AXIOM_PATH ]; then
+	git clone https://github.com/pry0cc/axiom $AXIOM_PATH
 else
-    cd $AXIOM_PATH && git pull
+	cd $AXIOM_PATH && git pull
 fi
 
 echo -e "${BBlue}What is your DigitalOcean API key? ${Color_Off}"
@@ -133,55 +126,49 @@ domain=""
 hunter_key=""
 size="s-1vcpu-1gb"
 
-if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]
-then
-    echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n ${Color_Off}"
-    read ans
-    if [ $ans == "y" ]
-    then
-	if [ -f ~/.ssh/id_rsa.pub ] 
-	    then
-		cat ~/.ssh/id_rsa.pub > $AXIOM_PATH/configs/authorized_keys
-	elif [ -f ~/.ssh/id_ed25519.pub ]
-	    then 
-		cat ~/.ssh/id_ed25519.pub > $AXIOM_PATH/configs/authorized_keys
+if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
+	echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n ${Color_Off}"
+	read ans
+	if [ $ans == "y" ]; then
+		if [ -f ~/.ssh/id_rsa.pub ]; then
+			cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+		elif [ -f ~/.ssh/id_ed25519.pub ]; then
+			cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
+		fi
 	fi
-    fi
 else
-    echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
-    read ans
-    if [ $ans == "y" ]
-    then
-        ssh-keygen
-        cat ~/.ssh/id_rsa.pub > $AXIOM_PATH/configs/authorized_keys
-    fi
+	echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
+	read ans
+	if [ $ans == "y" ]; then
+		ssh-keygen
+		cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+	fi
 fi
 
 if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ]; then
-    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.zshrc
-    echo "source $HOME/.axiom/functions/autocomplete.zsh" >> ~/.zshrc
-    echo "compdef _axiom-ssh axiom-rm" >> ~/.zshrc
-    echo "compdef _axiom-ssh axiom-ssh" >> ~/.zshrc
-    echo "compdef _axiom-ssh axiom-select" >> ~/.zshrc
-    echo "compdef _axiom-ssh axiom-backup" >> ~/.zshrc
-    echo "compdef _axiom-ssh axiom-vpn" >> ~/.zshrc
-    echo "compdef _axiom-restore axiom-restore" >> ~/.zshrc
-    echo "compdef _axiom-deploy axiom-deploy" >> ~/.zshrc
+	echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+	echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
+	echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc
+	echo "compdef _axiom-ssh axiom-rm" >>~/.zshrc
+	echo "compdef _axiom-ssh axiom-ssh" >>~/.zshrc
+	echo "compdef _axiom-ssh axiom-select" >>~/.zshrc
+	echo "compdef _axiom-ssh axiom-backup" >>~/.zshrc
+	echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc
+	echo "compdef _axiom-restore axiom-restore" >>~/.zshrc
+	echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc
 
 elif [ "$SHELL" == "/bin/bash" ]; then
-    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >> ~/.bashrc
+	echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
+	echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
 else
-    echo -e "${Red}I don't have a predefined setup for your shell!"
-    echo "Please add $AXIOM_PATH/interact to your \$PATH! ${Color_Off}"
-    echo "(export PATH=\"\$PATH:$HOME/.axiom/interact\")"
-fi 
-
+	echo -e "${Red}I don't have a predefined setup for your shell!"
+	echo "Please add $AXIOM_PATH/interact to your \$PATH! ${Color_Off}"
+	echo "(export PATH=\"\$PATH:$HOME/.axiom/interact\")"
+fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
-echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > $AXIOM_PATH/axiom.json
+echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq >$AXIOM_PATH/axiom.json
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/

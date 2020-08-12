@@ -3,7 +3,7 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
-gen_name="${names[$RANDOM % ${#names[@]} ]}$((10 + RANDOM % 20))"
+gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
 region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
 size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
 
@@ -16,128 +16,109 @@ default_expiry=525600000
 quiet=false
 domain=false
 
-if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]];
-then
-    name="$gen_name"
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
+	name="$gen_name"
 else
-    name="$1"
+	name="$1"
 fi
 
-for var in "$@"
-do
-    if [ "$var" == "--shell" ]
-    then
-        connect_shell=true
-    fi
-    if [ "$var" == "--quiet" ]
-    then
-        quiet=true
-    fi
+for var in "$@"; do
+	if [ "$var" == "--shell" ]; then
+		connect_shell=true
+	fi
+	if [ "$var" == "--quiet" ]; then
+		quiet=true
+	fi
 
-    if [[ $var =~ "--restore" ]]
-    then
-        restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"
-    fi
-    if [[ "$var" =~ "--deploy" ]]
-    then
-        deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
-    fi
-    if [[ "$var" =~ "--domain" ]]
-	then
+	if [[ $var =~ "--restore" ]]; then
+		restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"
+	fi
+	if [[ "$var" =~ "--deploy" ]]; then
+		deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
+	fi
+	if [[ "$var" =~ "--domain" ]]; then
 		domain="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		if [ "$quiet" != "true" ]
-		then
+		if [ "$quiet" != "true" ]; then
 			echo -e "${BWhite}Manually setting domain to '$domain'${Color_Off}"
 		fi
 	fi
-    if [[ "$var" =~ "--size" ]]
-	then
+	if [[ "$var" =~ "--size" ]]; then
 		size="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		if [ "$quiet" != "true" ]
-		then
+		if [ "$quiet" != "true" ]; then
 			echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
 		fi
 	fi
-	if [[ "$var" =~ "--expire" ]]
-	then
+	if [[ "$var" =~ "--expire" ]]; then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        default_expiry=$expire
-		if [ "$quiet" != "true" ]
-		then
+		default_expiry=$expire
+		if [ "$quiet" != "true" ]; then
 			echo -e "${BWhite}Setting expiry to $expire minutes...${Color_Off}"
 		fi
 	fi
 done
 
-if [[ "$quiet" != "true" ]]
-then
+if [[ "$quiet" != "true" ]]; then
 	notify-send "Axiom Info" "Initializing '$name'..."
 	echo -e "${BWhite}Initializing '$name'"
 fi
 image_name="axiom-$region"
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
 
-show_spinner()
-{
-  local -r pid="${1}"
-  # This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-  local -r delay='0.13' 
-  # I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-  i=250
-  while ps a | awk '{print $1}' | grep -q "${pid}"; do
-    echo -ne "${BWhite}>> T-Minus $i to full initialization...${Color_Off}\r"
-    : $((i--))
-    sleep "$delay"
-  done
-  printf "    \b\b\b\b"
+show_spinner() {
+	local -r pid="${1}"
+	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
+	local -r delay='0.13'
+	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
+	i=250
+	while ps a | awk '{print $1}' | grep -q "${pid}"; do
+		echo -ne "${BWhite}>> T-Minus $i to full initialization...${Color_Off}\r"
+		: $((i--))
+		sleep "$delay"
+	done
+	printf "    \b\b\b\b"
 }
 
-cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > /tmp/$name.sh
+cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >/tmp/$name.sh
 chmod +x /tmp/$name.sh
-doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "/tmp/$name.sh" 2>&1 >> /dev/null &
+doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "/tmp/$name.sh" 2>&1 >>/dev/null &
 show_spinner "$!"
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
-if [ "$quiet" != "true" ]
-then
-    secs=$((10))
-    while [ $secs -gt 0 ]; do
-	    echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
-	    sleep 1
-	    : $((secs--))
-    done
+if [ "$quiet" != "true" ]; then
+	secs=$((10))
+	while [ $secs -gt 0 ]; do
+		echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
+		sleep 1
+		: $((secs--))
+	done
 else
-    sleep 30
+	sleep 30
 fi
 
-echo "{\"instance\":\"$name\"}" | jq > $AXIOM_PATH/profile.json
+echo "{\"instance\":\"$name\"}" | jq >$AXIOM_PATH/profile.json
 
 notify-send "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 
-if [ "$quiet" != "true" ]
-then
-    echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
+if [ "$quiet" != "true" ]; then
+	echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
 fi
 
-if [ "$restore" != false ]
-then
+if [ "$restore" != false ]; then
 	echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
 	sleep 65
-    $AXIOM_PATH/interact/axiom-restore "$restore" "$name"
+	$AXIOM_PATH/interact/axiom-restore "$restore" "$name"
 fi
 
-if [ "$deploy" != false ]
-then
+if [ "$deploy" != false ]; then
 	echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
 	sleep 65
 	$AXIOM_PATH/interact/axiom-deploy "$deploy"
 fi
 
-if [ "$domain" != false ]
-then
+if [ "$domain" != false ]; then
 	echo -e "${BWhite}Adding DNS record $name.$domain to -> $ip"
 	$AXIOM_PATH/interact/axiom-dns add $name $domain $ip
 fi

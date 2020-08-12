@@ -3,27 +3,22 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
-if [ -z $1 ]
-then
-    doctl compute droplet list | awk '{ print $2  " "  $3 }'| column -t
+if [ -z $1 ]; then
+	doctl compute droplet list | awk '{ print $2  " "  $3 }' | column -t
 else
-    if [[ "$1" == "-d" ]]
-    then
-        doctl compute droplet list | awk '{ print $2 }' | grep -v "Name"
-    elif [[ "$1" == "--json" ]]
-    then
-        doctl compute droplet list -o json | jq
+	if [[ "$1" == "-d" ]]; then
+		doctl compute droplet list | awk '{ print $2 }' | grep -v "Name"
+	elif [[ "$1" == "--json" ]]; then
+		doctl compute droplet list -o json | jq
 	else
 		resp=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | grep -E "$1")
-		count=$(echo $resp | tr ' ' '\n'  | wc -l | awk '{ print $1 }')
+		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 
-		if [[ "$count" -gt 1 ]]
-		then
+		if [[ "$count" -gt 1 ]]; then
 			i=1
-			for name in $resp
-			do
+			for name in $resp; do
 				echo "$i:$name"
-				i=$((i+1))
+				i=$((i + 1))
 			done
 		else
 			doctl compute droplet list | grep -E $1 | awk '{ print $3 }'

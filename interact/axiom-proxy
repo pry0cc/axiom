@@ -3,20 +3,19 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
-echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_connect_time_out 8000,[ProxyList]," | tr ',' '\n' > proxychains.conf
+echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_connect_time_out 8000,[ProxyList]," | tr ',' '\n' >proxychains.conf
 
 data=$($AXIOM_PATH/interact/axiom-ls --json)
 
-axiom-ls $1 | while read line
-do 
+axiom-ls $1 | while read line; do
 	i=$(echo $line | cut -d " " -f 1)
 	name=$(echo $line | cut -d " " -f 2)
 	ip=$(echo $data | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
 	se=$(seq -f "%02g" $i $i)
 	port="50$se"
-	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -N 2>&1 >> /dev/null &
+	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -N 2>&1 >>/dev/null &
 	echo -e "${BWhite}Proxy listener started on $port for $name...${Color_Off}"
-	echo "socks5 127.0.0.1 $port" >> proxychains.conf
+	echo "socks5 127.0.0.1 $port" >>proxychains.conf
 	sleep 0.6
 done
 
