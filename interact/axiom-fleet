@@ -71,20 +71,21 @@ sleep 4
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
+time=120
 
 for i in $(seq -f "%02g" 1 $amount)
 do
+   time=$((time+2))
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
    $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry &
    sleep 0.7
 done
 
-secs=$((120))
-while [ $secs -gt 0 ]; do
-    echo -ne ">> T-Minus $secs to fleet $gen_name initialization...\033[0K\r"
+while [ $time -gt 0 ]; do
+    echo -ne ">> T-Minus $time to fleet $gen_name initialization...\033[0K\r"
     sleep 1
-    : $((secs--))
+    : $((time--))
 done
 
 echo -e "${BGreen}Fleet started succesfully! All instances will automatically implode after $expiry minutes or $hours hours. To extend the lifetime on an instance, set-expiry.sh \"10 hours\" etc.${Color_Off}" 
