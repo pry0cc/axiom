@@ -99,6 +99,19 @@ show_spinner() {
 	printf "    \b\b\b\b"
 }
 
+waitabit() {
+	local -r pid="${1}"
+	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
+	local -r delay='0.13'
+	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
+	i=250
+	while ps a | awk '{print $1}' | grep -q "${pid}"; do
+		: $((i--))
+		sleep "$delay"
+	done
+	printf "    \b\b\b\b"
+}
+
 mkdir -p "$AXIOM_PATH/tmp/"
 cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >$AXIOM_PATH/tmp/$name.sh
 chmod +x $AXIOM_PATH/tmp/$name.sh
@@ -106,6 +119,8 @@ doctl compute droplet create "$name" --image "$image_id" --size "$size" --region
 PID="$!"
 if [ "$quiet" != "true" ]; then
 	show_spinner "$PID"
+else
+	waitabit "$PID"
 fi
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
