@@ -3,6 +3,24 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
+if ! command -v doctl &> /dev/null
+then
+    echo -e "${BRed}Error: doctl could not be found. Please install it from the binary${No_Color}"
+    exit
+else
+	token_length=$(cat ~/.config/doctl/config.yaml  | grep access-token | wc -c | awk '{ print $1 }')
+	if [[ "$token_length" -lt 32 ]];
+	then
+		echo -e "${Red}Warning: it looks like your doctl might not be configured with a token!${Color_Off}"
+	fi
+fi
+
+if ! command -v jq &> /dev/null
+then
+    echo -e "${BRed}Error: jq could not be found. Please install it.${No_Color}"
+    exit
+fi
+
 gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
 region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
 size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
@@ -59,6 +77,7 @@ for var in "$@"; do
 	fi
 done
 
+
 if [[ "$quiet" != "true" ]]; then
 	notify-send "Axiom Info" "Initializing '$name'..."
 	echo -e "${BWhite}Initializing '$name'"
@@ -80,9 +99,10 @@ show_spinner() {
 	printf "    \b\b\b\b"
 }
 
-cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >/tmp/$name.sh
-chmod +x /tmp/$name.sh
-doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "/tmp/$name.sh" 2>&1 >>/dev/null &
+mkdir -p "$AXIOM_PATH/tmp/"
+cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >$AXIOM_PATH/tmp/$name.sh
+chmod +x $AXIOM_PATH/tmp/$name.sh
+doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$AXIOM_PATH/tmp/$name.sh" 2>&1 >>/dev/null &
 show_spinner "$!"
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
