@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+
 if [ -z $1 ]
 then
     doctl compute droplet list | awk '{ print $2  " "  $3 }'| column -t
@@ -27,4 +30,5 @@ else
 		fi
 	fi
 fi
-$HOME/.axiom/interact/header.sh
+
+$AXIOM_PATH/interact/header.sh

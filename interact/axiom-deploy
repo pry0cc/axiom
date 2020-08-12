@@ -2,28 +2,8 @@
 
 profile=""
 
-# Reset
-Color_Off='\033[0m'       # Text Reset
-
-# Regular Colors
-Black='\033[0;30m'        # Black
-Red='\033[0;31m'          # Red
-Green='\033[0;32m'        # Green
-Yellow='\033[0;33m'       # Yellow
-Blue='\033[0;34m'         # Blue
-Purple='\033[0;35m'       # Purple
-Cyan='\033[0;36m'         # Cyan
-White='\033[0;37m'        # White
-
-# Bold
-BBlack='\033[1;30m'       # Black
-BRed='\033[1;31m'         # Red
-BGreen='\033[1;32m'       # Green
-BYellow='\033[1;33m'      # Yellow
-BBlue='\033[1;34m'        # Blue
-BPurple='\033[1;35m'      # Purple
-BCyan='\033[1;36m'        # Cyan
-BWhite='\033[1;37m'       # White
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
 
 remove=false
 
@@ -37,30 +17,30 @@ done
 
 if [ -z "$1" ] || [ "$1" == "--remove" ] || [ "$1" == "--instance" ]
 then
-    profile=$(ls ~/.axiom/profiles | cat | fzf)
+    profile=$(ls $AXIOM_PATH/profiles | cat | fzf)
 else
-    exists=$(ls ~/.axiom/profiles | cat | grep "\<$1\>" | wc -l | awk '{ print $1 }')
+    exists=$(ls $AXIOM_PATH/profiles | cat | grep "\<$1\>" | wc -l | awk '{ print $1 }')
     if [ "$exists" == "1" ]
     then
         profile="$1"
     else
         echo "Profile doesnt exist, launching selector..."
-        profile=$(ls ~/.axiom/profiles | cat | fzf)
+        profile=$(ls $AXIOM_PATH/profiles | cat | fzf)
     fi
 fi
 
-instance=$(cat ~/.axiom/profile.json | jq -r '.instance')
-success_command=$(cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.success_message')
+instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance')
+success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.success_message')
 ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
 id="$RANDOM"
 filename="/tmp/$id.sh"
 
 if [ $remove == false ]
 then
-	cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
+	cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
 elif [ $remove == true ]
 	then
-	cat ~/.axiom/profiles/$profile/manifest.json | jq -r '.remove_commands[]' > $filename
+	cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.remove_commands[]' > $filename
 fi
 chmod +x $filename
 
@@ -78,7 +58,7 @@ ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "${Green}"
 if [ $remove == false ]
 then
-	bash -c "instance=$(cat ~/.axiom/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
+	bash -c "instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
 else 
 	echo "Profile succesfully removed from '$instance'!"
 fi

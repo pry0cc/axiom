@@ -1,5 +1,8 @@
 #!/bin/bash
 
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+
 use_tmux=false
 use_mosh=false
 connected=false
@@ -43,4 +46,4 @@ then
 	ssh -p2266 op@$ip
 fi
 
-$HOME/.axiom/interact/header.sh
+$AXIOM_PATH/interact/header.sh

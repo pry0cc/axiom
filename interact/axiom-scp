@@ -1,12 +1,15 @@
 #!/bin/bash
 
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+
 droplets=$(doctl compute droplet list -o json)
 
-echo -n "" > ~/.axiom/.sshconfig
+echo -n "" > $AXIOM_PATH/.sshconfig
 for name in $(echo "$droplets" | jq -r '.[].name')
 do 
 	ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> ~/.axiom/.sshconfig
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig
 done
 
-scp -r -o StrictHostKeyChecking=no -F ~/.axiom/.sshconfig "$@"
+scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig "$@"

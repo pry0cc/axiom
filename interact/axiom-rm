@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-Color_Off='\033[0m'       # Text Reset
-Red='\033[0;31m'  
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
 
 if [ -z "$1" ]
 then

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+
 if [ "$1" == "ls" ]
 then
 	doctl compute region list
@@ -10,9 +13,9 @@ then
 	
 	if [ "$lines" -gt 0 ]
 	then
-		echo "Selected region $2"
-		cat ~/.axiom/axiom.json | jq -r ".region=\"$2\"" | jq -r > $HOME/.axiom/axiom.json.new
-        mv $HOME/.axiom/axiom.json.new $HOME/.axiom/axiom.json
+		echo -e "${BWhite}Selected region $2${Color_Off}"
+		cat $AXIOM_PATH/axiom.json | jq -r ".region=\"$2\"" | jq -r > $AXIOM_PATH/axiom.json.new
+        mv $AXIOM_PATH/axiom.json.new $AXIOM_PATH/axiom.json
 	fi
 else
 	echo "Usage:"
