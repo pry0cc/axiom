@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-AXIOM_PATH="$AXIOM_PATH"
+AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
 if [ ! -z "$1" ]
