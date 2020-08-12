@@ -1,19 +1,22 @@
 #!/bin/bash
 
-cd ~/.axiom/
-packer build -var-file ~/.axiom/axiom.json ~/.axiom/packer.json
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+
+cd $AXIOM_PATH/
+packer build -var-file $AXIOM_PATH/axiom.json $AXIOM_PATH/packer.json
 if [ "$?" == "0" ]
 then
-    echo "Your build completed successfully!"
-    echo "To initialize an instance, run axiom-init"
-	~/.axiom/interact/axiom-prune
+    echo -e "${BGreen}Your build completed successfully!${Color_Off}"
+    echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
+	$AXIOM_PATH/interact/axiom-prune
     notify-send "Axiom Info" "Build completed successfully!"
 else
-    echo "Your build failed :( Please take a look at the errors!"
-    echo "Builds may fail every now and then, there are some known bugs in Ubuntu Server that cause this."
-	echo "Im sorry, but it just fails sometimes, just sit back and relax and we'll try again until  it works ;)"
+    echo -e "${BRed}Your build failed :( Please take a look at the errors!${Color_Off}"
+    echo "${Blue}Builds may fail every now and then, there are some known bugs in Ubuntu Server that cause this."
+	echo "Im sorry, but it just fails sometimes, just sit back and relax and we'll try again until  it works ;)${Color_Off}"
     notify-send "Axiom Info" "Build failed :("
-    ~/.axiom/interact/axiom-build
+    $AXIOM_PATH/interact/axiom-build
 fi
 
 
