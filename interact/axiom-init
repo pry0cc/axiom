@@ -145,7 +145,7 @@ if [ "$quiet" != "true" ]; then
 fi
 
 sleep 3
-axiom-exec "curl -s ifconfig.me" "$name" -q
+axiom-exec "touch /tmp/.connected" "$name" -q
 
 if [ "$restore" != false ]; then
 	echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
