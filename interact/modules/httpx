@@ -1,0 +1,18 @@
+#!/bin/bash
+
+ax="$1"
+file="/tmp/axiom/.tmp/$ax.txt"
+outfile="/tmp/axiom/output/$ax.txt"
+ports="$2"
+
+server_input="/tmp/$ax.txt"
+server_output="/tmp/$ax-output.txt"
+
+cmd="cat $server_input | httpx > $server_output"
+
+echo "Uploading targets to $ax"
+scp -F /tmp/axiom/sshconfig.txt $file $ax:$server_input
+echo "Launching masscan against targets on $ax"
+ssh -F /tmp/axiom/sshconfig.txt $ax "$cmd"
+echo "Downloading results from $ax"
+scp -F /tmp/axiom/sshconfig.txt $ax:$server_output $outfile
