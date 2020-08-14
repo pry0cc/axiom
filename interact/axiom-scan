@@ -58,6 +58,12 @@ then
 	exit
 fi
 
+if [ ! -f "$file" ]
+then
+    echo -e "${BRed}File doesn't exist...${Color_Off}"
+    exit
+fi
+
 
 total=$(axiom-ls $fleet | wc -l | awk '{ print $1 }')
 
