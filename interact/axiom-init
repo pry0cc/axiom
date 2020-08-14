@@ -155,14 +155,12 @@ sleep 3
 axiom-exec "touch /tmp/.connected" "$name" -q
 
 if [ "$restore" != false ]; then
-	echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
-	sleep 65
+	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
 	$AXIOM_PATH/interact/axiom-restore "$restore" "$name"
 fi
 
 if [ "$deploy" != false ]; then
-	echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
-	sleep 65
+	#echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
 	$AXIOM_PATH/interact/axiom-deploy "$deploy"
 fi
 
