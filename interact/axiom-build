@@ -2,6 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 cd "$AXIOM_PATH"/ || exit
 
@@ -9,13 +10,13 @@ if packer build -var-file "$AXIOM_PATH"/axiom.json "$AXIOM_PATH"/packer.json;
 then
     echo -e "${BGreen}Your build completed successfully!${Color_Off}"
     echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
-	"$AXIOM_PATH"/interact/axiom-prune
-    notify-send "Axiom Info" "Build completed successfully!"
+	  "$AXIOM_PATH"/interact/axiom-prune
+    "$NOTIFY_CMD" "Axiom Info" "Build completed successfully!"
 else
     echo -e "${BRed}Your build failed :( Please take a look at the errors!${Color_Off}"
     echo -e "${Blue}Builds may fail every now and then, there are some known bugs in Ubuntu Server that cause this."
-	echo -e "Im sorry, but it just fails sometimes, just sit back and relax and we'll try again until  it works ;)${Color_Off}"
-    notify-send "Axiom Info" "Build failed :("
+	  echo -e "Im sorry, but it just fails sometimes, just sit back and relax and we'll try again until  it works ;)${Color_Off}"
+    "$NOTIFY_CMD" "Axiom Info" "Build failed :("
     "$AXIOM_PATH"/interact/axiom-build
 fi
 

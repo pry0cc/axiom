@@ -1,10 +1,11 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
-DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
@@ -85,7 +86,7 @@ done
 
 
 if [[ "$quiet" != "true" ]]; then
-	notify-send "Axiom Info" "Initializing '$name'..."
+	"$NOTIFY_CMD" "Axiom Info" "Initializing '$name'..."
 	echo -e "${BWhite}Initializing '$name'"
 fi
 image_name="axiom-$region"
@@ -143,7 +144,7 @@ fi
 
 echo "{\"instance\":\"$name\"}" | jq >$AXIOM_PATH/profile.json
 
-notify-send "Axiom Info" "$name successfully initialized at $ip!"
+"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 
 if [ "$quiet" != "true" ]; then
