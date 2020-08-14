@@ -4,7 +4,7 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
 BASEOS="$(uname)"
-DOCTL_CONFIG_PATH="~/.config/doctl/config.yaml"
+DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
