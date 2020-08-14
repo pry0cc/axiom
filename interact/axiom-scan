@@ -6,6 +6,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 fleet=""
 file=""
 ports=""
+args=""
 start_dir=$(pwd)
 outfile=""
 module="masscan"
@@ -32,6 +33,10 @@ for var in "$@"; do
 		echo -e "${BWhite}Setting module to '$module'...${Color_Off}"
 	fi
 
+    if [[ "$var" =~ "--args" ]]; then
+        args="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+        echo -e "${BWhite}Appending '$args' when running...${Color_Off}"
+    fi
 done
 
 
@@ -52,7 +57,6 @@ then
 	echo "Please specify ports with --ports=80..."
 	exit
 fi
-
 
 
 total=$(axiom-ls $fleet | wc -l | awk '{ print $1 }')
@@ -112,7 +116,7 @@ do
 done
 
 mkdir -p /tmp/axiom/output
-interlace -tL /tmp/axiom/hosts.txt -threads $total -c "$AXIOM_PATH/interact/modules/$module _target_ $ports" -vv
+interlace -tL /tmp/axiom/hosts.txt -threads $total -c "$AXIOM_PATH/interact/modules/$module _target_ $ports $args" -vv
 
 rm -rf /tmp/axiom/.tmp
 rm /tmp/axiom/hosts.txt

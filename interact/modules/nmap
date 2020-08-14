@@ -4,11 +4,12 @@ ax="$1"
 file="/tmp/axiom/.tmp/$ax.txt"
 outfile="/tmp/axiom/output/$ax.txt"
 ports="$2"
+args="$3"
 
 server_input="/tmp/$ax.txt"
 server_output="/tmp/$ax-output.txt"
 
-cmd="nmap -T5 -sV --open -p$ports -iL $server_input -oG $server_output"
+cmd="nmap -T5 -sV --open -p$ports $args -iL $server_input -oG $server_output"
 
 echo "Uploading targets to $ax"
 scp -F /tmp/axiom/sshconfig.txt $file $ax:$server_input
