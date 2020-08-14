@@ -1,0 +1,18 @@
+#!/bin/bash
+
+company="amazon"
+
+if [ ! -z $1 ]
+then
+	company="$1"
+fi
+
+# Start a fleet called stock with 9 instances and expire after 2 hours
+axiom-fleet stok -i=9 -t=2
+
+# Pull all amazon ranges from github.com/pry0cc/cloud-ranges project
+# To get a list of all companies, curl easyasn.xyz...
+curl -s "https://easyasn.xyz/companies/$company/ranges.txt" | grep -v ":" > ranges.txt
+
+# Run a scan, use the stok fleet, use the ranges file we just made, and set the ports to 443, then set the output file
+axiom-scan -n=stok -f=ranges.txt --ports=443 -o=stockscan-$company-$(date +%s).txt
