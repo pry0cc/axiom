@@ -2,17 +2,10 @@
 
 AXIOM_PATH="$HOME/.axiom"
 DOCTL_CONFIG_PATH="~/.config/doctl/config.yaml"
-NOTIFY_CMD="notify-send"
-BASEOS="$(uname)"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
-# method issuing notifications in place of notify-send on OSX
-# expects a title as first and a notification as second argument
-function notifyOSX {
-  osascript -e "display notification \"$2\" with title \"$1\""
-}
-
-if [ $BASEOS == "Darwin" ]; then NOTIFY_CMD=notifyOSX; fi
+BASEOS="$(uname)"
 
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
