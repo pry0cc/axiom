@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
-DOCTL_CONFIG_PATH="~/.config/doctl/config.yaml"
+DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
