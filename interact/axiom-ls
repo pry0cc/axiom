@@ -2,12 +2,22 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+project="$(jq -r '.project' $AXIOM_PATH/axiom.json)"
+project_resources=$(doctl projects resources list $project -o json | jq -r '.[].urn' | cut -d ':' -f3)
+expression=$(echo $project_resources| tr ' ' '|')
+filter="($expression)"
 
 if [ -z $1 ]; then
 	data=$(doctl compute droplet list -o json)
 	i=0
-	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i +  $f); i=$new; done
-	(echo "Instance,IP,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .size_slug, .size.price_monthly] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	for f in $(echo $data | jq -c -r '.[] | [.id, .size.price_monthly]'); 
+	do 
+		if [[ ! -z $(echo $f | jq '.[0]' | grep -E "$filter") ]]; then
+			new=$(expr $i +  $(echo $f | jq -r '.[1]')); 
+			i=$new;
+		fi
+	done
+	(echo "Instance,IP,Memory,\$/M" && echo $data | jq  -r '.[] | [.id, .name, .networks.v4[].ip_address, .size_slug, .size.price_monthly] | @csv' | grep -E $filter | cut -d ',' -f2- && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 else
 	if [[ "$1" == "--json" ]]; then
 		doctl compute droplet list -o json | jq

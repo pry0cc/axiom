@@ -29,6 +29,7 @@ then
 fi
 
 gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
+project="$(jq -r '.project' $AXIOM_PATH/axiom.json)"
 region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
 size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
 
@@ -129,6 +130,12 @@ if [ "$quiet" != "true" ]; then
 else
 	waitabit "$PID"
 fi
+# Ensure that the droplet is under the Axiom specified project
+if [ "$quiet" != "true" ]; then
+	echo "Ensuring that droplet is under the correct project"
+fi
+droplet_id="$(doctl compute droplet list | grep "$name" | awk '{ print $1 }')"
+doctl projects resources assign "$project" --resource "do:droplet:$droplet_id" 2>&1 >>/dev/null
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
 if [ "$quiet" != "true" ]; then

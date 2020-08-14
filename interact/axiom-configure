@@ -117,6 +117,26 @@ doctl auth init -t $do_key
 region="sfo2"
 #echo -n "Region >> "
 #read region
+echo "What is the name of the project you want to use?"
+echo "Existing projects:"
+IFS=$'\n' projects=($(doctl projects list -o json | jq '.[].name' -r));
+for i in "${projects[@]}";
+do
+	echo $i
+done
+echo -n "Project (enter new name to create one) >> "
+read project
+if [[ " ${projects[@]} " =~ " ${project} " ]]; then
+    echo "Using $project"
+else
+	echo "Project $project doesn't exist. Creating new project..."
+	echo "What's the purpose of your project?"
+	echo -n "Purpose >> "
+	read purpose
+	doctl projects create --name "$project" --purpose "$purpose"
+fi
+# Find the project ID
+project_id=$(doctl projects list -o json | jq '.[] | select(.name == "Axiom") | .id' -r)
 #echo "What domain do you use?"
 #echo -n "Domain >> "
 #read domain
@@ -168,7 +188,7 @@ fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
-echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq >$AXIOM_PATH/axiom.json
+echo "{\"do_key\":\"$do_key\", \"project\":\"$project_id\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq >$AXIOM_PATH/axiom.json
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
