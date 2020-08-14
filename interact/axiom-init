@@ -1,14 +1,28 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+DOCTL_CONFIG_PATH="~/.config/doctl/config.yaml"
+NOTIFY_CMD="notify-send"
+BASEOS="$(uname)"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+
+# method issuing notifications in place of notify-send on OSX
+# expects a title as first and a notification as second argument
+function notifyOSX {
+  osascript -e "display notification \"$2\" with title \"$1\""
+}
+
+if [ $BASEOS == "Darwin" ]; then NOTIFY_CMD=notifyOSX; fi
+
+# Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
+if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
 
 if ! command -v doctl &> /dev/null
 then
     echo -e "${BRed}Error: doctl could not be found. Please install it from the binary${No_Color}"
     exit
 else
-	token_length=$(cat ~/.config/doctl/config.yaml  | grep access-token | wc -c | awk '{ print $1 }')
+	token_length=$(cat "$DOCTL_CONFIG_PATH"  | grep access-token | wc -c | awk '{ print $1 }')
 	if [[ "$token_length" -lt 32 ]];
 	then
 		echo -e "${Red}Warning: it looks like your doctl might not be configured with a token!${Color_Off}"
@@ -79,7 +93,7 @@ done
 
 
 if [[ "$quiet" != "true" ]]; then
-	notify-send "Axiom Info" "Initializing '$name'..."
+	"$NOTIFY_CMD" "Axiom Info" "Initializing '$name'..."
 	echo -e "${BWhite}Initializing '$name'"
 fi
 image_name="axiom-$region"
@@ -137,7 +151,7 @@ fi
 
 echo "{\"instance\":\"$name\"}" | jq >$AXIOM_PATH/profile.json
 
-notify-send "Axiom Info" "$name successfully initialized at $ip!"
+"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 
 if [ "$quiet" != "true" ]; then
