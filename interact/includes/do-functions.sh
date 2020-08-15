@@ -71,3 +71,13 @@ query_instances() {
 	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
 	echo -n $selected
 }
+
+generate_sshconfig() {
+	echo -n "" > $AXIOM_PATH/.sshconfig
+
+for name in $(instances | jq -r '.[].name')
+do 
+	ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig
+done
+}
