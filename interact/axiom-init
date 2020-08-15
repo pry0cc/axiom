@@ -111,7 +111,7 @@ waitabit() {
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
 	local -r delay='0.13'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-	i=250
+	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
 		: $((i--))
 		sleep "$delay"
