@@ -2,144 +2,77 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-fleet=""
-file=""
-ports=""
-args=""
-start_dir=$(pwd)
-outfile=""
-module="masscan"
-
-for var in "$@"; do
-	if [[ $var =~ "--ports" ]]; then
-		ports="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Using ports '$ports'${Color_Off}"
-	fi
-	if [[ "$var" =~ "-f" ]]; then
-		file="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Reading targets from '$file'${Color_Off}"
-	fi
-	if [[ "$var" =~ "-n" ]]; then
-		fleet="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Scanning using fleet '$fleet'${Color_Off}"
-	fi
-	if [[ "$var" =~ "-o" ]]; then
-		outfile="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Outputting to '$outfile'...${Color_Off}"
-	fi
-	if [[ "$var" =~ "-m" ]]; then
-		module="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Setting module to '$module'...${Color_Off}"
-	fi
-
-    if [[ "$var" =~ "--args" ]]; then
-        args="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        echo -e "${BWhite}Appending '$args' when running...${Color_Off}"
-    fi
-done
-
-
-if [ -z $fleet ]
-then
-	echo "Please specify a fleet with -n=fleetname..."
-	exit
-fi
-
-if [ -z $file ]
-then
-	echo "Please specify a target list with -f=filename..."
-	exit
-fi
-
-if [ -z $ports ]
-then
-	echo "Please specify ports with --ports=80..."
-	exit
-fi
-
-if [ ! -f "$file" ]
-then
-    echo -e "${BRed}File doesn't exist...${Color_Off}"
-    exit
-fi
-
-
-total=$(axiom-ls $fleet | wc -l | awk '{ print $1 }')
-
-rm -rf /tmp/axiom/.tmp 2>&1 >> /dev/null
-rm /tmp/axiom/sshconfig.txt 2>&1 >> /dev/null
-droplets=$(doctl compute droplet list -o json)
-
-mkdir -p /tmp/axiom/.tmp/
-
-# GENERATING SSH  CONFIG
-############################################################################################
-
-for name in $(echo "$droplets" | jq -r '.[].name')
+# Host Options
+targets_infile=""
+selected_module="masscan"
+query="$1"
+outfile="$(echo "$query" | sed 's/\*//g')-$(date +%s).txt"
+# Set user input
+for var in "$@"
 do
-	if [[ $name =~ $fleet ]]
+	if [[ "$var" =~ "-p" ]]
 	then
-		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
-		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> /tmp/axiom/sshconfig.txt
+		ports=$(echo $var | sed 's/-p//g')
+	elif [[ "$var" =~  "-iL=" ]]
+	then
+		targets_infile=$(echo "$var" | cut -d "=" -f2)
+	elif  [[ "$var" =~ "-m=" ]]
+	then
+		s=$(echo "$var" | cut -d "=" -f2)
+		if [ -f "$AXIOM_PATH/interact/modules/$s.json" ]
+		then
+			selected_module="$s"
+		else
+			echo -e "${BRed}Module: '$s' does not exist, valid modules are:${Color_Off}"
+			echo -e -n "${Blue}"
+			ls "$AXIOM_PATH/interact/modules/" | sed 's/\.json//g'
+			echo -e -n "${Color_Off}"
+			exit
+		fi
+	elif  [[ "$var" =~ "-o=" ]]
+	then
+		outfile=$(echo "$var" | cut -d "=" -f2)
+	else
+		if [[ "$var" !=  "$1" ]]	
+		then
+			args="$args $var"
+		fi
 	fi
 done
 
-
-############################################################################################
-### SPLIT 
-############################################################################################
-scope="$file"
-
-echo "Splitting $scope into $total pieces"
-
-mkdir -p /tmp/axiom/.tmp/
-cp $scope /tmp/axiom/.tmp/
-lines=$(wc -l $scope | awk '{ print $1 }')
-lines_per_file=$(bc <<< "scale=2; $lines / $total" | awk '{print int($1+0.5)}')
-cd /tmp/axiom/.tmp/
-split -l $lines_per_file $scope
-
-a=1
-
-for f in $(bash -c "ls | grep -v '$scope' | grep x")
-do
-    mv $f $a.txt
-    a=$((a+1))
-done
-
-rm $scope
-
-############################################################################################
-
-for line in $(axiom-ls $fleet)
-do 
-	i=$(echo $line | cut -d ":" -f 1)
-	name=$(echo $line | cut -d ":" -f 2)
-
-	echo "$name" >> /tmp/axiom/hosts.txt
-	mv /tmp/axiom/.tmp/$i.txt /tmp/axiom/.tmp/$name.txt
-done
-
-mkdir -p /tmp/axiom/output
-interlace -tL /tmp/axiom/hosts.txt -threads $total -c "$AXIOM_PATH/interact/modules/$module _target_ $ports $args" -vv
-
-rm -rf /tmp/axiom/.tmp
-rm /tmp/axiom/hosts.txt
-time=$(date +%s)
-port_str=$(echo $ports | sed 's/,/-/g')
-
-cd $start_dir
-
-if [ -z $outfile ]
+if [[ ! -f $targets_infile ]]
 then
-	cat /tmp/axiom/output/$fleet*.txt | sort -u > $fleet-$port_str-$time.txt
-	ls -lh $fleet-$port_str-$time.txt
-	wc -l $fleet-$port_str-$time.txt
-else
-	pwd
-	cat /tmp/axiom/output/$fleet*.txt | sort -u > $outfile
-	wc -l $outfile
-	ls -lh $outfile
+	echo "File doesn't exist."
+	exit
 fi
+
+#Load from the module
+module="$AXIOM_PATH/interact/modules/$selected_module.json"
+cmd=$(jq -r '.command'  $module)
+box_infile=$(jq -r '.box_infile'  $module)
+box_outfile=$(jq -r '.box_outfile'  $module)
+ports=$(jq -r '.default_ports'  $module)
+args=$(jq -r '.default_args'  $module)
+
+
+instances=$(query_instances "$1")
+
+if [ "$instances" ]
+then
+	src_prefix=$(lsplit $targets_infile "$instances")
+	axiom-scp "$src_prefix/\$name.txt" "$query:$box_infile"
+	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
+	echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
+	
+	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" 
+	axiom-scp "$query:$box_outfile" "$src_prefix/\$name-out.txt"
+	cat $src_prefix/$query-out.txt | sort -u > $outfile
+	echo "File saved to $outfile."
+else
+	echo "No instances in that fleet, use 'axiom-fleet -i=7 -t=2' to spin up a fleet"
+fi
+
 
