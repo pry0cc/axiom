@@ -2,8 +2,6 @@
 	"command":"sudo masscan $args -p$ports -iL $infile -oG $outfile && sudo chown op:users $outfile",
 	"box_infile":"input",
 	"box_outfile":"output",
-	"host_src":"$prefix/.tmp/$instance.txt",
-	"host_dst":"$prefix/.tmp/$instance-out.txt",
 	"default_ports":"80,443",
 	"default_args":"--rate=100000"
 }

@@ -67,7 +67,6 @@ do
 		line="$str"
 	fi
 done
-echo $line
 scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
 done
 else
