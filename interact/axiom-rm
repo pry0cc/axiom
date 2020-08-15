@@ -2,73 +2,69 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 if [ -z "$1" ]
 then
-
 	echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
     exit
 fi
 
-force=false
+force="false"
 query=""
+droplets="$(instances)"
+selected=""
 
 for var in "$@"; do
 	if [ "$var" == "-f" ]; then
 		force=true
-	else
-		query="$query\|$var"
 	fi
 done
 
-delete_instance() {
-    name="$1"
-    force="$2"
+selected=$(query_instances $@)
 
-    if [ "$force" == "true" ]
-        then
-        doctl compute droplet delete -f "$name"
-    else
-        doctl compute droplet delete "$name" 
-    fi
-
-}
-
-droplets=$(doctl compute droplet list -o json)
-selected=""
-
-selected=$(echo $droplets | jq -r '.[].name' | grep -E "^$query")
-if [[ $query =~ "*" ]]
+if [[ "$selected" ]]
 then
-    selected=$(echo $droplets | jq -r '.[].name' | grep -E "^$query")
+	for instance in $selected
+	do
+	    echo -e "${Red}Deleting '$instance'...${Color_Off}"
+		delete_instance "$instance" "$force"
+	done
+else
+	echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
+	exit
+fi
+#if [[ $query =~ "*" ]]
+#then
+#    selected=$(echo $droplets | jq -r '.[].name' | grep -E "^$query")
 #else
 #    selected=$(echo $droplets | jq -r '.[].name' | grep -w "$query")
-fi
+#fi
 
-total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
-chars=$(echo $selected | wc -c | awk '{ print $1 }')
-if [ $total -eq 1 ]
-then
-    if [ $chars -lt 2 ]
-    then
-	    echo -e "${Red}Instance does not exist..${Color_Off}"
-        exit
-    fi
+#total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+#chars=$(echo $selected | wc -c | awk '{ print $1 }')
+#if [ $total -eq 1 ]
+#then
+#    if [ $chars -lt 2 ]
+#    then
+#	    echo -e "${Red}Instance does not exist..${Color_Off}"
+#        exit
+#    fi
     
-    selected=$(echo $droplets | jq -r '.[].name' | grep -w "$query")
+#    selected=$(echo $droplets | jq -r '.[].name' | grep -w "$query")
 	
-    echo -e "${Red}Deleting '$selected'...${Color_Off}"
+#    echo -e "${Red}Deleting '$selected'...${Color_Off}"
     #delete_instance "$selected" "$force"
-fi
-if [ $total -gt 1 ]
-then
-    i=1
-    for name in $selected
-    do
-	    echo -e "${Red}Deleting '$name'...${Color_Off}"
-        #delete_instance "$name" "$force" &
-        sleep 0.3
-
-        i=$((i+1))
-    done
-fi
+#fi
+#if [ $total -gt 1 ]
+#then
+#    i=1
+#    for name in $selected
+#    do
+#	    echo -e "${Red}Deleting '$name'...${Color_Off}"
+#        #delete_instance "$name" "$force" &
+#        sleep 0.3
+#
+#        i=$((i+1))
+#    done
+#fi
