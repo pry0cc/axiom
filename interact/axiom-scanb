@@ -11,7 +11,7 @@ lsplit() {
 
 	lines=$(wc -l $src | awk '{ print $1 }')
 	lines_per_file=$(bc <<< "scale=2; $lines / $total" | awk '{print int($1+0.5)}')
-	id=$(echo "$instances" | md5sum | awk '{ print $1 }')
+	id=$(echo "$instances" | md5sum | awk '{ print $1 }' |  head -c5)
 	split_dir="$AXIOM_PATH/tmp/$id"
 	
 	mkdir -p $AXIOM_PATH/tmp/
