@@ -7,8 +7,6 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
 
-stty -echoctl # hide ^C
-
 # function called by trap
 other_commands() {
     tput setaf 1
