@@ -1,0 +1,7 @@
+{
+	"command":"cat $infile | httpx $args -ports $ports > $outfile",
+	"box_infile":"input",
+	"box_outfile":"output",
+	"default_ports":"80",
+	"default_args":""
+}
