@@ -1,0 +1,84 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
+
+lsplit() {
+	src="$1"
+	instances="$2"
+	total=$(echo $instances|  tr ' ' '\n' | wc  -l | awk '{ print $1 }')
+
+	echo $total
+	read
+
+	lines=$(wc -l $src | awk '{ print $1 }')
+	lines_per_file=$(bc <<< "scale=2; $lines / $total" | awk '{print int($1+0.5)}')
+
+	echo $lines_per_file
+	read
+
+	id=$(echo "$instances" | md5sum | awk '{ print $1 }')
+	echo $id
+	read
+	split_dir="$AXIOM_PATH/tmp/$id"
+	cp $src $split_dir
+
+	cd $split_dir
+	split -l $src
+	a=1
+
+	for f in $(ls | grep -v '$scope' | grep x)
+	do
+		mv $f $a.txt
+		a=$((a+1))
+	done
+
+	i=0
+	for instance in $instances
+	do
+		mv $i.txt $instance.txt
+		i=$((i+1))
+	done
+
+	rm $src
+}
+
+module="masscan.json"
+cmd=$(jq -r '.command'  $module)
+box_infile=$(jq -r '.box_infile'  $module)
+box_outfile=$(jq -r '.box_outfile'  $module)
+src=$(jq -r '.host_src'  $module)
+dst=$(jq -r '.host_dst'  $module)
+ports=$(jq -r '.default_ports'  $module)
+args=$(jq -r '.default_args'  $module)
+
+# hostoptions
+prefix="\/tmp\/test"
+targets_infile=""
+
+# Set user input
+for var in "$@"
+do
+	if [[ "$var" =~ "-p" ]]
+	then
+		ports=$(echo $var | sed 's/-p//g')
+	fi
+	if [[ "$var" =~  "-iL=" ]]
+	then
+		targets_infile=$(echo "$var" | cut -d "=" -f2)
+	fi
+done
+
+
+instances=$(query_instances "$1")
+for instance in $instances
+do
+	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
+	host_src=$(echo $src | sed "s/\$prefix/$prefix/g" | sed "s/\$instance/$instance/g")
+	host_dst=$(echo $dst | sed "s/\$prefix/$prefix/g" | sed "s/\$instance/$instance/g")
+
+	axiom-scp "$host_src" "$instance:$box_infile"
+	axiom-exec "$cmd_rendered" "$instance" -q
+	axiom-scp "$instance:$box_outfile" "$host_dst"
+done
