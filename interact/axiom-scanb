@@ -8,13 +8,14 @@ lsplit() {
 	src="$1"
 	instances=$2
 	total=$(echo $instances|  tr ' ' '\n' | wc  -l | awk '{ print $1 }')
+	orig_pwd=$(pwd)
 
 	lines=$(wc -l $src | awk '{ print $1 }')
 	lines_per_file=$(bc <<< "scale=2; $lines / $total" | awk '{print int($1+0.5)}')
 	id=$(echo "$instances" | md5sum | awk '{ print $1 }' |  head -c5)
 	split_dir="$AXIOM_PATH/tmp/$id"
 
-	rm  -rf $split_dir  >> /dev/null >> 2>&1
+	rm  -rf $split_dir  >> /dev/null  2>&1
 	mkdir -p $split_dir
 	cp $src $split_dir
 
@@ -23,19 +24,20 @@ lsplit() {
 	rm $src
 	a=1
 
-	for f in $(ls | grep -v '$scope' | grep x)
+	for f in $(ls | grep x)
 	do
 		mv $f $a.txt
 		a=$((a+1))
 	done
 
-	i=0
-	for instance in $instances
+	i=1
+	for instance in $(echo $instances | tr ' ' '\n')
 	do
 		mv $i.txt $instance.txt
 		i=$((i+1))
 	done
-
+	
+	cd $orig_pwd
 }
 
 module="masscan.json"
@@ -64,8 +66,19 @@ do
 	fi
 done
 
+if [[ ! -f $targets_infile ]]
+then
+	echo "File doesn't exist."
+	exit
+fi
+
 
 instances=$(query_instances "$1")
+
+lsplit $targets_infile "$instances"
+
+exit
+
 for instance in $instances
 do
 	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
