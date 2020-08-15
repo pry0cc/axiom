@@ -2,6 +2,7 @@
 	"command":"cat $infile | $args > $outfile",
 	"box_infile":"input",
 	"box_outfile":"output",
+	"output_dirs":"false",
 	"default_ports":"",
 	"default_args":"zdns A"
 }

@@ -2,6 +2,7 @@
 	"command":"sudo masscan $args -p$ports -iL $infile -oG $outfile && sudo chown op:users $outfile",
 	"box_infile":"input",
 	"box_outfile":"output",
+	"output_dirs":"false",
 	"default_ports":"80,443",
 	"default_args":"--rate=100000"
 }
