@@ -8,7 +8,10 @@ source "$AXIOM_PATH/interact/includes/do-functions.sh"
 targets_infile=""
 selected_module="masscan"
 query="$1"
+src_prefix="$AXIOM_PATH/tmp/$RANDOM"
 outfile="$(echo "$query" | sed 's/\*//g')-$(date +%s).txt"
+user_args=""
+ports=""
 # Set user input
 for var in "$@"
 do
@@ -35,44 +38,67 @@ do
 	then
 		outfile=$(echo "$var" | cut -d "=" -f2)
 	else
-		if [[ "$var" !=  "$1" ]]	
+		if [[ "$var" !=  "$query" ]]	
 		then
-			args="$args $var"
+			user_args="${user_args} ${var}"
 		fi
 	fi
 done
-
-if [[ ! -f $targets_infile ]]
-then
-	echo "File doesn't exist."
-	exit
-fi
 
 #Load from the module
 module="$AXIOM_PATH/interact/modules/$selected_module.json"
 cmd=$(jq -r '.command'  $module)
 box_infile=$(jq -r '.box_infile'  $module)
 box_outfile=$(jq -r '.box_outfile'  $module)
-ports=$(jq -r '.default_ports'  $module)
-args=$(jq -r '.default_args'  $module)
+if [ ! "$ports" ]
+then
+	ports=$(jq -r '.default_ports'  $module)
+fi
+args="$(jq -r '.default_args'  $module)"
+
+if [ "$user_args" ]
+then
+	args="$user_args"
+fi
 
 
+if [[ ! -f $targets_infile ]]
+then
+	if [[ "$box_infile" ]]
+	then
+		# This checks if the json  parameter is present,  if they dont specify it, we dont have to ask...
+		echo -e "${BRed}Please specify a file with -iL=targets.txt${Color_Off}"
+		exit
+	fi
+fi
 instances=$(query_instances "$1")
+
+echo -e "${BWhite}Starting axiom-scan with module '$selected_module' for fleet '$query'${Color_off}"
 
 if [ "$instances" ]
 then
-	src_prefix=$(lsplit $targets_infile "$instances")
-	axiom-scp "$src_prefix/\$name.txt" "$query:$box_infile"
+	if [[ "$box_infile" ]]
+	then
+		echo -e "${Blue}Splitting file $targets_infile across all instances...${Color_Off}"
+		src_prefix=$(lsplit $targets_infile "$instances")
+		axiom-scp "$src_prefix/\$name.txt" "$query:$box_infile"
+	else
+		mkdir -p $src_prefix
+	fi
+	
 	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
 	echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
 	
 	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
+	echo -e "${Blue}Launching $selected_module on fleet '$query'...${Color_Off}"
 	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" 
+	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
 	axiom-scp "$query:$box_outfile" "$src_prefix/\$name-out.txt"
+	echo -e "${Green}Merging and sorting output...${Color_Off}"
 	cat $src_prefix/$query-out.txt | sort -u > $outfile
-	echo "File saved to $outfile."
+	echo -e "${BGreen}File saved to $outfile${Color_Off}"
 else
-	echo "No instances in that fleet, use 'axiom-fleet -i=7 -t=2' to spin up a fleet"
+	echo -e "${BRed}No instances in that fleet, use 'axiom-fleet -i=7 -t=2' to spin up a fleet${Color_Off}"
 fi
 
 

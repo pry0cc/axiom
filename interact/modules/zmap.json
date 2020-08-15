@@ -1,0 +1,7 @@
+{
+	"command":"sudo zmap -p$ports $args -o $outfile && sudo chown op:users $outfile",
+	"box_infile":"in",
+	"box_outfile":"output",
+	"default_ports":"80",
+	"default_args":""
+}
