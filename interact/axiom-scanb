@@ -38,14 +38,13 @@ lsplit() {
 	done
 	
 	cd $orig_pwd
+	echo -n $split_dir
 }
 
 module="masscan.json"
 cmd=$(jq -r '.command'  $module)
 box_infile=$(jq -r '.box_infile'  $module)
 box_outfile=$(jq -r '.box_outfile'  $module)
-src=$(jq -r '.host_src'  $module)
-dst=$(jq -r '.host_dst'  $module)
 ports=$(jq -r '.default_ports'  $module)
 args=$(jq -r '.default_args'  $module)
 
@@ -73,19 +72,17 @@ then
 fi
 
 
+query="$1"
 instances=$(query_instances "$1")
+src_prefix=$(lsplit $targets_infile "$instances")
+axiom-scp "$src_prefix/\$name.txt" "$query:$box_infile"
+cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
+total=$(echo $instances | tr '' '\n'|wc -l | awk  '{ print $1 }')
+echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
+interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" -vv
+axiom-scp "$query:$box_outfile" "$src_prefix/\$name-out.txt"
 
-lsplit $targets_infile "$instances"
 
-exit
 
-for instance in $instances
-do
-	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
-	host_src=$(echo $src | sed "s/\$prefix/$prefix/g" | sed "s/\$instance/$instance/g")
-	host_dst=$(echo $dst | sed "s/\$prefix/$prefix/g" | sed "s/\$instance/$instance/g")
 
-	axiom-scp "$host_src" "$instance:$box_infile"
-	axiom-exec "$cmd_rendered" "$instance" -q
-	axiom-scp "$instance:$box_outfile" "$host_dst"
-done
+
