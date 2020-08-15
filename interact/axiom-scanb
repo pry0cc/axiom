@@ -4,43 +4,6 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-lsplit() {
-	src="$1"
-	instances=$2
-	total=$(echo $instances|  tr ' ' '\n' | wc  -l | awk '{ print $1 }')
-	orig_pwd=$(pwd)
-
-	lines=$(wc -l $src | awk '{ print $1 }')
-	lines_per_file=$(bc <<< "scale=2; $lines / $total" | awk '{print int($1+0.5)}')
-	id=$(echo "$instances" | md5sum | awk '{ print $1 }' |  head -c5)
-	split_dir="$AXIOM_PATH/tmp/$id"
-
-	rm  -rf $split_dir  >> /dev/null  2>&1
-	mkdir -p $split_dir
-	cp $src $split_dir
-
-	cd $split_dir
-	split -l $lines_per_file $src
-	rm $src
-	a=1
-
-	for f in $(ls | grep x)
-	do
-		mv $f $a.txt
-		a=$((a+1))
-	done
-
-	i=1
-	for instance in $(echo $instances | tr ' ' '\n')
-	do
-		mv $i.txt $instance.txt
-		i=$((i+1))
-	done
-	
-	cd $orig_pwd
-	echo -n $split_dir
-}
-
 #Load from the module
 module="$AXIOM_PATH/interact/modules/masscan.json"
 cmd=$(jq -r '.command'  $module)
