@@ -29,8 +29,11 @@ else
     fi
 fi
 
-instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance')
+instances=$(cat $AXIOM_PATH/selected.conf)
 success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.success_message')
+
+for instance in  $instances
+do
 ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
 id="$RANDOM"
 filename="/tmp/$id.sh"
@@ -63,3 +66,4 @@ else
 	echo "Profile succesfully removed from '$instance'!"
 fi
 echo -n -e "${Color_Off}"
+done
