@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-AXIOM_PATH="$HOME/.axiom"
-source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
-
-query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"

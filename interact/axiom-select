@@ -2,12 +2,6 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-if [ -z "$1" ]
-then
-    ans="$(doctl compute droplet list | awk '{ print $2  }' | fzf)"
-    echo "{\"instance\":\"$ans\"}" | jq > $AXIOM_PATH/profile.json
-else
-    echo "{\"instance\":\"$1\"}" | jq > $AXIOM_PATH/profile.json
-fi
-
+query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
