@@ -41,15 +41,15 @@ lsplit() {
 	echo -n $split_dir
 }
 
-#Load fromthe  module
-module="modules/masscan.json"
+#Load from the module
+module="$AXIOM_PATH/interact/modules/masscan.json"
 cmd=$(jq -r '.command'  $module)
 box_infile=$(jq -r '.box_infile'  $module)
 box_outfile=$(jq -r '.box_outfile'  $module)
 ports=$(jq -r '.default_ports'  $module)
 args=$(jq -r '.default_args'  $module)
 
-# hostoptions
+# Host Options
 targets_infile=""
 query="$1"
 outfile="$(echo $query | sed 's/\*//g')-$(date +%s).txt"
@@ -83,7 +83,7 @@ then
 	echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
 	
 	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
-	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" -vv
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" 
 	axiom-scp "$query:$box_outfile" "$src_prefix/\$name-out.txt"
 	cat $src_prefix/$query-out.txt | sort -u > $outfile
 	echo "File saved to $outfile."
