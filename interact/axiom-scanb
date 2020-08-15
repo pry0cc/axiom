@@ -9,23 +9,16 @@ lsplit() {
 	instances="$2"
 	total=$(echo $instances|  tr ' ' '\n' | wc  -l | awk '{ print $1 }')
 
-	echo $total
-	read
-
 	lines=$(wc -l $src | awk '{ print $1 }')
 	lines_per_file=$(bc <<< "scale=2; $lines / $total" | awk '{print int($1+0.5)}')
-
-	echo $lines_per_file
-	read
-
 	id=$(echo "$instances" | md5sum | awk '{ print $1 }')
-	echo $id
-	read
 	split_dir="$AXIOM_PATH/tmp/$id"
+	
+	mkdir -p $split_dir
 	cp $src $split_dir
 
 	cd $split_dir
-	split -l $src
+	split -l $lines_per_file $src
 	a=1
 
 	for f in $(ls | grep -v '$scope' | grep x)
