@@ -69,5 +69,5 @@ query_instances() {
 	fi
 
 	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
-	echo $selected
+	echo -n $selected
 }
