@@ -75,7 +75,7 @@ query_instances() {
 generate_sshconfig() {
 	echo -n "" > $AXIOM_PATH/.sshconfig
 
-droplets=($instances)
+droplets="$(instances)"
 for name in $(echo "$droplets" | jq -r '.[].name')
 do 
 	ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
