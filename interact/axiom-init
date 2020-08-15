@@ -7,6 +7,21 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
 
+stty -echoctl # hide ^C
+
+# function called by trap
+other_commands() {
+    tput setaf 1
+    printf "\rExiting..."
+    echo "Cleaning up created resources..."
+    kill -9  "$PID"
+    $AXIOM_PATH/interact/axiom-rm $gen_name -f
+	echo "Thank you for using axiom :) - @pry0cc"
+	exit
+}
+
+trap 'other_commands' SIGINT
+
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
 
@@ -95,9 +110,9 @@ image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ p
 show_spinner() {
 	local -r pid="${1}"
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.13'
+	local -r delay='0.11'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-	i=250
+	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
 		echo -ne "${BWhite}>> T-Minus $i to full initialization...${Color_Off}\r"
 		: $((i--))
@@ -109,7 +124,7 @@ show_spinner() {
 waitabit() {
 	local -r pid="${1}"
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.13'
+	local -r delay='0.11'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
 	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
@@ -131,15 +146,16 @@ else
 fi
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
+ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 if [ "$quiet" != "true" ]; then
-	secs=$((10))
+	secs=$((3))
 	while [ $secs -gt 0 ]; do
 		echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
-		sleep 1
+		sleep 3
 		: $((secs--))
 	done
 else
-	sleep 30
+	sleep 10
 fi
 
 echo "{\"instance\":\"$name\"}" | jq >$AXIOM_PATH/profile.json
@@ -151,8 +167,7 @@ if [ "$quiet" != "true" ]; then
 	echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
 fi
 
-sleep 3
-axiom-exec "touch /tmp/.connected" "$name" -q
+axiom-exec "touch /tmp/.connected" "$name" -q >> /dev/null 2>&1
 
 if [ "$restore" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
