@@ -5,7 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 #Load from the module
-module="$AXIOM_PATH/interact/modules/masscan.json"
+module="$AXIOM_PATH/interact/modules/nmap.json"
 cmd=$(jq -r '.command'  $module)
 box_infile=$(jq -r '.box_infile'  $module)
 box_outfile=$(jq -r '.box_outfile'  $module)
@@ -23,10 +23,17 @@ do
 	if [[ "$var" =~ "-p" ]]
 	then
 		ports=$(echo $var | sed 's/-p//g')
-	fi
-	if [[ "$var" =~  "-iL=" ]]
+	elif [[ "$var" =~  "-iL=" ]]
 	then
 		targets_infile=$(echo "$var" | cut -d "=" -f2)
+	elif  [[ "$var" =~ "-o=" ]]
+	then
+		outfile=$(echo "$var" | cut -d "=" -f2)
+	else
+		if [[ "$var" !=  "$1" ]]	
+		then
+			args="$args $var"
+		fi
 	fi
 done
 
