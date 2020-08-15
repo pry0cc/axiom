@@ -2,15 +2,18 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 droplets=$(doctl compute droplet list -o json)
-instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance')
+selected=$(cat $AXIOM_PATH/selected.conf)
 quiet=false
+query=""
 command="$1"
 
 if [ ! -z "$2" ]
 then
-    instance="$2"
+    query="$2"
+	selected=$(query_instances "$query")
 fi
 
 if [ ! -z "$3" ]
@@ -24,7 +27,6 @@ then
     exit 0
 fi
 
-selected=$(echo $droplets | jq -r '.[].name' | grep -E "$instance")
 total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 
 i=1
