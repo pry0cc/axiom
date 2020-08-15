@@ -68,8 +68,9 @@ do
 	fi
 done
 scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line &
-sleep 0.6
+sleep 0.7
 done
+sleep 1
 else
 	scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $@
 fi
