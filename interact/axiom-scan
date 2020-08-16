@@ -51,7 +51,8 @@ cmd=$(jq -r '.command'  $module)
 box_infile=$(jq -r '.box_infile'  $module)
 box_outfile=$(jq -r '.box_outfile'  $module)
 outdir=$(jq -r '.output_dirs'  $module)
-outformat=$(jq -r 'output_format' $module) 
+outformat=$(jq -r '.output_format' $module) 
+echo $outformat
 if [ ! "$ports" ]
 then
 	ports=$(jq -r '.default_ports'  $module)
