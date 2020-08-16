@@ -96,7 +96,7 @@ then
 	echo -e "${Blue}Launching $selected_module on fleet '$query'...${Color_Off}"
 	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" 
 	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
-	if [ "$outdir" ]
+	if [ "$outdir" == "true" ]
 	then
 		axiom-scp "$query:$box_outfile/*" "$src_prefix"
 		echo -e "${Green}Output saved to $src_prefix/output/${Color_Off}"
