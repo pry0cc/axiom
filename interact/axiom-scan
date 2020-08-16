@@ -105,7 +105,9 @@ then
 	then
 		# Recursive Directory Download
 		axiom-scp "$query:$box_outfile/*" "$src_prefix"
-		echo -e "${Green}Output saved to $src_prefix/output/${Color_Off}"
+		sleep 1
+		mv $src_prefix/output $outfile
+		echo -e "${Green}Output saved to $outfile/${Color_Off}"
 	else
 		axiom-scp "$query:$box_outfile" "$src_prefix/\$name-out.$ext"
 		if [[ "$outformat" == "txt" ]] || [[ "$outformat" == "greppable" ]]
@@ -115,7 +117,6 @@ then
 			echo -e "${BGreen}File saved to $outfile${Color_Off}"
 		elif [[ "$outformat" == "xml" ]];
 		then
-			echo $src_prefix
 			"$AXIOM_PATH/interact/merge-xml.py" -d "$src_prefix" -o "$(PWD)/$outfile"
 		fi
 	fi
