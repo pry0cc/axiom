@@ -2,6 +2,7 @@
 	"command":"mkdir -p output; cat $infile | /home/op/bin/enumhttp $outfile",
 	"box_infile":"input",
 	"box_outfile":"output\\/",
+	"output_format":"json",
 	"output_dirs":"true",
 	"default_ports":"80",
 	"default_args":""

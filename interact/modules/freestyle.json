@@ -3,6 +3,7 @@
 	"box_infile":"input",
 	"box_outfile":"output",
 	"output_dirs":"false",
+	"output_format":"txt",
 	"default_ports":"",
 	"default_args":"zdns A"
 }

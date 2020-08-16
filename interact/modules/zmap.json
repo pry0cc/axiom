@@ -3,6 +3,7 @@
 	"box_infile":"",
 	"box_outfile":"output",
 	"output_dirs":"false",
+	"output_format":"txt",
 	"default_ports":"80",
 	"default_args":""
 }
