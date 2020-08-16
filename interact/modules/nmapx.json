@@ -4,6 +4,7 @@
 	"box_outfile":"output",
 	"output_dirs":"false",
 	"output_format":"xml",
+	"output_ext":"xml",
 	"default_ports":"80,443",
 	"default_args":"-T5"
 }
