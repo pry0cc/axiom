@@ -95,7 +95,13 @@ then
 	
 	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
 	echo -e "${Blue}Launching $selected_module on fleet '$query'...${Color_Off}"
-	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q" 
+	ssh_args=""
+
+	if [[ "$selected_module" == "ffuf" ]]
+	then
+		ssh_args="-t"
+	fi
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args" 
 	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
 
 	rm -rf "$src_prefix"

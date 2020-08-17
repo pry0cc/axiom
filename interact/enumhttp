@@ -1,0 +1,8 @@
+#!/bin/bash
+
+line="$1"
+out="$2"
+time="$(date +%s)"
+outfile="$(echo $line |  sed 's/:\/\//-/g')-$time.json"
+
+/home/op/go/bin/ffuf -ac -t 35 -w /home/op/lists/seclists/Discovery/Web-Content/raft-large-files.txt -u "$line/FUZZ" -o "$out/$outfile"
