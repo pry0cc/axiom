@@ -8,6 +8,7 @@ droplets=$(doctl compute droplet list -o json)
 selected=$(cat $AXIOM_PATH/selected.conf)
 quiet=false
 query=""
+args=""
 command="$1"
 
 if [ ! -z "$2" ]
@@ -19,6 +20,14 @@ fi
 if [ ! -z "$3" ]
 then
     quiet=true
+fi
+
+if [ ! -z "$4" ]
+then
+	if [[ "$4" == "-t" ]]
+	then
+		args="-t"
+	fi
 fi
 
 if [ -z "$1" ]
@@ -42,7 +51,7 @@ do
     cmd="$1"
     rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
-    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" "$rendered"
+    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" $args "$rendered"
 
     if [[ "$quiet" != "true" ]]
     then
