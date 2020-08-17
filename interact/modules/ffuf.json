@@ -1,5 +1,5 @@
 {
-	"command":"mkdir -p output; cat $infile | /home/op/bin/enumhttp $outfile",
+	"command":"/home/op/bin/dirbust $infile $outfile",
 	"box_infile":"input",
 	"box_outfile":"output\\/",
 	"output_format":"json",
