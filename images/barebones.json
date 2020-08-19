@@ -3,7 +3,7 @@
     {
       "type": "digitalocean",
       "ssh_username": "root",
-      "snapshot_name":"ubuntu-vanilla-{{ user `region` }}-{{timestamp}}",
+      "snapshot_name":"axiom-barebones-{{ user `region` }}-{{timestamp}}",
       "api_token": "{{ user `do_key` }}",
       "image": "ubuntu-19-10-x64",
       "region": "{{ user `region`  }}",
@@ -20,7 +20,7 @@
                 "ufw allow 22",
                 "ufw allow 2266",
                 "ufw --force enable",
-                "useradd -G sudo -s /usr/bin/zsh -m op",
+                "useradd -G sudo -s /bin/bash -m op",
                 "mkdir -p /home/op/.ssh /home/op/bin /home/op/.config/ /home/op/work/",
                 "chown -R op:users /home/op",
                 "echo 'op:{{ user `do_key` }}' | chpasswd",
