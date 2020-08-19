@@ -12,11 +12,6 @@
 ],
     "provisioners": [
         {
-            "type":"file",
-            "source":"./configs/sshd_config",
-            "destination":"/etc/ssh/sshd_config"
-        },
-        {
             "type":"shell",
             "inline": [
             	"fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
@@ -41,6 +36,11 @@
                 "rm /etc/resolv.conf",
                 "rm -rf /etc/update-motd.d/*"
             ]
+        },
+        {
+            "type":"file",
+            "source":"./configs/sshd_config",
+            "destination":"/etc/ssh/sshd_config"
         },
         {
             "type":"file",
