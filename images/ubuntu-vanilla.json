@@ -17,13 +17,11 @@
             	"fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
                 "add-apt-repository -y ppa:longsleep/golang-backports",
                 "apt-get update -qq",
-                "apt-get upgrade -qq",
-                "DEBIAN_FRONTEND=noninteractive sudo apt-get -y install apt-transport-https ca-certificates debian-keyring p7zip zsh curl figlet zlib1g-dev python python-pip tor proxychains python3.7 default-jdk python3-pip python3-venv libpcap-dev ruby ruby-dev nmap vim dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common golang-go fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils dirb jq ufw neovim ranger bat grc mosh net-tools",
+                "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES apt-get upgrade -qq",
+                "curl -fsSL get.docker.com | sh",
+                "DEBIAN_FRONTEND=noninteractive sudo apt-get -qqy install docker-ce apt-transport-https ca-certificates debian-keyring p7zip zsh curl figlet zlib1g-dev python python-pip tor proxychains python3.7 default-jdk python3-pip python3-venv libpcap-dev ruby ruby-dev nmap vim dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common golang-go fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils dirb jq ufw neovim ranger bat grc mosh net-tools",
                 "ufw allow 22",
                 "ufw allow 2266",
-                "curl -fsSL get.docker.com | sh",
-                "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES apt-get upgrade -qq",
-                "apt-get -qq install docker-ce",
                 "wget https://bootstrap.pypa.io/get-pip.py",
                 "python3.7 get-pip.py",
                 "systemctl start docker",
@@ -54,18 +52,8 @@
 		},
         {
             "type":"file",
-            "source":"./configs/telegram",
-            "destination":"/home/op/bin/telegram"
-        },
-        {
-            "type":"file",
             "source":"./configs/authorized_keys",
             "destination":"/home/op/.ssh/authorized_keys"
-        },
-        {
-            "type":"file",
-            "source":"./configs/telegram.json",
-            "destination":"/home/op/.telegram.json"
         },
         {
             "type":"file",
@@ -81,11 +69,6 @@
             "type":"file",
             "source":"./configs/tmux-splash.sh",
             "destination":"/home/op/bin/tmux-splash.sh"
-        },
-		{
-            "type":"file",
-            "source":"./configs/zsh_history",
-            "destination":"/home/op/.zsh_history"
         },
         {
             "type":"file",
@@ -129,17 +112,11 @@
                 "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make && make install && cd .. && sudo rm -r proxychains-ng",
                 "cd /home/op && tar -xf /home/op/.oh-my-zsh.tar.gz",
                 "cd /home/op/.config/ && tar -xf /home/op/.config/nvim.tar.gz",
-                "echo 'Installing Neovim Plugin manager'",
                 "/bin/su -l op -c 'curl --create-dirs -fLo ~/.local/share/nvim/site/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'",
                 "touch /home/op/.profile",
                 "touch /home/op/.z",
                 "chown -R op:users /home/op",
-                "sudo chmod +x /etc/update-motd.d/00-header"
-            ]
-        },
-        {
-            "type":"shell",
-            "inline": [
+                "sudo chmod +x /etc/update-motd.d/00-header",
                 "chown -R op:users /home/op"
             ]
         }
