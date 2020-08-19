@@ -29,9 +29,12 @@ else
     fi
 fi
 
-instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance')
+instances=$(cat $AXIOM_PATH/selected.conf)
 success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.success_message')
-ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
+
+for instance in  $instances
+do
+ip="$(instance_ip $instance)"
 id="$RANDOM"
 filename="/tmp/$id.sh"
 
@@ -58,8 +61,9 @@ ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "${Green}"
 if [ $remove == false ]
 then
-	bash -c "instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
+	bash -c "instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance') ip=$(instance_ip $instance) $success_command"
 else 
 	echo "Profile succesfully removed from '$instance'!"
 fi
 echo -n -e "${Color_Off}"
+done

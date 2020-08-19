@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 ans="$(jq -r '.instance' $AXIOM_PATH/profile.json)"
-ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
+ip="$(instance_ip $ans)"
 ssh -p2266 op@"$ip"

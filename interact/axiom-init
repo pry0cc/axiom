@@ -7,6 +7,19 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
 
+# function called by trap
+other_commands() {
+    tput setaf 1
+    printf "\rExiting..."
+    echo "Cleaning up created resources..."
+    kill -9  "$PID"
+    $AXIOM_PATH/interact/axiom-rm $gen_name -f
+	echo "Thank you for using axiom :) - @pry0cc"
+	exit
+}
+
+trap 'other_commands' SIGINT
+
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
 
@@ -32,6 +45,7 @@ gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
 project="$(jq -r '.project' $AXIOM_PATH/axiom.json)"
 region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
 size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
+image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
 
 box_name=""
 connect_shell=false
@@ -42,7 +56,7 @@ default_expiry=525600000
 quiet=false
 domain=false
 
-if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
+if [ -z "$1" ] || [[ $1 =~ "image" ]] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
 	name="$gen_name"
 else
 	name="$1"
@@ -76,6 +90,13 @@ for var in "$@"; do
 			echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
 		fi
 	fi
+	if [[ "$var" =~ "--image=" ]]; then
+		image="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		if [ "$quiet" != "true" ]; then
+			echo -e "${BWhite}Setting image to '$image'${Color_Off}"
+		fi
+	fi
+
 	if [[ "$var" =~ "--expire" ]]; then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		default_expiry=$expire
@@ -90,15 +111,23 @@ if [[ "$quiet" != "true" ]]; then
 	"$NOTIFY_CMD" "Axiom Info" "Initializing '$name'..."
 	echo -e "${BWhite}Initializing '$name'"
 fi
-image_name="axiom-$region"
+
+image_name=""
+if [[ "$image" != "null" ]]
+then
+	image_name="$image-$region"
+else
+	image_name="axiom-$region"
+fi
+
 image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
 
 show_spinner() {
 	local -r pid="${1}"
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.13'
+	local -r delay='0.11'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-	i=250
+	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
 		echo -ne "${BWhite}>> T-Minus $i to full initialization...${Color_Off}\r"
 		: $((i--))
@@ -110,9 +139,9 @@ show_spinner() {
 waitabit() {
 	local -r pid="${1}"
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.13'
+	local -r delay='0.11'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-	i=250
+	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
 		: $((i--))
 		sleep "$delay"
@@ -134,22 +163,23 @@ fi
 if [ "$quiet" != "true" ]; then
 	echo "Ensuring that droplet is under the correct project"
 fi
-droplet_id="$(doctl compute droplet list | grep "$name" | awk '{ print $1 }')"
+droplet_id="$(instances | jq -r --arg name $name '.[] | select(.name == $name) | .id')"
 doctl projects resources assign "$project" --resource "do:droplet:$droplet_id" 2>&1 >>/dev/null
 
 ip="$(doctl compute droplet list | grep "$name" | awk '{ print $3 }')"
+ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 if [ "$quiet" != "true" ]; then
-	secs=$((10))
+	secs=$((3))
 	while [ $secs -gt 0 ]; do
 		echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
-		sleep 1
+		sleep 3
 		: $((secs--))
 	done
 else
-	sleep 30
+	sleep 10
 fi
 
-echo "{\"instance\":\"$name\"}" | jq >$AXIOM_PATH/profile.json
+echo "$name" > $AXIOM_PATH/selected.conf
 
 "$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
@@ -158,18 +188,15 @@ if [ "$quiet" != "true" ]; then
 	echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
 fi
 
-sleep 3
-axiom-exec "touch /tmp/.connected" "$name" -q
+axiom-exec "touch /tmp/.connected" "$name" -q >> /dev/null 2>&1
 
 if [ "$restore" != false ]; then
-	echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
-	sleep 65
+	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
 	$AXIOM_PATH/interact/axiom-restore "$restore" "$name"
 fi
 
 if [ "$deploy" != false ]; then
-	echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
-	sleep 65
+	#echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
 	$AXIOM_PATH/interact/axiom-deploy "$deploy"
 fi
 

@@ -2,8 +2,8 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance')
 restore_box=""
 
 if [ ! -z "$2" ]
@@ -23,11 +23,14 @@ then
     restore_box=$(echo $restore_box | sed 's/\//-/g')
 fi
 
-ip=$(doctl compute droplet list | grep $instance | awk '{ print $3 }')
-echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
-echo -n -e "${Blue}" 
+for instance in $(cat $AXIOM_PATH/selected.conf)
+do
+	ip=$(instance_ip $instance)
+	echo -e "${BWhite}Restoring $restore_box to $instance at $ip ${Color_Off}"
+	echo -n -e "${Blue}" 
 
-rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress --include-from=$AXIOM_PATH/boxes/backup-files.txt $AXIOM_PATH/boxes/"$restore_box"/ op@"$ip":~/
+	rsync -avzr -e "ssh -p2266 -o StrictHostKeyChecking=no" --progress --include-from=$AXIOM_PATH/boxes/backup-files.txt $AXIOM_PATH/boxes/"$restore_box"/ op@"$ip":~/
 
-echo -n -e "${Color_Off}" 
-echo -e "${BGreen}Restore of '$restore_box' to '$instance' successful!${Color_Off}" 
+	echo -n -e "${Color_Off}" 
+	echo -e "${BGreen}Restore of '$restore_box' to '$instance' successful!${Color_Off}" 
+done

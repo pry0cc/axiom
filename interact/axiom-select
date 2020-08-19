@@ -2,12 +2,17 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
+
 
 if [ -z "$1" ]
 then
-    ans="$(doctl compute droplet list | awk '{ print $2  }' | fzf)"
-    echo "{\"instance\":\"$ans\"}" | jq > $AXIOM_PATH/profile.json
+	echo -e "${BWhite}Currently selected instances...${Color_Off}"
 else
-    echo "{\"instance\":\"$1\"}" | jq > $AXIOM_PATH/profile.json
+	query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
+	echo -e "${BWhite}Selected instances...${Color_Off}"
 fi
 
+echo -n -e "${Blue}"
+cat $AXIOM_PATH/selected.conf
+echo -n -e "${Color_Off}"

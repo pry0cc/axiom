@@ -2,14 +2,74 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-droplets=$(doctl compute droplet list -o json)
+generate_sshconfig
+instances=""
 
-echo -n "" > $AXIOM_PATH/.sshconfig
-for name in $(echo "$droplets" | jq -r '.[].name')
-do 
-	ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig
+for var in "$@"
+do
+	host=$(echo $var | cut -d ":" -f 1)
+	if [[ "$host" =~ "*" ]]
+	then
+		instances=$(query_instances "$host")
+		full=$(echo "$var" | sed "s/\$name/$instance/g")
+		if [[ "$str" ]]
+		then
+			str="$str $full"
+		else
+			str="$full"
+		fi
+
+	else
+		if [[ "$str" ]]
+		then
+			str="$str $var"
+		else
+			str="$var"
+		fi
+	fi
 done
 
-scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig "$@"
+if [ "$instances" ]
+then
+for instance in $instances
+do
+line=""
+for var in "$@"
+do
+	host=$(echo $var | cut -d ":" -f 1)
+	str=""
+	if [[ "$host" =~ "*" ]]
+	then
+		full=$(echo "$var" | sed "s/$host/$instance/g"| sed 's/\*//g')
+		if [[ "$str" ]]
+		then
+			str="$str $full"
+		else
+			str="$full"
+		fi
+	else
+		if [[ "$str" ]]
+		then
+			str="$str $var"
+		else
+			str="$var"
+		fi
+	fi
+
+	str=$(echo $str | sed "s/\$name/$instance/g")
+
+	if [ "$line" ]
+	then
+		line="$line $str"
+	else
+		line="$str"
+	fi
+done
+scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
+done
+sleep 1
+else
+	scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $@
+fi

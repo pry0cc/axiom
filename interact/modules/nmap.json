@@ -1,0 +1,10 @@
+{
+	"command":"nmap $args -p$ports -iL $infile -oG $outfile",
+	"box_infile":"input",
+	"box_outfile":"output",
+	"output_format":"greppable",
+	"output_ext":"txt",
+	"output_dirs":"false",
+	"default_ports":"80,443",
+	"default_args":"-T5"
+}

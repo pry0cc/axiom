@@ -1,0 +1,10 @@
+{
+	"command":"/home/op/bin/dirbust $infile $outfile",
+	"box_infile":"input",
+	"box_outfile":"output\\/",
+	"output_format":"json",
+	"output_ext":"json",
+	"output_dirs":"true",
+	"default_ports":"80",
+	"default_args":""
+}

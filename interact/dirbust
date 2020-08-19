@@ -1,0 +1,8 @@
+#!/bin/bash
+
+infile="$1"
+outfile="$2"
+rm -rf $outfile
+mkdir -p $outfile
+
+interlace -tL $infile -silent -threads 3 -c "/home/op/bin/enumhttp _target_ $outfile"

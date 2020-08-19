@@ -1,0 +1,10 @@
+{
+	"command":"/home/op/go/bin/dnsprobe -l $infile -o $outfile $arg",
+	"box_infile":"input",
+	"box_outfile":"output",
+	"output_format":"txt",
+	"output_ext":"txt",
+	"output_dirs":"false",
+	"default_ports":"",
+	"default_args":""
+}

@@ -1,0 +1,67 @@
+{
+  "builders": [
+    {
+      "type": "digitalocean",
+      "ssh_username": "root",
+      "snapshot_name":"axiom-barebones-{{ user `region` }}-{{timestamp}}",
+      "api_token": "{{ user `do_key` }}",
+      "image": "ubuntu-19-10-x64",
+      "region": "{{ user `region`  }}",
+      "size": "s-1vcpu-1gb"
+    }
+],
+    "provisioners": [
+        {
+            "type":"shell",
+            "inline": [
+                "apt-get update -qq",
+                "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES apt-get upgrade -qq",
+                "DEBIAN_FRONTEND=noninteractive sudo apt-get -qqy install apt-transport-https ca-certificates debian-keyring curl zlib1g-dev libpcap-dev ruby-dev nmap dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils jq ufw net-tools",
+                "ufw allow 22",
+                "ufw allow 2266",
+                "ufw --force enable",
+                "useradd -G sudo -s /bin/bash -m op",
+                "mkdir -p /home/op/.ssh /home/op/bin /home/op/.config/ /home/op/work/",
+                "chown -R op:users /home/op",
+                "echo 'op:{{ user `do_key` }}' | chpasswd",
+                "rm /etc/resolv.conf",
+                "rm -rf /etc/update-motd.d/*"
+            ]
+        },
+        {
+            "type":"file",
+            "source":"./configs/sshd_config",
+            "destination":"/etc/ssh/sshd_config"
+        },
+        {
+            "type":"file",
+            "source":"./configs/resolv.conf",
+            "destination":"/etc/resolv.conf"
+        },
+        {
+            "type":"file",
+            "source":"./configs/authorized_keys",
+            "destination":"/home/op/.ssh/authorized_keys"
+        },
+        {
+            "type":"file",
+            "source":"./configs/bashrc",
+            "destination":"/home/op/.bashrc"
+        },
+        {
+            "type":"file",
+            "source":"./configs/sudoers",
+            "destination":"/etc/sudoers"
+        },
+        {
+            "type":"shell",
+            "inline": [
+                "chattr +i /etc/resolv.conf",
+                "chown -R op:users /home/op",
+                "git clone https://github.com/pry0cc/Reaper.git /tmp/reaper && cd /tmp/reaper && ./set-expiry.sh \"1000 years\" &&./install.sh",
+                "touch /home/op/.profile",
+                "chown -R op:users /home/op"
+            ]
+        }
+    ]
+}
