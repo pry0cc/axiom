@@ -172,7 +172,7 @@ else
 	sleep 10
 fi
 
-echo "{\"instance\":\"$name\"}" | jq >$AXIOM_PATH/profile.json
+echo "$name" > $AXIOM_PATH/selected.conf
 
 "$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
