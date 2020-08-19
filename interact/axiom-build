@@ -12,11 +12,22 @@ then
 	new_path="$AXIOM_PATH/images/$selected_image.json"
 	if [ ! -f "$new_path" ]
 	then
-		echo -e "${Red}Read image from config: '$config_image', unfortunately, there is no $AXIOM_PATH/images/$config_image.json${Color_Off}"
+		echo -e "${Red}Read image from config: '$config_image', unfortunately, there is no $new_path...${Color_Off}"
 		exit
 	else
 		selected_image="$config_image"
 	fi
+elif [ ! -z "$1" ]
+then
+	new_path="$AXIOM_PATH/images/$1.json"
+	if [ ! -f "$new_path" ]
+	then
+		echo -e "${Red}Read image from command-line arguments: '$1', unfortunately, there is no $new_path...${Color_Off}"
+		exit
+	else
+		selected_image="$1"
+	fi
+
 fi
 
 image_path="$AXIOM_PATH/images/$selected_image.json"
