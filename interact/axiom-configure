@@ -136,7 +136,7 @@ else
 	doctl projects create --name "$project" --purpose "$purpose"
 fi
 # Find the project ID
-project_id=$(doctl projects list -o json | jq '.[] | select(.name == "Axiom") | .id' -r)
+project_id=$(doctl projects list -o json | jq --arg name $project '.[] | select(.name == $name) | .id' -r)
 #echo "What domain do you use?"
 #echo -n "Domain >> "
 #read domain
