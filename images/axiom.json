@@ -210,7 +210,7 @@
         "echo 'Installing chaos client'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/projectdiscovery/chaos-client/cmd/chaos'",
         "echo 'Installing Subfinder'",
-        "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/subfinder/cmd/subfinder'",
+        "/bin/su -l op -c 'GO111MODULE=auto go get -u -v github.com/projectdiscovery/subfinder/cmd/subfinder'",
         "echo 'Installing unfurl'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/unfurl'",
         "echo 'Installing suback - this takes a while'",
