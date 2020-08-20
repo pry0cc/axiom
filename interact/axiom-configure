@@ -1,6 +1,7 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+selected_image="axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
@@ -171,6 +172,7 @@ export PATH="$PATH:$HOME/.axiom/interact"
 echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq >$AXIOM_PATH/axiom.json
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
+image_path="$AXIOM_PATH/images/$selected_image.json"
 cd $AXIOM_PATH/
-packer build -var-file $AXIOM_PATH/axiom.json $AXIOM_PATH/packer.json
+packer build -var-file "$AXIOM_PATH"/axiom.json "$image_path";
 cd
