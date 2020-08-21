@@ -1,7 +1,6 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
-source "$AXIOM_PATH/interact/includes/vars.sh"
 
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
 echo -e "To begin, I will ask you a few questions"
@@ -172,5 +171,5 @@ echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
-packer build -var-file $AXIOM_PATH/axiom.json $AXIOM_PATH/packer.json
+$AXIOM_PATH/interact/axiom-build
 cd
