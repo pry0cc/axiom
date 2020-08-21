@@ -15,4 +15,6 @@ axiom-fleet stok -i=9 -t=2
 curl -s "https://easyasn.xyz/companies/$company/ranges.txt" | grep -v ":" > ranges.txt
 
 # Run a scan, use the stok fleet, use the ranges file we just made, and set the ports to 443, then set the output file
-axiom-scan -n=stok -f=ranges.txt --ports=443 -o=stockscan-$company-$(date +%s).txt
+axiom-scan 'stok*' -iL=ranges.txt -p443 -o="stockscan-$company-$(date +%s).txt"
+axiom-scan 'stok*' -iL=ranges.txt -p443 -m=nmapx o="stockscan-$company-$(date +%s)"
+axiom-scan 'stok*' -iL=ranges.txt -p80,443 -m=nmap -sV -T5 -sC o="stockscan-$company-$(date +%s)"
