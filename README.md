@@ -224,7 +224,7 @@ Personally, I have this mapped to a keybinding with `termite -e axiom-connect`, 
 ## `axiom-ls`
 `axiom-ls` is used to list your current instances (and any other droplets you have running).
 
-It requries no arguments.
+It requires no arguments.
 
 
 ## `axiom-rm`
