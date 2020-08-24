@@ -107,7 +107,7 @@ then
 		;;
     archive*)
 		box="$2"
-        email="$(jq -r $AXIOM_PATH/axiom.json '.email')"
+        email="$(jq -r $'.email' AXIOM_PATH/axiom.json)"
 		recipient=""
 		upload=""
 		for var in "$@"
