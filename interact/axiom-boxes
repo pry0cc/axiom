@@ -107,7 +107,7 @@ then
 		;;
     archive*)
 		box="$2"
-		email=""
+        email=""
 		recipient=""
 		upload=""
 		for var in "$@"
@@ -123,7 +123,7 @@ then
 			fi
 		done
 
-		if [[ "$recipient" != "null" ]];
+		if [[ "$recipient" != "" ]];
 		then
 			email="$recipient"
 			echo "Using email '$email'"
