@@ -123,7 +123,7 @@ then
 			echo -e "${BGreen}File saved to $outfile${Color_Off}"
 		elif [[ "$outformat" == "xml" ]];
 		then
-			"$AXIOM_PATH/interact/merge-xml.py" -d "$src_prefix" -o "$(PWD)/$outfile"
+			"$AXIOM_PATH/interact/merge-xml.py" -d "$src_prefix" -o "$PWD/$outfile"
 		fi
 	fi
 
