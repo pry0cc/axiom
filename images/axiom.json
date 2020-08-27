@@ -1,25 +1,25 @@
 {
-  "builders": [
-    {
-      "type": "digitalocean",
-      "ssh_username": "root",
-      "snapshot_name":"axiom-{{ user `region` }}-{{timestamp}}",
-      "api_token": "{{ user `do_key` }}",
-      "image": "ubuntu-19-10-x64",
-      "region": "{{ user `region`  }}",
-      "size": "s-1vcpu-1gb"
-    }
-],
+    "builders": [
+        {
+            "type": "digitalocean",
+            "ssh_username": "root",
+            "snapshot_name": "axiom-{{ user `region` }}-{{timestamp}}",
+            "api_token": "{{ user `do_key` }}",
+            "image": "ubuntu-19-10-x64",
+            "region": "{{ user `region`  }}",
+            "size": "s-1vcpu-1gb"
+        }
+    ],
     "provisioners": [
         {
-            "type":"file",
-            "source":"./configs/sshd_config",
-            "destination":"/etc/ssh/sshd_config"
+            "type": "file",
+            "source": "./configs/sshd_config",
+            "destination": "/etc/ssh/sshd_config"
         },
         {
-            "type":"shell",
+            "type": "shell",
             "inline": [
-            	"fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
+                "fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
                 "add-apt-repository -y ppa:longsleep/golang-backports",
                 "apt-get update -qq",
                 "DEBIAN_FRONTEND=noninteractive apt-get upgrade -qq",
@@ -59,87 +59,87 @@
             ]
         },
         {
-            "type":"file",
-            "source":"./configs/resolv.conf",
-            "destination":"/etc/resolv.conf"
-        },
-		{
-			"type":"file",
-			"source":"./configs/docker",
-			"destination":"/etc/default/docker"
-		},
-        {
-            "type":"file",
-            "source":"./configs/telegram",
-            "destination":"/home/op/bin/telegram"
+            "type": "file",
+            "source": "./configs/resolv.conf",
+            "destination": "/etc/resolv.conf"
         },
         {
-            "type":"file",
-            "source":"./configs/add-path",
-            "destination":"/home/op/bin/add-path"
+            "type": "file",
+            "source": "./configs/docker",
+            "destination": "/etc/default/docker"
         },
         {
-            "type":"file",
-            "source":"./configs/authorized_keys",
-            "destination":"/home/op/.ssh/authorized_keys"
+            "type": "file",
+            "source": "./configs/telegram",
+            "destination": "/home/op/bin/telegram"
         },
         {
-            "type":"file",
-            "source":"./configs/telegram.json",
-            "destination":"/home/op/.telegram.json"
+            "type": "file",
+            "source": "./configs/add-path",
+            "destination": "/home/op/bin/add-path"
         },
         {
-            "type":"file",
-            "source":"./configs/tmux.conf",
-            "destination":"/home/op/.tmux.conf"
+            "type": "file",
+            "source": "./configs/authorized_keys",
+            "destination": "/home/op/.ssh/authorized_keys"
         },
         {
-            "type":"file",
-            "source":"./configs/tmux.conf.local",
-            "destination":"/home/op/.tmux.conf.local"
+            "type": "file",
+            "source": "./configs/telegram.json",
+            "destination": "/home/op/.telegram.json"
         },
         {
-            "type":"file",
-            "source":"./configs/tmux-splash.sh",
-            "destination":"/home/op/bin/tmux-splash.sh"
-        },
-		{
-            "type":"file",
-            "source":"./configs/zsh_history",
-            "destination":"/home/op/.zsh_history"
+            "type": "file",
+            "source": "./configs/tmux.conf",
+            "destination": "/home/op/.tmux.conf"
         },
         {
-            "type":"file",
-            "source":"./configs/00-header",
-            "destination":"/etc/update-motd.d/00-header"
+            "type": "file",
+            "source": "./configs/tmux.conf.local",
+            "destination": "/home/op/.tmux.conf.local"
         },
         {
-            "type":"file",
-            "source":"./configs/bashrc",
-            "destination":"/home/op/.bashrc"
+            "type": "file",
+            "source": "./configs/tmux-splash.sh",
+            "destination": "/home/op/bin/tmux-splash.sh"
         },
         {
-            "type":"file",
-            "source":"./configs/zshrc",
-            "destination":"/home/op/.zshrc"
+            "type": "file",
+            "source": "./configs/zsh_history",
+            "destination": "/home/op/.zsh_history"
         },
         {
-            "type":"file",
-            "source":"./configs/oh-my-zsh.tar.gz",
-            "destination":"/home/op/.oh-my-zsh.tar.gz"
+            "type": "file",
+            "source": "./configs/00-header",
+            "destination": "/etc/update-motd.d/00-header"
         },
         {
-            "type":"file",
-            "source":"./configs/nvim.tar.gz",
-            "destination":"/home/op/.config/nvim.tar.gz"
+            "type": "file",
+            "source": "./configs/bashrc",
+            "destination": "/home/op/.bashrc"
         },
         {
-            "type":"file",
-            "source":"./configs/sudoers",
-            "destination":"/etc/sudoers"
+            "type": "file",
+            "source": "./configs/zshrc",
+            "destination": "/home/op/.zshrc"
         },
         {
-            "type":"shell",
+            "type": "file",
+            "source": "./configs/oh-my-zsh.tar.gz",
+            "destination": "/home/op/.oh-my-zsh.tar.gz"
+        },
+        {
+            "type": "file",
+            "source": "./configs/nvim.tar.gz",
+            "destination": "/home/op/.config/nvim.tar.gz"
+        },
+        {
+            "type": "file",
+            "source": "./configs/sudoers",
+            "destination": "/etc/sudoers"
+        },
+        {
+            "type": "shell",
             "inline": [
                 "chattr +i /etc/resolv.conf",
                 "chown -R op:users /home/op",
@@ -164,43 +164,44 @@
                 "cd /home/op/.config/ && tar -xf /home/op/.config/nvim.tar.gz",
                 "cd /home/op/recon/emailgen && bundle update --bundler",
                 "cd /home/op/recon/emailgen && bundle install",
-				"echo \"@hunter_key = '{{ user `hunter_key` }}'\" >> /home/op/recon/emailgen/tokens.rb",
+                "echo \"@hunter_key = '{{ user `hunter_key` }}'\" >> /home/op/recon/emailgen/tokens.rb",
                 "echo 'Setting up sn0int repository'",
                 "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list && apt-get update",
                 "echo 'Installing sn0int'",
                 "apt-get -y install sn0int",
                 "echo 'Installing Httprobe'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/httprobe'",
-				"/bin/su -l op -c '/snap/bin/doctl auth init -t {{ user `do_key` }}'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/httprobe'",
+                "/bin/su -l op -c '/snap/bin/doctl auth init -t {{ user `do_key` }}'",
                 "echo 'Installing Neovim Plugin manager'",
                 "/bin/su -l op -c 'curl --create-dirs -fLo ~/.local/share/nvim/site/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'",
                 "echo 'Installing Meg'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/meg'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/meg'",
                 "echo 'Installing ffuf'",
-				"/bin/su -l op -c 'go get -u github.com/ffuf/ffuf'",
+                "/bin/su -l op -c 'go get -u github.com/ffuf/ffuf'",
                 "echo 'Installing assetfinder'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/assetfinder'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/assetfinder'",
                 "echo 'Installing waybackurls'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/waybackurls'",
-				"/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/httpx/cmd/httpx'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/waybackurls'",
+                "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/httpx/cmd/httpx'",
+                "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/naabu/cmd/naabu'",
                 "echo 'Installing gron'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gron'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/gron'",
                 "echo 'Installing anti-burl'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/anti-burl'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/anti-burl'",
                 "echo 'Installing kxss'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/kxss'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/kxss'",
                 "echo 'Installing gf'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/gf'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/gf'",
                 "echo 'Installing hakrawler'",
-				"/bin/su -l op -c 'go get -u github.com/hakluke/hakrawler'",
+                "/bin/su -l op -c 'go get -u github.com/hakluke/hakrawler'",
                 "echo 'Installing getJS'",
-				"/bin/su -l op -c 'go get -u github.com/003random/getJS'",
-				"echo 'Installing concurl'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/concurl'",
-				"echo 'Installing concurl'",
-				"/bin/su -l op -c 'go get -u github.com/1ndianl33t/urlprobe'",
+                "/bin/su -l op -c 'go get -u github.com/003random/getJS'",
+                "echo 'Installing concurl'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/hacks/concurl'",
+                "echo 'Installing concurl'",
+                "/bin/su -l op -c 'go get -u github.com/1ndianl33t/urlprobe'",
                 "echo 'Installing gau'",
-				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
+                "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
                 "echo 'Installing dnsprobe'",
                 "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe'",
                 "echo 'Installing shuffledns'",
@@ -210,14 +211,14 @@
                 "echo 'Installing chaos client'",
                 "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/projectdiscovery/chaos-client/cmd/chaos'",
                 "echo 'Installing unfurl'",
-				"/bin/su -l op -c 'go get -u github.com/tomnomnom/unfurl'",
+                "/bin/su -l op -c 'go get -u github.com/tomnomnom/unfurl'",
                 "echo 'Installing suback - this takes a while'",
-				"/bin/su -l op -c 'go get -u github.com/haccer/subjack/'",
+                "/bin/su -l op -c 'go get -u github.com/haccer/subjack/'",
                 "echo 'Installing subgen'",
-				"/bin/su -l op -c 'go get -u github.com/pry0cc/subgen'",
-				"/bin/su -l op -c 'GO111MODULE=on go get -u github.com/theblackturtle/fprobe'",
+                "/bin/su -l op -c 'go get -u github.com/pry0cc/subgen'",
+                "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/theblackturtle/fprobe'",
                 "wget -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /home/op/go/bin/aquatone",
-                "wget -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.6.0/amass_v3.6.0_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_v3.6.0_linux_amd64/amass /home/op/go/bin/amass",
+                "wget -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.9.1/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /home/op/go/bin/amass",
                 "wget -O /tmp/subfinder.tar https://github.com/projectdiscovery/subfinder/releases/download/v2.3.3/subfinder-linux-amd64.tar && cd /tmp/ && tar -xvf /tmp/subfinder.tar && mv /tmp/subfinder-linux-amd64 /home/op/go/bin/subfinder",
                 "/bin/su -l op -c 'mkdir -p /home/op/go/src/github.com/zmap/ && git clone https://github.com/zmap/zdns.git /home/op/go/src/github.com/zmap/zdns  && cd /home/op/go/src/github.com/zmap/zdns/zdns && go build && go install'",
                 "touch /home/op/.profile",
@@ -227,7 +228,7 @@
             ]
         },
         {
-            "type":"shell",
+            "type": "shell",
             "inline": [
                 "chown -R op:users /home/op"
             ]
