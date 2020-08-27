@@ -104,6 +104,7 @@ The main trouble here is just the dependencies.
 - Packer - Tested with v1.5.6
 - fzf - Tested with 0.21.1
 - doctl - Tested with 1.43
+- lsb_release - Tested with 1.4 (but any version should be ok)
 - jq - Tested with 1.6 (latest is better for this one)
 
 Packer is pretty easy everywhere, although manual (its really important you get the right version, if its too old, then the var-file syntax will fail.
