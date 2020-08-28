@@ -7,6 +7,15 @@ instances() {
 	doctl compute droplet list -o json
 }
 
+instance_ip() {
+	name="$1"
+	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
+}
+
+instance_menu() {
+	instances | jq -r '.[].name' | fzf
+}
+
 delete_instance() {
     name="$1"
     force="$2"
