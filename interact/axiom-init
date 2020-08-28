@@ -98,7 +98,7 @@ for var in "$@"; do
 
 	if [[ "$var" =~ "--expire" ]]; then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		default_expiry=$expire
+		default_expiry=${expire%\.*}
 		if [ "$quiet" != "true" ]; then
 			echo -e "${BWhite}Setting expiry to $expire minutes...${Color_Off}"
 		fi
@@ -199,3 +199,4 @@ if [ "$domain" != false ]; then
 fi
 
 $AXIOM_PATH/interact/header.sh
+
