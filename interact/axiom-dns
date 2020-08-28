@@ -2,6 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 if [ ! -z "$1" ]
 then
@@ -12,11 +13,11 @@ then
 		then
 			echo -e "${BWhite}Domains records for $2${Color_Off}"
 			echo -n -e "${Blue}"
-			doctl compute domain records list "$2"
+			list_dns "$2"
 		else
 			echo -e "${BWhite}Available Domains${Color_Off}"
 			echo -n -e "${Blue}"
-			doctl compute domain list
+			list_domains
 		fi
 		echo -n -e "${Color_Off}"
 		;;
@@ -25,7 +26,7 @@ then
 		domain=$3
 		ip=$4
 			
-		data=$(doctl compute domain list -o json)
+		data=$(instances)
 		domains=$(echo $data | jq -r '.[].name' | grep $3 | wc -l | awk '{ print $1}')
 
 		if [ $domains -gt 0 ]
