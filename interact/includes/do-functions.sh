@@ -46,6 +46,10 @@ list_domains() {
 	doctl compute domain list
 }
 
+snapshots() {
+	doctl compute snapshot list -o json
+}
+
 msg_success() {
 	echo -e "${BGreen}$1${Color_Off}"
 	echo "SUCCESS $(date):$1" >> $LOG
