@@ -4,7 +4,7 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-droplets=$(doctl compute droplet list -o json)
+droplets=$(instances)
 selected=$(cat $AXIOM_PATH/selected.conf)
 quiet=false
 query=""

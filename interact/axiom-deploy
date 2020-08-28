@@ -4,6 +4,7 @@ profile=""
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 remove=false
 
@@ -34,7 +35,7 @@ success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.succ
 
 for instance in  $instances
 do
-ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
+ip=$(instance_ip $instance)
 id="$RANDOM"
 filename="/tmp/$id.sh"
 
