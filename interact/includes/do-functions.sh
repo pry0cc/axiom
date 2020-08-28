@@ -36,6 +36,16 @@ instance_exists() {
 	instance="$1"
 }
 
+list_dns() {
+	domain="$1"
+
+	doctl compute domain records list "$domain"
+}
+
+list_domains() {
+	doctl compute domain list
+}
+
 msg_success() {
 	echo -e "${BGreen}$1${Color_Off}"
 	echo "SUCCESS $(date):$1" >> $LOG
