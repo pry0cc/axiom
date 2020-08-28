@@ -49,7 +49,6 @@ list_domains() {
 snapshots() {
 	doctl compute snapshot list -o json
 }
-
 delete_snapshot() {
 	name="$1"
 
@@ -109,14 +108,15 @@ query_instances() {
 }
 
 generate_sshconfig() {
-	echo -n "" > $AXIOM_PATH/.sshconfig
+	droplets="$(instances)"
+	echo -n "" > $AXIOM_PATH/.sshconfig.new
 
-droplets="$(instances)"
-for name in $(echo "$droplets" | jq -r '.[].name')
-do 
-	ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig
-done
+	for name in $(echo "$droplets" | jq -r '.[].name')
+	do 
+		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
+		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+		mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	done
 }
 
 lsplit() {
@@ -154,6 +154,20 @@ lsplit() {
 	
 	cd $orig_pwd
 	echo -n $split_dir
+}
+
+
+conf_check() {
+	instance="$1"
+
+	l="$(cat "$AXIOM_PATH/.sshconfig" | grep "$instance" | wc -l | awk '{ print $1 }')"
+
+	if [[ $l -lt 1 ]]
+	then
+		generate_sshconfig	
+	else
+		generate_sshconfig &
+	fi
 }
 
 
