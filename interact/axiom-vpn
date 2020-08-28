@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
+
+name=""
+
 if [ -z "$1" ]
 then
-    ans="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
-    ip="$(doctl compute droplet list | grep "$ans" | awk '{ print $3 }')"
-    scp -P2266 op@"$ip":/home/op/vpn/client.ovpn /tmp/"$ans".ovpn
-    sudo openvpn /tmp/"$ans".ovpn
+    name="$(instance_menu)"
 else
-    ip="$(doctl compute droplet list | grep "$1" | awk '{ print $3 }')"
-    scp -P2266 op@"$ip:"/home/op/vpn/client.ovpn /tmp/"$1".ovpn
-    sudo openvpn /tmp/"$1".ovpn
+	name="$1"
 fi
+
+vpn_dst="/tmp/$name.ovpn"
+ip="$(instance_ip $name)"
+scp -P2266 op@"$ip":/home/op/vpn/client.ovpn $vpn_dst
+sudo openvpn $vpn_dst
