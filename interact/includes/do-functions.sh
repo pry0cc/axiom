@@ -16,6 +16,10 @@ instance_menu() {
 	instances | jq -r '.[].name' | fzf
 }
 
+selected_instance() {
+	cat "$AXIOM_PATH/selected.conf"
+}
+
 delete_instance() {
     name="$1"
     force="$2"
