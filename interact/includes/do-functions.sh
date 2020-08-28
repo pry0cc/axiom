@@ -50,6 +50,15 @@ snapshots() {
 	doctl compute snapshot list -o json
 }
 
+delete_snapshot() {
+	name="$1"
+
+	snapshot_data=$(snapshots)
+	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
+	
+	doctl compute snapshot delete "$snapshot_id" -f
+}
+
 msg_success() {
 	echo -e "${BGreen}$1${Color_Off}"
 	echo "SUCCESS $(date):$1" >> $LOG
