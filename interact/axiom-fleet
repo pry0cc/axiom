@@ -2,6 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 gen_name=""
 
@@ -35,7 +36,7 @@ do
     fi
 	if [[ "$var" =~ "-r" ]]
     then
-		regions=$(doctl compute snapshot list -o json | jq -r '.[] | select(.name | contains("axiom")) | .name'  | cut -d "-" -f 2 | sort -u)
+		regions=$(snapshots | jq -r '.[] | select(.name | contains("axiom")) | .name'  | cut -d "-" -f 2 | sort -u)
     fi
 done
 
@@ -51,7 +52,7 @@ then
 fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
-sizes=$(doctl compute size list -o json)
+sizes=$(instance_sizes)
 slug="s-1vcpu-1gb"
 instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
 price_hourly=$(echo $instance_data | jq .price_hourly)
