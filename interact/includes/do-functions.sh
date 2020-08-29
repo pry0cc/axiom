@@ -47,6 +47,10 @@ list_regions() {
     doctl compute region list
 }
 
+regions() {
+    doctl compute region list -o json
+}
+
 # List DNS records for domain
 list_dns() {
 	domain="$1"
