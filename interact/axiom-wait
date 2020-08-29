@@ -2,9 +2,10 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
-droplets=$(doctl compute droplet list -o json)
-instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance')
+droplets=$(instances)
+instance=$(cat $AXIOM_PATH/selected.conf)
 command="$1"
 
 if [ ! -z "$2" ]
