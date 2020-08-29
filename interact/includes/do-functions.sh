@@ -71,6 +71,11 @@ list_domains() {
 	doctl compute domain list
 }
 
+list_subdomains() {
+    domain="$1"
+
+    doctl compute domain records list $domain -o json | jq '.[]'
+}
 # get JSON data for snapshots
 snapshots() {
 	doctl compute snapshot list -o json
