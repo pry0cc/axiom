@@ -51,7 +51,7 @@ regions() {
     doctl compute region list -o json
 }
 
-sizes() {
+instance_sizes() {
     doctl compute size list -o json
 }
 
