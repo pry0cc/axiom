@@ -1,0 +1,17 @@
+{
+	"name":"Squid",
+	"description":"Squid Proxy for routing Burp through.",
+	"variables": [],
+	"commands": [
+		"sudo apt-get -y install squid",
+		"sudo sed -i 's/http_port 3128/http_port 2525/g'  /etc/squid/squid.conf",
+		"sudo sed -i 's/http_access deny all/http_access allow all/g'  /etc/squid/squid.conf",
+		"sudo ufw allow 2525",
+		"sudo systemctl enable squid",
+		"sudo systemctl restart squid"
+	],
+	"remove_commands":[
+		"sudo apt remove -y squid"
+	],
+	"success_message":"echo \"Squid Proxy has been set up on port 2525\""
+}
