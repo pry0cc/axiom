@@ -81,6 +81,19 @@ snapshots() {
 	doctl compute snapshot list -o json
 }
 
+delete_record() {
+    domain="$1"
+    id="$2"
+
+    doctl compute domain records delete $domain $id
+}
+
+delete_record_force() {
+    domain="$1"
+    id="$2"
+
+    doctl compute domain records delete $domain $id -f
+}
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"
