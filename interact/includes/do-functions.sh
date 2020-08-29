@@ -115,8 +115,18 @@ generate_sshconfig() {
 	do 
 		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-		mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
 	done
+	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+}
+
+create_instance() {
+	name="$1"
+	image_id="$2"
+	size_slug="$3"
+	region="$4"
+	boot_script="$5"
+
+	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null &
 }
 
 lsplit() {
