@@ -43,6 +43,10 @@ instance_exists() {
 	instance="$1"
 }
 
+list_regions() {
+    doctl compute region list
+}
+
 # List DNS records for domain
 list_dns() {
 	domain="$1"
