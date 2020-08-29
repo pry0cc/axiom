@@ -62,7 +62,7 @@ ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "${Green}"
 if [ $remove == false ]
 then
-	bash -c "instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
+	echo "Profile successfully installed on '$instance'!"
 else 
 	echo "Profile succesfully removed from '$instance'!"
 fi
