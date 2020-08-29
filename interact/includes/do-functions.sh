@@ -62,6 +62,9 @@ list_dns() {
 	doctl compute domain records list "$domain"
 }
 
+list_domains_json() {
+    doctl compute domain list -o json
+}
 
 # List domains
 list_domains() {
