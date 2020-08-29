@@ -83,7 +83,13 @@ delete_snapshot() {
 	doctl compute snapshot delete "$snapshot_id" -f
 }
 
+add_dns_record() {
+    subdomain="$1"
+    domain="$2"
+    ip="$3"
 
+    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
+}
 
 msg_success() {
 	echo -e "${BGreen}$1${Color_Off}"
