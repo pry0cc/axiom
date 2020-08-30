@@ -2,13 +2,14 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 if [ "$1" == "ls" ]
 then
-	doctl compute region list
+    list_regions
 elif [ "$1" == "select" ]
 then
-	region_json=$(doctl compute region list -o json)
+	region_json=$(regions)
 	lines=$(echo $region_json | jq -r '.[].slug' | grep "$2" | wc -l | awk '{ print $1 }')
 	
 	if [ "$lines" -gt 0 ]

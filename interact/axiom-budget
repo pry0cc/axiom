@@ -2,6 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 gen_name=""
 
@@ -60,7 +61,7 @@ then
     prompt=true
 fi
 
-sizes=$(doctl compute size list -o json)
+sizes=$(instance_sizes)
 spend_per_hour=$(bc <<< "scale=2; $spend/$hours")
 multi_instance_spend=$(bc <<< "scale=2; $spend_per_hour / $amount")
 slug=$(echo $sizes | jq -r ".[] | select(.price_hourly < $multi_instance_spend) | .slug" | tail -n 1)
