@@ -3,10 +3,29 @@
 AXIOM_PATH="$HOME/.axiom"
 LOG="$AXIOM_PATH/log.txt"
 
+# takes no arguments, outputs JSON object with instances
 instances() {
 	doctl compute droplet list -o json
 }
 
+# takes one argument, name of instance, returns raw IP address
+instance_ip() {
+	name="$1"
+	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
+}
+
+# takes no arguments, creates an fzf menu
+instance_menu() {
+	instances | jq -r '.[].name' | fzf
+}
+
+# identifies the selected instance/s
+selected_instance() {
+	cat "$AXIOM_PATH/selected.conf"
+}
+
+
+#deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
     force="$2"
@@ -19,8 +38,78 @@ delete_instance() {
     fi
 }
 
+# TBD 
 instance_exists() {
 	instance="$1"
+}
+
+list_regions() {
+    doctl compute region list
+}
+
+regions() {
+    doctl compute region list -o json
+}
+
+instance_sizes() {
+    doctl compute size list -o json
+}
+
+# List DNS records for domain
+list_dns() {
+	domain="$1"
+
+	doctl compute domain records list "$domain"
+}
+
+list_domains_json() {
+    doctl compute domain list -o json
+}
+
+# List domains
+list_domains() {
+	doctl compute domain list
+}
+
+list_subdomains() {
+    domain="$1"
+
+    doctl compute domain records list $domain -o json | jq '.[]'
+}
+# get JSON data for snapshots
+snapshots() {
+	doctl compute snapshot list -o json
+}
+
+delete_record() {
+    domain="$1"
+    id="$2"
+
+    doctl compute domain records delete $domain $id
+}
+
+delete_record_force() {
+    domain="$1"
+    id="$2"
+
+    doctl compute domain records delete $domain $id -f
+}
+# Delete a snapshot by its name
+delete_snapshot() {
+	name="$1"
+
+	snapshot_data=$(snapshots)
+	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
+	
+	doctl compute snapshot delete "$snapshot_id" -f
+}
+
+add_dns_record() {
+    subdomain="$1"
+    domain="$2"
+    ip="$3"
+
+    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
 }
 
 msg_success() {
@@ -38,6 +127,9 @@ msg_neutral() {
 	echo "INFO $(date): $1" >> $LOG
 }
 
+# takes any number of arguments, each argument should be an instance or a glob, say 'omnom*', returns a sorted list of instances based on query
+# $ query_instances 'john*' marin39
+# Resp >>  john01 john02 john03 john04 nmarin39
 query_instances() {
 	droplets="$(instances)"
 	selected=""
@@ -72,17 +164,32 @@ query_instances() {
 	echo -n $selected
 }
 
-generate_sshconfig() {
-	echo -n "" > $AXIOM_PATH/.sshconfig
 
-droplets="$(instances)"
-for name in $(echo "$droplets" | jq -r '.[].name')
-do 
-	ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig
-done
+# take no arguments, generate a SSH config from the current Digitalocean layout
+generate_sshconfig() {
+	droplets="$(instances)"
+	echo -n "" > $AXIOM_PATH/.sshconfig.new
+
+	for name in $(echo "$droplets" | jq -r '.[].name')
+	do 
+		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
+		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+	done
+	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
 }
 
+# create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)
+create_instance() {
+	name="$1"
+	image_id="$2"
+	size_slug="$3"
+	region="$4"
+	boot_script="$5"
+
+	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null &
+}
+
+# Function used for splitting $src across $instances and rename the split files.
 lsplit() {
 	src="$1"
 	instances=$2
@@ -118,6 +225,19 @@ lsplit() {
 	
 	cd $orig_pwd
 	echo -n $split_dir
+}
+
+
+# Check if host is in .sshconfig, and if it's not, regenerate sshconfig
+conf_check() {
+	instance="$1"
+
+	l="$(cat "$AXIOM_PATH/.sshconfig" | grep "$instance" | wc -l | awk '{ print $1 }')"
+
+	if [[ $l -lt 1 ]]
+	then
+		generate_sshconfig	
+	fi
 }
 
 

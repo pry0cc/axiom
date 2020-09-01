@@ -1,3 +1,5 @@
 keys/*
 .syncthing.*
 .DS_store
+*.swp
+authorized_keys

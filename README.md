@@ -225,12 +225,14 @@ Personally, I have this mapped to a keybinding with `termite -e axiom-connect`, 
 ## `axiom-ls`
 `axiom-ls` is used to list your current instances (and any other droplets you have running).
 
-It requries no arguments.
+It requires no arguments.
 
 
 ## `axiom-rm`
-`axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`
+`axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`.
 
+## `axiom-scp`
+`axiom-scp` allows copying files between the host and the target machine, wrapping the traditional `scp` command but you can use the machine name instead. For example: `axiom-scp file.txt noyce-14:file.txt` will copy your local file.txt to your `noyce-14` machine.
 
 ## `axiom-vpn`
 `axiom-vpn` is used for connecting to a deploy openvpn server (using the deployment script).
