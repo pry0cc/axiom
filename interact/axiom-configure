@@ -138,6 +138,18 @@ if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
 		elif [ -f ~/.ssh/id_ed25519.pub ]; then
 			cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
 		fi
+	else	
+		echo -e "${Blue}Would you like to generate a fresh pair? y/n ${Color_Off}"
+		read ans
+		if [ $ans == "y" ]; then
+			ssh-keygen
+			cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+		
+		else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
+		fi
+
 	fi
 else
 	echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
@@ -145,6 +157,9 @@ else
 	if [ $ans == "y" ]; then
 		ssh-keygen
 		cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+	else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
 	fi
 fi
 
