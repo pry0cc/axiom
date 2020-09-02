@@ -5,7 +5,7 @@
       "ssh_username": "root",
       "snapshot_name": "axiom-{{ user `region` }}-{{timestamp}}",
       "api_token": "{{ user `do_key` }}",
-      "image": "ubuntu-19-10-x64",
+      "image": "ubuntu-20-04-x64",
       "region": "{{ user `region`  }}",
       "size": "s-1vcpu-1gb"
     }
@@ -23,7 +23,7 @@
         "add-apt-repository -y ppa:longsleep/golang-backports",
         "apt-get update -qq",
         "DEBIAN_FRONTEND=noninteractive apt-get upgrade -qq",
-        "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES sudo apt-get -y install apt-transport-https ca-certificates debian-keyring p7zip zsh curl figlet zlib1g-dev python python-pip tor proxychains python3.7 default-jdk python3-pip python3-venv libpcap-dev ruby ruby-dev nmap vim dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common golang-go fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils masscan zmap sqlmap dirb jq ufw neovim ranger bat grc mosh net-tools",
+        "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES sudo apt-get -y install tor apt-transport-https ca-certificates debian-keyring p7zip zsh curl figlet zlib1g-dev python python3.7 default-jdk python3-pip python3-venv libpcap-dev ruby ruby-dev nmap vim dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common golang-go fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils masscan zmap sqlmap dirb jq ufw neovim ranger bat grc mosh net-tools",
         "sudo snap install doctl",
         "ufw allow 22",
         "ufw allow 2266",
@@ -44,8 +44,8 @@
         "wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
         "wget -O /tmp/rustscan.deb https://github.com/brandonskerritt/RustScan/releases/download/1.0.1/rustscan_1.0.1_amd64.deb && dpkg -i /tmp/rustscan.deb",
         "wget https://bootstrap.pypa.io/get-pip.py",
-        "python3.7 get-pip.py",
-        "pip install aiodnsbrute docker-py",
+        "python3 get-pip.py aiodnsbrute",
+        "pip install docker-py",
         "gem install bundler wpscan nmap2json",
         "systemctl start docker",
         "systemctl enable tor",
