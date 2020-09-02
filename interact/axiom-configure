@@ -148,7 +148,10 @@ else
 	fi
 fi
 
-if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "$SHELL" == "/bin/zsh" ]; then
+user_entry=$(getent passwd | grep "^$USER")  # Grabs the user's passwd entry
+user_shell=${user_entry##*/}  # rabs the text after last slash of the passwd file (shell name)
+
+if [ "$user_shell" == "zsh" ] ; then
 	echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
 	echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
 	echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc
@@ -160,7 +163,7 @@ if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "
 	echo "compdef _axiom-restore axiom-restore" >>~/.zshrc
 	echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc
 
-elif [ "$SHELL" == "/bin/bash" ]; then
+elif [ "$user_shell" == "bash" ]; then
 	echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
 	echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
 else
