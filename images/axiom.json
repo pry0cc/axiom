@@ -21,6 +21,7 @@
       "inline": [
         "fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
         "add-apt-repository -y ppa:longsleep/golang-backports",
+        "add-apt-repository -y ppa:deadsnakes/ppa",
         "apt-get update -qq",
         "DEBIAN_FRONTEND=noninteractive apt-get upgrade -qq",
         "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES sudo apt-get -y install apt-transport-https ca-certificates debian-keyring p7zip zsh curl figlet zlib1g-dev python python-pip tor proxychains python3.7 default-jdk python3-pip python3-venv libpcap-dev ruby ruby-dev nmap vim dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common golang-go fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils masscan zmap sqlmap dirb jq ufw neovim ranger bat grc mosh net-tools",
