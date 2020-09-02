@@ -159,6 +159,7 @@
         "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make && make install && cd .. && sudo rm -r proxychains-ng",
         "git clone https://github.com/securing/DumpsterDiver.git /home/op/recon/DumpsterDiver && cd /home/op/recon/DumpsterDiver && pip3 install --ignore-installed -r requirements.txt",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
+        "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
         "git clone https://github.com/projectdiscovery/nuclei.git; cd nuclei/cmd/nuclei/; go build; sudo mv nuclei /usr/local/bin/",
         "wget -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
         "cd /home/op && tar -xf /home/op/.oh-my-zsh.tar.gz",
