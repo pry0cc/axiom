@@ -5,9 +5,9 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/do-functions.sh"
 
 # Host Options
-targets_infile=""
+targets_infile="$1"
 selected_module="masscan"
-query="$1"
+query="$(cat ~/.axiom/selected.conf |  tr -d '0123456789' | uniq -c  | sort -rh | head -n 1 | awk '{ print $2 }')*"
 src_prefix="$AXIOM_PATH/tmp/$RANDOM"
 outfile="$(echo "$query" | sed 's/\*//g')-$(date +%s).txt"
 user_args=""
@@ -21,6 +21,10 @@ do
 	elif [[ "$var" =~  "-iL=" ]]
 	then
 		targets_infile=$(echo "$var" | cut -d "=" -f2)
+	elif [[ "$var" == "$1" ]]
+	then
+		echo "Skipping"
+		#
 	elif  [[ "$var" =~ "-m=" ]]
 	then
 		s=$(echo "$var" | cut -d "=" -f2)
@@ -75,7 +79,7 @@ then
 		exit
 	fi
 fi
-instances=$(query_instances "$1")
+instances=$(cat $AXIOM_PATH/selected.conf)
 
 echo -e "${BWhite}Starting axiom-scan with module '$selected_module' for fleet '$query'${Color_off}"
 
