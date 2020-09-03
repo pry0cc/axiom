@@ -23,7 +23,7 @@ do
 		targets_infile=$(echo "$var" | cut -d "=" -f2)
 	elif [[ "$var" == "$1" ]]
 	then
-		echo "Skipping"
+		#echo "Skipping"
 		#
 	elif  [[ "$var" =~ "-m=" ]]
 	then
