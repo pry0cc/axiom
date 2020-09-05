@@ -5,11 +5,13 @@
 	"commands": [
         "go get -d github.com/lemonade-command/lemonade",
         "cd /home/op/go/src/github.com/lemonade-command/lemonade/",
-        "make install"
+        "make install",
+        "grep -qF 'set clipboard+=unnamedplus' '/home/op/.config/nvim/init.vim' || echo 'set clipboard+=unnamedplus' | sudo tee -a '/home/op/.config/nvim/init.vim'"
 	],
 	"remove_commands":[
 		"go clean -i github.com/lemonade-command/lemonade",
-        "rm -rf /home/op/go/src/github.com/lemonade-command/"
+        "rm -rf /home/op/go/src/github.com/lemonade-command/",
+        "sed -i -e 's/set clipboard+=unnamedplus//g' /home/op/.config/nvim/init.vim"
 	],
     "success_message":"echo \"Clipboard sync utility installed on: $instance\""
 }
