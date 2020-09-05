@@ -142,11 +142,11 @@ else
         fi
 fi
 if [ ! -z "$pubkey" ]; then
-  key_comment=$(<$pubkey cut -d' ' -f3)
+  key_comment=$(<"$pubkey" cut -d' ' -f3)
   echo -e "${Blue}Detected SSH public key at ${pubkey} (${key_comment}), would you like me to install this for your axiom setup? y/n ${Color_Off}"
         read ans
         if [ $ans == "y" ]; then
-                cat $pubkey >$AXIOM_PATH/configs/authorized_keys || echo -e "${Red}SSH key installation failed${Color_Off}"
+                cat "$pubkey" >$AXIOM_PATH/configs/authorized_keys || echo -e "${Red}SSH key installation failed${Color_Off}"
         fi
 fi
 
