@@ -129,23 +129,25 @@ domain=""
 hunter_key=""
 size="s-1vcpu-1gb"
 
-if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
-	echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n ${Color_Off}"
-	read ans
-	if [ $ans == "y" ]; then
-		if [ -f ~/.ssh/id_rsa.pub ]; then
-			cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
-		elif [ -f ~/.ssh/id_ed25519.pub ]; then
-			cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
-		fi
-	fi
+if [ -f $HOME/.ssh/id_rsa.pub ]; then
+  pubkey="$HOME/.ssh/id_rsa.pub"
+elif [ -f $HOME/.ssh/id_ed25519.pub ]; then
+  pubkey="$HOME/.ssh/id_ed25519.pub"
 else
-	echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
-	read ans
-	if [ $ans == "y" ]; then
-		ssh-keygen
-		cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
-	fi
+  echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
+        read ans
+        if [ $ans == "y" ]; then
+                ssh-keygen -f $HOME/.ssh/axiom_id_rsa &&
+                cat $HOME/.ssh/axiom_id_rsa.pub >$AXIOM_PATH/configs/authorized_keys || echo -e "${Red}SSH key generation or installation failed${Color_Off}"
+        fi
+fi
+if [ ! -z "$pubkey" ]; then
+  key_comment=$(<$pubkey cut -d' ' -f3)
+  echo -e "${Blue}Detected SSH public key at ${pubkey} (${key_comment}), would you like me to install this for your axiom setup? y/n ${Color_Off}"
+        read ans
+        if [ $ans == "y" ]; then
+                cat $pubkey >$AXIOM_PATH/configs/authorized_keys || echo -e "${Red}SSH key installation failed${Color_Off}"
+        fi
 fi
 
 if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "$SHELL" == "/bin/zsh" ]; then
