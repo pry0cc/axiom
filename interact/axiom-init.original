@@ -3,7 +3,7 @@
 AXIOM_PATH="$HOME/.axiom"
 DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/do-functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
