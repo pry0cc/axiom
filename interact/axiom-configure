@@ -129,7 +129,9 @@ domain=""
 hunter_key=""
 size="s-1vcpu-1gb"
 
-if [ -f $HOME/.ssh/id_rsa.pub ]; then
+if [ -f $HOME/.ssh/axiom_id_rsa.pub ]; then
+  pubkey="$HOME/.ssh/axiom_id_rsa.pub"
+elif [ -f $HOME/.ssh/id_rsa.pub ]; then
   pubkey="$HOME/.ssh/id_rsa.pub"
 elif [ -f $HOME/.ssh/id_ed25519.pub ]; then
   pubkey="$HOME/.ssh/id_ed25519.pub"
