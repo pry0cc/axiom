@@ -6,6 +6,7 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 
 use_tmux=false
 use_mosh=false
+use_clipboard_sync=false
 connected=false
 
 for var in "$@"
@@ -16,8 +17,19 @@ do
     elif [  $var == "--mosh" ]
 	then
 		use_mosh=true
+    elif [ $var == "--clipboard-sync" ] 
+    then
+        use_clipboard_sync=true
 	fi
 done
+
+
+if [ $use_clipboard_sync == true ]
+then
+    SSH_TUNNEL='-R 2489:127.0.0.1:2489'
+    start_lemonade_server
+fi
+
 
 instance=""
 
@@ -33,7 +45,7 @@ ip=$(instance_ip "$instance")
 if [ $use_tmux == true ]
 then
 	connected=true
-	ssh -p2266 op@$ip -t 'tmux new-session -t main'
+	ssh -p2266 op@$ip -t 'tmux new-session -t main' ${SSH_TUNNEL}
 fi
 
 if [ $use_mosh == true ]
@@ -44,7 +56,7 @@ fi
 
 if [ $connected == false ]
 then
-	ssh -p2266 op@$ip
+	ssh -p2266 op@$ip ${SSH_TUNNEL}
 fi
 
 "$AXIOM_PATH/interact/header.sh"

@@ -260,3 +260,15 @@ conf_check() {
 }
 
 
+# start a lemonade server locally if not already running
+start_lemonade_server() {
+    if [ -z $(command -v lemonade) ]; then
+        echo "lemonade not installed."
+        exit 1
+    fi 
+
+    if [ -z $(pgrep lemonade) ]; then
+        nohup lemonade server 1>/dev/null 2>/dev/null &
+    fi
+}
+
