@@ -32,7 +32,7 @@ total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 i=1
 for name in $selected
 do
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
+	ip=$(quick_ip "$droplets")
     echo -e "${BWhite}Executing in the background on $name at $ip ${Color_Off}"
     echo -n -e "${Blue}"
 
