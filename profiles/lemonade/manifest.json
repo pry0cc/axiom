@@ -1,0 +1,15 @@
+{
+	"name":"Remote clipboard sync utility",
+	"description":"Install lemonade on box to allow for remote clipboard sync.",
+	"variables": [],
+	"commands": [
+        "go get -d github.com/lemonade-command/lemonade",
+        "cd /home/op/go/src/github.com/lemonade-command/lemonade/",
+        "make install"
+	],
+	"remove_commands":[
+		"go clean -i github.com/lemonade-command/lemonade",
+        "rm -rf /home/op/go/src/github.com/lemonade-command/"
+	],
+    "success_message":"echo \"Clipboard sync utility installed on: $instance\""
+}
