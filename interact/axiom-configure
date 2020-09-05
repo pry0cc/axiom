@@ -135,11 +135,11 @@ elif [ -f $HOME/.ssh/id_ed25519.pub ]; then
   pubkey="$HOME/.ssh/id_ed25519.pub"
 else
   echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
-        read ans
-        if [ $ans == "y" ]; then
-                ssh-keygen -f $HOME/.ssh/axiom_id_rsa &&
-                cat $HOME/.ssh/axiom_id_rsa.pub >$AXIOM_PATH/configs/authorized_keys || echo -e "${Red}SSH key generation or installation failed${Color_Off}"
-        fi
+  read ans
+  if [ $ans == "y" ]; then
+    ssh-keygen -f $HOME/.ssh/axiom_id_rsa &&
+    cat $HOME/.ssh/axiom_id_rsa.pub >$AXIOM_PATH/configs/authorized_keys || echo -e "${Red}SSH key generation or installation failed${Color_Off}"
+  fi
 fi
 if [ ! -z "$pubkey" ]; then
   key_comment=$(<"$pubkey" cut -d' ' -f3)
