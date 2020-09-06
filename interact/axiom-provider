@@ -4,8 +4,8 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
-INCLUDE_PATH="$AXIOM_PATH/interact/includes/"
-SRC_FUNCTIONS="$INCLUDE_PATH/functions.sh"
+INCLUDE_PATH="$AXIOM_PATH/providers/"
+SRC_FUNCTIONS="$AXIOM_PATH/interact/includes/functions.sh"
 
 options=$(ls -l "$INCLUDE_PATH" | grep "\-functions.sh" | awk '{ print $9 }' | sed 's/\-functions\.sh//g')
 choice=false
