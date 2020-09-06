@@ -5,12 +5,12 @@ LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
 instances() {
-	ibmcloud  sl vs list --output json
+	gcloud compute instances list --format=json
 }
 
 get_image_id() {
 	query="$1"
-	images=$(ibmcloud sl image list --output json)
+	images=$(gcloud compute images list --format=json)
 	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 
@@ -23,12 +23,12 @@ get_image_id() {
 
 instance_ip() {
 	host="$1"
-	instances | jq -r ".[] | select(.hostname==\"$host\") | .primaryIpAddress"
+	instances | jq -r ".[] | select(.name==\"$host\") | .networkInterfaces[].accessConfigs[].natIP"
 }
 
 # takes no arguments, creates an fzf menu
 instance_menu() {
-	instances | jq '.[].hostname' | tr -d '"'
+	instances | jq '.[].name' | tr -d '"'
 }
 
 # identifies the selected instance/s
@@ -40,19 +40,26 @@ selected_instance() {
 
 instance_id() {
     name="$1"
-	instances | jq ".[] | select(.hostname==\"$name\") | .id"
+	instances | jq ".[] | select(.name==\"$name\") | .id"
+}
+
+get_zone() {
+	name="$1"
+
+	instances | jq -r ".[] | select(.name=\"$name\") | .zone" | cut -d "/" -f 9 | head -n 1
 }
 
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
     force="$2"
-    id="$(instance_id $name)"
+    zone=$(get_zone "$name")
+
     if [ "$force" == "true" ]
-        then
-        ibmcloud sl vs cancel "$id" -f
+    then
+        gcloud compute instances delete -q "$name" --zone="$zone" 2>&1 >>/dev/null &
     else
-        ibmcloud sl vs cancel "$id"
+        gcloud compute instances delete "$name" --zone="$zone" 2>&1 >>/dev/null &
     fi
 }
 
@@ -62,18 +69,16 @@ instance_exists() {
 }
 
 list_regions() {
-#     doctl compute region list
-      ibmcloud regions -q
+      gcloud compute regions list
 }
 
 
 regions() {
-#    doctl compute region list -o json
-     ibmcloud regions -q --output json
+     gcloud compute regions list --format=json
 }
 
 instance_sizes() {
-    doctl compute size list -o json
+    gcloud compute machine-types list --format=json
 }
 
 # List DNS records for domain
@@ -99,7 +104,7 @@ list_subdomains() {
 }
 # get JSON data for snapshots
 snapshots() {
-	doctl compute snapshot list -o json
+	 gcloud compute images list --format=json
 }
 
 delete_record() {
@@ -118,11 +123,8 @@ delete_record_force() {
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"
-
-	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
 	
-	doctl compute snapshot delete "$snapshot_id" -f
+	gcloud compute images "$name" -q
 }
 
 add_dns_record() {
@@ -159,7 +161,7 @@ query_instances() {
 		if [[ "$var" =~ "*" ]]
 		then
 			var=$(echo "$var" | sed 's/*/.*/g')
-			selected="$selected $(echo $droplets | jq -r '.[].hostname' | grep "$var")"
+			selected="$selected $(echo $droplets | jq -r '.[].name' | grep "$var")"
 		else
 			if [[ $query ]];
 			then
@@ -172,7 +174,7 @@ query_instances() {
 
 	if [[ "$query" ]]
 	then
-		selected="$selected $(echo $droplets | jq -r '.[].hostname' | grep -w "$query")"
+		selected="$selected $(echo $droplets | jq -r '.[].name' | grep -w "$query")"
 	else
 		if [[ ! "$selected" ]]
 		then
@@ -188,7 +190,7 @@ query_instances() {
 quick_ip() {
 	data="$1"
 	#ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
-	ip=$(echo $data | jq -r ".[] | select(.hostname == \"$name\") | .primaryIpAddress")
+	ip=$(echo $data | jq -r ".[] | select(.name == \"$name\") | .networkInterfaces[].accessConfigs[].natIP")
 	echo $ip
 }
 
@@ -197,9 +199,9 @@ generate_sshconfig() {
 	droplets="$(instances)"
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
 
-	for name in $(echo "$droplets" | jq -r '.[].hostname')
+	for name in $(echo "$droplets" | jq -r '.[].name')
 	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryIpAddress")
+		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networkInterfaces[].accessConfigs[].natIP")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
@@ -214,15 +216,30 @@ create_instance() {
 	boot_script="$5"
 	domain="example.com"
 
-	#ibmcloud sl vs create -H "$name" -D "$domain" -c 2 -m 2048 -d dal12 --image 6018238 --wait 5000 -f  2>&1 >>/dev/null &
-	ibmcloud sl vs create -H "$name" -D "$domain" -c 2 -m "$size_slug" -d "$region" --image "$image_id" --wait 5000 -f  2>&1 >>/dev/null 
+	gcloud beta compute instances create "$name" --image "$image_id" --zone "$region" --machine-type="$size_slug" 2>&1 >>/dev/null
+	sleep 15
 }
 
 instance_pretty() {
 	data=$(instances)
 	i=0
-	for f in $(echo $data | jq -r '.[].hostname'); do new=$(expr $i +  5); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	for f in $(echo $data | jq -r '.[].name'); do new=$(expr $i +  25); i=$new; done
+	(
+		echo "Instance,IP,Region,Memory,\$/M"
+		iter=$(echo $data | jq -r '.[] | [.name, .networkInterfaces[].accessConfigs[].natIP, .zone, .machineType, 25] | @csv')
+
+		for line in $iter
+		do
+			name=$(echo $line |  cut -d "," -f 1)
+			ip=$(echo $line |  cut -d "," -f 2)
+			zone=$(echo $line |  cut -d "," -f 3 | cut -d "/" -f 9)
+			machine=$(echo $line |  cut -d "," -f 4 | cut -d "/" -f 11)
+			price_monthly=$(echo $line |  cut -d "," -f 5)
+
+			echo "$name,$ip,$zone,$machine,$price_monthly"
+		done
+		echo "_,_,Total,\$$i"
+	) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 	# doctl: (echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 		
 	#(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
