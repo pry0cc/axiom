@@ -162,6 +162,7 @@
         "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
         "git clone https://github.com/projectdiscovery/nuclei.git; cd nuclei/cmd/nuclei/; go build; sudo mv nuclei /usr/local/bin/",
         "wget -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
+        "wget -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
         "cd /home/op && tar -xf /home/op/.oh-my-zsh.tar.gz",
         "cd /home/op/.config/ && tar -xf /home/op/.config/nvim.tar.gz",
         "cd /home/op/recon/emailgen && bundle update --bundler",
