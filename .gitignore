@@ -1,4 +1,5 @@
 keys/*
+accounts/*.json
 .syncthing.*
 .DS_store
 *.swp
