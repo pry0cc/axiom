@@ -206,6 +206,7 @@ create_instance() {
 	boot_script="$5"
 
 	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null 
+	sleep 10
 }
 
 # Function used for splitting $src across $instances and rename the split files.
