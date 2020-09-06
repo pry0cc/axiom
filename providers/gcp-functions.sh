@@ -31,6 +31,9 @@ instance_menu() {
 	instances | jq '.[].name' | tr -d '"'
 }
 
+instance_list() {
+	instances | jq -r '.[].name'
+}
 # identifies the selected instance/s
 selected_instance() {
 	cat "$AXIOM_PATH/selected.conf"

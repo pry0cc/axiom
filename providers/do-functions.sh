@@ -14,6 +14,10 @@ instance_ip() {
 	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
 }
 
+instance_list() {
+	instances | jq -r '.[].name'
+}
+
 # takes no arguments, creates an fzf menu
 instance_menu() {
 	instances | jq -r '.[].name' | fzf

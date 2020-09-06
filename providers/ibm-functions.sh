@@ -17,7 +17,9 @@ get_image_id() {
 	echo $id
 }
 
-
+instance_list() {
+	instances | jq -r '.[].hostname'
+}
 # takes one argument, name of instance, returns raw IP address
 
 
