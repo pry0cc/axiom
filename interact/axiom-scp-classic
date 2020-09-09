@@ -7,8 +7,6 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 generate_sshconfig
 instances=""
 
-echo -n "" > $AXIOM_PATH/tmp/cmds.txt
-
 for var in "$@"
 do
 	host=$(echo $var | cut -d ":" -f 1)
@@ -69,13 +67,9 @@ do
 		line="$str"
 	fi
 done
-cmd="scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line"
-echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
-#scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
+scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
 done
-#sleep 1
-echo "${BGreen}Runing parallel file upload..."
-interlace -t 0x00sec.org -cL $AXIOM_PATH/tmp/cmds.txt
+sleep 1
 else
 	scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $@
 fi
