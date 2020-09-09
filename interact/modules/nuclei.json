@@ -1,0 +1,10 @@
+{
+	"command":"nuclei -l $infile -t ~/recon/nuclei/cves $args -o $outfile",
+	"box_infile":"input",
+	"box_outfile":"output",
+	"output_format":"txt",
+	"output_ext":"txt",
+	"output_dirs":"false",
+	"default_ports":"",
+	"default_args":""
+}
