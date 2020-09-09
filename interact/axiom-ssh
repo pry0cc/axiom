@@ -2,6 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 use_tmux=false
 use_mosh=false
@@ -22,12 +23,12 @@ instance=""
 
 if [ -z "$1" ] || [ "$1" == "--tmux" ] || [ "$1" == "--mosh" ]
 then
-    instance=$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)
+    instance=$(instance_menu)
 else
 	instance="$1"
 fi
 
-ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
+ip=$(instance_ip "$instance")
 
 if [ $use_tmux == true ]
 then
@@ -46,4 +47,4 @@ then
 	ssh -p2266 op@$ip
 fi
 
-$AXIOM_PATH/interact/header.sh
+"$AXIOM_PATH/interact/header.sh"

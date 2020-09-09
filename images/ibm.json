@@ -1,13 +1,27 @@
 {
   "builders": [
     {
-      "type": "digitalocean",
-      "ssh_username": "root",
-      "snapshot_name": "axiom-{{ user `region` }}-{{timestamp}}",
-      "api_token": "{{ user `do_key` }}",
-      "image": "ubuntu-20-04-x64",
-      "region": "{{ user `region`  }}",
-      "size": "s-1vcpu-1gb"
+      "type": "ibmcloud",
+      "api_key": "{{ user `api_key` }}",
+      "username": "{{ user `username` }}",
+      "datacenter_name": "{{ user `region` }}",
+      "base_image_id":"{{ user `base_image_id` }}",
+      "upload_to_datacenters": [
+        "{{ user `datacenter_id` }}"
+      ],
+      "image_name": "axiom-{{ user `region` }}-{{timestamp}}",
+      "instance_name": "packer-vsi",
+      "image_description": "Axiom full image built at {{isotime}}",
+      "image_type": "standard",
+      "instance_domain": "",
+      "instance_cpu": "{{ user `cpu` }}",
+      "instance_memory": "{{ user `default_size` }}",
+      "instance_network_speed": 10,
+      "instance_disk_capacity": 25,
+      "ssh_port": 22,
+      "ssh_timeout": "15m",
+      "instance_state_timeout": "25m",
+      "communicator": "ssh"
     }
   ],
   "provisioners": [
@@ -162,7 +176,6 @@
         "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
         "git clone https://github.com/projectdiscovery/nuclei.git; cd nuclei/cmd/nuclei/; go build; sudo mv nuclei /usr/local/bin/",
         "wget -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
-        "wget -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
         "cd /home/op && tar -xf /home/op/.oh-my-zsh.tar.gz",
         "cd /home/op/.config/ && tar -xf /home/op/.config/nvim.tar.gz",
         "cd /home/op/recon/emailgen && bundle update --bundler",

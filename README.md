@@ -104,6 +104,7 @@ The main trouble here is just the dependencies.
 - Packer - Tested with v1.5.6
 - fzf - Tested with 0.21.1
 - doctl - Tested with 1.43
+- lsb_release - Tested with 1.4 (but any version should be ok)
 - jq - Tested with 1.6 (latest is better for this one)
 
 Packer is pretty easy everywhere, although manual (its really important you get the right version, if its too old, then the var-file syntax will fail.
@@ -224,12 +225,14 @@ Personally, I have this mapped to a keybinding with `termite -e axiom-connect`, 
 ## `axiom-ls`
 `axiom-ls` is used to list your current instances (and any other droplets you have running).
 
-It requries no arguments.
+It requires no arguments.
 
 
 ## `axiom-rm`
-`axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`
+`axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`.
 
+## `axiom-scp`
+`axiom-scp` allows copying files between the host and the target machine, wrapping the traditional `scp` command but you can use the machine name instead. For example: `axiom-scp file.txt noyce-14:file.txt` will copy your local file.txt to your `noyce-14` machine.
 
 ## `axiom-vpn`
 `axiom-vpn` is used for connecting to a deploy openvpn server (using the deployment script).
@@ -312,6 +315,6 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  mosh
 - [x]  docker
 - [x]  metasploit
-- [ ]  dalfox
+- [x]  dalfox
 - [ ]  subjack
 

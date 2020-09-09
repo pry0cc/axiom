@@ -34,12 +34,16 @@ if [ $BASEOS == "Linux" ]; then
 	if $(uname -a | grep -qi "Microsoft"); then
 		OS="UbuntuWSL"
 	else
+		if ! command -v lsb_release &> /dev/null; then
+			echo "lsb_release could not be found, unable to determine your distribution"
+			echo "If you are using Arch, please get lsb_release from AUR"
+			exit 1
+		fi
 		OS=$(lsb_release -i | awk '{ print $3 }')
 	fi
 	if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
 		echo -e "${Blue}Congrats, you run arch..."
-		echo -e "Ok so you need doctl - so get that from the AUR :) yay -S doctl! You're smart! You installed arch! ${Color_Off}"
-		sudo pacman -S fzf packer jq
+		sudo pacman -S fzf packer jq doctl
 	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ]; then
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
@@ -144,7 +148,7 @@ else
 	fi
 fi
 
-if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ]; then
+if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "$SHELL" == "/bin/zsh" ]; then
 	echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
 	echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
 	echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc
@@ -167,7 +171,7 @@ fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
-echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq >$AXIOM_PATH/axiom.json
+echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > $AXIOM_PATH/axiom.json
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/

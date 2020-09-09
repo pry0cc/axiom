@@ -4,6 +4,7 @@ profile=""
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 remove=false
 
@@ -34,7 +35,7 @@ success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.succ
 
 for instance in  $instances
 do
-ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')
+ip=$(instance_ip $instance)
 id="$RANDOM"
 filename="/tmp/$id.sh"
 
@@ -61,7 +62,7 @@ ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "${Green}"
 if [ $remove == false ]
 then
-	bash -c "instance=$(cat $AXIOM_PATH/profile.json | jq -r '.instance') ip=$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }') $success_command"
+	echo "Profile successfully installed on '$instance'!"
 else 
 	echo "Profile succesfully removed from '$instance'!"
 fi

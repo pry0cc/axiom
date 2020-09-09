@@ -32,6 +32,14 @@ fi
 
 image_path="$AXIOM_PATH/images/$selected_image.json"
 
+if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
+then
+	echo -e "${BRed}You have no authorized keys file at $AXIOM_PATH/configs/authorized_keys"
+	echo -e  "Please run 'cat ~/.ssh/id_rsa.pub >> $AXIOM_PATH/configs/authorized_keys' and re-run axiom-build"
+	echo -e "You may need to generate a fresh SSH keypair...${Color_Off}"
+	exit
+fi
+
 cd "$AXIOM_PATH"/ || exit
 
 echo -e "${BWhite}Building image $selected_image... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"

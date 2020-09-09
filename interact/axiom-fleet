@@ -2,6 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 gen_name=""
 
@@ -35,7 +36,7 @@ do
     fi
 	if [[ "$var" =~ "-r" ]]
     then
-		regions=$(doctl compute snapshot list -o json | jq -r '.[] | select(.name | contains("axiom")) | .name'  | cut -d "-" -f 2 | sort -u)
+		regions=$(snapshots | jq -r '.[] | select(.name | contains("axiom")) | .name'  | cut -d "-" -f 2 | sort -u)
     fi
 done
 
@@ -51,9 +52,15 @@ then
 fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
-sizes=$(doctl compute size list -o json)
-slug="s-1vcpu-1gb"
+sizes=$(instance_sizes)
+slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)
+#slug="s-1vcpu-1gb"
 instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
+
+total_spend_per_instance_rounded="0"
+
+if [[ "$instance_data" != "" ]]
+then
 price_hourly=$(echo $instance_data | jq .price_hourly)
 cores=$(echo $instance_data | jq .vcpus)
 mem_big=$(echo $instance_data | jq .memory)
@@ -64,14 +71,16 @@ total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\
 total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
 total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
 echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
+fi
+
 echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
-
-
 sleep 4
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
 time=120
+
+
 
 for i in $(seq -f "%02g" 1 $amount)
 do
@@ -87,5 +96,7 @@ while [ $time -gt 0 ]; do
     sleep 1
     : $((time--))
 done
+
+$AXIOM_PATH/interact/axiom-select "$gen_name*"
 
 echo -e "${BGreen}Fleet started succesfully! All instances will automatically implode after $expiry minutes or $hours hours. To extend the lifetime on an instance, set-expiry.sh \"10 hours\" etc.${Color_Off}" 

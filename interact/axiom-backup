@@ -2,18 +2,19 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 ip=""
 instance=""
 
 if [ -z "$1" ]  || [ "$1" == "--now" ]
 then
-    instance="$(doctl compute droplet list | awk '{ print $2 }' | grep -v "Name" | fzf)"
+    instance="$(instance_menu)"
 else
 	instance="$1"
 fi
 
-ip="$(doctl compute droplet list | grep "$instance" | awk '{ print $3 }')"
+ip="$(instance_ip "$instance")"
 box_path="$AXIOM_PATH/boxes/$1"
 
 if [ ! -d "$box_path" ]

@@ -2,8 +2,9 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
-snapshot_data=$(doctl compute snapshot list -o json)
+snapshot_data=$(snapshots)
 region=$(cat $AXIOM_PATH/axiom.json | jq -r '.region')
 image_name="axiom-$region"
 latest_image=$(echo $snapshot_data | jq -r '.[].name' | grep "$image_name" | tail -n 1)
@@ -14,8 +15,7 @@ echo -e -n "${Blue}"
 for snapshot in $(echo $snapshot_data | jq -r '.[].name' | grep "$image_name" | grep -v "$latest_image"); 
 do
 	echo "Deleting '$snapshot'..."
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
-	doctl compute snapshot delete "$snapshot_id" -f
+	delete_snapshot "$snapshot"
 done
 
 echo -e -n "${Color_Off}"

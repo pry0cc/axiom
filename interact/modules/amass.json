@@ -1,0 +1,10 @@
+{
+	"command":"/home/op/go/bin/amass enum -df $infile > $outfile",
+	"box_infile":"input",
+	"box_outfile":"output",
+	"output_format":"txt",
+	"output_ext":"txt",
+	"output_dirs":"false",
+	"default_ports":"",
+	"default_args":""
+}
