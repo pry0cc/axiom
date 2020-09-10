@@ -268,6 +268,7 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - mswell
 - kpcyrd
 - s0mdev (made the logo!!!)
+- connell (@cmcginley)
 
 # Packages To Date
 
