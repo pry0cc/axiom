@@ -7,7 +7,7 @@
       "image_name":"axiom-{{ user `region` }}-{{ timestamp}}",
       "ssh_username": "root",
       "account_file":"{{ user `account_file_path` }}",
-      "zone": "us-west2-a"
+      "zone": "{{ user `region` }}"
     }
   ]
 }
