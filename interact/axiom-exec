@@ -9,15 +9,34 @@ selected=$(cat $AXIOM_PATH/selected.conf)
 quiet=false
 query=""
 args=""
+cache=false
 command="$1"
+
+for var in "$@"
+do
+	if [ "$var" == "--cache" ]
+    then
+		cache=true
+    fi
+done
+
+if [ $cache != "true" ]
+then
+	generate_sshconfig
+fi
 
 if [ ! -z "$2" ]
 then
     query="$2"
-	selected=$(query_instances "$query")
+    if [[ "$query" =~ "*" ]]
+    then
+		selected=$(query_instances_cache "$query")
+    else
+    	selected="$query"
+    fi
 fi
 
-if [ ! -z "$3" ]
+if [[ ! -z "$3" && "$3" != "--cache" ]]
 then
     quiet=true
 fi
@@ -41,17 +60,16 @@ total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 i=1
 for name in $selected
 do
-	ip=$(quick_ip "$droplets")
     if [[ "$quiet" != "true" ]]
     then
-        echo -e "${BWhite}Executing inline on $name at $ip ${Color_Off}"
+        echo -e "${BWhite}Executing inline on $name...${Color_Off}"
         echo -n -e "${Blue}" 
     fi
 
     cmd="$1"
     rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
-    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" $args "$rendered"
+    ssh -F "$AXIOM_PATH"/.sshconfig -o StrictHostKeyChecking=no "$name" $args "$rendered"
 
     if [[ "$quiet" != "true" ]]
     then

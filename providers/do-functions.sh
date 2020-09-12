@@ -14,6 +14,11 @@ instance_ip() {
 	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
 }
 
+instance_ip_cache() {
+	name="$1"
+	cat "$AXIOM_PATH"/.sshconfig | grep -A 1 "$name" | awk '{ print $2 }' | tail -n 1
+}
+
 instance_list() {
 	instances | jq -r '.[].name'
 }
