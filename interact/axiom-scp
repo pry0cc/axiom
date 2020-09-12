@@ -87,7 +87,8 @@ do
 		line="$str"
 	fi
 done
-cmd="rsync -e 'ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig' -azr --progress $line"
+ssh_conf="$AXIOM_PATH/.sshconfig"
+cmd="rsync -e 'ssh -o StrictHostKeyChecking=no -F $ssh_conf' -azr --progress $line"
 echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
 #scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
 done
