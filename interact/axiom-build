@@ -41,7 +41,7 @@ fi
 cd "$AXIOM_PATH"/ || exit
 
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
-if packer build -var-file "$AXIOM_PATH"/axiom.json "$image_path";
+if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" "$image_path";
 then
 	end_time=$(date +%s)
 	seconds="$(expr $end_time - $start_time)"
