@@ -28,7 +28,7 @@ then
 fi
 
 image_path="$AXIOM_PATH/images/axiom.json"
-generate_packer $builder $provisioner
+"$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
 
 if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
 then
