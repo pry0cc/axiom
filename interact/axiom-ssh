@@ -8,27 +8,25 @@ ssh_config="$AXIOM_PATH/.sshconfig"
 use_tmux=false
 connected=false
 cache=false
+just_generate=false
+
+args="-F $ssh_config"
 
 for var in "$@"
 do
     if [ $var == "--tmux" ]
     then
         use_tmux=true
-    fi
-	if [ $var == "--cache" ]
+    elif [ $var == "--cache" ]
 	then
 		cache=true
+	elif [ $var == "--just-generate" ]
+	then
+		just_generate=true
+	else
+		args="$args $var"
 	fi
 done
-
-instance=""
-
-if [ -z "$1" ] || [ "$1" == "--tmux" ]
-then
-    instance=$(instance_menu)
-else
-	instance="$1"
-fi
 
 if [ $cache != true ]
 then
@@ -37,13 +35,13 @@ fi
 
 if [ $use_tmux == true ]
 then
-	connected=true
-	ssh -F $ssh_config "$instance" -t 'tmux new-session -t main'
+	args="$args -t 'tmux new-session -t main'"
 fi
 
-if [ $connected == false ]
+cmd="ssh $args"
+
+if [ $just_generate == "false" ]
 then
-	ssh -F $ssh_config "$instance"
+	bash -c "$cmd"
 fi
-
 "$AXIOM_PATH/interact/header.sh"
