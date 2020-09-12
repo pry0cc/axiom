@@ -4,12 +4,12 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
-selected_image="axiom"
+selected_image="full"
 config_image="$(jq -r '.image' "$AXIOM_PATH"/axiom.json)"
 
 if [ "$config_image" != "null" ]
 then
-	new_path="$AXIOM_PATH/images/$selected_image.json"
+	new_path="$AXIOM_PATH/images/provisioners/$selected_image.json"
 	if [ ! -f "$new_path" ]
 	then
 		echo -e "${Red}Read image from config: '$config_image', unfortunately, there is no $new_path...${Color_Off}"
