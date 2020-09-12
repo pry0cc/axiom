@@ -3,48 +3,47 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+ssh_config="$AXIOM_PATH/.sshconfig"
 
 use_tmux=false
-use_mosh=false
 connected=false
+cache=false
 
 for var in "$@"
 do
     if [ $var == "--tmux" ]
     then
         use_tmux=true
-    elif [  $var == "--mosh" ]
+    fi
+	if [ $var == "--cache" ]
 	then
-		use_mosh=true
+		cache=true
 	fi
 done
 
 instance=""
 
-if [ -z "$1" ] || [ "$1" == "--tmux" ] || [ "$1" == "--mosh" ]
+if [ -z "$1" ] || [ "$1" == "--tmux" ]
 then
     instance=$(instance_menu)
 else
 	instance="$1"
 fi
 
-ip=$(instance_ip "$instance")
+if [ $cache != true ]
+then
+	generate_sshconfig
+fi
 
 if [ $use_tmux == true ]
 then
 	connected=true
-	ssh -p2266 op@$ip -t 'tmux new-session -t main'
-fi
-
-if [ $use_mosh == true ]
-then
-	connected=true
-	mosh --ssh='ssh -p2266' op@$ip
+	ssh -F $ssh_config "$instance" -t 'tmux new-session -t main'
 fi
 
 if [ $connected == false ]
 then
-	ssh -p2266 op@$ip
+	ssh -F $ssh_config "$instance"
 fi
 
 "$AXIOM_PATH/interact/header.sh"
