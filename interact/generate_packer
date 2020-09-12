@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 require 'json'
-AXIOM_PATH="/Users/pry/.axiom"
+AXIOM_PATH="#{Dir.home}/.axiom"
 
 provisioner = ARGV[1]
 builder = ARGV[0]
