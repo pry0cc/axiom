@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/bin/bash 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
@@ -7,7 +6,7 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner="full"
 
-if [ -z $1 ]
+if [ ! -z $1 ]
 then
 	provisioner="$1"
 fi
