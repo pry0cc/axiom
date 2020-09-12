@@ -6,6 +6,7 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 ssh_config="$AXIOM_PATH/.sshconfig"
 
 use_tmux=false
+use_mosh=false
 connected=false
 cache=false
 just_generate=false
@@ -23,6 +24,9 @@ do
 	elif [ $var == "--just-generate" ]
 	then
 		just_generate=true
+	elif [ $var == "-m" ]
+	then
+		use_mosh=true
 	else
 		args="$args $var"
 	fi
@@ -38,7 +42,23 @@ then
 	args="$args -t 'tmux new-session -t main'"
 fi
 
-cmd="ssh $args"
+if [ $use_mosh == true ]
+then
+	new_args=""
+
+	for i in $args
+	do
+		if [[ "$i" != "$1" ]]
+		then
+			new_args="$new_args $i"
+		fi
+	done
+	cmd="mosh --ssh='ssh $new_args' $1 -- tmux attach -t main-15 -d"
+
+	echo $cmd
+else
+	cmd="ssh $args"
+fi
 
 if [ $just_generate == "false" ]
 then
