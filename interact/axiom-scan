@@ -108,7 +108,8 @@ then
 	then
 		ssh_args="-t"
 	fi
-	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args" 
+
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args --cache" 
 	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
 
 	rm -rf "$src_prefix"
