@@ -5,6 +5,7 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner="full"
+start_time=$(date +%s)
 
 if [ ! -z $1 ]
 then
@@ -42,7 +43,19 @@ cd "$AXIOM_PATH"/ || exit
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
 if packer build -var-file "$AXIOM_PATH"/axiom.json "$image_path";
 then
-    echo -e "${BGreen}Your build completed successfully!${Color_Off}"
+	end_time=$(date +%s)
+	seconds="$(expr $end_time - $start_time)"
+	time=""
+		
+	if [[ "$seconds" -gt 59 ]]
+	then
+		minutes=$(expr $seconds / 60)
+		time="$minutes minutes"
+	else
+		time="$seconds seconds"
+	fi
+
+    echo -e "${BGreen}Your build completed successfully in $time !${Color_Off}"
     echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
 	  "$AXIOM_PATH"/interact/axiom-prune
     "$NOTIFY_CMD" "Axiom Info" "Build completed successfully!"
