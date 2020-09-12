@@ -1,6 +1,7 @@
 keys/*
 accounts/*.json
 .syncthing.*
+selected.conf
 .DS_store
 *.swp
 authorized_keys
