@@ -79,8 +79,7 @@ total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instanc
 echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
 fi
 
-echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
-sleep 4
+echo -e "${BWhite}INITIALIZING IN 3 SECONDS, CTRL+C to quit... ${Color_Off}"
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
@@ -106,7 +105,7 @@ do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
    $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id"  &
-   sleep 5
+   sleep 0.05
 done
 
 while [ $time -gt 0 ]; do
