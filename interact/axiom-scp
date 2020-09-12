@@ -87,13 +87,13 @@ do
 		line="$str"
 	fi
 done
-cmd="scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line"
+cmd="rsync -e 'ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig' -azr --progress $line"
 echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
 #scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
 done
 #sleep 1
-echo -e "${BGreen}Runing parallel file transfer...${Color_Off}"
+echo -e "${BGreen}Running parallel file transfer...${Color_Off}"
 interlace -t 0x00sec.org -cL $AXIOM_PATH/tmp/cmds.txt
 else
-	scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $args
+	rsync -e 'ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig'  -avzr --progress $args
 fi
