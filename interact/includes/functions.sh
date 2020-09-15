@@ -263,7 +263,8 @@ conf_check() {
 # start a lemonade server locally if not already running
 start_lemonade_server() {
     if [ -z $(command -v lemonade) ]; then
-        echo "lemonade not installed."
+        echo -e "The \"--clipboard-sync\" flag requires lemonade installed on your local machine."
+        echo -e "Installation instructions can be found here:\n https://github.com/lemonade-command/lemonade."
         exit 1
     fi 
 

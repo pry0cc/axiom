@@ -10,6 +10,7 @@ use_mosh=false
 connected=false
 cache=false
 just_generate=false
+use_clipboard_sync=false
 
 args="-F $ssh_config"
 
