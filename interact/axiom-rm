@@ -2,7 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 if [ -z "$1" ]
 then
@@ -18,10 +18,12 @@ selected=""
 for var in "$@"; do
 	if [ "$var" == "-f" ]; then
 		force=true
+	else
+		query="$query $var"
 	fi
 done
 
-selected=$(query_instances $@)
+selected=$(query_instances $query)
 
 if [[ "$selected" ]]
 then

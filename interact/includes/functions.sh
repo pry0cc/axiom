@@ -19,12 +19,31 @@ instance_menu() {
 	instances | jq -r '.[].name' | fzf
 }
 
+quick_ip() {
+	data="$1"
+	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
+	echo $ip
+}
+
+instance_pretty() {
+	data=$(instances)
+	i=0
+	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
+	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+}
+
 # identifies the selected instance/s
 selected_instance() {
 	cat "$AXIOM_PATH/selected.conf"
 }
 
-
+get_image_id() {
+	query="$1"
+	images=$(doctl compute snapshot list -o json)
+	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
+	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
+	echo $id
+}
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"

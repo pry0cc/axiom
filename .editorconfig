@@ -1,0 +1,22 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+charset = utf-8
+end_of_line = lf
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+# 4 space indentation for python
+[*.py]
+indent_style = space
+indent_size = 4
+
+# The JSON files contain newlines inconsistently
+[*.json]
+indent_size = 2
+insert_final_newline = ignore
+
+[*.yml]
+indent_size = 2

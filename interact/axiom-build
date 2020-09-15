@@ -1,43 +1,61 @@
-#!/bin/bash
-
+#!/bin/bash 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
-selected_image="axiom"
-config_image="$(jq -r '.image' "$AXIOM_PATH"/axiom.json)"
+builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
+provisioner="full"
+start_time=$(date +%s)
 
-if [ "$config_image" != "null" ]
+if [ ! -z $1 ]
 then
-	new_path="$AXIOM_PATH/images/$selected_image.json"
-	if [ ! -f "$new_path" ]
-	then
-		echo -e "${Red}Read image from config: '$config_image', unfortunately, there is no $new_path...${Color_Off}"
-		exit
-	else
-		selected_image="$config_image"
-	fi
-elif [ ! -z "$1" ]
-then
-	new_path="$AXIOM_PATH/images/$1.json"
-	if [ ! -f "$new_path" ]
-	then
-		echo -e "${Red}Read image from command-line arguments: '$1', unfortunately, there is no $new_path...${Color_Off}"
-		exit
-	else
-		selected_image="$1"
-	fi
-
+	provisioner="$1"
 fi
 
-image_path="$AXIOM_PATH/images/$selected_image.json"
+prov_path="$AXIOM_PATH/images/provisioners/$provisioner.json"
+builder_path="$AXIOM_PATH/images/builders/$builder.json"
+
+if [ ! -f "$prov_path" ]
+then
+	echo -e "${Red}Error: unfortunately, there is no $provisioner_path...${Color_Off}"
+	exit
+fi
+	
+if [ ! -f "$builder_path" ]
+then
+	echo -e "${Red}Error: unfortunately, there is no $builder_path...${Color_Off}"
+	exit
+fi
+
+image_path="$AXIOM_PATH/images/axiom.json"
+"$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
+
+if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
+then
+	echo -e "${BRed}You have no authorized keys file at $AXIOM_PATH/configs/authorized_keys"
+	echo -e  "Please run 'cat ~/.ssh/id_rsa.pub >> $AXIOM_PATH/configs/authorized_keys' and re-run axiom-build"
+	echo -e "You may need to generate a fresh SSH keypair...${Color_Off}"
+	exit
+fi
 
 cd "$AXIOM_PATH"/ || exit
 
-echo -e "${BWhite}Building image $selected_image... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
-if packer build -var-file "$AXIOM_PATH"/axiom.json "$image_path";
+echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
+if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" "$image_path";
 then
-    echo -e "${BGreen}Your build completed successfully!${Color_Off}"
+	end_time=$(date +%s)
+	seconds="$(expr $end_time - $start_time)"
+	time=""
+		
+	if [[ "$seconds" -gt 59 ]]
+	then
+		minutes=$(expr $seconds / 60)
+		time="$minutes minutes"
+	else
+		time="$seconds seconds"
+	fi
+
+    echo -e "${BGreen}Your build completed successfully in $time !${Color_Off}"
     echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
 	  "$AXIOM_PATH"/interact/axiom-prune
     "$NOTIFY_CMD" "Axiom Info" "Build completed successfully!"

@@ -2,7 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_connect_time_out 8000,[ProxyList]," | tr ',' '\n' >proxychains.conf
 

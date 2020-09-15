@@ -2,7 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 droplets=$(instances)
 instance=$(cat $AXIOM_PATH/selected.conf)
@@ -13,7 +13,7 @@ then
     instance="$2"
 fi
 
-echo -e "${BWhite}Watching '$command' on '$instance'... This command will automatically backup and delete the instance after it detects the command is no longer running...  ${Color_Off}"
+#echo -e "${BWhite}Watching '$command' on '$instance'... This command will automatically backup and delete the instance after it detects the command is no longer running...  ${Color_Off}"
 command="$1"
 
 exit=1
@@ -24,7 +24,7 @@ do
 	sleep $(expr $RANDOM % 20)
 done
 
-echo -e "${BGreen}'$command' has completed! Backing up and deleting '$instance'..."
-sleep 5
-axiom-backup "$instance"
-axiom-rm "$instance" -f
+#echo -e "${BGreen}'$command' has completed! Backing up and deleting '$instance'..."
+#sleep 5
+#axiom-backup "$instance"
+#axiom-rm "$instance" -f

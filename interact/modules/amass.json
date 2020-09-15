@@ -1,5 +1,5 @@
 {
-	"command":"cat $infile | /home/op/go/bin/httpx $args > $outfile",
+	"command":"/home/op/go/bin/amass enum -df $infile > $outfile",
 	"box_infile":"input",
 	"box_outfile":"output",
 	"output_format":"txt",

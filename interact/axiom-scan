@@ -2,12 +2,14 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+
+generate_sshconfig
 
 # Host Options
-targets_infile=""
+targets_infile="$1"
 selected_module="masscan"
-query="$1"
+query="$(cat ~/.axiom/selected.conf |  tr -d '0123456789' | uniq -c  | sort -rh | head -n 1 | awk '{ print $2 }')*"
 src_prefix="$AXIOM_PATH/tmp/$RANDOM"
 outfile="$(echo "$query" | sed 's/\*//g')-$(date +%s).txt"
 user_args=""
@@ -21,6 +23,11 @@ do
 	elif [[ "$var" =~  "-iL=" ]]
 	then
 		targets_infile=$(echo "$var" | cut -d "=" -f2)
+	elif [[ "$var" == "$1" ]]
+	then
+		echo -n ""
+		#echo "Skipping"
+		#
 	elif  [[ "$var" =~ "-m=" ]]
 	then
 		s=$(echo "$var" | cut -d "=" -f2)
@@ -75,7 +82,7 @@ then
 		exit
 	fi
 fi
-instances=$(query_instances "$1")
+instances=$(cat $AXIOM_PATH/selected.conf)
 
 echo -e "${BWhite}Starting axiom-scan with module '$selected_module' for fleet '$query'${Color_off}"
 
@@ -85,7 +92,7 @@ then
 	then
 		echo -e "${Blue}Splitting file $targets_infile across all instances...${Color_Off}"
 		src_prefix=$(lsplit $targets_infile "$instances")
-		axiom-scp "$src_prefix/\$name.txt" "$query:$box_infile"
+		axiom-scp --cache "$src_prefix/\$name.txt" "$query:$box_infile"
 	else
 		mkdir -p $src_prefix
 	fi
@@ -101,7 +108,8 @@ then
 	then
 		ssh_args="-t"
 	fi
-	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args" 
+
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args --cache" 
 	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
 
 	rm -rf "$src_prefix"
@@ -110,12 +118,12 @@ then
 	if [ "$outdir" == "true" ]
 	then
 		# Recursive Directory Download
-		axiom-scp "$query:$box_outfile/*" "$src_prefix"
+		axiom-scp --cache "$query:$box_outfile/*" "$src_prefix"
 		sleep 1
 		mv $src_prefix/output $outfile
 		echo -e "${Green}Output saved to $outfile/${Color_Off}"
 	else
-		axiom-scp "$query:$box_outfile" "$src_prefix/\$name-out.$ext"
+		axiom-scp --cache "$query:$box_outfile" "$src_prefix/\$name-out.$ext"
 		if [[ "$outformat" == "txt" ]] || [[ "$outformat" == "greppable" ]]
 		then
 			echo -e "${Green}Merging and sorting output...${Color_Off}"

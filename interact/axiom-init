@@ -3,7 +3,7 @@
 AXIOM_PATH="$HOME/.axiom"
 DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
@@ -55,6 +55,7 @@ expire=false
 default_expiry=525600000
 quiet=false
 domain=false
+manual_image_id=false
 
 if [ -z "$1" ] || [[ $1 =~ "image" ]] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
 	name="$gen_name"
@@ -78,7 +79,7 @@ for var in "$@"; do
 		deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
 	fi
-	if [[ "$var" =~ "--domain" ]]; then
+	if [[ "$var" =~ "--domain=" ]]; then
 		domain="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		if [ "$quiet" != "true" ]; then
 			echo -e "${BWhite}Manually setting domain to '$domain'${Color_Off}"
@@ -94,6 +95,12 @@ for var in "$@"; do
 		image="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		if [ "$quiet" != "true" ]; then
 			echo -e "${BWhite}Setting image to '$image'${Color_Off}"
+		fi
+	fi
+	if [[ "$var" =~ "--image-id=" ]]; then
+		manual_image_id="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		if [ "$quiet" != "true" ]; then
+			echo -e "${BWhite}Setting image id to '$image'${Color_Off}"
 		fi
 	fi
 
@@ -120,7 +127,13 @@ else
 	image_name="axiom-$region"
 fi
 
-image_id="$(doctl compute image list | grep "$image_name" | tail -n 1 | awk '{ print $1 }')"
+image_id=""
+if  [[ "$manual_image_id" != "false" ]]
+then
+	image_id="$manual_image_id"
+else
+	image_id="$(get_image_id "$image_name")"
+fi
 
 show_spinner() {
 	local -r pid="${1}"
@@ -153,7 +166,7 @@ mkdir -p "$AXIOM_PATH/tmp/"
 cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >$AXIOM_PATH/tmp/$name.sh
 chmod +x $AXIOM_PATH/tmp/$name.sh
 
-create_instance "$name" "$image_id" "$size" "$region" "$boot_script"
+create_instance "$name" "$image_id" "$size" "$region" "$boot_script"  &
 PID="$!"
 if [ "$quiet" != "true" ]; then
 	show_spinner "$PID"
@@ -164,10 +177,10 @@ fi
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 if [ "$quiet" != "true" ]; then
-	secs=$((3))
+	secs=$((7))
 	while [ $secs -gt 0 ]; do
 		echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
-		sleep 3
+		sleep 1
 		: $((secs--))
 	done
 else
@@ -195,10 +208,10 @@ if [ "$deploy" != false ]; then
 	$AXIOM_PATH/interact/axiom-deploy "$deploy"
 fi
 
-if [ "$domain" != false ]; then
-	echo -e "${BWhite}Adding DNS record $name.$domain to -> $ip"
-	$AXIOM_PATH/interact/axiom-dns add $name $domain $ip
-fi
+#if [ "$domain" != false ]; then
+##	echo -e "${BWhite}Adding DNS record $name.$domain to -> $ip"
+#	$AXIOM_PATH/interact/axiom-dns add $name $domain $ip
+#fi
 
 $AXIOM_PATH/interact/header.sh
 
