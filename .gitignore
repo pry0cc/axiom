@@ -1,5 +1,11 @@
 keys/*
+.sshconfig
+accounts/*.json
 .syncthing.*
+selected.conf
 .DS_store
 *.swp
 authorized_keys
+boxes/*
+archive/*
+tmp/*

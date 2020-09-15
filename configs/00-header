@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ip=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
+ip=$(curl -s https://ifconfig.me/)
 echo ""
 cat << EOF
  ▄▄▄      ▒██   ██▒ ██▓ ▒█████   ███▄ ▄███▓

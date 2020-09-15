@@ -9,6 +9,8 @@ if [ -z $1 ]; then
 else
 	if [[ "$1" == "--json" ]]; then
 		instances
+	elif [[ "$1" == "--list" ]]; then
+		instance_list
 	else
 		resp=$(query_instances "$1")
 		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')

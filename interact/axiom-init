@@ -55,6 +55,7 @@ expire=false
 default_expiry=525600000
 quiet=false
 domain=false
+manual_image_id=false
 
 if [ -z "$1" ] || [[ $1 =~ "image" ]] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
 	name="$gen_name"
@@ -96,6 +97,12 @@ for var in "$@"; do
 			echo -e "${BWhite}Setting image to '$image'${Color_Off}"
 		fi
 	fi
+	if [[ "$var" =~ "--image-id=" ]]; then
+		manual_image_id="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		if [ "$quiet" != "true" ]; then
+			echo -e "${BWhite}Setting image id to '$image'${Color_Off}"
+		fi
+	fi
 
 	if [[ "$var" =~ "--expire" ]]; then
 		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
@@ -120,7 +127,13 @@ else
 	image_name="axiom-$region"
 fi
 
-image_id="$(get_image_id "$image_name")"
+image_id=""
+if  [[ "$manual_image_id" != "false" ]]
+then
+	image_id="$manual_image_id"
+else
+	image_id="$(get_image_id "$image_name")"
+fi
 
 show_spinner() {
 	local -r pid="${1}"
@@ -153,7 +166,7 @@ mkdir -p "$AXIOM_PATH/tmp/"
 cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >$AXIOM_PATH/tmp/$name.sh
 chmod +x $AXIOM_PATH/tmp/$name.sh
 
-create_instance "$name" "$image_id" "$size" "$region" "$boot_script"
+create_instance "$name" "$image_id" "$size" "$region" "$boot_script"  &
 PID="$!"
 if [ "$quiet" != "true" ]; then
 	show_spinner "$PID"

@@ -1,0 +1,10 @@
+{
+  "do_key": "<required api key>",
+  "region": "nyc3",
+  "domain": "",
+  "provider":"do",
+  "default_image":"axiom",
+  "default_size": "s-1vcpu-1gb",
+  "hunter_key": "",
+  "email": ""
+}

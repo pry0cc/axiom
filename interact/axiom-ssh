@@ -3,60 +3,74 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+ssh_config="$AXIOM_PATH/.sshconfig"
 
 use_tmux=false
 use_mosh=false
-use_clipboard_sync=false
 connected=false
+cache=false
+just_generate=false
+
+args="-F $ssh_config"
 
 for var in "$@"
 do
     if [ $var == "--tmux" ]
     then
         use_tmux=true
-    elif [  $var == "--mosh" ]
+    elif [ $var == "--cache" ]
+	then
+		cache=true
+	elif [ $var == "--just-generate" ]
+	then
+		just_generate=true
+	elif [ $var == "-m" ]
 	then
 		use_mosh=true
     elif [ $var == "--clipboard-sync" ] 
     then
         use_clipboard_sync=true
+	else
+		args="$args $var"
 	fi
 done
 
 
-if [ $use_clipboard_sync == true ]
+if [ $cache != true ]
 then
-    SSH_TUNNEL='-R 2489:127.0.0.1:2489'
-    start_lemonade_server
+	generate_sshconfig
 fi
-
-
-instance=""
-
-if [ -z "$1" ] || [ "$1" == "--tmux" ] || [ "$1" == "--mosh" ]
-then
-    instance=$(instance_menu)
-else
-	instance="$1"
-fi
-
-ip=$(instance_ip "$instance")
 
 if [ $use_tmux == true ]
 then
-	connected=true
-	ssh -p2266 op@$ip -t 'tmux new-session -t main' ${SSH_TUNNEL}
+	args="$args -t 'tmux new-session -t main'"
 fi
 
 if [ $use_mosh == true ]
 then
-	connected=true
-	mosh --ssh='ssh -p2266' op@$ip
+	new_args=""
+
+	for i in $args
+	do
+		if [[ "$i" != "$1" ]]
+		then
+			new_args="$new_args $i"
+		fi
+	done
+	cmd="mosh --ssh='ssh $new_args' $1 -- tmux attach -t main-15 -d"
+
+	echo $cmd
+else
+    if [ $use_clipboard_sync == true ]
+    then 
+        args="$args -R 2489:127.0.0.1:2489"
+        start_lemonade_server
+    fi
+	cmd="ssh $args"
 fi
 
-if [ $connected == false ]
+if [ $just_generate == "false" ]
 then
-	ssh -p2266 op@$ip ${SSH_TUNNEL}
+	bash -c "$cmd"
 fi
-
 "$AXIOM_PATH/interact/header.sh"
