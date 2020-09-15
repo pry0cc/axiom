@@ -19,15 +19,15 @@ do
     if [ $var == "--tmux" ]
     then
         use_tmux=true
-    elif [ $var == "--cache" ]
-	then
-		cache=true
-	elif [ $var == "--just-generate" ]
-	then
-		just_generate=true
-	elif [ $var == "-m" ]
-	then
-		use_mosh=true
+    elif [ $var == "--cache" ] 
+    then
+        cache=true
+    elif [ $var == "--just-generate" ]
+    then
+        just_generate=true
+    elif [ $var == "-m" ]
+    then
+        use_mosh=true
     elif [ $var == "--clipboard-sync" ]
     then
         use_clipboard_sync=true
