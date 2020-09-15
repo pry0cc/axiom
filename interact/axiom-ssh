@@ -28,12 +28,12 @@ do
 	elif [ $var == "-m" ]
 	then
 		use_mosh=true
-    elif [ $var == "--clipboard-sync" ] 
+    elif [ $var == "--clipboard-sync" ]
     then
         use_clipboard_sync=true
-	else
-		args="$args $var"
-	fi
+    else
+        args="$args $var"
+    fi
 done
 
 
