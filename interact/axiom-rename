@@ -1,12 +1,10 @@
 #!/bin/bash
 
-AXIOM_PATH="$HOME/axiom_contribution/axiom/"
+AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
 droplet="$1"
 new_name="$2"
 droplet_id=$(instance_id $droplet)
-echo $droplet_id
 result=$(doctl compute droplet-action rename $droplet_id --droplet-name $new_name)
-echo $result
