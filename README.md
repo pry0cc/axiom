@@ -234,6 +234,9 @@ It requires no arguments.
 ## `axiom-scp`
 `axiom-scp` allows copying files between the host and the target machine, wrapping the traditional `scp` command but you can use the machine name instead. For example: `axiom-scp file.txt noyce-14:file.txt` will copy your local file.txt to your `noyce-14` machine.
 
+## `axiom-tags`
+`axiom-tags` allows creating and deleting tags. It also allows assigning and unassigning those tags to specific droplets, so you can group them for better management.
+
 ## `axiom-vpn`
 `axiom-vpn` is used for connecting to a deploy openvpn server (using the deployment script).
 

@@ -1,0 +1,98 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+
+usage="axiom-tags allows creation and management of tags
+	
+	create - create new tag
+	delete - delete a tag
+	list-tags - list created tags
+	tag - add a tag to a droplet
+	untag - remove a tag from a droplet
+	count - return a number of droplets for a given tag
+	list - return a list of droplets for a given tag"
+create_usage="usage: axiom-tags create <tag_name>"
+delete_usage="usage: axiom-tags delete <tag_name> [-f] [--force]"
+tag_usage="usage: axiom-tags tag <droplet_name> <tag_name>"
+untag_usage="usage: axiom-tags untag <droplet_name> <tag_name>"
+count_usage="usage: axiom-tags count <tag_name>"
+list_usage="usage: axiom-tags list <tag_name>"
+
+function does_tag_exist() {
+	echo $(doctl compute tag list | grep $1)
+}
+
+if [[ $# -eq 0 ]]; then
+	echo "$usage"
+else
+	if [[ "$1" == "create" ]]; then
+		if [[ $# -eq 1 ]]; then
+			echo "$create_usage"
+		else
+			result=$(doctl compute tag create $2)
+		fi
+	elif [[ "$1" == "delete" ]]; then
+		if [[ $# -eq 1 ]]; then
+			echo "$delete_usage"
+		else
+			if [[ $# -eq 3 && ( "$3" == "-f" || "$3" == "--force" ) ]]; then
+				result=$(doctl compute tag delete $2 -f)
+			else
+				result=$(doctl compute tag delete $2)
+			fi
+		fi
+	elif [[ "$1" == "list-tags" ]]; then
+		echo "$(doctl compute tag list)"
+	elif [[ "$1" == "tag" ]]; then
+		if [[ $# -lt 3 ]]; then
+			echo "$tag_usage"
+		else
+			is_existing=$(does_tag_exist $3)
+			if [[ -n $is_existing ]]; then
+				result=$(doctl compute droplet tag $2 --tag-name $3)
+			else
+				echo "Tag $3 doesn't exist"
+			fi
+		fi
+	elif [[ "$1" == "untag" ]]; then
+		if [[ $# -lt 3 ]]; then
+			echo "$untag_usage"
+		else
+			is_existing=$(does_tag_exist $3)
+			if [[ -n $is_existing ]]; then
+				result=$(doctl compute droplet untag $2 --tag-name $3)
+			else
+				echo "Tag $3 doesn't exist"
+			fi
+		fi
+	elif [[ "$1" == "count" ]]; then
+		if [[ $# -eq 1 ]]; then
+			echo "$count_usage"
+		else
+			is_existing=$(does_tag_exist $2)
+			if [[ -n $is_existing ]]; then
+				echo $(doctl compute tag get --no-header --format DropletCount $2)
+			else
+				echo "Tag $2 doesn't exist"
+			fi
+		fi
+	elif [[ "$1" == "list" ]]; then
+		if [[ $# -eq 1 ]]; then
+			echo "$list_usage"
+		else
+			is_existing=$(does_tag_exist $2)
+			if [[ -n $is_existing ]]; then
+				echo "$(doctl compute droplet list --no-header --format Name --tag-name $2)"
+			else
+				echo "Tag $2 doesn't exist"
+			fi
+	
+		fi
+	else
+		echo "$usage"
+	fi
+fi
+
+
