@@ -166,6 +166,11 @@ mkdir -p "$AXIOM_PATH/tmp/"
 cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" >$AXIOM_PATH/tmp/$name.sh
 chmod +x $AXIOM_PATH/tmp/$name.sh
 
+if [ -z "$image_id" ]; then
+	echo -e "${BRed}An image has not been found in this region. Do you need to run 'axiom-build'?${Color_Off}"
+	exit 1
+fi
+
 create_instance "$name" "$image_id" "$size" "$region" "$boot_script"  &
 PID="$!"
 if [ "$quiet" != "true" ]; then
