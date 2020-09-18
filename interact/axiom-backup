@@ -26,7 +26,7 @@ fi
 echo -e "${BWhite}Backing up $instance... ${Color_Off}"
 echo -n -e "${Blue}" 
 
-rsync -avzr -e "ssh -F $AXIOM_PATH/.sshconfig" --progress --delete --include-from="$AXIOM_PATH"/boxes/backup-files.txt "$instance":~/ "$AXIOM_PATH"/boxes/"$instance"/
+rsync -avzr -e "ssh -F $AXIOM_PATH/.sshconfig" --progress --include-from="$AXIOM_PATH"/boxes/backup-files.txt "$instance":~/ "$AXIOM_PATH"/boxes/"$instance"/
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}" 
