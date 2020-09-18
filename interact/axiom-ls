@@ -3,6 +3,7 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/appliance.sh"
 
 if [ -z $1 ]; then
 	instance_pretty
@@ -11,6 +12,8 @@ else
 		instances
 	elif [[ "$1" == "--list" ]]; then
 		instance_list
+	elif [[ "$1" == "--appliance" ]]; then
+		pretty_appliances
 	else
 		resp=$(query_instances "$1")
 		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')

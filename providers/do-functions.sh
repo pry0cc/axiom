@@ -1,6 +1,7 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
@@ -236,6 +237,11 @@ generate_sshconfig() {
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	
+	if [ "$key" != "null" ]
+	then
+		gen_app_sshconfig
+	fi
 }
 
 # create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)

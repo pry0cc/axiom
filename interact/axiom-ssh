@@ -7,6 +7,7 @@ ssh_config="$AXIOM_PATH/.sshconfig"
 
 use_tmux=false
 use_mosh=false
+tmux_session="main"
 connected=false
 cache=false
 just_generate=false
@@ -19,23 +20,25 @@ do
     if [ $var == "--tmux" ]
     then
         use_tmux=true
-    elif [ $var == "--cache" ] 
+    elif [[ $var =~ "-t=" ]]
     then
-        cache=true
-    elif [ $var == "--just-generate" ]
-    then
-        just_generate=true
-    elif [ $var == "-m" ]
-    then
-        use_mosh=true
-    elif [ $var == "--clipboard-sync" ]
-    then
-        use_clipboard_sync=true
-    else
-        args="$args $var"
-    fi
+		tmux_session="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+    elif [ $var == "--cache" ]
+	then
+		cache=true
+	elif [ $var == "--just-generate" ]
+	then
+		just_generate=true
+	elif [ $var == "-m" ]
+	then
+		use_mosh=true
+  elif [ $var == "--clipboard-sync" ]
+  then
+    use_clipboard_sync=true  
+	else
+		args="$args $var"
+	fi
 done
-
 
 if [ $cache != true ]
 then
@@ -44,7 +47,7 @@ fi
 
 if [ $use_tmux == true ]
 then
-	args="$args -t 'tmux new-session -t main'"
+	args="$args -t 'tmux new-session -t $tmux_session'"
 fi
 
 if [ $use_mosh == true ]
@@ -53,12 +56,12 @@ then
 
 	for i in $args
 	do
-		if [[ "$i" != "$1" ]]
+		if [[ "$i" != "$1" ]] && [[ ! "$i" =~ "-t=" ]]
 		then
 			new_args="$new_args $i"
 		fi
 	done
-	cmd="mosh --ssh='ssh $new_args' $1 -- tmux attach -t main-15 -d"
+	cmd="mosh --ssh='ssh $new_args' $1 -- tmux attach -t $tmux_session -d"
 
 	echo $cmd
 else
