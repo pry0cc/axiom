@@ -3,6 +3,7 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/appliance.sh"
 
 if [ -z $1 ]; then
 	instance_pretty
@@ -12,13 +13,7 @@ else
 	elif [[ "$1" == "--list" ]]; then
 		instance_list
 	elif [[ "$1" == "--appliance" ]]; then
-		key="$(jq -r '.appliance_key?' $AXIOM_PATH/axiom.json)"
-		url="$(jq -r '.appliance_url?' $AXIOM_PATH/axiom.json)"
-		#jumpbox="$(jq -r '.appliance_name' $AXIOM_PATH/axiom.json)"
-
-		data="$(curl -s "$url/heartbeats/$key" | jq '.[] | select(.lan_ip?!=null)')"
-
-		(echo "Instance,Lan IP,External IP,VPN Last Seen,Connected,Authenticated" && echo $data | jq  -r '[.key, .lan_ip,.external_ip,.vpn_last_seen,.connected,.authenticated] | @csv') | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+		pretty_appliances
 	else
 		resp=$(query_instances "$1")
 		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')
