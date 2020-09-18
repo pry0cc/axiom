@@ -17,6 +17,13 @@ get_image_id() {
 	echo $id
 }
 
+instance_ip_cache() {
+	name="$1"
+	cat "$AXIOM_PATH"/.sshconfig | grep -A 1 "$name" | awk '{ print $2 }' | tail -n 1
+}
+
+
+
 instance_list() {
 	instances | jq -r '.[].hostname'
 }
@@ -186,6 +193,40 @@ query_instances() {
 	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
 	echo -n $selected
 }
+
+query_instances_cache() {
+	selected=""
+
+	for var in "$@"; do
+		if [[ "$var" =~ "*" ]]
+		then
+			var=$(echo "$var" | sed 's/*/.*/g')
+			selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep "$var")"
+		else
+			if [[ $query ]];
+			then
+				query="$query\|$var"
+			else
+				query="$var"
+			fi
+		fi
+	done
+
+	if [[ "$query" ]]
+	then
+		selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep -w "$query")"
+	else
+		if [[ ! "$selected" ]]
+		then
+			echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
+			exit
+		fi
+	fi
+
+	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
+	echo -n $selected
+}
+
 
 quick_ip() {
 	data="$1"

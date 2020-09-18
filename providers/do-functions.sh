@@ -1,6 +1,7 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
@@ -12,6 +13,11 @@ instances() {
 instance_ip() {
 	name="$1"
 	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
+}
+
+instance_ip_cache() {
+	name="$1"
+	cat "$AXIOM_PATH"/.sshconfig | grep -A 1 "$name" | awk '{ print $2 }' | tail -n 1
 }
 
 instance_list() {
@@ -187,6 +193,38 @@ query_instances() {
 	echo -n $selected
 }
 
+query_instances_cache() {
+	selected=""
+
+	for var in "$@"; do
+		if [[ "$var" =~ "*" ]]
+		then
+			var=$(echo "$var" | sed 's/*/.*/g')
+			selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep "$var")"
+		else
+			if [[ $query ]];
+			then
+				query="$query\|$var"
+			else
+				query="$var"
+			fi
+		fi
+	done
+
+	if [[ "$query" ]]
+	then
+		selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep -w "$query")"
+	else
+		if [[ ! "$selected" ]]
+		then
+			echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
+			exit
+		fi
+	fi
+
+	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
+	echo -n $selected
+}
 
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
@@ -199,6 +237,11 @@ generate_sshconfig() {
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	
+	if [ "$key" != "null" ]
+	then
+		gen_app_sshconfig
+	fi
 }
 
 # create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)
