@@ -12,17 +12,18 @@ function appliances() {
 appliance_ip() {
 	name="$1"
 
-	appliances | jq -r ".[] | select(.key==\"$name\") | .lan_ip"
+	appliances | jq -r ".[] | select(.name==\"$name\") | .lan_ip"
 }
 
 appliance_list() {
-	appliances | jq -r '.[].key'
+	appliances | jq -r '.[].name'
 }
 
 function pretty_appliances()  {
 	data="$(appliances)"
 
-	(echo "Instance,Lan IP,External IP,VPN Last Seen,Connected,Authenticated" && echo $data | jq -r 'reverse' | jq  -r '.[] | [.key?, .lan_ip?,.external_ip?,.vpn_last_seen?,.connected?,.authenticated?] | @csv')| sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,External IP,Last Seen,Connected,Authenticated,City,Region,ISP,Link" && echo $data | jq -r 'reverse' | jq  -r '.[] | [.name?,.external_ip?,.heartbeat_last_seen?,.connected?,.authenticated?,.geoip?.city?,.geoip?.region?,.geoip.company?.name?,.geoip.asn.type?] | @csv')| sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	
 
 }
 
