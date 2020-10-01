@@ -1,0 +1,144 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+
+generate_sshconfig
+
+# Host Options
+targets_infile="$1"
+selected_module="masscan"
+query="$(cat ~/.axiom/selected.conf |  tr -d '0123456789' | uniq -c  | sort -rh | head -n 1 | awk '{ print $2 }')*"
+src_prefix="$AXIOM_PATH/tmp/$RANDOM"
+outfile="$(echo "$query" | sed 's/\*//g')-$(date +%s).txt"
+user_args=""
+ports=""
+# Set user input
+for var in "$@"
+do
+	if [[ "$var" =~ "-p" ]]
+	then
+		ports=$(echo $var | sed 's/-p//g')
+	elif [[ "$var" =~  "-iL=" ]]
+	then
+		targets_infile=$(echo "$var" | cut -d "=" -f2)
+	elif [[ "$var" == "$1" ]]
+	then
+		echo -n ""
+		#echo "Skipping"
+		#
+	elif  [[ "$var" =~ "-m=" ]]
+	then
+		s=$(echo "$var" | cut -d "=" -f2)
+		if [ -f "$AXIOM_PATH/interact/modules/$s.json" ]
+		then
+			selected_module="$s"
+		else
+			echo -e "${BRed}Module: '$s' does not exist, valid modules are:${Color_Off}"
+			echo -e -n "${Blue}"
+			ls "$AXIOM_PATH/interact/modules/" | sed 's/\.json//g'
+			echo -e -n "${Color_Off}"
+			exit
+		fi
+	elif  [[ "$var" =~ "-o=" ]]
+	then
+		outfile=$(echo "$var" | cut -d "=" -f2)
+	else
+		if [[ "$var" !=  "$query" ]]	
+		then
+			user_args="${user_args} ${var}"
+		fi
+	fi
+done
+
+#Load from the module
+module="$AXIOM_PATH/interact/modules/$selected_module.json"
+cmd=$(jq -r '.commands[]'  $module)
+box_infile=$(jq -r '.box_infile'  $module)
+box_outfile=$(jq -r '.box_outfile'  $module)
+outdir=$(jq -r '.output_dirs'  $module)
+outformat=$(jq -r '.output_format' $module) 
+ext=$(jq -r '.output_ext' $module)
+
+if [ ! "$ports" ]
+then
+	ports=$(jq -r '.default_ports'  $module)
+fi
+args="$(jq -r '.default_args'  $module)"
+
+if [ "$user_args" ]
+then
+	args="$user_args"
+fi
+
+
+if [[ ! -f $targets_infile ]]
+then
+	if [[ "$box_infile" ]]
+	then
+		# This checks if the json  parameter is present,  if they dont specify it, we dont have to ask...
+		echo -e "${BRed}Please specify a file with -iL=targets.txt${Color_Off}"
+		exit
+	fi
+fi
+instances=$(cat $AXIOM_PATH/selected.conf)
+
+echo -e "${BWhite}Starting axiom-scan with module '$selected_module' for fleet '$query'${Color_off}"
+
+if [ "$instances" ]
+then
+	if [[ "$box_infile" ]]
+	then
+		echo -e "${Blue}Splitting file $targets_infile across all instances...${Color_Off}"
+		src_prefix=$(lsplit $targets_infile "$instances")
+		axiom-scp --cache "$src_prefix/\$name.txt" "$query:$box_infile"
+	else
+		mkdir -p $src_prefix
+	fi
+	
+	path="/tmp/$RANDOM.sh"
+	echo $cmd | sed "s/_ports_/$ports/g" | sed "s/_args_/$args/g" | sed "s/_infile_/$box_infile/g"  | sed "s/_outfile_/$box_outfile/g" > $path
+	echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
+
+	axiom-scp --cache "$path" "$query:$path"
+	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
+	echo -e "${Blue}Launching $selected_module on fleet '$query'...${Color_Off}"
+	ssh_args=""
+
+	if [[ "$selected_module" == "ffuf" ]]
+	then
+		ssh_args="-t"
+	fi
+
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec 'bash $path' '_target_' -q $ssh_args --cache" 
+	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
+
+	rm -rf "$src_prefix"
+	mkdir -p "$src_prefix"
+
+	if [ "$outdir" == "true" ]
+	then
+		# Recursive Directory Download
+		axiom-scp --cache "$query:$box_outfile/*" "$src_prefix"
+		sleep 1
+		mv $src_prefix/output $outfile
+		echo -e "${Green}Output saved to $outfile/${Color_Off}"
+	else
+		axiom-scp --cache "$query:$box_outfile" "$src_prefix/\$name-out.$ext"
+		if [[ "$outformat" == "txt" ]] || [[ "$outformat" == "greppable" ]]
+		then
+			echo -e "${Green}Merging and sorting output...${Color_Off}"
+			cat $src_prefix/$query-out.$ext | sort -u > $outfile
+			echo -e "${BGreen}File saved to $outfile${Color_Off}"
+		elif [[ "$outformat" == "xml" ]];
+		then
+			"$AXIOM_PATH/interact/merge-xml.py" -d "$src_prefix" -o "$PWD/$outfile"
+		fi
+	fi
+
+	else
+	echo -e "${BRed}No instances in that fleet, use 'axiom-fleet -i=7 -t=2' to spin up a fleet${Color_Off}"
+fi
+
+
