@@ -117,10 +117,11 @@ echo -e -n "${Blue}Key >> ${Color_Off}"
 read do_key
 echo -e "${Blue}Setting up doctl!...${Color_Off}"
 doctl auth init -t $do_key
-#echo "What would you like to pick for region? nyc3, sfo2 <-- this one is best"
-region="sfo2"
-#echo -n "Region >> "
-#read region
+doctl compute region ls
+echo -e "${BBlue}Please type the slug of the region you want to use. Press enter to use the default one(sfo2) ${Color_Off}"
+echo -e -n "${Blue}Region >> ${Color_Off}"
+read region
+if [[ -z $region ]]; then region="sfo2"; fi
 #echo "What domain do you use?"
 #echo -n "Domain >> "
 #read domain
