@@ -1,6 +1,7 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
@@ -11,7 +12,7 @@ instances() {
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
+	instances | jq -r ".[] | select(.name==\"$name\") | select(.type==\"public\") | .networks.v4[].ip_address"
 }
 
 instance_ip_cache() {
@@ -30,7 +31,7 @@ instance_menu() {
 
 quick_ip() {
 	data="$1"
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
+	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address")
 	echo $ip
 }
 
@@ -38,7 +39,7 @@ instance_pretty() {
 	data=$(instances)
 	i=0
 	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[-1].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 # identifies the selected instance/s
@@ -232,10 +233,15 @@ generate_sshconfig() {
 
 	for name in $(echo "$droplets" | jq -r '.[].name')
 	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
+		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	
+	if [ "$key" != "null" ]
+	then
+		gen_app_sshconfig
+	fi
 }
 
 # create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)

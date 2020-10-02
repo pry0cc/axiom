@@ -14,10 +14,19 @@ command="$1"
 
 for var in "$@"
 do
-	if [ "$var" == "--cache" ]
+    if [ "$var" == "--cache" ]
     then
 		cache=true
-    fi
+	elif [ "$var" == "--quiet" ]
+	then
+		quiet=true
+	elif [ "$var" == "-q" ]
+	then
+		quiet=true
+	elif [ "$var" == "-t" ]
+	then
+		args="-t"
+	fi
 done
 
 if [ $cache != "true" ]
@@ -34,19 +43,6 @@ then
     else
     	selected="$query"
     fi
-fi
-
-if [[ ! -z "$3" && "$3" != "--cache" ]]
-then
-    quiet=true
-fi
-
-if [ ! -z "$4" ]
-then
-	if [[ "$4" == "-t" ]]
-	then
-		args="-t"
-	fi
 fi
 
 if [ -z "$1" ]
@@ -75,19 +71,20 @@ do
     full="ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
     echo "$full" >> $cmds_file
 	
-#    if [[ "$quiet" != "true" ]]
-#    then
-#        echo -n -e "${Color_Off}" 
-#        echo -e "${BGreen}Execute on $name' successful!${Color_Off}" 
-#    fi
     i=$((i+1))
 done
 
 if [[ $total -gt 1 ]]
 then
-    echo -e "${BWhite}Executing parallel on fleet $name*...${Color_Off}"
+	if [[ "$quiet" != "true" ]]
+	then
+    	echo -e "${BWhite}Executing parallel on fleet $name*...${Color_Off}"
+	fi
 	interlace -cL "$cmds_file" -t 0x00sec.org
 else
-    echo -e "${BWhite}Executing parallel on fleet $name*...${Color_Off}"
+	if [[ "$quiet" != "true" ]]
+	then
+		echo -e "${BWhite}Executing on $name...${Color_Off}"
+	fi
 	bash -c "$full"
 fi
