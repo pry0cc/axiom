@@ -109,3 +109,6 @@ axiom-ls() {
 axiom-implode() {
     /snap/bin/doctl compute droplet delete -f $(/snap/bin/doctl compute droplet list | awk '{ print $2 }' | grep $(hostname))
 }
+
+# enable GF auto-completion
+source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.zsh

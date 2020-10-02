@@ -1,0 +1,36 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+
+accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g')
+
+if [ ! -z "$1" ]
+then
+	path="$AXIOM_PATH/accounts/$1.json"
+	if [[ -f "$path" ]]
+	then
+		echo -e "${BWhite}Selecting $1...${Color_Off}"
+		rm "$AXIOM_PATH/axiom.json"
+		ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
+		provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
+		$AXIOM_PATH/interact/axiom-provider "$provider"
+		echo -e "${Green}Selected $1 successfully${Color_Off}"
+	else
+		echo -e "${Red}Account name not present${Color_Off}"
+	fi
+else
+	echo -e "${BWhite}Available Accounts${Color_Off}"
+	echo -n -e "${Blue}"
+	for account in $accounts
+	do
+		if [[ $account == $current ]]
+		then
+			echo "* $account"
+		else
+			echo "  $account"
+		fi
+	done
+	echo -n -e "${Color_Off}"
+fi

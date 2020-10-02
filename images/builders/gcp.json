@@ -1,0 +1,13 @@
+{
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "x00sec",
+      "source_image": "ubuntu-2004-focal-v20200902",
+      "image_name":"axiom-{{ user `region` }}-{{ timestamp}}",
+      "ssh_username": "root",
+      "account_file":"{{ user `account_file_path` }}",
+      "zone": "{{ user `region` }}"
+    }
+  ]
+}

@@ -54,7 +54,7 @@ done
 
 #Load from the module
 module="$AXIOM_PATH/interact/modules/$selected_module.json"
-cmd=$(jq -r '.command'  $module)
+cmd=$(jq -r '.commands[]'  $module)
 box_infile=$(jq -r '.box_infile'  $module)
 box_outfile=$(jq -r '.box_outfile'  $module)
 outdir=$(jq -r '.output_dirs'  $module)
@@ -97,9 +97,11 @@ then
 		mkdir -p $src_prefix
 	fi
 	
-	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
+	path="/tmp/$RANDOM.sh"
+	echo $cmd | sed "s/_ports_/$ports/g" | sed "s/_args_/$args/g" | sed "s/_infile_/$box_infile/g"  | sed "s/_outfile_/$box_outfile/g" > $path
 	echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
-	
+
+	axiom-scp --cache "$path" "$query:$path"
 	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
 	echo -e "${Blue}Launching $selected_module on fleet '$query'...${Color_Off}"
 	ssh_args=""
@@ -109,7 +111,7 @@ then
 		ssh_args="-t"
 	fi
 
-	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args --cache" 
+	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec 'bash $path' '_target_' -q $ssh_args --cache" 
 	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
 
 	rm -rf "$src_prefix"

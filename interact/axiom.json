@@ -1,13 +1,13 @@
 {
   "builders": [
     {
-      "type": "googlecompute",
-      "project_id": "x00sec",
-      "source_image": "ubuntu-2004-focal-v20200902",
-      "image_name": "axiom-{{ user `region` }}-{{ timestamp}}",
+      "type": "digitalocean",
       "ssh_username": "root",
-      "account_file": "{{ user `account_file_path` }}",
-      "zone": "us-west2-a"
+      "snapshot_name": "axiom-{{ user `region` }}-{{timestamp}}",
+      "api_token": "{{ user `do_key` }}",
+      "image": "ubuntu-20-04-x64",
+      "region": "{{ user `region`  }}",
+      "size": "s-1vcpu-1gb"
     }
   ],
   "provisioners": [
@@ -160,7 +160,7 @@
         "git clone https://github.com/securing/DumpsterDiver.git /home/op/recon/DumpsterDiver && cd /home/op/recon/DumpsterDiver && pip3 install --ignore-installed -r requirements.txt",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
         "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
-        "git clone https://github.com/projectdiscovery/nuclei.git; cd nuclei/v2/cmd/nuclei/; go build; sudo mv nuclei /usr/local/bin/",
+        "git clone https://github.com/projectdiscovery/nuclei.git; cd nuclei/cmd/nuclei/; go build; sudo mv nuclei /usr/local/bin/",
         "wget -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
         "wget -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
         "cd /home/op && tar -xf /home/op/.oh-my-zsh.tar.gz",
@@ -216,7 +216,7 @@
         "echo 'Installing subjack - this takes a while'",
         "/bin/su -l op -c 'go get -u github.com/haccer/subjack/'",
         "echo 'Installing Subfinder'",
-        "/bin/su -l op -c 'GO111MODULE=auto go get -u -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder'",
+        "/bin/su -l op -c 'GO111MODULE=auto go get -u -v github.com/projectdiscovery/subfinder/cmd/subfinder'",
         "echo 'Installing subgen'",
         "/bin/su -l op -c 'go get -u github.com/pry0cc/subgen'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/theblackturtle/fprobe'",

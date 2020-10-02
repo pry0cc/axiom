@@ -41,13 +41,14 @@ if [ $BASEOS == "Linux" ]; then
 		fi
 		OS=$(lsb_release -i | awk '{ print $3 }')
 	fi
+
 	if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
 		echo -e "${Blue}Congrats, you run arch..."
 		sudo pacman -S fzf packer jq doctl
-	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ]; then
-    sudo apt-get update && sudo apt-get install fzf git unzip
-	  sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ]; then
+		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		sudo apt-get update && sudo apt-get install fzf git ruby
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
 	elif [ $OS == "Fedora" ]; then
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
@@ -138,6 +139,18 @@ if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
 		elif [ -f ~/.ssh/id_ed25519.pub ]; then
 			cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
 		fi
+	else	
+		echo -e "${Blue}Would you like to generate a fresh pair? y/n ${Color_Off}"
+		read ans
+		if [ $ans == "y" ]; then
+			ssh-keygen
+			cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+		
+		else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
+		fi
+
 	fi
 else
 	echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
@@ -145,6 +158,9 @@ else
 	if [ $ans == "y" ]; then
 		ssh-keygen
 		cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+	else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
 	fi
 fi
 
@@ -171,7 +187,7 @@ fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
-echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > $AXIOM_PATH/axiom.json
+echo "{\"do_key\":\"$do_key\", \"region\":\"$region\",\"provider\":\"do\",\"default_image\":\"axiom\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > $AXIOM_PATH/axiom.json
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/

@@ -5,7 +5,7 @@
 
 function _axiom-ssh(){
 	local state
-	_arguments "1: :($(doctl compute droplet list | awk '{ print $2 }' | grep -v 'Name' | tr '\n' ' '))"
+	_arguments "1: :($(~/.axiom/interact/axiom-ls --list|  tr '\n' ' '))"
 }
 
 function _axiom-restore(){
