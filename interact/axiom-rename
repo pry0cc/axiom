@@ -15,5 +15,6 @@ else
 		echo "Droplet $droplet doesn't exist"
 	else
 		result=$(doctl compute droplet-action rename $droplet_id --droplet-name $new_name)
+		axiom-exec "sudo hostname $new_name" "$droplet" -q
 	fi
 fi
