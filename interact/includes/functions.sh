@@ -38,7 +38,7 @@ instance_menu() {
 
 quick_ip() {
 	data="$1"
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address")
+	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[] | select(.type == \"public\") | .ip_address")
 	echo $ip
 }
 
