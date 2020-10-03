@@ -138,7 +138,7 @@ fi
 show_spinner() {
 	local -r pid="${1}"
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.11'
+	local -r delay='0.38'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
 	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
@@ -152,7 +152,7 @@ show_spinner() {
 waitabit() {
 	local -r pid="${1}"
 	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.11'
+	local -r delay='0.38'
 	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
 	i=420
 	while ps a | awk '{print $1}' | grep -q "${pid}"; do
@@ -179,19 +179,19 @@ else
 	waitabit "$PID"
 fi
 
-ip="$(instance_ip "$name")"
-ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 if [ "$quiet" != "true" ]; then
-	secs=$((7))
+	secs=$((20))
 	while [ $secs -gt 0 ]; do
 		echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
 		sleep 1
 		: $((secs--))
 	done
 else
-	sleep 10
+	sleep 20
 fi
 
+ip="$(instance_ip "$name")"
+ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 echo "$name" > $AXIOM_PATH/selected.conf
 
 "$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
