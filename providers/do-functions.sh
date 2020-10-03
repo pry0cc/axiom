@@ -9,10 +9,15 @@ instances() {
 	doctl compute droplet list -o json
 }
 
+instance_id() {
+	name="$1"
+	instances | jq ".[] | select(.name==\"$name\") | .id"
+}
+
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[] | select(.name==\"$name\") | select(.type==\"public\") | .networks.v4[].ip_address"
+	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address"
 }
 
 instance_ip_cache() {
@@ -39,7 +44,7 @@ instance_pretty() {
 	data=$(instances)
 	i=0
 	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[-1].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[-1].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 # identifies the selected instance/s

@@ -9,6 +9,11 @@ instances() {
 	doctl compute droplet list -o json
 }
 
+instance_id() {
+	name="$1"
+	instances | jq ".[] | select(.name==\"$name\") | .id"
+}
+
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
