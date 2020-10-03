@@ -14,7 +14,8 @@ else
 	if [[ -z $droplet_id ]]; then
 		echo "Droplet $droplet doesn't exist"
 	else
+		ip="$(instance_ip $droplet)"
 		result=$(doctl compute droplet-action rename $droplet_id --droplet-name $new_name)
-		axiom-exec "sudo hostname $new_name" "$droplet" -q
+		ssh -p2266 op@"$ip" "sudo hostname $new_name" >/dev/null 2>&1
 	fi
 fi
