@@ -5,7 +5,7 @@
 
 function _axiom-ssh(){
 	local state
-	_arguments "1: :($(~/.axiom/interact/axiom-ls '*' | cut -d ":" -f 2 | tr '\n' ' '))"
+	_arguments "1: :($(~/.axiom/interact/axiom-ls --list|  tr '\n' ' '))"
 }
 
 function _axiom-restore(){

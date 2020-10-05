@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+#
+require 'json'
+AXIOM_PATH="#{Dir.home}/.axiom"
+
+provisioner = ARGV[1]
+builder = ARGV[0]
+
+prov_path = "#{AXIOM_PATH}/images/builders/#{builder}.json"
+
+if File.exist? prov_path
+  data = JSON.parse(File.open("#{AXIOM_PATH}/images/provisioners/#{provisioner}.json", "r").read())
+  builder = JSON.parse(File.open("#{AXIOM_PATH}/images/builders/#{builder}.json", "r").read())["builders"]
+  data["builders"] = builder
+
+  File.open("#{AXIOM_PATH}/images/axiom.json", "w") {|f| f.write(JSON.pretty_generate(data)) } 
+else
+  puts "Builder does not exist"
+end

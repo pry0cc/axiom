@@ -231,6 +231,9 @@ It requires no arguments.
 ## `axiom-rm`
 `axiom-rm` is used to remove a machine, if you have a machine initalised, you can completely rm it by using `axiom-rm <instance>`.
 
+## `axiom-rename`
+`axiom-rename` is used to rename droplet. For example `axiom-rename noyce-14 noyce-14-renamed` will change name of a droplet from noyce-14 to noyce-14-renamed.
+
 ## `axiom-scp`
 `axiom-scp` allows copying files between the host and the target machine, wrapping the traditional `scp` command but you can use the machine name instead. For example: `axiom-scp file.txt noyce-14:file.txt` will copy your local file.txt to your `noyce-14` machine.
 
@@ -270,6 +273,7 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - mswell
 - kpcyrd
 - s0mdev (made the logo!!!)
+- connell (@cmcginley)
 
 # Packages To Date
 

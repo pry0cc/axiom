@@ -1,16 +1,6 @@
 {
-  "builders": [
-    {
-      "type": "digitalocean",
-      "ssh_username": "root",
-      "snapshot_name":"axiom-barebones-{{ user `region` }}-{{timestamp}}",
-      "api_token": "{{ user `do_key` }}",
-      "image": "ubuntu-19-10-x64",
-      "region": "{{ user `region`  }}",
-      "size": "s-1vcpu-1gb"
-    }
-],
-    "provisioners": [
+  "builders": [],
+  "provisioners": [
         {
             "type":"shell",
             "inline": [
