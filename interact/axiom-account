@@ -16,6 +16,13 @@ then
 		ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
 		provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
 		$AXIOM_PATH/interact/axiom-provider "$provider"
+
+        if [[ "$provider" == "do" ]];
+        then
+            token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+            doctl auth init -t "$token"
+        fi
+
 		echo -e "${Green}Selected $1 successfully${Color_Off}"
 	else
 		echo -e "${Red}Account name not present${Color_Off}"
