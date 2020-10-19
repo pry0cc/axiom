@@ -9,3 +9,4 @@ authorized_keys
 boxes/*
 archive/*
 tmp/*
+axiom.json
