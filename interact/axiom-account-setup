@@ -13,7 +13,8 @@ appliance_name=""
 appliance_key=""
 appliance_url=""
 
-echo $0
+echo -e "${BWhite}Axiom Account Setup${Color_Off}"
+echo -e "${Blue}You can use this wizard to add new accounts, once made, use axiom-account to switch between profiles${Color_Off}"
 echo -e -n "${Green}Please enter your provider (Default 'do', options: 'gcp', 'ibm'): \n>> ${Color_Off}"
 read provider
 
