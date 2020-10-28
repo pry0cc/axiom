@@ -144,6 +144,7 @@
         "chattr +i /etc/resolv.conf",
         "chown -R op:users /home/op",
         "cd /tmp && wget -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.0.1/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
+        "wget -O /home/op/bin/ffuz https://raw.githubusercontent.com/pry0cc/ffuz/main/ffuz && chmod +x /home/op/bin/ffuz",
         "git clone https://github.com/pry0cc/Reaper.git /tmp/reaper && cd /tmp/reaper && ./set-expiry.sh \"1000 years\" &&./install.sh",
         "sudo wget https://raw.githubusercontent.com/xero/figlet-fonts/master/Bloody.flf -O /usr/share/figlet/Bloody.flf",
         "/bin/su -l op -c 'curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python3'",
