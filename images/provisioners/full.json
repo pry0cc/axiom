@@ -181,7 +181,7 @@
         "echo 'Installing Meg'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/meg'",
         "echo 'Installing gowitness'",
-        "/bin/su -l op -c 'GO11MODULE=on go get -u  -v github.com/sensepost/gowitness'",
+        "/bin/su -l op -c 'go get -u  -v github.com/sensepost/gowitness'",
         "echo 'Installing ffuf'",
         "/bin/su -l op -c 'go get -u github.com/ffuf/ffuf'",
         "echo 'Installing assetfinder'",
