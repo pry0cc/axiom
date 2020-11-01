@@ -1,0 +1,4 @@
+[{
+	"command":"nuclei -update-templates; cat input | nuclei -silent -t /home/op/nuclei-templates -o output",
+	"ext":"txt"
+}]

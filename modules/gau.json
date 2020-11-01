@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | gau > output",
+	"ext":"txt"
+}]
