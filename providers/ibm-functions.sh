@@ -265,7 +265,7 @@ instance_pretty() {
 	data=$(instances)
 	i=0
 	for f in $(echo $data | jq -r '.[].hostname'); do new=$(expr $i +  5); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 	# doctl: (echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 		
 	#(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'

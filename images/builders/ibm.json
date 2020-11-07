@@ -2,15 +2,12 @@
   "builders": [
     {
       "type": "ibmcloud",
-      "api_key": "{{ user `api_key` }}",
+      "api_key": "{{ user `do_key` }}",
       "username": "{{ user `username` }}",
       "datacenter_name": "{{ user `region` }}",
       "base_image_id":"{{ user `base_image_id` }}",
-      "upload_to_datacenters": [
-        "{{ user `datacenter_id` }}"
-      ],
       "image_name": "axiom-{{ user `region` }}-{{timestamp}}",
-      "instance_name": "packer-vsi",
+      "instance_name": "packer-{{timestamp}}",
       "image_description": "Axiom full image built at {{isotime}}",
       "image_type": "standard",
       "instance_domain": "",
