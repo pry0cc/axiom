@@ -78,7 +78,7 @@ for var in "$@"; do
 	fi
 	if [[ $var =~ "--uregion" ]]; then
 		user_region="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Using user region '$user_region'${Color_Off}"
+		#echo -e "${BWhite}Using user region '$user_region'${Color_Off}"
 	fi
 	if [[ "$var" =~ "--deploy" ]]; then
 		deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
