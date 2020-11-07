@@ -95,6 +95,14 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
+	if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]]; then
+		n=$((i+1))
+		fleet=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+
 	if [[ "$arg" == "-oX" ]]; then
 		n=$((i+1))
 		ext="xml"
@@ -157,7 +165,7 @@ echo -e "${BGreen}Starting axiom-scan using instances: ${Color_Off}[${Blue} $(ec
 echo -e "${BGreen}Command: [${Blue} $command${Color_Off}${BGreen}] | Ext: [${Blue}$ext${BGreen}]${Color_Off}"
 fleet_size=$(echo $instances | tr ' ' '\n' | wc -l| awk '{ print $1 }')
 
-if [[ $fleet_size -lt 2 ]]; then
+if [[ $fleet_size -lt 1 ]]; then
 	echo -e "${BRed}Your fleet is either too small or doesn't exist, use axiom-fleet -i=5 to spin one up!${Color_Off}"
 	exit 1
 fi
@@ -207,7 +215,7 @@ echo -e "${Blue}Files uploaded...${Color_Off}"
 echo ""
 
 echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"  >/dev/null 2>&1"
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\""
 echo -e "${Blue}Scan complete...${Color_Off}"
 
 echo ""
