@@ -7,6 +7,7 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
 # function called by trap
 other_commands() {
@@ -21,6 +22,7 @@ other_commands() {
 
 trap 'other_commands' SIGINT
 
+if [[ "$provider" == "do" ]]; then
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
 
@@ -34,6 +36,7 @@ else
 	then
 		echo -e "${Red}Warning: it looks like your doctl might not be configured with a token!${Color_Off}"
 	fi
+fi
 fi
 
 if ! command -v jq &> /dev/null
@@ -57,6 +60,7 @@ quiet=false
 domain=false
 manual_image_id=false
 user_region=""
+no_select=false
 
 if [ -z "$1" ] || [[ $1 =~ "image" ]] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
 	name="$gen_name"
@@ -70,6 +74,9 @@ for var in "$@"; do
 	fi
 	if [ "$var" == "--quiet" ]; then
 		quiet=true
+	fi
+	if [ "$var" == "--no-select" ]; then
+		no_select=true
 	fi
 
 	if [[ $var =~ "--restore" ]]; then
@@ -202,7 +209,10 @@ fi
 
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
-echo "$name" > $AXIOM_PATH/selected.conf
+
+if [[ "$no_select" != "true" ]]; then
+	echo "$name" > $AXIOM_PATH/selected.conf
+fi
 
 "$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
