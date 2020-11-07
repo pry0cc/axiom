@@ -35,6 +35,7 @@ then
 
 				if [[ "$ans" == "y" ]]; then
 					os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+					mkdir -p ~/.packer.d/plugins/
 					wget -O ~/.packer.d/plugins/packer-builder-ibmcloud "https://raw.githubusercontent.com/pry0cc/packer-plugin-ibmcloud/master/output/packer-builder-ibmcloud-$os"
 					chmod +x ~/.packer.d/plugins/packer-builder-ibmcloud
 				fi
