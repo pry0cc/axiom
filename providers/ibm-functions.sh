@@ -117,9 +117,6 @@ list_subdomains() {
     doctl compute domain records list $domain -o json | jq '.[]'
 }
 # get JSON data for snapshots
-snapshots() {
-	doctl compute snapshot list -o json
-}
 
 delete_record() {
     domain="$1"
@@ -135,15 +132,6 @@ delete_record_force() {
     doctl compute domain records delete $domain $id -f
 }
 # Delete a snapshot by its name
-delete_snapshot() {
-	name="$1"
-
-	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
-	
-	doctl compute snapshot delete "$snapshot_id" -f
-}
-
 add_dns_record() {
     subdomain="$1"
     domain="$2"
