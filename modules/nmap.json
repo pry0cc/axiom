@@ -1,0 +1,10 @@
+[
+	{
+		"command":"nmap -T4 -iL input -oG output",
+		"ext":"txt"
+	},
+	{
+		"command":"nmap -T4 -iL input -oX output",
+		"ext":"xml"
+	}
+]

@@ -1,0 +1,10 @@
+[
+	{
+		"command":"sudo masscan --rate=100000 -p443 -iL input -oG output",
+		"ext":"txt"
+	},
+	{
+		"command":"sudo masscan --rate=100000 -iL input -oX output",
+		"ext":"xml"
+	}
+]

@@ -5,6 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
 gen_name=""
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
 if [ -z $1 ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
 then
@@ -22,6 +23,9 @@ amount=false
 prompt=false
 region=false
 image=false
+cycle_regions=false
+region_array=()
+
 
 for var in "$@"
 do
@@ -34,6 +38,12 @@ do
     then
         amount="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         #echo -e "${BWhite}Setting number of instances to $amount...${Color_Off}"
+    fi
+    if [[ "$var" =~ "--regions=" ]]
+    then
+        cycle_regions="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+        echo -e "${BWhite}Cycling through following regions:$cycle_regions...${Color_Off}"
+        IFS=',' read -r -a region_array <<< "$cycle_regions"
     fi
     if [[ "$var" =~ "--image=" ]]
     then
@@ -59,9 +69,9 @@ fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
 sizes=$(instance_sizes)
-slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)
+slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 #slug="s-1vcpu-1gb"
-instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
+instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
 
 total_spend_per_instance_rounded="0"
 
@@ -85,6 +95,11 @@ expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
 time=150
 
+if [[ "$provider" == "ibm" ]]; then
+	# IBM IS SUPER SLOW SO ADD 200 seconds to fleets...
+	time=350
+fi
+
 image_id=""
 image_name=""
 image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
@@ -97,15 +112,46 @@ else
 	image_name="axiom-$region"
 fi
 
+# Basically repeat items, if the fleet is 20 hosts and they only supply 3 regions, loop over them until it reaches 20
+total_regions=$(echo "${region_array[@]}" |  tr ' ' '\n' | wc -l | awk '{ print $1 }')
+regions_to_cycle=()
+
+if [[ "$cycle_regions" != "false" ]]; then
+	
+	k=0
+	while [[ "$(echo ${regions_to_cycle[@]} | tr ' ' '\n' | wc -l | awk '{ print $1}')" -lt "$amount" ]]
+	do
+		regions_to_cycle+=("${region_array[k]}")
+		if [[ "$k" -lt "$total_regions" ]]; then
+			k=$((k+1))
+		else
+			k=0
+		fi
+	done
+fi
+
+# Remove  null items from array
+for i in "${!regions_to_cycle[@]}"; do
+  [ -n "${regions_to_cycle[$i]}" ] || unset "regions_to_cycle[$i]"
+done
+
 image_id=$(get_image_id "$image_name")
 
+o=0
 for i in $(seq -f "%02g" 1 $amount)
 do
    time=$((time+2))
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id"  &
+   args=""
+ 
+	if [[ "$cycle_regions" != "false" ]]; then
+		args="--uregion=${regions_to_cycle[o]}"	
+	fi
+	
+   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
    sleep 0.05
+   o=$((o+1))
 done
 
 while [ $time -gt 0 ]; do

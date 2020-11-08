@@ -23,6 +23,26 @@ then
             doctl auth init -t "$token" | grep -vi "using token"
         fi
 
+        if [[ "$provider" == "ibm" ]]; 
+        then
+            token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
+            ibmcloud login --apikey "$token"
+
+			if [[ ! -f "$HOME/.packer.d/plugins/packer-builder-ibmcloud" ]]; then
+				echo -e "${Red}It seems that you don't have the packer plugin for ibm cloud?${Color_Off}"
+				echo -n -e "${Blue}Would you like me to install it for you? (https://github.com/pry0cc/packer-plugin-ibmcloud):\n y/n >> ${Color_Off}"
+				read ans
+
+				if [[ "$ans" == "y" ]]; then
+					os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+					mkdir -p ~/.packer.d/plugins/
+					wget -O ~/.packer.d/plugins/packer-builder-ibmcloud "https://raw.githubusercontent.com/pry0cc/packer-plugin-ibmcloud/master/output/packer-builder-ibmcloud-$os"
+					chmod +x ~/.packer.d/plugins/packer-builder-ibmcloud
+				fi
+			fi
+
+        fi
+
 		echo -e "${Green}Selected $1 successfully${Color_Off}"
 	else
 		echo -e "${Red}Account name not present${Color_Off}"

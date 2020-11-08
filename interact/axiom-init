@@ -7,6 +7,7 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 BASEOS="$(uname)"
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
 # function called by trap
 other_commands() {
@@ -21,6 +22,7 @@ other_commands() {
 
 trap 'other_commands' SIGINT
 
+if [[ "$provider" == "do" ]]; then
 # Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
 if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
 
@@ -34,6 +36,7 @@ else
 	then
 		echo -e "${Red}Warning: it looks like your doctl might not be configured with a token!${Color_Off}"
 	fi
+fi
 fi
 
 if ! command -v jq &> /dev/null
@@ -56,6 +59,8 @@ default_expiry=525600000
 quiet=false
 domain=false
 manual_image_id=false
+user_region=""
+no_select=false
 
 if [ -z "$1" ] || [[ $1 =~ "image" ]] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
 	name="$gen_name"
@@ -70,10 +75,17 @@ for var in "$@"; do
 	if [ "$var" == "--quiet" ]; then
 		quiet=true
 	fi
+	if [ "$var" == "--no-select" ]; then
+		no_select=true
+	fi
 
 	if [[ $var =~ "--restore" ]]; then
 		restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"
+	fi
+	if [[ $var =~ "--uregion" ]]; then
+		user_region="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
+		#echo -e "${BWhite}Using user region '$user_region'${Color_Off}"
 	fi
 	if [[ "$var" =~ "--deploy" ]]; then
 		deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
@@ -171,7 +183,12 @@ if [ -z "$image_id" ]; then
 	exit 1
 fi
 
-create_instance "$name" "$image_id" "$size" "$region" "$boot_script"  &
+
+if [[ "$user_region" == "" ]]; then
+	user_region="$region"
+fi
+
+create_instance "$name" "$image_id" "$size" "$user_region" "$boot_script"  &
 PID="$!"
 if [ "$quiet" != "true" ]; then
 	show_spinner "$PID"
@@ -192,9 +209,14 @@ fi
 
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
-echo "$name" > $AXIOM_PATH/selected.conf
 
-"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
+if [[ "$no_select" != "true" ]]; then
+	echo "$name" > $AXIOM_PATH/selected.conf
+fi
+
+if [[ "$no_select" != "true" ]]; then
+	"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
+fi
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 
 if [ "$quiet" != "true" ]; then

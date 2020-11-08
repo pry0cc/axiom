@@ -10,11 +10,21 @@ instances() {
 
 get_image_id() {
 	query="$1"
-	images=$(ibmcloud sl image list --output json)
+	images=$(ibmcloud sl image list --private --output json)
 	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 
 	echo $id
+}
+
+snapshots() {
+	ibmcloud sl image list --output json --private
+}
+
+delete_snapshot() {
+	id="$(snapshots | jq -r ".[] | select(.name==\"$1\") | .id")"
+
+	 ibmcloud sl image delete "$id"
 }
 
 instance_ip_cache() {
@@ -59,7 +69,7 @@ delete_instance() {
     id="$(instance_id $name)"
     if [ "$force" == "true" ]
         then
-        ibmcloud sl vs cancel "$id" -f
+        ibmcloud sl vs cancel "$id" -f >/dev/null 2>&1
     else
         ibmcloud sl vs cancel "$id"
     fi
@@ -82,7 +92,7 @@ regions() {
 }
 
 instance_sizes() {
-    doctl compute size list -o json
+	echo ""
 }
 
 # List DNS records for domain
@@ -107,9 +117,6 @@ list_subdomains() {
     doctl compute domain records list $domain -o json | jq '.[]'
 }
 # get JSON data for snapshots
-snapshots() {
-	doctl compute snapshot list -o json
-}
 
 delete_record() {
     domain="$1"
@@ -125,15 +132,6 @@ delete_record_force() {
     doctl compute domain records delete $domain $id -f
 }
 # Delete a snapshot by its name
-delete_snapshot() {
-	name="$1"
-
-	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
-	
-	doctl compute snapshot delete "$snapshot_id" -f
-}
-
 add_dns_record() {
     subdomain="$1"
     domain="$2"
@@ -265,7 +263,7 @@ instance_pretty() {
 	data=$(instances)
 	i=0
 	for f in $(echo $data | jq -r '.[].hostname'); do new=$(expr $i +  5); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 	# doctl: (echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 		
 	#(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'

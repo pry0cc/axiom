@@ -9,6 +9,11 @@ provider=""
 size=""
 email=""
 
+cpu=""
+base_image_id=""
+username=""
+ibm_cloud_api_key=""
+
 appliance_name=""
 appliance_key=""
 appliance_url=""
@@ -32,6 +37,9 @@ do
 done
 
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
+if [[ "$provider" == "ibm" ]]; then	
+	echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
+fi
 read token
 
 while [[ "$token" == "" ]]
@@ -41,7 +49,13 @@ do
     read token
 done
 
+
+if [[ "$provider" == "ibm" ]]; then	
+	echo -e -n "${Green}Create an IBM Cloud API Key (for ibmcli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
+	read ibm_cloud_api_key
+fi
 echo -e -n "${Green}Please enter your default region: (Default 'sfo2', press enter) \n>> ${Color_Off}"
+
 read region
 
 if [[ "$region" == "" ]]; then
@@ -49,7 +63,7 @@ if [[ "$region" == "" ]]; then
     region="sfo2"
 fi
 
-echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb', press enter) \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb, (2048 for IBM)', press enter) \n>> ${Color_Off}"
 read size
 
 if [[ "$size" == "" ]]; then
@@ -57,6 +71,18 @@ if [[ "$size" == "" ]]; then
     size="s-1vcpu-1gb"
 fi
 
+if [[ "$provider" == "ibm" ]]; then
+	echo -e -n "${Green}Please enter amount of CPU Cores: (E.g '2') \n>> ${Color_Off}"
+	read cpu
+
+	echo -e -n "${Green}Please enter Ubuntu 20.04 Base Image ID: (Example: 'ec374a70-bb8e-4207-85ba-6a0c36b6022a') \n>> ${Color_Off}"
+	read base_image_id
+
+	echo -e -n "${Green}Please enter username (E.g 'SL838382832') \n>> ${Color_Off}"
+	read username
+
+fi
+ 
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
@@ -75,7 +101,14 @@ if [[ "$ans" == "Y" ]]; then
     read appliance_key 
 fi
 
-data="$(echo "{\"do_key\":\"$token\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
+data=""
+
+if [[ "$provider" == "ibm" ]]; then
+	data="$(echo "{\"do_key\":\"$token\",\"ibm_cloud_api_key\":\"$ibm_cloud_api_key\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"cpu\":\"$cpu\",\"username\":\"$username\",\"base_image_id\":\"$base_image_id\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
+elif [[ "$provider" == "do" ]]; then
+	data="$(echo "{\"do_key\":\"$token\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
+fi
+
 
 echo -e "${BGreen}Profile settings below: ${Color_Off}"
 echo $data | jq

@@ -3,140 +3,259 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
-generate_sshconfig
+function list_modules() {
+	echo -e "${Green}Available Modules:${Color_Off}"
+	echo -e -n "${Blue}"
+	find "$AXIOM_PATH/modules" -name "*.json" | tr '/' ' ' | awk '{ print $NF }' | cut -d "." -f1
+	echo -e -n "${Color_Off}"
+}
 
-# Host Options
-targets_infile="$1"
-selected_module="masscan"
-query="$(cat ~/.axiom/selected.conf |  tr -d '0123456789' | uniq -c  | sort -rh | head -n 1 | awk '{ print $2 }')*"
-src_prefix="$AXIOM_PATH/tmp/$RANDOM"
-outfile="$(echo "$query" | sed 's/\*//g')-$(date +%s).txt"
-user_args=""
-ports=""
-# Set user input
-for var in "$@"
-do
-	if [[ "$var" =~ "-p" ]]
-	then
-		ports=$(echo $var | sed 's/-p//g')
-	elif [[ "$var" =~  "-iL=" ]]
-	then
-		targets_infile=$(echo "$var" | cut -d "=" -f2)
-	elif [[ "$var" == "$1" ]]
-	then
-		echo -n ""
-		#echo "Skipping"
-		#
-	elif  [[ "$var" =~ "-m=" ]]
-	then
-		s=$(echo "$var" | cut -d "=" -f2)
-		if [ -f "$AXIOM_PATH/interact/modules/$s.json" ]
-		then
-			selected_module="$s"
+function parse_module() {
+	module="$1"
+	ext="$2"
+
+	if [[ -f "$AXIOM_PATH/modules/$module.json" ]]; then
+		if [[ "$ext" != "" ]]; then
+			cat "$AXIOM_PATH/modules/$module.json" | jq -r ".[] | select(.ext==\"$ext\")"
 		else
-			echo -e "${BRed}Module: '$s' does not exist, valid modules are:${Color_Off}"
-			echo -e -n "${Blue}"
-			ls "$AXIOM_PATH/interact/modules/" | sed 's/\.json//g'
-			echo -e -n "${Color_Off}"
-			exit
+			cat "$AXIOM_PATH/modules/$module.json" | jq -r ".[0]"
 		fi
-	elif  [[ "$var" =~ "-o=" ]]
-	then
-		outfile=$(echo "$var" | cut -d "=" -f2)
 	else
-		if [[ "$var" !=  "$query" ]]	
-		then
-			user_args="${user_args} ${var}"
-		fi
+		echo -e "${BRed}Module '$module' does not exist...${Color_Off}"
+		list_modules
+	fi
+}
+
+function help() {
+	echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
+	echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
+	echo -e "  <input> string"
+	echo -e "    Input file, supplied as a positional first argument"
+	echo -e "  -m string"
+	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
+	echo -e "  -o string"
+	echo -e "    Output to default output (whatever that is for the module)"
+	echo -e "  -oX string"
+	echo -e "    Output in XML/HTML, supported in (nmap & masscan)"
+	echo -e "  -oG string"
+	echo -e "    Output to greppable output (will merge and sort unique)"
+	echo -e "  --fleet string (optional)"
+	echo -e "    Fleet to use, will use axiom-select by default."
+	echo -e "  --help"
+	echo -e "    Display this help menu"
+	echo -e "  <additional args>"
+	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
+}
+
+module="masscan"
+# User controlled
+fleet_name=""
+input=""
+outfile="output.txt"
+silent="--silent"
+args=""
+ext=""
+#
+
+pass=()
+
+i=0
+for arg in "$@"
+do
+	i=$((i+1))
+	if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+	set=false
+	if [[ "$i" == 1 ]]; then
+		input="$1"
+		set=true
+		pass+=($i)
+	fi
+	if [[ "$arg" == "-m" ]]; then
+		n=$((i+1))
+		module=$(echo ${!n})
+		echo -e "${Blue}Selecting module '$module'${Color_Off}"
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+	if [[ "$arg" == "-o" ]]; then
+		n=$((i+1))
+		outfile=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+	if [[ "$arg" == "-oG" ]]; then
+		n=$((i+1))
+		ext="txt"
+		outfile=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+	if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]]; then
+		n=$((i+1))
+		fleet=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+
+	if [[ "$arg" == "-oX" ]]; then
+		n=$((i+1))
+		ext="xml"
+		outfile=$(echo ${!n})
+		echo "Setting outfile to: '$outfile'"
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+	if [[ "$arg" == "-v" ]]; then
+		silent=""
+		set=true
+		pass+=($i)
+	fi
+	if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]]; then
+		help
+		exit
+		set=true
+		pass+=($i)
+	fi
+
+	if  [[ "$set" != "true" ]]; then
+		args="$args $arg"
+	fi
+
 	fi
 done
 
-#Load from the module
-module="$AXIOM_PATH/interact/modules/$selected_module.json"
-cmd=$(jq -r '.command'  $module)
-box_infile=$(jq -r '.box_infile'  $module)
-box_outfile=$(jq -r '.box_outfile'  $module)
-outdir=$(jq -r '.output_dirs'  $module)
-outformat=$(jq -r '.output_format' $module) 
-ext=$(jq -r '.output_ext' $module)
-
-if [ ! "$ports" ]
-then
-	ports=$(jq -r '.default_ports'  $module)
+if [[ "$module" == "ffuf" ]]; then
+	ext="csv"
 fi
-args="$(jq -r '.default_args'  $module)"
 
-if [ "$user_args" ]
-then
-	args="$user_args"
+if [[ ! -f $input ]]; then
+	echo -e "${BRed}File does not exist, please specify one as the first argument... ${Color_Off}"
+	help
+	exit 1
 fi
 
 
-if [[ ! -f $targets_infile ]]
-then
-	if [[ "$box_infile" ]]
-	then
-		# This checks if the json  parameter is present,  if they dont specify it, we dont have to ask...
-		echo -e "${BRed}Please specify a file with -iL=targets.txt${Color_Off}"
-		exit
-	fi
+#command="sudo masscan -iL input -p80 --rate=100000 -oG output"
+#command="nmap -T5 -p80 -iL input -oX output"
+#command="cat input | /home/op/bin/ffuz -s -o output"
+#command="rm -rf output; mkdir -p output; /home/op/go/bin/gowitness file -f input -P output"
+
+mod_data="$(parse_module $module $ext)"
+command="$(echo $mod_data | jq -r '.command') $args"
+ext=$(echo $mod_data | jq -r '.ext')
+
+####################################################################
+
+
+# Fleet
+if [[ "$fleet_name" == "" ]]; then
+	instances=$(cat "$AXIOM_PATH/selected.conf")
+else
+	instances=$(query_instances_cache "$fleet_name*")
 fi
-instances=$(cat $AXIOM_PATH/selected.conf)
 
-echo -e "${BWhite}Starting axiom-scan with module '$selected_module' for fleet '$query'${Color_off}"
+echo -e "${BGreen}Starting axiom-scan using instances: ${Color_Off}[${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]${Color_Off}"
+echo -e "${BGreen}Command: [${Blue} $command${Color_Off}${BGreen}] | Ext: [${Blue}$ext${BGreen}]${Color_Off}"
+fleet_size=$(echo $instances | tr ' ' '\n' | wc -l| awk '{ print $1 }')
 
-if [ "$instances" ]
-then
-	if [[ "$box_infile" ]]
-	then
-		echo -e "${Blue}Splitting file $targets_infile across all instances...${Color_Off}"
-		src_prefix=$(lsplit $targets_infile "$instances")
-		axiom-scp --cache "$src_prefix/\$name.txt" "$query:$box_infile"
-	else
-		mkdir -p $src_prefix
-	fi
+if [[ $fleet_size -lt 1 ]]; then
+	echo -e "${BRed}Your fleet is either too small or doesn't exist, use axiom-fleet -i=5 to spin one up!${Color_Off}"
+	exit 1
+fi
+
+# Setup tmp
+tmp="$HOME/.axiom/tmp/$(date +%s)"
+mkdir -p $tmp/input/
+mkdir -p $tmp/output/
+start=$(pwd)
+
+##############################################################################
+#### Splitting
+divisor=$fleet_size
+lines=$(wc -l "$input" | awk '{ print $1 }')
+lines_per_file=$(expr $lines / $divisor)
+
+# Add an extra line per file if it isn't divisible equally (spreads them out equally across an odd / even number of fleet)
+[[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
+
+# Shuffle the data  so that its nice and mixed!
+cat $input | shuf > $tmp/targets
+
+cd $tmp && split -l $lines_per_file targets && rm targets && cd $start
+
+# Rename "xaa" etc  to 1 2 3 4 5
+i=1
+for f in $(find $tmp/ -type f | tr '/' ' ' | awk '{ print $NF }')
+do
+	instance="$(echo $instances | awk "{ print \$$i }")"
+	i=$((i+1))
 	
-	cmd_rendered=$(echo $cmd | sed "s/\$ports/$ports/g" | sed "s/\$args/$args/g" | sed "s/\$infile/$box_infile/g"  | sed "s/\$outfile/$box_outfile/g")
-	echo  $instances | tr ' ' '\n' > $src_prefix/hosts.txt
-	
-	total=$(wc -l $src_prefix/hosts.txt | awk '{ print $1 }')
-	echo -e "${Blue}Launching $selected_module on fleet '$query'...${Color_Off}"
-	ssh_args=""
+	mv "$tmp/$f" "$tmp/input/$instance"
+done
 
-	if [[ "$selected_module" == "ffuf" ]]
-	then
-		ssh_args="-t"
+echo $instances | tr ' ' '\n' > $tmp/hosts
+
+##############################################################################
+### The real meat of the scan...
+
+echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
+
+
+echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
+interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
+echo -e "${Blue}Files uploaded...${Color_Off}"
+echo ""
+
+echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\""
+echo -e "${Blue}Scan complete...${Color_Off}"
+
+echo ""
+echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
+interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+echo -e "${Green}Files downloaded...${Color_Off}"
+
+##############################################################################
+### Merging output
+
+rm -rf $outfile
+if [[ "$ext" == "txt" ]]; then
+	echo "Mode set to txt.. Sorting unique."
+	cat $tmp/output/* | sort -u > $tmp/merge
+	mv "$tmp/merge" "$outfile"
+elif [[ "$ext" == "xml" ]]; then
+	echo "Mode set to XML.. Merging Nmap XML output..."
+	"$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge" >> /dev/null
+	mv "$tmp/merge.xml" "$outfile.xml"
+	mv "$tmp/merge.html" "$outfile.html"
+elif [[ "$ext" == "csv" ]]; then
+	echo "Mode set to CSV, merging..."
+	header="$(cat $tmp/output/* | head -n 1)"
+	echo "$header" > "$outfile" 
+	cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
+elif [[ "$ext" == "" ]];  then
+	echo "Mode set to directory... Merging directories..."
+	mkdir $tmp/merge
+	cp -r $tmp/output/*/* $tmp/merge
+	rm -rf $outfile
+	mv $tmp/merge/output $outfile
+	if [[ "$module" == "gowitness" ]]; then
+		echo "Downloading gowitness databases..."
+		mkdir -p "$tmp/dbs/"
+		interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
+		echo "Merging databases..."
+		gowitness merge --input-path $tmp/ -o gowitness.sqlite3
+		echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
 	fi
-
-	interlace -tL $src_prefix/hosts.txt -threads $total -c "axiom-exec '$cmd_rendered' '_target_' -q $ssh_args --cache" 
-	echo -e "${Blue}Downloading output from fleet '$query'...${Color_Off}"
-
-	rm -rf "$src_prefix"
-	mkdir -p "$src_prefix"
-
-	if [ "$outdir" == "true" ]
-	then
-		# Recursive Directory Download
-		axiom-scp --cache "$query:$box_outfile/*" "$src_prefix"
-		sleep 1
-		mv $src_prefix/output $outfile
-		echo -e "${Green}Output saved to $outfile/${Color_Off}"
-	else
-		axiom-scp --cache "$query:$box_outfile" "$src_prefix/\$name-out.$ext"
-		if [[ "$outformat" == "txt" ]] || [[ "$outformat" == "greppable" ]]
-		then
-			echo -e "${Green}Merging and sorting output...${Color_Off}"
-			cat $src_prefix/$query-out.$ext | sort -u > $outfile
-			echo -e "${BGreen}File saved to $outfile${Color_Off}"
-		elif [[ "$outformat" == "xml" ]];
-		then
-			"$AXIOM_PATH/interact/merge-xml.py" -d "$src_prefix" -o "$PWD/$outfile"
-		fi
-	fi
-
-	else
-	echo -e "${BRed}No instances in that fleet, use 'axiom-fleet -i=7 -t=2' to spin up a fleet${Color_Off}"
 fi
 
-
+echo -e "${BGreen}Output successfully saved to '$outfile'!"
+rm -rf "$tmp"
