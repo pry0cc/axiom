@@ -214,7 +214,9 @@ if [[ "$no_select" != "true" ]]; then
 	echo "$name" > $AXIOM_PATH/selected.conf
 fi
 
-"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
+if [[ "$no_select" != "true" ]]; then
+	"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
+fi
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 
 if [ "$quiet" != "true" ]; then

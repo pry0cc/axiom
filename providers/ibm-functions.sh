@@ -59,7 +59,7 @@ delete_instance() {
     id="$(instance_id $name)"
     if [ "$force" == "true" ]
         then
-        ibmcloud sl vs cancel "$id" -f
+        ibmcloud sl vs cancel "$id" -f >/dev/null 2>&1
     else
         ibmcloud sl vs cancel "$id"
     fi
