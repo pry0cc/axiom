@@ -2,10 +2,27 @@
 
 AXIOM_PATH="$HOME/.axiom"
 
+cat << EOF
+
+ ▄▄▄      ▒██   ██▒ ██▓ ▒█████   ███▄ ▄███▓
+▒████▄    ▒▒ █ █ ▒░▓██▒▒██▒  ██▒▓██▒▀█▀ ██▒
+▒██  ▀█▄  ░░  █   ░▒██▒▒██░  ██▒▓██    ▓██░
+░██▄▄▄▄██  ░ █ █ ▒ ░██░▒██   ██░▒██    ▒██
+ ▓█   ▓██▒▒██▒ ▒██▒░██░░ ████▓▒░▒██▒   ░██▒
+ ▒▒   ▓▒█░▒▒ ░ ░▓ ░░▓  ░ ▒░▒░▒░ ░ ▒░   ░  ░
+  ▒   ▒▒ ░░░   ░▒ ░ ▒ ░  ░ ▒ ▒░ ░  ░      ░
+  ░   ▒    ░    ░   ▒ ░░ ░ ░ ▒  ░      ░
+      ░  ░ ░    ░   ░      ░ ░         ░
+
+The Dynamic Infrastructure Framework - @pry0cc
+
+EOF
+
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
-echo -e "To begin, I will ask you a few questions"
-echo -e "Press enter to continue${Color_Off}"
+echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
 read
+echo -e "${Blue}INSTALLING AXIOM...${Color_Off}"
+sleep 1
 
 echo -e "${BWhite}Installing deps! Please wait :) ${Color_Off}"
 BASEOS="$(uname)"
@@ -46,21 +63,34 @@ if [ $BASEOS == "Linux" ]; then
 		echo -e "${Blue}Congrats, you run arch..."
 		sudo pacman -S fzf packer jq doctl
 	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ]; then
+		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		echo -e "${Blue}Installing packer...${Color_Off}"
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		echo -e "${Blue}Installing Interlace...${Color_Off}"
 		git clone https://github.com/codingo/Interlace.git /tmp/interlace
 		cd /tmp/interlace && sudo python3 setup.py install
+		echo -e "${Blue}Installing other repo deps...${Color_Off}"
 		sudo apt-get update && sudo apt-get install fzf git ruby
+		echo -e "${Blue}Installing doctl...${Color_Off}"
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
 	elif [ $OS == "Fedora" ]; then
+		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		echo -e "${Blue}Installing packer...${Color_Off}"
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		echo -e "${Blue}Installing other repo deps...${Color_Off}"
 		sudo dnf -y update && sudo dnf -y install fzf git
+		echo -e "${Blue}Installing doctl...${Color_Off}"
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
 	elif [ $OS == "UbuntuWSL" ]; then
+		echo -e "${Blue}Installing other repo deps...${Color_Off}"
 		sudo apt-get update && sudo apt-get install fzf git unzip
+		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		echo -e "${Blue}Installing packer...${Color_Off}"
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		echo -e "${Blue}Installing doctl...${Color_Off}"
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
 	fi
 fi
@@ -99,9 +129,11 @@ if [ ! $? -eq 0 ] && [[ -z "$GOPATH" ]]; then
 fi
 
 if [ $BASEOS == "Mac" ]; then
-	echo -e "${Blue}Installing packer now...${Color_Off}"
+	echo -e "${Blue}Installing doctl...${Color_Off}"
 	brew install doctl
+	echo -e "${Blue}Installing jq...${Color_Off}"
 	brew install jq
+	echo -e "${Blue}Installing packer...${Color_Off}"
 	mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
 	git clone https://github.com/hashicorp/packer.git
 	cd packer
@@ -109,11 +141,13 @@ if [ $BASEOS == "Mac" ]; then
 fi
 
 if [ ! -d $AXIOM_PATH ]; then
+	echo -e "${Blue}Installing axiom scripts...${Color_Off}"
 	git clone https://github.com/pry0cc/axiom $AXIOM_PATH
 else
 	cd $AXIOM_PATH && git pull
 fi
 
+echo -e "${Blue}Configuring your cloud account...${Color_Off}"
 $AXIOM_PATH/interact/axiom-account-setup
 
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
