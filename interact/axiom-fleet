@@ -71,7 +71,7 @@ echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${
 sizes=$(instance_sizes)
 slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 #slug="s-1vcpu-1gb"
-instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
+instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
 
 total_spend_per_instance_rounded="0"
 
