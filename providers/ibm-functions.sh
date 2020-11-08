@@ -17,6 +17,16 @@ get_image_id() {
 	echo $id
 }
 
+snapshots() {
+	ibmcloud sl image list --output json --private
+}
+
+delete_snapshot() {
+	id="$(snapshots | jq -r ".[] | select(.name==\"$1\") | .id")"
+
+	 ibmcloud sl image delete "$id"
+}
+
 instance_ip_cache() {
 	name="$1"
 	cat "$AXIOM_PATH"/.sshconfig | grep -A 1 "$name" | awk '{ print $2 }' | tail -n 1
