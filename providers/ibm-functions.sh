@@ -10,7 +10,7 @@ instances() {
 
 get_image_id() {
 	query="$1"
-	images=$(ibmcloud sl image list --output json)
+	images=$(ibmcloud sl image list --private --output json)
 	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 
