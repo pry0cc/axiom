@@ -137,6 +137,7 @@ done
 
 image_id=$(get_image_id "$image_name")
 
+o=0
 for i in $(seq -f "%02g" 1 $amount)
 do
    time=$((time+2))
@@ -145,11 +146,12 @@ do
    args=""
  
 	if [[ "$cycle_regions" != "false" ]]; then
-		args="--uregion=${regions_to_cycle[i]}"	
+		args="--uregion=${regions_to_cycle[o]}"	
 	fi
 	
    $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
    sleep 0.05
+   o=$((o+1))
 done
 
 while [ $time -gt 0 ]; do
