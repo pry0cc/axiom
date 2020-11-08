@@ -69,7 +69,7 @@ fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
 sizes=$(instance_sizes)
-slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)
+slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 #slug="s-1vcpu-1gb"
 instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")")
 
