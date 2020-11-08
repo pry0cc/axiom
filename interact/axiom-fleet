@@ -5,6 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
 gen_name=""
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
 if [ -z $1 ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
 then
@@ -94,6 +95,11 @@ expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
 time=150
 
+if [[ "$provider" == "ibm" ]]; then
+	# IBM IS SUPER SLOW SO ADD 200 seconds to fleets...
+	time=350
+fi
+
 image_id=""
 image_name=""
 image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
@@ -142,7 +148,7 @@ do
 		args="--uregion=${regions_to_cycle[i]}"	
 	fi
 	
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args  &
+   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
    sleep 0.05
 done
 
