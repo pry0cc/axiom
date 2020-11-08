@@ -92,7 +92,7 @@ regions() {
 }
 
 instance_sizes() {
-    doctl compute size list -o json
+	echo ""
 }
 
 # List DNS records for domain
