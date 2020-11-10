@@ -77,7 +77,7 @@ if [[ "$provider" == "ibm" ]]; then
 
   read -p "Create an Ubuntu 20.04 Base Image? You'll need to do this if its your first time" yn
   case $yn in
-    [Yy]* ) bash "$HOME/.axiom/images/provisioners/ibm-base-image-create.sh";;
+    [Yy]* ) bash "$AXIOM_PATH/images/provisioners/ibm-base-image-create.sh";;
     [Nn]* ) echo "Not building base image";;
     * ) echo "Please answer yes or no.";;
   esac
