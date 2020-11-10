@@ -75,10 +75,17 @@ if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Please enter amount of CPU Cores: (E.g '2') \n>> ${Color_Off}"
 	read cpu
 
+  read -p "You need an Ubuntu 20.04 Base Image. Do you want to create one?" yn
+  case $yn in
+    [Yy]* ) bash "$AXIOM_PATH/images/provisioners/ibm-base-image-create.sh";;
+    [Nn]* ) echo "Not building base image";;
+    * ) echo "Please answer yes or no.";;
+  esac
+
 	echo -e -n "${Green}Please enter Ubuntu 20.04 Base Image ID: (Example: 'ec374a70-bb8e-4207-85ba-6a0c36b6022a') \n>> ${Color_Off}"
 	read base_image_id
 
-	echo -e -n "${Green}Please enter username (E.g 'SL838382832') \n>> ${Color_Off}"
+	echo -e -n "${Green}Get your SoftLayer username here: https://cloud.ibm.com/iam/users/. Click your username and scroll down to VPN password to get your SoftLayer username (E.g 'SL838382832') \n>> ${Color_Off}"
 	read username
 
 fi
