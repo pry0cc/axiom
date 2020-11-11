@@ -11,7 +11,7 @@
 <a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="https://raw.githubusercontent.com/projectdiscovery/nuclei/master/static/read-the-docs-button.png" height="42px"/></a>
 </p>
 
-**Axiom is dynamic infrastructure framework** to efficiently work with multi-cloud enviornments, build and deploy repeatable infrastructure focussed on offensive and defensive security. 
+**Axiom is a dynamic infrastructure framework** to efficiently work with multi-cloud enviornments, build and deploy repeatable infrastructure focussed on offensive and defensive security. 
 
 Axiom works by pre-installing your tools of choice onto a 'base image', and then using that image to deploy fresh instances. From there, you can connect and instantly gain access to many tools useful for both bug hunters and pentesters. With the power of immutable infrasutrcture, most of which is done for you, you can just spin up 15 boxes, perform a distributed nmap/ffuf/screenshotting scan, and then shut them down.  
 
@@ -36,22 +36,19 @@ bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/ax
     -   [Easy Install](#installation)
     -   [Manual Install](https://github.com/pry0cc/axiom/wiki/0-Installation#Manual)
 -   [Scan Templates](#scan-templates)
--   [Thanks](#thanks)
+-   [Contributors](#contributors)
 
 ## Demo
 <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-init-demo.gif" alt="" height=443 width=666px>
 
 ## $100 Free Credit
+The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd ) 
 
-To obtain a Digitalocean API Key for this to work, you can sign up with my referral link and get $100 free credit to try it out!
+## Support
+If you like Axiom and it saves you time, money or just brings you happy feelings, please show your support through sponsorship! Click the little sponsor button in the header and sponsor for as little as $1 per month :)
 
-I also get a small kickback so if you liked this project please use my link :)
-
-https://m.do.co/c/bd80643300bd 
-
-<a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" style="height: 10px !important;width: 50px !important;" ></a>
-
-Happy hacking! :)
+Or buy me a coffee to keep me powered :)
+<a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" style="height: 5px !important;width: 25px !important;" ></a>
 
 ---
 
@@ -62,21 +59,9 @@ Happy hacking! :)
 - Arch Linux - Supported
 
 # Contributors
-Below is a list of amazing people that have contributed to this project! Thank you to everybody on this list! If I missed you out, just make a PR for this readme and I'll make sure you're added! There are some amazing people here :)
-- maverickNerd
-- t3chbits
-- paralax
-- mcrmonkey
-- razcodesdotdev
-- icyphox
-- Dan GITC (@ghostinthecable)
-- myrdn
-- Cgboal
-- ericho
-- mswell
-- kpcyrd
-- s0mdev (made the logo!!!)
-- connell (@cmcginley)
+We've had some really fantastic additions to axiom, great feedback through issues, and perseverence through our heavy beta phase!
+
+A list of all contributors can be found [here](https://github.com/pry0cc/axiom/graphs/contributors), thank you all!
 
 # Packages To Date
 
@@ -127,4 +112,3 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  metasploit
 - [x]  dalfox
 - [x]  subjack
-
