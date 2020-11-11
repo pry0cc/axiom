@@ -3,9 +3,9 @@
 <img width="400px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo-new.png">
 </p>
 
-Project Axiom is a set of utilities for managing a small dynamic infrastructure setup for bug bounty and pentesting.
+**Axiom is dynamic infrastructure framework** to efficiently work with multi-cloud enviornments, build and deploy repeatable infrastructure focussed on offensive and defensive security. 
 
-**Axiom right now is perfect for teams as small as one person, without costing you much at all to run.** And by not much to run at all, I mean, less than 5 bucks a month if you use responsibly, and a free two months with my referral link below. Read more about the economics at the bottom.
+Axiom works by pre-installing your tools of choice onto a 'base image', and then using that image to deploy fresh instances. From there, you can connect and instantly gain access to many tools useful for both bug hunters and pentesters. With the power of immutable infrasutrcture, most of which is done for you, you can just spin up 15 boxes, perform a distributed nmap/ffuf/screenshotting scan, and then shut them down.  
 
 ## DigitalOcean API Key
 
