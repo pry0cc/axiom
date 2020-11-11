@@ -1,6 +1,14 @@
+<h1 align="center">
+  <img src="screenshots/axiom-logo-new.png" alt="axio m" width="270px"></a>
+  <br>
+</h1>
+
+[![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/pry0cc/axiom/issues)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/pdnuclei.svg?logo=twitter)](https://twitter.com/pry0cc)
 
 <p align="center">
-<img width="400px" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-logo-new.png">
+<a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="screenshots/documentation.png" height="42px"/></a>
 </p>
 
 **Axiom is dynamic infrastructure framework** to efficiently work with multi-cloud enviornments, build and deploy repeatable infrastructure focussed on offensive and defensive security. 
