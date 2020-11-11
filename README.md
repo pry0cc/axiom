@@ -5,7 +5,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/pry0cc/axiom/issues)
-[![Follow on Twitter](https://img.shields.io/twitter/follow/pdnuclei.svg?logo=twitter)](https://twitter.com/pry0cc)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/pry0cc.svg?logo=twitter)](https://twitter.com/pry0cc)
 
 <p align="center">
 <a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="screenshots/documentation.png" height="42px"/></a>
@@ -15,9 +15,32 @@
 
 Axiom works by pre-installing your tools of choice onto a 'base image', and then using that image to deploy fresh instances. From there, you can connect and instantly gain access to many tools useful for both bug hunters and pentesters. With the power of immutable infrasutrcture, most of which is done for you, you can just spin up 15 boxes, perform a distributed nmap/ffuf/screenshotting scan, and then shut them down.  
 
-## DigitalOcean API Key
+## Installation
 
-To obtain a Digitalocean API Key for this to work, you can sign up with my referral link https://m.do.co/c/bd80643300bd and get $100 free credit to try it out!
+(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
+
+```
+bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
+```
+
+## Resources
+
+-   [Features](#features)
+-   [Usage](#usage)
+-   [Demo](#demo)
+-   [Story](#story)
+-   [Installation Instructions]()
+    -   [Easy Install](#installation)
+    -   [Manual Install](#from-source)
+-   [Scan Templates](#scan-templates)
+-   [Thanks](#thanks)
+
+## Demo
+<img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-init-demo.gif" alt="" height=443 width=666px>
+
+## $100 Free Credit
+
+To obtain a Digitalocean API Key for this to work, you can sign up with my referral link and get $100 free credit to try it out!
 
 I also get a small kickback so if you liked this project please use my link :)
 
@@ -27,15 +50,8 @@ https://m.do.co/c/bd80643300bd
 
 Happy hacking! :)
 
-![](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-demo.gif)
-
-## Bash One Liner
-
-(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
-
-```
-bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
-```
+---
+# Story
 
 When I first began trying to get up and running my own dynamic cloud hacking setup, I noticed that the array of tools and ecosystems were so large, and there were 50 different ways to do just about everything, do I use ansible for provisioning on server boot, do I load ansible with packer? How much do I configure for image builds? There were a few ‘red team’ infra setup tools and aids, but they all required so much legwork just to get off the ground. It felt like in a lot of cases people were just publishing what they use without any help/documentation on getting started.
 
@@ -69,61 +85,11 @@ To aid you, I have created an array of bash wrappers to get started. The axiom b
 
 ![https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%204.png](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%204.png)
 
-# One-liner setup with `Axiom-configure`
-
-![https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%205.png](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%205.png)
-
-![https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%206.png](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%206.png)
-
-# Installation
-
-## DigitalOcean API Key
-
-To obtain a Digitalocean API Key for this to work, you can sign up with my referral link https://m.do.co/c/bd80643300bd and get $100 free credit to try it out!
-
-I also get a small kickback so if you liked this project please use my link :)
-
-https://m.do.co/c/bd80643300bd 
-
-Happy hacking! :)
- 
-## Bash One Liner
-
-(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
-
-```
-bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
-```
-
 # OS Support
-
-I am trying to add as many different operating systems to support, mainly going for *nix such as MacOS, Ubuntu, Debian, Arch Linux, and maybe Kali in the future.
-
-The main trouble here is just the dependencies.
-
 - MacOS - Supported
 - Ubuntu - Supported
-- Debian - Semi-Supported - Planned
-- Arch Linux - Semi-Support - Planned
-- Kali - Unknown
-
-# Dependencies
-
-- Packer - Tested with v1.5.6
-- fzf - Tested with 0.21.1
-- doctl - Tested with 1.43
-- lsb_release - Tested with 1.4 (but any version should be ok)
-- jq - Tested with 1.6 (latest is better for this one)
-
-Packer is pretty easy everywhere, although manual (its really important you get the right version, if its too old, then the var-file syntax will fail.
-
-fzf is everywhere too, doctl can be a bit tricky (using snap to do that on ubuntu, ew). jq needs to be recent, they updated the command syntax!
-
-# Fun Screenshots
-
-A fun out of the box one-liner that gets subdomains with subfinder, looks them up and resolves them, passes the resolved and HTTP prob'ed response to have screenshots taken for further review! 
-
-![https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%207.png](https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Untitled%207.png)
+- Debian - Supported
+- Arch Linux - Supported
 
 # Economics
 Some people come to me, and they say, pry, Digital Ocean is so much more than using a dedi or bare metal, why do you use it and how can you say its cheap?
@@ -285,11 +251,14 @@ Below is a list of amazing people that have contributed to this project! Thank y
 
 # Packages To Date
 
+- [x]  Golang (setup, path configured, latest version)
+- [x]  gowitness
 - [x]  aquatone
 - [x]  httprobe
 - [x]  subfinder
 - [x]  assetfinder
 - [x]  gf
+- [x]  anew
 - [x]  masscan
 - [x]  sn0int
 - [x]  kxss
@@ -300,7 +269,6 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  waybackurls
 - [x]  amass
 - [x]  anti-burl
-- [x]  Golang (setup, path configured, latest version)
 - [x]  hakrawler
 - [x]  zdns
 - [x]  zmap
@@ -322,11 +290,12 @@ Below is a list of amazing people that have contributed to this project! Thank y
 - [x]  oh-my-zsh
 - [x]  tmux
 - [x]  masscan
+- [x]  massdns
 - [x]  subgen
 - [x]  proxychains w/ Tor setup
 - [x]  mosh
 - [x]  docker
 - [x]  metasploit
 - [x]  dalfox
-- [ ]  subjack
+- [x]  subjack
 
