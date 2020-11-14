@@ -209,7 +209,7 @@
         "echo 'Installing dnsprobe'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe'",
         "echo 'Installing dnsx'",
-        "git clone https://github.com/projectdiscovery/dnsx.git; cd dnsx/cmd/dnsx; sudo go build; sudo mv dnsx /usr/bin/dnsx";
+        "git clone https://github.com/projectdiscovery/dnsx.git; cd dnsx/cmd/dnsx; sudo go build; sudo mv dnsx /usr/bin/dnsx",
         "echo 'Installing shuffledns'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/shuffledns/cmd/shuffledns'",
         "echo 'Installing chaos client'",
