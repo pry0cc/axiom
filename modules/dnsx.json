@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /usr/bin/dnsx -silent > output",
+	"ext":"txt"
+}]
