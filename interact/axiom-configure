@@ -74,6 +74,9 @@ if [ $BASEOS == "Linux" ]; then
 		sudo apt-get update && sudo apt-get install fzf git ruby
 		echo -e "${Blue}Installing doctl...${Color_Off}"
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+    echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
+		curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+    
 	elif [ $OS == "Fedora" ]; then
 		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
@@ -131,6 +134,8 @@ fi
 if [ $BASEOS == "Mac" ]; then
 	echo -e "${Blue}Installing doctl...${Color_Off}"
 	brew install doctl
+  echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
+  curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
 	echo -e "${Blue}Installing jq...${Color_Off}"
 	brew install jq
 	echo -e "${Blue}Installing packer...${Color_Off}"
