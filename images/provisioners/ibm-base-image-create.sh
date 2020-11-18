@@ -8,9 +8,21 @@ then
 
         fi
 
+
+		echo -e "${Blue}Key dont exists, would you like to generate a fresh pair? y/n ${Color_Off}"
+		read ans
+		if [ $ans == "y" ]; then
+			ssh-keygen
+
+		else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
+		fi
+
+
 echo "/n"
 echo "Uploading SSH key"
-sshkeyid=$(ibmcloud sl security sshkey-add axiom-ssh-key -f ~/.ssh/id_rsa1.pub -output json | jq '.id' 3>&1); # Upload your SSH key to IBM Cloud & Get ID
+sshkeyid=$(ibmcloud sl security sshkey-add axiom-ssh-key -f ~/.ssh/id_rsa.pub -output json | jq '.id' 3>&1); # Upload your SSH key to IBM Cloud & Get ID
 echo "SSH Key ID $sshkeyid"; # ssh key id
 echo "Creating Ubuntu 18.04 Base VSI";
 id=$(echo "Y"| ibmcloud sl vs create -H axiom-base-image -D axiom.local -c 2 -m 4096 -d dal13 -o UBUNTU_18_64 --disk 100 -k $sshkeyid | grep -s "^ID" | tr -s " " | cut -d " " -f 2 ); # create axiom base image with sshkey
