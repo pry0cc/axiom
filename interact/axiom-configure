@@ -76,6 +76,8 @@ if [ $BASEOS == "Linux" ]; then
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
     echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
 		curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+    echo -e "${Blue}Installing gowitness...${Color_Off}"
+    sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
     
 	elif [ $OS == "Fedora" ]; then
 		echo -e "${Blue}Installing jq...${Color_Off}"
