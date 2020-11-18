@@ -200,13 +200,14 @@ do
 	mv "$tmp/$f" "$tmp/input/$instance"
 done
 
+total=$i
 echo $instances | tr ' ' '\n' > $tmp/hosts
 
 ##############################################################################
 ### The real meat of the scan...
 
 echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
 
 
 echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
@@ -215,7 +216,7 @@ echo -e "${Blue}Files uploaded...${Color_Off}"
 echo ""
 
 echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\""
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
 echo -e "${Blue}Scan complete...${Color_Off}"
 
 echo ""

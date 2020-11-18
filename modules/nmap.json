@@ -1,10 +1,10 @@
 [
 	{
-		"command":"nmap -T4 -iL input -oG output",
+		"command":"sudo nmap -iL input -oG output",
 		"ext":"txt"
 	},
 	{
-		"command":"nmap -T4 -iL input -oX output",
+		"command":"sudo nmap -iL input -oX output",
 		"ext":"xml"
 	}
 ]

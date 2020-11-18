@@ -29,12 +29,16 @@ def merge_nMap(xmlFile,mf):
 	HOSTS = 0
 	with open(mf, mode = 'a', encoding='utf-8') as mergFile:
 		with open(xmlFile) as f:
-			nMapXML = ET.parse(f)
-			for host in nMapXML.findall('host'):
-				HOSTS = HOSTS + 1
-				cHost = ET.tostring(host, encoding='unicode', method='xml') 
-				mergFile.write(cHost)
-				mergFile.flush()	
+			try:
+				nMapXML = ET.parse(f)
+				for host in nMapXML.findall('host'):
+					HOSTS = HOSTS + 1
+					cHost = ET.tostring(host, encoding='unicode', method='xml') 
+					mergFile.write(cHost)
+					mergFile.flush()
+			except:
+				print("failed to parse")
+
 	return HOSTS
 
 def addHeader(f):
