@@ -72,7 +72,6 @@ if [[ "$size" == "" ]]; then
 fi
 
 if [[ "$provider" == "ibm" ]]; then
-  bash ibmcloud login --apikey $token;
 	echo -e -n "${Green}Please enter amount of CPU Cores: (E.g '2') \n>> ${Color_Off}"
 	read cpu
 
