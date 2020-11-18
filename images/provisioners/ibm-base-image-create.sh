@@ -1,5 +1,5 @@
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
-read -p "An SSH Confile FIle Exists, do you want to use these keys? Y/N " -n 1 -r
+read -p "An SSH public key exists, do you want to use these keys? Y/N " -n 1 -r
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
                         echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
