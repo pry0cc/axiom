@@ -204,6 +204,47 @@ total=$i
 echo $instances | tr ' ' '\n' > $tmp/hosts
 
 ##############################################################################
+### Merging output
+
+
+merging_output() {
+rm -rf $outfile
+if [[ "$ext" == "txt" ]]; then
+        echo "Mode set to txt.. Sorting unique."
+        cat $tmp/output/* | sort -u > $tmp/merge
+        mv "$tmp/merge" "$outfile"
+elif [[ "$ext" == "xml" ]]; then
+        echo "Mode set to XML.. Merging Nmap XML output..."
+        "$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge" >> /dev/null
+        mv "$tmp/merge.xml" "$outfile.xml"
+        mv "$tmp/merge.html" "$outfile.html"
+elif [[ "$ext" == "csv" ]]; then
+        echo "Mode set to CSV, merging..."
+        header="$(cat $tmp/output/* | head -n 1)"
+        echo "$header" > "$outfile" 
+        cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
+elif [[ "$ext" == "" ]];  then
+        echo "Mode set to directory... Merging directories..."
+        mkdir $tmp/merge
+        cp -r $tmp/output/*/* $tmp/merge
+        rm -rf $outfile
+        mv $tmp/merge/output $outfile
+        if [[ "$module" == "gowitness" ]]; then
+                echo "Downloading gowitness databases..."
+                mkdir -p "$tmp/dbs/"
+                interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
+                echo "Merging databases..."
+                gowitness merge --input-path $tmp/ -o gowitness.sqlite3
+                echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
+        fi
+fi
+
+echo -e "${BGreen}Output successfully saved to '$outfile'!"
+rm -rf "$tmp"
+}
+
+
+##############################################################################
 ### The real meat of the scan...
 
 echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
@@ -215,6 +256,17 @@ interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:inpu
 echo -e "${Blue}Files uploaded...${Color_Off}"
 echo ""
 
+clean_up() {
+
+  # Perform program exit housekeeping
+  # Optionally accepts an exit status
+  interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+  merging_output
+  exit $1
+}
+
+trap clean_up SIGHUP SIGINT SIGTERM
+
 echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
 interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
 echo -e "${Blue}Scan complete...${Color_Off}"
@@ -224,39 +276,4 @@ echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
 interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 echo -e "${Green}Files downloaded...${Color_Off}"
 
-##############################################################################
-### Merging output
-
-rm -rf $outfile
-if [[ "$ext" == "txt" ]]; then
-	echo "Mode set to txt.. Sorting unique."
-	cat $tmp/output/* | sort -u > $tmp/merge
-	mv "$tmp/merge" "$outfile"
-elif [[ "$ext" == "xml" ]]; then
-	echo "Mode set to XML.. Merging Nmap XML output..."
-	"$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge" >> /dev/null
-	mv "$tmp/merge.xml" "$outfile.xml"
-	mv "$tmp/merge.html" "$outfile.html"
-elif [[ "$ext" == "csv" ]]; then
-	echo "Mode set to CSV, merging..."
-	header="$(cat $tmp/output/* | head -n 1)"
-	echo "$header" > "$outfile" 
-	cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
-elif [[ "$ext" == "" ]];  then
-	echo "Mode set to directory... Merging directories..."
-	mkdir $tmp/merge
-	cp -r $tmp/output/*/* $tmp/merge
-	rm -rf $outfile
-	mv $tmp/merge/output $outfile
-	if [[ "$module" == "gowitness" ]]; then
-		echo "Downloading gowitness databases..."
-		mkdir -p "$tmp/dbs/"
-		interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
-		echo "Merging databases..."
-		gowitness merge --input-path $tmp/ -o gowitness.sqlite3
-		echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
-	fi
-fi
-
-echo -e "${BGreen}Output successfully saved to '$outfile'!"
-rm -rf "$tmp"
+merging_output
