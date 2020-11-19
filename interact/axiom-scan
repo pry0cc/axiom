@@ -206,7 +206,6 @@ echo $instances | tr ' ' '\n' > $tmp/hosts
 ##############################################################################
 ### Merging output
 
-
 merging_output() {
 rm -rf $outfile
 if [[ "$ext" == "txt" ]]; then
@@ -243,13 +242,11 @@ echo -e "${BGreen}Output successfully saved to '$outfile'!"
 rm -rf "$tmp"
 }
 
-
 ##############################################################################
 ### The real meat of the scan...
 
 echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
 interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
-
 
 echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
 interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
