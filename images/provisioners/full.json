@@ -206,8 +206,6 @@
         "/bin/su -l op -c 'go get -u github.com/1ndianl33t/urlprobe'",
         "echo 'Installing gau'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
-        "echo 'Installing dnsprobe'",
-        "/bin/su -l op -c 'GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe'",
         "echo 'Installing dnsx'",
         "git clone https://github.com/projectdiscovery/dnsx.git; cd dnsx/cmd/dnsx; sudo go build; sudo mv dnsx /usr/bin/dnsx",
         "echo 'Installing shuffledns'",
