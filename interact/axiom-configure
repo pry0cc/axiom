@@ -63,6 +63,8 @@ if [ $BASEOS == "Linux" ]; then
 		echo -e "${Blue}Congrats, you run arch..."
 		sudo pacman -S fzf packer jq doctl
 	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ]; then
+  	echo -e "${Blue}Installing other repo deps...${Color_Off}"
+		sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git
 		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		echo -e "${Blue}Installing packer...${Color_Off}"
@@ -70,8 +72,6 @@ if [ $BASEOS == "Linux" ]; then
 		echo -e "${Blue}Installing Interlace...${Color_Off}"
 		git clone https://github.com/codingo/Interlace.git /tmp/interlace
 		cd /tmp/interlace && sudo python3 setup.py install
-		echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		sudo apt-get update && sudo apt-get install fzf git ruby
 		echo -e "${Blue}Installing doctl...${Color_Off}"
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
     echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
@@ -80,6 +80,8 @@ if [ $BASEOS == "Linux" ]; then
     sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
     
 	elif [ $OS == "Fedora" ]; then
+  	echo -e "${Blue}Installing other repo deps...${Color_Off}"
+		sudo apt-get update && sudo apt-get install fzf git unzip python3-pip curl net-tools git
 		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		echo -e "${Blue}Installing packer...${Color_Off}"
@@ -89,8 +91,6 @@ if [ $BASEOS == "Linux" ]; then
 		echo -e "${Blue}Installing doctl...${Color_Off}"
 		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
 	elif [ $OS == "UbuntuWSL" ]; then
-		echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		sudo apt-get update && sudo apt-get install fzf git unzip
 		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		echo -e "${Blue}Installing packer...${Color_Off}"
