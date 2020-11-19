@@ -149,7 +149,7 @@ fi
 
 if [ ! -d $AXIOM_PATH ]; then
 	echo -e "${Blue}Installing axiom scripts...${Color_Off}"
-	git clone https://github.com/0xtavian/axiom $AXIOM_PATH
+	git clone https://github.com/pry0cc/axiom $AXIOM_PATH
 else
 	cd $AXIOM_PATH && git pull
 fi
