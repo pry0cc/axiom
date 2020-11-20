@@ -214,6 +214,8 @@
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/projectdiscovery/chaos-client/cmd/chaos'",
         "echo 'Installing unfurl'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/unfurl'",
+        "echo 'Installing qsreplace'",
+        "/bin/su -l op -c 'go get -u github.com/tomnomnom/qsreplace'",
         "echo 'Installing subjack - this takes a while'",
         "/bin/su -l op -c 'go get -u github.com/haccer/subjack/'",
         "echo 'Installing Subfinder'",
