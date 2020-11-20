@@ -1,28 +1,40 @@
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
-read -p "An SSH public key exists, do you want to use these keys? Y/N " -n 1 -r
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-                        echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
-                        exit 0
-                fi
-
-        fi
-
-
-		echo -e "${Blue}Key dont exists, would you like to generate a fresh pair? y/n ${Color_Off}"
+	echo -e "Detected SSH public key, would you like me to install this for your axiom setup? y/n"
+	read ans
+	if [ $ans == "n" ]; then
+		echo -e "Would you like to generate a fresh pair? y/n"
 		read ans
 		if [ $ans == "y" ]; then
-			ssh-keygen
-
+			ssh-keygen -b 2048 -t rsa -q -N ""
 		else
-			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			echo -e "Need to provide SSH public key. Exiting..."
 			exit 0
 		fi
 
+	fi
+else
+	echo -e "No SSH public key detected, would you like to generate a fresh pair? y/n"
+	read ans
+	if [ $ans == "y" ]; then
+		ssh-keygen -b 2048 -t rsa -q -N ""
+	else
+			echo -e "$Need to provide SSH public key. Exiting..."
+			exit 0
+	fi
+fi
+
+key=$(cat ~/.ssh/id_rsa.pub)
+inuse=$(ibmcloud sl security sshkey-list -output json | jq --arg v "$key" '.[] | select(.key | contains($v))' | jq .key | tr -d '"')
+
+if [ "$key" = "$inuse" ] 
+then
+    sshkeyid=$(ibmcloud sl security sshkey-list -output json | jq --arg v "$key" '.[] | select(.key | contains($v))' | jq .id); # SSH key already exists in IBM Cloud, just get the ID
+else
+    sshkeyid=$(ibmcloud sl security sshkey-add axiom-ssh-key -f ~/.ssh/id_rsa.pub -output json | jq '.id' 3>&1); # Upload your SSH key to IBM Cloud & Get ID
+fi
 
 echo "/n"
 echo "Uploading SSH key"
-sshkeyid=$(ibmcloud sl security sshkey-add axiom-ssh-key -f ~/.ssh/id_rsa.pub -output json | jq '.id' 3>&1); # Upload your SSH key to IBM Cloud & Get ID
 echo "SSH Key ID $sshkeyid"; # ssh key id
 echo "Creating Ubuntu 18.04 Base VSI";
 id=$(echo "Y"| ibmcloud sl vs create -H axiom-base-image -D axiom.local -c 2 -m 4096 -d dal13 -o UBUNTU_18_64 --disk 100 -k $sshkeyid | grep -s "^ID" | tr -s " " | cut -d " " -f 2 ); # create axiom base image with sshkey
@@ -42,9 +54,11 @@ EOF
   sleep 120;
 done;
 
-echo "Creating Image of Ubuntu 20.04";
+echo "Waiting for Ubuntu 20.04 image to create";
+sleep 120;
 ibmcloud sl vs capture $id -n $id --all; # create Image from VSI
-
+echo " Canceling Ubuntu 18.04 base-image"
+ibmcloud sl vs cancel $id
 imageid=$(ibmcloud sl image list --private | grep $id | cut -d " " -f 1);
 echo "Finished! Make sure to copy global_identifier of newly created image";
 ibmcloud sl image detail $imageid;
