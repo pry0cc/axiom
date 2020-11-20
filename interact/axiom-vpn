@@ -2,7 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 name=""
 
@@ -14,6 +14,6 @@ else
 fi
 
 vpn_dst="/tmp/$name.ovpn"
-ip="$(instance_ip $name)"
-scp -P2266 op@"$ip":/home/op/vpn/client.ovpn $vpn_dst
+#ip="$(instance_ip $name)"
+$AXIOM_PATH/interact/axiom-scp "$name":/home/op/vpn/client.ovpn $vpn_dst
 sudo openvpn $vpn_dst

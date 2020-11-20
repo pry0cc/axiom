@@ -2,16 +2,18 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/appliance.sh"
 
 if [ -z $1 ]; then
-	data=$(instances)
-	i=0
-	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i +  $f); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	instance_pretty
 else
 	if [[ "$1" == "--json" ]]; then
 		instances
+	elif [[ "$1" == "--list" ]]; then
+		instance_list
+	elif [[ "$1" == "--appliance" ]]; then
+		pretty_appliances
 	else
 		resp=$(query_instances "$1")
 		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')

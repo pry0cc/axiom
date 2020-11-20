@@ -5,36 +5,64 @@ LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
 instances() {
-	doctl compute droplet list -o json
+	gcloud compute instances list --format=json
 }
 
+get_image_id() {
+	query="$1"
+	images=$(gcloud compute images list --format=json)
+	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
+	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
+
+	echo $id
+}
+
+
 # takes one argument, name of instance, returns raw IP address
+
+
 instance_ip() {
-	name="$1"
-	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address"
+	host="$1"
+	instances | jq -r ".[] | select(.name==\"$host\") | .networkInterfaces[].accessConfigs[].natIP"
 }
 
 # takes no arguments, creates an fzf menu
 instance_menu() {
-	instances | jq -r '.[].name' | fzf
+	instances | jq '.[].name' | tr -d '"'
 }
 
+instance_list() {
+	instances | jq -r '.[].name'
+}
 # identifies the selected instance/s
 selected_instance() {
 	cat "$AXIOM_PATH/selected.conf"
 }
 
+#
+
+instance_id() {
+    name="$1"
+	instances | jq ".[] | select(.name==\"$name\") | .id"
+}
+
+get_zone() {
+	name="$1"
+
+	instances | jq -r ".[] | select(.name=\"$name\") | .zone" | cut -d "/" -f 9 | head -n 1
+}
 
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
     force="$2"
+    zone=$(get_zone "$name")
 
     if [ "$force" == "true" ]
-        then
-        doctl compute droplet delete -f "$name"
+    then
+        gcloud compute instances delete -q "$name" --zone="$zone" 2>&1 >>/dev/null &
     else
-        doctl compute droplet delete "$name"
+        gcloud compute instances delete "$name" --zone="$zone" 2>&1 >>/dev/null &
     fi
 }
 
@@ -44,15 +72,16 @@ instance_exists() {
 }
 
 list_regions() {
-    doctl compute region list
+      gcloud compute regions list
 }
 
+
 regions() {
-    doctl compute region list -o json
+     gcloud compute regions list --format=json
 }
 
 instance_sizes() {
-    doctl compute size list -o json
+    gcloud compute machine-types list --format=json
 }
 
 # List DNS records for domain
@@ -78,7 +107,7 @@ list_subdomains() {
 }
 # get JSON data for snapshots
 snapshots() {
-	doctl compute snapshot list -o json
+	 gcloud compute images list --format=json
 }
 
 delete_record() {
@@ -97,11 +126,8 @@ delete_record_force() {
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"
-
-	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
 	
-	doctl compute snapshot delete "$snapshot_id" -f
+	gcloud compute images "$name" -q
 }
 
 add_dns_record() {
@@ -164,6 +190,46 @@ query_instances() {
 	echo -n $selected
 }
 
+query_instances_cache() {
+	selected=""
+
+	for var in "$@"; do
+		if [[ "$var" =~ "*" ]]
+		then
+			var=$(echo "$var" | sed 's/*/.*/g')
+			selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep "$var")"
+		else
+			if [[ $query ]];
+			then
+				query="$query\|$var"
+			else
+				query="$var"
+			fi
+		fi
+	done
+
+	if [[ "$query" ]]
+	then
+		selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep -w "$query")"
+	else
+		if [[ ! "$selected" ]]
+		then
+			echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
+			exit
+		fi
+	fi
+
+	selected=$(echo "$selected" | tr ' ' '\n' | sort -u)
+	echo -n $selected
+}
+
+
+quick_ip() {
+	data="$1"
+	#ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
+	ip=$(echo $data | jq -r ".[] | select(.name == \"$name\") | .networkInterfaces[].accessConfigs[].natIP")
+	echo $ip
+}
 
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
@@ -172,7 +238,7 @@ generate_sshconfig() {
 
 	for name in $(echo "$droplets" | jq -r '.[].name')
 	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[].ip_address")
+		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networkInterfaces[].accessConfigs[].natIP")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
@@ -185,10 +251,36 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
+	domain="example.com"
 
-	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null &
+	gcloud beta compute instances create "$name" --image "$image_id" --zone "$region" --machine-type="$size_slug" 2>&1 >>/dev/null
+	sleep 15
 }
 
+instance_pretty() {
+	data=$(instances)
+	i=0
+	for f in $(echo $data | jq -r '.[].name'); do new=$(expr $i +  25); i=$new; done
+	(
+		echo "Instance,IP,Region,Memory,\$/M"
+		iter=$(echo $data | jq -r '.[] | [.name, .networkInterfaces[].accessConfigs[].natIP, .zone, .machineType, 25] | @csv')
+
+		for line in $iter
+		do
+			name=$(echo $line |  cut -d "," -f 1)
+			ip=$(echo $line |  cut -d "," -f 2)
+			zone=$(echo $line |  cut -d "," -f 3 | cut -d "/" -f 9)
+			machine=$(echo $line |  cut -d "," -f 4 | cut -d "/" -f 11)
+			price_monthly=$(echo $line |  cut -d "," -f 5)
+
+			echo "$name,$ip,$zone,$machine,$price_monthly"
+		done
+		echo "_,_,Total,\$$i"
+	) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	# doctl: (echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+		
+	#(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+}
 # Function used for splitting $src across $instances and rename the split files.
 lsplit() {
 	src="$1"
@@ -239,5 +331,4 @@ conf_check() {
 		generate_sshconfig	
 	fi
 }
-
 

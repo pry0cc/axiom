@@ -2,9 +2,8 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
-ip=""
 instance=""
 
 if [ -z "$1" ]  || [ "$1" == "--now" ]
@@ -14,7 +13,8 @@ else
 	instance="$1"
 fi
 
-ip="$(instance_ip "$instance")"
+generate_sshconfig
+
 box_path="$AXIOM_PATH/boxes/$1"
 
 if [ ! -d "$box_path" ]
@@ -22,10 +22,11 @@ then
     "$AXIOM_PATH"/interact/axiom-boxes new "$1"
 fi
 
-echo -e "${BWhite}Backing up $instance at $ip ${Color_Off}"
+
+echo -e "${BWhite}Backing up $instance... ${Color_Off}"
 echo -n -e "${Blue}" 
 
-rsync -avzr -e "ssh -p2266" --progress --delete --include-from="$AXIOM_PATH"/boxes/backup-files.txt op@"$ip":~/ "$AXIOM_PATH"/boxes/"$instance"/
+rsync -avzr -e "ssh -F $AXIOM_PATH/.sshconfig" --progress --include-from="$AXIOM_PATH"/boxes/backup-files.txt "$instance":~/ "$AXIOM_PATH"/boxes/"$instance"/
 
 echo -n -e "${Color_Off}" 
 echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}" 

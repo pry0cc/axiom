@@ -2,32 +2,47 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 droplets=$(instances)
 selected=$(cat $AXIOM_PATH/selected.conf)
 quiet=false
 query=""
 args=""
+cache=false
 command="$1"
+
+for var in "$@"
+do
+    if [ "$var" == "--cache" ]
+    then
+		cache=true
+	elif [ "$var" == "--quiet" ]
+	then
+		quiet=true
+	elif [ "$var" == "-q" ]
+	then
+		quiet=true
+	elif [ "$var" == "-t" ]
+	then
+		args="-t"
+	fi
+done
+
+if [ $cache != "true" ]
+then
+	generate_sshconfig
+fi
 
 if [ ! -z "$2" ]
 then
     query="$2"
-	selected=$(query_instances "$query")
-fi
-
-if [ ! -z "$3" ]
-then
-    quiet=true
-fi
-
-if [ ! -z "$4" ]
-then
-	if [[ "$4" == "-t" ]]
-	then
-		args="-t"
-	fi
+    if [[ "$query" =~ "*" ]]
+    then
+		selected=$(query_instances_cache "$query")
+    else
+    	selected="$query"
+    fi
 fi
 
 if [ -z "$1" ]
@@ -37,27 +52,39 @@ then
 fi
 
 total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+cmds_file="$AXIOM_PATH/tmp/$RANDOM-cmd.txt"
+full=""
+
+touch $cmds_file
 
 i=1
 for name in $selected
 do
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | .networks.v4[].ip_address")
     if [[ "$quiet" != "true" ]]
     then
-        echo -e "${BWhite}Executing inline on $name at $ip ${Color_Off}"
         echo -n -e "${Blue}" 
     fi
 
     cmd="$1"
     rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
-    ssh -p2266 -o StrictHostKeyChecking=no op@"$ip" $args "$rendered"
-
-    if [[ "$quiet" != "true" ]]
-    then
-        echo -n -e "${Color_Off}" 
-        echo -e "${BGreen}Execute on $name' successful!${Color_Off}" 
-    fi
+    full="ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
+    echo "$full" >> $cmds_file
+	
     i=$((i+1))
 done
 
+if [[ $total -gt 1 ]]
+then
+	if [[ "$quiet" != "true" ]]
+	then
+    	echo -e "${BWhite}Executing parallel on fleet $name*...${Color_Off}"
+	fi
+	interlace -cL "$cmds_file" -t 0x00sec.org
+else
+	if [[ "$quiet" != "true" ]]
+	then
+		echo -e "${BWhite}Executing on $name...${Color_Off}"
+	fi
+	bash -c "$full"
+fi

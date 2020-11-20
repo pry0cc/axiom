@@ -1,0 +1,75 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+
+generate_sshconfig
+instances=""
+
+for var in "$@"
+do
+	host=$(echo $var | cut -d ":" -f 1)
+	if [[ "$host" =~ "*" ]]
+	then
+		instances=$(query_instances "$host")
+		full=$(echo "$var" | sed "s/\$name/$instance/g")
+		if [[ "$str" ]]
+		then
+			str="$str $full"
+		else
+			str="$full"
+		fi
+
+	else
+		if [[ "$str" ]]
+		then
+			str="$str $var"
+		else
+			str="$var"
+		fi
+	fi
+done
+
+if [ "$instances" ]
+then
+for instance in $instances
+do
+line=""
+for var in "$@"
+do
+	host=$(echo $var | cut -d ":" -f 1)
+	str=""
+	if [[ "$host" =~ "*" ]]
+	then
+		full=$(echo "$var" | sed "s/$host/$instance/g"| sed 's/\*//g')
+		if [[ "$str" ]]
+		then
+			str="$str $full"
+		else
+			str="$full"
+		fi
+	else
+		if [[ "$str" ]]
+		then
+			str="$str $var"
+		else
+			str="$var"
+		fi
+	fi
+
+	str=$(echo $str | sed "s/\$name/$instance/g")
+
+	if [ "$line" ]
+	then
+		line="$line $str"
+	else
+		line="$str"
+	fi
+done
+scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
+done
+sleep 1
+else
+	scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $@
+fi

@@ -2,17 +2,7 @@
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
-
-if [ -z "$1" ]
-then
-	echo -e "${BWhite}Currently selected instances...${Color_Off}"
-else
-	query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
-	echo -e "${BWhite}Selected instances...${Color_Off}"
-fi
-
-echo -n -e "${Blue}"
-cat $AXIOM_PATH/selected.conf
-echo -n -e "${Color_Off}"
+[[ ! -z "$1" ]] && query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
+echo -e "${BWhite}Selected: ${Color_Off}[${Blue} "$(cat $AXIOM_PATH/selected.conf | sed 's/\n/ /g') ${Color_Off}]""

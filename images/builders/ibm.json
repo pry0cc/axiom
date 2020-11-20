@@ -1,0 +1,24 @@
+{
+  "builders": [
+    {
+      "type": "ibmcloud",
+      "api_key": "{{ user `do_key` }}",
+      "username": "{{ user `username` }}",
+      "datacenter_name": "{{ user `region` }}",
+      "base_image_id":"{{ user `base_image_id` }}",
+      "image_name": "axiom-{{ user `region` }}-{{timestamp}}",
+      "instance_name": "packer-{{timestamp}}",
+      "image_description": "Axiom full image built at {{isotime}}",
+      "image_type": "standard",
+      "instance_domain": "",
+      "instance_cpu": "{{ user `cpu` }}",
+      "instance_memory": "{{ user `default_size` }}",
+      "instance_network_speed": 10,
+      "instance_disk_capacity": 25,
+      "ssh_port": 22,
+      "ssh_timeout": "15m",
+      "instance_state_timeout": "25m",
+      "communicator": "ssh"
+    }
+  ]
+}

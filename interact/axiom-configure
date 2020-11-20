@@ -2,10 +2,27 @@
 
 AXIOM_PATH="$HOME/.axiom"
 
+cat << EOF
+
+ ▄▄▄      ▒██   ██▒ ██▓ ▒█████   ███▄ ▄███▓
+▒████▄    ▒▒ █ █ ▒░▓██▒▒██▒  ██▒▓██▒▀█▀ ██▒
+▒██  ▀█▄  ░░  █   ░▒██▒▒██░  ██▒▓██    ▓██░
+░██▄▄▄▄██  ░ █ █ ▒ ░██░▒██   ██░▒██    ▒██
+ ▓█   ▓██▒▒██▒ ▒██▒░██░░ ████▓▒░▒██▒   ░██▒
+ ▒▒   ▓▒█░▒▒ ░ ░▓ ░░▓  ░ ▒░▒░▒░ ░ ▒░   ░  ░
+  ▒   ▒▒ ░░░   ░▒ ░ ▒ ░  ░ ▒ ▒░ ░  ░      ░
+  ░   ▒    ░    ░   ▒ ░░ ░ ░ ▒  ░      ░
+      ░  ░ ░    ░   ░      ░ ░         ░
+
+The Dynamic Infrastructure Framework - @pry0cc
+
+EOF
+
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
-echo -e "To begin, I will ask you a few questions"
-echo -e "Press enter to continue${Color_Off}"
+echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
 read
+echo -e "${Blue}INSTALLING AXIOM...${Color_Off}"
+sleep 1
 
 echo -e "${BWhite}Installing deps! Please wait :) ${Color_Off}"
 BASEOS="$(uname)"
@@ -41,24 +58,45 @@ if [ $BASEOS == "Linux" ]; then
 		fi
 		OS=$(lsb_release -i | awk '{ print $3 }')
 	fi
+
 	if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
 		echo -e "${Blue}Congrats, you run arch..."
 		sudo pacman -S fzf packer jq doctl
-	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ]; then
+	elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ]; then
+  	echo -e "${Blue}Installing other repo deps...${Color_Off}"
+		sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git
+		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		echo -e "${Blue}Installing packer...${Color_Off}"
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
-		sudo apt-get update && sudo apt-get install fzf git
-		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+		echo -e "${Blue}Installing Interlace...${Color_Off}"
+		git clone https://github.com/codingo/Interlace.git /tmp/interlace
+		cd /tmp/interlace && sudo python3 setup.py install
+		echo -e "${Blue}Installing doctl...${Color_Off}"
+		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
+    echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
+		curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+    echo -e "${Blue}Installing gowitness...${Color_Off}"
+    sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
+    
 	elif [ $OS == "Fedora" ]; then
+  	echo -e "${Blue}Installing other repo deps...${Color_Off}"
+		sudo apt-get update && sudo apt-get install fzf git unzip python3-pip curl net-tools git
+		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		echo -e "${Blue}Installing packer...${Color_Off}"
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+		echo -e "${Blue}Installing other repo deps...${Color_Off}"
 		sudo dnf -y update && sudo dnf -y install fzf git
-		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+		echo -e "${Blue}Installing doctl...${Color_Off}"
+		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
 	elif [ $OS == "UbuntuWSL" ]; then
-		sudo apt-get update && sudo apt-get install fzf git unzip
+		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		echo -e "${Blue}Installing packer...${Color_Off}"
 		wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
-		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -zxf doctl.tar.gz && sudo mv doctl /usr/bin
+		echo -e "${Blue}Installing doctl...${Color_Off}"
+		wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
 	fi
 fi
 
@@ -96,9 +134,13 @@ if [ ! $? -eq 0 ] && [[ -z "$GOPATH" ]]; then
 fi
 
 if [ $BASEOS == "Mac" ]; then
-	echo -e "${Blue}Installing packer now...${Color_Off}"
+	echo -e "${Blue}Installing doctl...${Color_Off}"
 	brew install doctl
+  echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
+  curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+	echo -e "${Blue}Installing jq...${Color_Off}"
 	brew install jq
+	echo -e "${Blue}Installing packer...${Color_Off}"
 	mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
 	git clone https://github.com/hashicorp/packer.git
 	cd packer
@@ -106,28 +148,14 @@ if [ $BASEOS == "Mac" ]; then
 fi
 
 if [ ! -d $AXIOM_PATH ]; then
+	echo -e "${Blue}Installing axiom scripts...${Color_Off}"
 	git clone https://github.com/pry0cc/axiom $AXIOM_PATH
 else
 	cd $AXIOM_PATH && git pull
 fi
 
-echo -e "${BBlue}What is your DigitalOcean API key? ${Color_Off}"
-echo -e -n "${Blue}Key >> ${Color_Off}"
-read do_key
-echo -e "${Blue}Setting up doctl!...${Color_Off}"
-doctl auth init -t $do_key
-#echo "What would you like to pick for region? nyc3, sfo2 <-- this one is best"
-region="sfo2"
-#echo -n "Region >> "
-#read region
-#echo "What domain do you use?"
-#echo -n "Domain >> "
-#read domain
-domain=""
-#echo "What is your Hunter key? (optional)"
-#echo -n "Key >> "
-hunter_key=""
-size="s-1vcpu-1gb"
+echo -e "${Blue}Configuring your cloud account...${Color_Off}"
+$AXIOM_PATH/interact/axiom-account-setup
 
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
 	echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n ${Color_Off}"
@@ -138,6 +166,18 @@ if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
 		elif [ -f ~/.ssh/id_ed25519.pub ]; then
 			cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
 		fi
+	else	
+		echo -e "${Blue}Would you like to generate a fresh pair? y/n ${Color_Off}"
+		read ans
+		if [ $ans == "y" ]; then
+			ssh-keygen
+			cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+		
+		else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
+		fi
+
 	fi
 else
 	echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
@@ -145,6 +185,9 @@ else
 	if [ $ans == "y" ]; then
 		ssh-keygen
 		cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+	else
+			echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
+			exit 0
 	fi
 fi
 
@@ -170,8 +213,6 @@ else
 fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
-
-echo "{\"do_key\":\"$do_key\", \"region\":\"$region\", \"domain\":\"$domain\", \"default_size\":\"$size\", \"hunter_key\":\"$hunter_key\"}" | jq > $AXIOM_PATH/axiom.json
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/

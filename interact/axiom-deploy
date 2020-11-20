@@ -4,7 +4,7 @@ profile=""
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
-source "$AXIOM_PATH/interact/includes/do-functions.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
 
 remove=false
 
@@ -35,7 +35,7 @@ success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.succ
 
 for instance in  $instances
 do
-ip=$(instance_ip $instance)
+#ip=$(instance_ip $instance)
 id="$RANDOM"
 filename="/tmp/$id.sh"
 
@@ -50,15 +50,17 @@ chmod +x $filename
 
 if [ $remove == false ]
 then
-	echo -e "${BWhite}Installing profile '$profile' on '$instance' at '$ip'...${Color_Off}"
+	echo -e "${BWhite}Installing profile '$profile' on '$instance'...${Color_Off}"
 elif [ $remove == true ]
 	then
-	echo -e "${BWhite}Uninstalling profile '$profile' on '$instance' at '$ip'...${Color_Off}"
+	echo -e "${BWhite}Uninstalling profile '$profile' on '$instance'...${Color_Off}"
 fi
 
-scp -o StrictHostKeyChecking=no -P2266 $filename op@$ip:$filename
+$AXIOM_PATH/interact/axiom-scp $filename $instance:$filename
+#scp -o StrictHostKeyChecking=no -P2266 $filename op@$ip:$filename
 echo -e "${BBlue}Deployment Output: ${Blue}"
-ssh -p2266 op@$ip "chmod +x $filename && $filename"
+$AXIOM_PATH/interact/axiom-exec "chmod +x $filename && $filename" "$instance" -q --cache 
+#ssh -p2266 op@$ip "chmod +x $filename && $filename"
 echo -e "${Green}"
 if [ $remove == false ]
 then

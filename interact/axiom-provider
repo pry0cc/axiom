@@ -1,0 +1,32 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+
+INCLUDE_PATH="$AXIOM_PATH/providers/"
+SRC_FUNCTIONS="$AXIOM_PATH/interact/includes/functions.sh"
+
+options=$(ls -l "$INCLUDE_PATH" | grep "\-functions.sh" | awk '{ print $9 }' | sed 's/\-functions\.sh//g')
+choice=false
+
+if [ ! -z $1 ]
+then
+	choice="$1"
+fi
+
+if [[ "$choice" != "false" ]]
+then
+	CHOICE_FUNCTIONS="$INCLUDE_PATH/$choice-functions.sh"
+
+	if [ -f "$CHOICE_FUNCTIONS" ]
+	then
+		echo -e "${BWhite}Setting axiom provider to '$choice'${Color_Off}"
+		"$AXIOM_PATH/interact/generate_packer" "$choice" "full"
+		rm "$SRC_FUNCTIONS"
+		ln -s "$CHOICE_FUNCTIONS" "$SRC_FUNCTIONS"
+		echo -e "${BGreen}Provider set successfully${Color_Off}"
+	fi
+else
+	echo $options | tr ' ' '\n'
+fi
