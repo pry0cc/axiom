@@ -13,7 +13,7 @@
       "instance_domain": "",
       "instance_cpu": "{{ user `cpu` }}",
       "instance_memory": "{{ user `default_size` }}",
-      "instance_network_speed": 10,
+      "instance_network_speed": 1000,
       "instance_disk_capacity": 25,
       "ssh_port": 22,
       "ssh_timeout": "15m",
