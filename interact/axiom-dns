@@ -107,5 +107,6 @@ then
 	esac
 
 else
-	echo -e "Usage:\n\t axiom-dns ls\n\t axiom-dns ls <domain>\n\t axiom-dns add <subdomain> <domain> <ip>"
+	help
+	exit 0
 fi
