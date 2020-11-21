@@ -9,6 +9,19 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 BASEOS="$(uname)"
 provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
+function help() {
+	echo -e "${BWhite}Usage of axiom-init${Color_Off}"
+	echo -e "Example Usage: ${Blue}axiom-init bigstok${Color_Off}"
+	echo -e "  <name> string (optional)"
+	echo -e "    Name of the instance, supplied as a positional first argument"
+	echo -e "  --deploy=<profile>"
+	echo -e "    Deploy a profile after initialization (e.g masscan, nmap, gowitness, ffuf)"
+	echo -e "  --restore=<backup>"
+	echo -e "    Output to default output (whatever that is for the module)"
+	echo -e "  --help"
+	echo -e "    Display this help menu"
+}
+
 # function called by trap
 other_commands() {
     tput setaf 1
@@ -78,7 +91,11 @@ for var in "$@"; do
 	if [ "$var" == "--no-select" ]; then
 		no_select=true
 	fi
-
+	if [[ "$var" == "-h" ]] || [[ "$var" == "--help" ]];
+    then
+        help
+        exit 0
+    fi
 	if [[ $var =~ "--restore" ]]; then
 		restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
 		echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"

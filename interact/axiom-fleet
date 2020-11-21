@@ -4,6 +4,17 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
+function help() {
+    echo -e "${BWhite}Usage of axiom-fleet${Color_Off}"
+    echo -e "Example Usage: ${Blue}axiom-fleet -i=10${Color_Off}"
+    echo -e "  -i int"
+    echo -e "    How many instances you'd like to spin up"
+    echo -e "  -t int"
+    echo -e "    Set an expiry time (in hours)."
+    echo -e "  --help"
+    echo -e "    Display this help menu"
+}
+
 gen_name=""
 provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
@@ -33,6 +44,11 @@ do
     then
         hours="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         #echo -e "${BWhite}Setting expiry to $hours hours${Color_Off}"
+    fi
+    if [[ "$var" == "-h" ]] || [[ "$var" == "--help" ]];
+    then
+        help
+        exit 0
     fi
     if [[ "$var" =~ "-i" ]]
     then
