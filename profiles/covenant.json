@@ -1,16 +1,15 @@
 {
-	"name":"Covenant C2",
-	"description":"Deploy Covenant C2 Server",
-	"variables": [],
-	"commands": [
+	"name":"covenant",
+	"description":"Covenant C2 Server",
+	"install": [
 		"sudo killall caddy",
 		"git clone --recurse-submodules https://github.com/cobbr/Covenant /home/op/c2/Covenant",
 		"cd /home/op/c2/Covenant/Covenant && docker build -t covenant .",
 		"cd /home/op/c2/Covenant/Covenant && docker run -d -p 7443:7443 -p 80:80 -p 443:443 --name covenant -v /home/op/c2/Covenant/Covenant/Data:/app/Data covenant"
 	],
-	"remove_commands":[
+	"uninstall":[
 		"docker rm -f covenant",
 		"sudo rm -r /home/op/c2/Covenant"
 	],
-	"success_message":"echo \"Covenant has been deployed at: https://$ip:7443/\""
+	"notes":"Your server will be accessible at https://ip:7443/ for setup."
 }

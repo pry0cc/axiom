@@ -1,72 +1,90 @@
 #!/bin/bash
 
-profile=""
+profile="$1"
+query="$2"
+type="install"
+cache=""
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
-remove=false
+function help() {
+    echo -e "${BWhite}Usage of axiom-deploy${Color_Off}"
+    echo -e "Example Usage: ${Blue}axiom-deploy openvpn jerry01${Color_Off}"
+    echo -e "  <profile> <instance>"
+    echo -e "    Name of the instance, supplied as a positional first argument"
+    echo -e "  --cache"
+    echo -e "    Use SSH cache (works if recently interacted with)"
+    echo -e "  --remove"
+    echo -e "    Uninstall the profile"
+    echo -e "  --profiles"
+    echo -e "    List profiles"
+    echo -e "  --help"
+    echo -e "    Display this help menu"
+}
 
 for var in "$@"
 do
-    if [ $var == "--remove" ]
-    then
-        remove=true
+    if [[ "$var" == "--remove" ]]; then
+        type="uninstall"
+    fi
+
+    if [[ "$var" == "--cache" ]]; then
+        cache="true"
+    fi
+
+    if [[ "$var" == "--help" ]] || [[ "$var" == "-h" ]]; then
+        help
+        exit 0
+    fi
+
+    if [[ "$var" == "--profiles" ]]; then
+        echo -e "${BWhite}Deployment profiles${Color_Off}"
+        (echo '"ID","Description"'; cat ~/.axiom/profiles/* | jq -r '[.name,.description] | @csv')  | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+        exit 0
     fi
 done
 
-if [ -z "$1" ] || [ "$1" == "--remove" ] || [ "$1" == "--instance" ]
-then
-    profile=$(ls $AXIOM_PATH/profiles | cat | fzf)
+if [[ -z "$1" ]]; then
+    echo -e "${BRed}Error profile doesn't exist '$1'"
+fi
+
+if [[ -z "$2" ]]; then
+    echo -e "${BRed}Error no instance supplied"
+    exit 0
+fi
+
+if [[ "$profile" == "" ]]; then
+    help
 else
-    exists=$(ls $AXIOM_PATH/profiles | cat | grep "\<$1\>" | wc -l | awk '{ print $1 }')
-    if [ "$exists" == "1" ]
-    then
-        profile="$1"
+    name="${type}ing"
+    prof_path="$AXIOM_PATH/profiles/$profile.json"
+
+    if [[ -f "$prof_path" ]]; then
+        echo -e "${BWhite}$name '$profile' : '$query'"
+
+        [[ "$cache" == "" ]] && generate_sshconfig
+
+        count=$(query_instances_cache "$query" | tr " " "\n" | wc -l | awk '{ print $1 }')
+        id="$RANDOM"
+        script="$AXIOM_PATH/tmp/$id.sh"
+
+        jq -r ".$type[]" "$prof_path" > "$script"
+        chmod +x "$script"
+
+        if [[ "$count" -gt 0 ]]; then
+            echo -e "${BWhite}Uploading profile to '$query'${Color_Off}${Blue}"
+            axiom-scp "$script" "$query":"/tmp/$id.sh" --cache
+            axiom-exec "/tmp/$id.sh" "$query" --cache
+            echo -e "${BGreen}Installation Successful!${Color_Off}"
+            echo -e "${BWhite}Notes${Color_Off}${Blue}"
+            jq -r ".notes" "$prof_path"
+            echo -e -n "${Color_Off}"
+        else
+            echo -e "${BRed}Error no instances found...${Color_Off}"
+        fi
     else
-        echo "Profile doesnt exist, launching selector..."
-        profile=$(ls $AXIOM_PATH/profiles | cat | fzf)
+        echo -e "${BRed}Error: Profile '$profile' does not exist.${Color_Off}"
     fi
 fi
-
-instances=$(cat $AXIOM_PATH/selected.conf)
-success_command=$(cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.success_message')
-
-for instance in  $instances
-do
-#ip=$(instance_ip $instance)
-id="$RANDOM"
-filename="/tmp/$id.sh"
-
-if [ $remove == false ]
-then
-	cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.commands[]' > $filename
-elif [ $remove == true ]
-	then
-	cat $AXIOM_PATH/profiles/$profile/manifest.json | jq -r '.remove_commands[]' > $filename
-fi
-chmod +x $filename
-
-if [ $remove == false ]
-then
-	echo -e "${BWhite}Installing profile '$profile' on '$instance'...${Color_Off}"
-elif [ $remove == true ]
-	then
-	echo -e "${BWhite}Uninstalling profile '$profile' on '$instance'...${Color_Off}"
-fi
-
-$AXIOM_PATH/interact/axiom-scp $filename $instance:$filename
-#scp -o StrictHostKeyChecking=no -P2266 $filename op@$ip:$filename
-echo -e "${BBlue}Deployment Output: ${Blue}"
-$AXIOM_PATH/interact/axiom-exec "chmod +x $filename && $filename" "$instance" -q --cache 
-#ssh -p2266 op@$ip "chmod +x $filename && $filename"
-echo -e "${Green}"
-if [ $remove == false ]
-then
-	echo "Profile successfully installed on '$instance'!"
-else 
-	echo "Profile succesfully removed from '$instance'!"
-fi
-echo -n -e "${Color_Off}"
-done
