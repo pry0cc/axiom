@@ -147,8 +147,19 @@ fi
 #command="cat input | /home/op/bin/ffuz -s -o output"
 #command="rm -rf output; mkdir -p output; /home/op/go/bin/gowitness file -f input -P output"
 
-mod_data="$(parse_module $module $ext)"
-command="$(echo $mod_data | jq -r '.command') $args"
+mod_data=$(parse_module $module $ext)
+command_data=$(echo $mod_data | jq -r '.command')
+command=""
+
+if [[ "$command_data" =~ ">" ]]; then
+	first=$(echo $command_data | cut -d ">" -f 1)
+	output=$(echo $command_data | cut -d ">" -f 2)
+
+	command="$first $args > $output"
+else
+	command="$command_data $args"
+fi
+
 ext=$(echo $mod_data | jq -r '.ext')
 
 ####################################################################
