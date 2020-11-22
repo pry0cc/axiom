@@ -32,7 +32,7 @@ do
 	host=$(echo $var | cut -d ":" -f 1)
 	if [[ "$host" =~ "*" ]]
 	then
-		instances=$(query_instances "$host")
+		instances=$(query_instances_cache "$host")
 		full=$(echo "$var" | sed "s/\$name/$instance/g")
 		if [[ "$str" ]]
 		then

@@ -1,6 +1,6 @@
 {
-	"name":"Squid",
-	"description":"Squid Proxy for routing Burp through.",
+	"name":"squid",
+	"description":"Squid Proxy Server",
 	"variables": [],
 	"commands": [
 		"sudo apt-get -y install squid",

@@ -1,0 +1,12 @@
+{
+	"name":"example",
+	"description":"Example axiom deployment profile.",
+	"install": [
+        "cat /etc/os-release | tee -a /home/op/log.txt",
+        "uname -a | tee -a /home/op/log.txt"
+	],
+	"uninstall":[
+		"rm /home/op/log.txt"
+	],
+    "notes":"Example profile deployed"
+}
