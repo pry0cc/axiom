@@ -33,6 +33,9 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 -   [Scan Modules](https://github.com/pry0cc/axiom/wiki/Scans#example-axiom-scan-modules)
 -   [Contributors](#contributors)
 
+## $100 Free Credit
+The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd ) 
+
 ## Installation
 
 (You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
@@ -43,14 +46,12 @@ bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/ax
 
 If you have any problems with this installer, please refer to [Installation](https://github.com/pry0cc/axiom/wiki/0-Installation).
 
-
 ## Demo
 In this demo (sped up out of respect for your time ;) ), we show how easy it is to initialize and ssh into a new instance.
 
 <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-init-demo.gif" alt="" height=443 width=666px>
 
-## $100 Free Credit
-The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd ) 
+
 
 ## Support
 If you like Axiom and it saves you time, money or just brings you happy feelings, please show your support through sponsorship! Click the little sponsor button in the header and sponsor for as little as $1 per month :)
