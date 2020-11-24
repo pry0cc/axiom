@@ -37,7 +37,7 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd) 
 
 <p align="center">
-<a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://miro.medium.com/max/734/1*qU8VMQEGJv0KheqOv4ryOg.png" height="42px"/></a>
+<a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/credit.png" height="42px"/></a>
 </p>
 
 
