@@ -81,10 +81,10 @@ Or buy me a coffee to keep me powered :)
 # Contributors
 We've had some really fantastic additions to axiom, great feedback through issues, and perseverence through our heavy beta phase!
 
+A list of all contributors can be found [here](https://github.com/pry0cc/axiom/graphs/contributors), thank you all!
+
 ## Logo
 The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you for making axiom look sleek as hell! Really beats my homegrown logo :)
-
-A list of all contributors can be found [here](https://github.com/pry0cc/axiom/graphs/contributors), thank you all!
 
 # Packages To Date
 
