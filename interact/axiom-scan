@@ -54,7 +54,7 @@ module="masscan"
 # User controlled
 fleet_name=""
 input=""
-outfile="output.txt"
+outfile="output"
 silent="--silent"
 args=""
 ext=""
