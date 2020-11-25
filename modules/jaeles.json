@@ -1,4 +1,4 @@
 [{
        "command":"cat input | /usr/bin/jaeles -o output",
-        "ext":""
+        "ext":"misc"
 }]
