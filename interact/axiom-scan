@@ -49,6 +49,7 @@ function help() {
 	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
 
+control=$(date +%s)
 module="masscan"
 # User controlled
 fleet_name=""
@@ -141,7 +142,6 @@ if [[ ! -f $input ]]; then
 	exit 1
 fi
 
-
 #command="sudo masscan -iL input -p80 --rate=100000 -oG output"
 #command="nmap -T5 -p80 -iL input -oX output"
 #command="cat input | /home/op/bin/ffuz -s -o output"
@@ -163,7 +163,6 @@ fi
 ext=$(echo $mod_data | jq -r '.ext')
 
 ####################################################################
-
 
 # Fleet
 if [[ "$fleet_name" == "" ]]; then
@@ -220,36 +219,46 @@ echo $instances | tr ' ' '\n' > $tmp/hosts
 merging_output() {
 rm -rf $outfile
 if [[ "$ext" == "txt" ]]; then
+	mkdir $control
         echo "Mode set to txt.. Sorting unique."
         cat $tmp/output/* | sort -u > $tmp/merge
-        mv "$tmp/merge" "$outfile"
+        mv "$tmp/merge" "$control/$outfile"
 elif [[ "$ext" == "xml" ]]; then
-        echo "Mode set to XML.. Merging Nmap XML output..."
+	mkdir $control
+	echo "Mode set to XML.. Merging Nmap XML output..."
         "$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge" >> /dev/null
-        mv "$tmp/merge.xml" "$outfile.xml"
-        mv "$tmp/merge.html" "$outfile.html"
+        mv "$tmp/merge.xml" "$control/$outfile.xml"
+        mv "$tmp/merge.html" "$control/$outfile.html"
 elif [[ "$ext" == "csv" ]]; then
+      	mkdir $control
         echo "Mode set to CSV, merging..."
         header="$(cat $tmp/output/* | head -n 1)"
-        echo "$header" > "$outfile" 
-        cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
+        echo "$header" > "$control/$outfile" 
+        cat $tmp/output/* | grep -v "$header" | sort -u -V >> $control/$outfile
+elif [[ "$misc" == "" ]];  then
+        mkdir $control
+        echo "Mode set to directory... Merging directories..."
+        rsync -avh --progress $tmp/output/*/* $control 
+        rm -rf $outfile
 elif [[ "$ext" == "" ]];  then
+      	mkdir $control
         echo "Mode set to directory... Merging directories..."
         mkdir $tmp/merge
         cp -r $tmp/output/*/* $tmp/merge
         rm -rf $outfile
-        mv $tmp/merge/output $outfile
+        mv $tmp/merge/output $control/$outfile
         if [[ "$module" == "gowitness" ]]; then
+		            mkdir $control
                 echo "Downloading gowitness databases..."
                 mkdir -p "$tmp/dbs/"
-                interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
+                interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
                 echo "Merging databases..."
                 gowitness merge --input-path $tmp/ -o gowitness.sqlite3
                 echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
         fi
 fi
 
-echo -e "${BGreen}Output successfully saved to '$outfile'!"
+echo -e "${BGreen}Output successfully saved to '$control/$outfile'!"
 rm -rf "$tmp"
 }
 
@@ -257,10 +266,10 @@ rm -rf "$tmp"
 ### The real meat of the scan...
 
 echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 ; mkdir $control >> /dev/null\""
 
 echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
+interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:$control/input --cache  >/dev/null 2>&1"
 echo -e "${Blue}Files uploaded...${Color_Off}"
 echo ""
 
@@ -268,7 +277,7 @@ clean_up() {
 
   # Perform program exit housekeeping
   # Optionally accepts an exit status
-  interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+  interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
   merging_output
   exit $1
 }
@@ -276,12 +285,13 @@ clean_up() {
 trap clean_up SIGHUP SIGINT SIGTERM
 
 echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ cd $control \;  \"$command\"" -threads $i
 echo -e "${Blue}Scan complete...${Color_Off}"
 
 echo ""
 echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 echo -e "${Green}Files downloaded...${Color_Off}"
 
 merging_output
