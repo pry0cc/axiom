@@ -1,1 +1,0 @@
-/home/op/.axiom/providers//do-functions.sh

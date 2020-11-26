@@ -22,6 +22,7 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 ## Resources
 
 -   [Introduction](https://github.com/pry0cc/axiom/wiki)
+-   [Troubleshooting & FAQ](https://github.com/pry0cc/axiom/wiki/0-Installation#troubleshooting)
 -   [Quickstart](https://github.com/pry0cc/axiom/wiki/A-Quickstart-Guide)
     - [Fleets](https://github.com/pry0cc/axiom/wiki/Fleets)
     - [Scans](https://github.com/pry0cc/axiom/wiki/Scans)
