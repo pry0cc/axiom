@@ -88,3 +88,5 @@ else
 	fi
 	bash -c "$full"
 fi
+
+rm $cmds_file

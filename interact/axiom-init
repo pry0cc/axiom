@@ -227,6 +227,8 @@ fi
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 
+rm "$boot_script"
+
 if [[ "$no_select" != "true" ]]; then
 	echo "$name" > $AXIOM_PATH/selected.conf
 fi

@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /home/op/bin/tlscout > output",
+	"command":"cat input | /home/op/go/bin/tlscout -o output",
 	"ext":"txt"
 }]

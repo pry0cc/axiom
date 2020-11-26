@@ -1,1 +1,1 @@
-/Users/pry/.axiom/providers//do-functions.sh
+/home/op/.axiom/providers//do-functions.sh
