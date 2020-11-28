@@ -1,0 +1,1 @@
+cat input | dnsx | httpx -title -follow-redirects -cname -ip -content-length -content-type -status-code -vhost

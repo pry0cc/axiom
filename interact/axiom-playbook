@@ -1,0 +1,172 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+playbooks="$AXIOM_PATH/playbooks"
+
+echo -e -n  "${BWhite}"
+echo "axiom-playbook" | figlet -fslant  -w 1000
+echo "Author: @pry0cc"
+echo -e  "${Color_Off}"
+
+module=""
+input=""
+outfile=""
+out_flag=""
+ext=""
+
+
+
+pass=()
+
+i=0
+for arg in "$@"
+do
+	i=$((i+1))
+	if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+	set=false
+	if [[ "$i" == 1 ]]; then
+		input="$1"
+		set=true
+		pass+=($i)
+	fi
+	if [[ "$arg" == "-m" ]]; then
+		n=$((i+1))
+		module=$(echo ${!n})
+		echo -e "${BWhite}Selecting playbook '${BGreen}$module'${Color_Off}"
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+    if [[ "$arg" == "-oG" ]]; then
+        out_flag="-oG"
+		n=$((i+1))
+		ext="txt"
+		outfile=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+	if [[ "$arg" == "-oX" ]]; then
+        out_flag="-oX"
+		n=$((i+1))
+		ext="xml"
+		outfile=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+	if [[ "$arg" == "-o" ]]; then
+        out_flag="-o"
+		n=$((i+1))
+		outfile=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+    if [[ "$arg" == "--list" ]] || [[ "$arg" == "-l" ]]; then
+        echo -e "${BWhite}Playbooks${Color_Off}${Blue}"
+		bash -c "ls ~/.axiom/playbooks" | awk '{ print $NF }'
+        echo -n -e "${Color_Off}"
+		exit
+		set=true
+		pass+=($i)
+	fi
+
+	if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]]; then
+		help
+		exit
+		set=true
+		pass+=($i)
+	fi
+
+	if  [[ "$set" != "true" ]]; then
+		args="$args $arg"
+	fi
+
+	fi
+done
+
+error=false
+
+
+if [[ "$input" == "" ]]; then
+    echo -e "${BRed}Error: ${Red}Please supply an input file by supplying it as the first argument...${Color_Off}"
+    echo -e "${BWhite}Use '${Blue}axiom-playbook <input> -m <playbook>'${Color_Off}"
+    echo -e "${BWhite}Use '${Blue}axiom-scan --list${BWhite}' to list playbooks...${Color_Off}"
+    error=true
+fi
+
+if [[ "$module" == "" ]]; then
+    echo -e "${BRed}Error: ${Red}Please supply a playbook using -m${Color_Off}"
+    echo -e "${BWhite}Use '${Blue}'axiom-playbook <input> -m <playbook>'${Color_Off}"
+    echo -e "${BWhite}Use '${Blue}axiom-scan --list${BWhite}' to list playbooks...${Color_Off}"
+    error=true
+else
+    if  [[ ! -f "$playbooks/$module" ]]; then
+        echo -e  "${BRed}Error: ${Red}No such playbook exists${Color_Off}"
+        echo -e "${Red}Module: '$module'${Color_Off}"
+        error=true
+    fi
+fi
+
+[[ "$error" == "true" ]] && exit 1
+
+function module_exist() {
+    module="$1"
+
+    if [[ -f "$HOME/.axiom/modules/$module.json" ]]; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
+playbook_contents=$(cat "$playbooks/$module" | sed "s/cat input/cat $input/g")
+echo -e "${BWhite}Starting axiom-playbook: [ ${Blue}$playbook_contents > $outfile${BWhite} ] ${Color_Off}"
+
+
+tmp="$HOME/.axiom/tmp/$(date +%s)-$RANDOM"
+mkdir -p "$tmp"
+
+IFS="|"
+
+total=0
+for i in $(cat "$playbooks/$module");
+do
+    total=$((total+1))
+done
+
+counter=0
+for i in $(cat "$playbooks/$module");
+do 
+    command="$(echo $i | awk '{ print $1 }')"
+
+    if [[ "$command" == "cat" ]]; then
+        echo "$i > $((counter+1))" >> $tmp/cmds.sh
+    elif [[ "$(module_exist "$command")" -eq 1 ]]; then
+        #        echo "MODULE EXISTS $command"
+        if [[ "$((counter+1))" -eq "$total" ]]; then
+            echo "axiom-scan $counter -m $i  --quiet $out_flag $((counter+1)) " >> $tmp/cmds.sh
+        else
+            echo "axiom-scan $counter -m $i  --quiet -o $((counter+1)) " >> $tmp/cmds.sh
+        fi
+    else
+        echo "echo 'Command: [ $i ]'" >> $tmp/cmds.sh
+        echo "cat $counter | $i > $((counter+1))" >> $tmp/cmds.sh
+    fi
+    counter=$((counter+1))
+done
+
+chmod +x "$tmp/cmds.sh"
+cp $input "$tmp/input"
+start=$(pwd)
+cd "$tmp"
+echo ""
+"$tmp/cmds.sh"
+echo "$tmp"
+cp -r "$tmp/$counter" "$start/$outfile"
+cd "$start"
+
+echo -e  "${BGreen}Output saved successfully to '${Blue}$outfile${BGreen}'${Color_Off}"

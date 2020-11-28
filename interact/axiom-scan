@@ -62,7 +62,9 @@ args=""
 ext=""
 debug=""
 quiet=""
-silent="--silent"
+silent="--silent" 
+anew="false"
+
 #
 
 pass=()
@@ -88,6 +90,14 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
+    if [[ "$arg" == "--anew" ]]; then
+		n=$((i+1))
+        anew="true"
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+
 	if [[ "$arg" == "-o" ]]; then
 		n=$((i+1))
 		outfile=$(echo ${!n})
@@ -234,11 +244,19 @@ echo $instances | tr ' ' '\n' > $tmp/hosts
 ### Merging output
 
 merging_output() {
-rm -rf $outfile
+if [[ "$anew" != "true" ]];  then
+    rm -rf $outfile
+fi
 if [[ "$ext" == "txt" ]]; then
         echo "Mode set to txt.. Sorting unique."
         cat $tmp/output/* | sort -u > $tmp/merge
-        mv "$tmp/merge" "$outfile"
+       
+        if [[ "$anew" == "true" ]]; then
+            cat "$tmp/merge" | anew "$outfile"
+        else
+            mv "$tmp/merge" "$outfile"
+        fi
+
 elif [[ "$ext" == "xml" ]]; then
         echo "Mode set to XML.. Merging Nmap XML output..."
         "$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge.xml" >> /dev/null

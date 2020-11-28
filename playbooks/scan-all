@@ -1,0 +1,1 @@
+cat input | dnsx -resp | tr -d "[" | tr -d "]" | awk '{ print $2 }'  | nmap  -T4 --top-ports 500
