@@ -43,6 +43,10 @@ function help() {
 	echo -e "    Output to greppable output (will merge and sort unique)"
 	echo -e "  --fleet string (optional)"
 	echo -e "    Fleet to use, will use axiom-select by default."
+    echo -e "  --debug"
+    echo -e "    Enable debug mode (VERY VERBOSE!)"
+    echo -e "  --quiet"
+	echo -e "    Enable quiet mode"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
 	echo -e "  <additional args>"
@@ -54,9 +58,11 @@ module="masscan"
 fleet_name=""
 input=""
 outfile="output.txt"
-silent="--silent"
 args=""
 ext=""
+debug=""
+quiet=""
+silent="--silent"
 #
 
 pass=()
@@ -75,7 +81,9 @@ do
 	if [[ "$arg" == "-m" ]]; then
 		n=$((i+1))
 		module=$(echo ${!n})
+        if [[ "$quiet" != "true" ]]; then
 		echo -e "${Blue}Selecting module '$module'${Color_Off}"
+        fi
 		set=true
 		pass+=($i)
 		pass+=($n)
@@ -112,11 +120,17 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
-	if [[ "$arg" == "-v" ]]; then
-		silent=""
+	if [[ "$arg" == "--quiet" ]]; then
+	    quiet="true"
 		set=true
 		pass+=($i)
 	fi
+    if [[ "$arg" == "--debug" ]]; then
+	    debug="true"
+		set=true
+		pass+=($i)
+	fi
+
 	if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]]; then
 		help
 		exit
@@ -141,7 +155,9 @@ if [[ ! -f $input ]]; then
 	exit 1
 fi
 
-
+if [[ "$debug" == "true" ]]; then
+    silent=""
+fi
 #command="sudo masscan -iL input -p80 --rate=100000 -oG output"
 #command="nmap -T5 -p80 -iL input -oX output"
 #command="cat input | /home/op/bin/ffuz -s -o output"
@@ -225,8 +241,8 @@ if [[ "$ext" == "txt" ]]; then
         mv "$tmp/merge" "$outfile"
 elif [[ "$ext" == "xml" ]]; then
         echo "Mode set to XML.. Merging Nmap XML output..."
-        "$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge" >> /dev/null
-        mv "$tmp/merge.xml" "$outfile.xml"
+        "$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge.xml" >> /dev/null
+        mv "$tmp/merge.xml" "$outfile"
         mv "$tmp/merge.html" "$outfile.html"
 elif [[ "$ext" == "csv" ]]; then
         echo "Mode set to CSV, merging..."
@@ -256,6 +272,7 @@ rm -rf "$tmp"
 ##############################################################################
 ### The real meat of the scan...
 
+if [[ "$quiet" != "true" ]]; then
 echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
 interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
 
@@ -285,3 +302,13 @@ interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_targ
 echo -e "${Green}Files downloaded...${Color_Off}"
 
 merging_output
+else
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
+interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1" >/dev/null 2>&1
+echo -e "${BWhite}Running module '$module' against specified targets...${Color_Off}"
+interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
+
+merging_output >/dev/null 2>&1
+
+fi

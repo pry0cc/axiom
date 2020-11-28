@@ -97,7 +97,7 @@ def main_nMapMerger(xmlSet, name):
 	dtNow = datetime.now() 
 	dt = re.sub(r"\s+", '-', str(dtNow))
 	dt = re.sub(r":", '-', str(dt))
-	mergeFile = name + ".xml"
+	mergeFile = name
 
 	# Add Header to mergefile
 	addHeader(mergeFile)
