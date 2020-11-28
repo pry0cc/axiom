@@ -1,0 +1,4 @@
+[{
+	"command":"zsh -c '/home/op/go/bin/shuffledns -r lists/resolvers.txt -list input > output'",
+	"ext":"txt"
+}]

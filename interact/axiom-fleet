@@ -178,4 +178,4 @@ done
 
 $AXIOM_PATH/interact/axiom-select "$gen_name*"
 
-echo -e "${BGreen}Fleet started succesfully! All instances will automatically implode after $expiry minutes or $hours hours. To extend the lifetime on an instance, set-expiry.sh \"10 hours\" etc.${Color_Off}" 
+echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}" 
