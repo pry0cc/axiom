@@ -53,6 +53,15 @@ function help() {
 	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
 
+clean_up() {
+    # Perform program exit housekeeping
+    # Optionally accepts an exit status
+    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+    merging_output
+    exit $1
+}
+
+
 module="masscan"
 # User controlled
 fleet_name=""
@@ -207,12 +216,15 @@ if [[ $fleet_size -lt 1 ]]; then
 	exit 1
 fi
 
+
+
 # Setup tmp
 tmp="$HOME/.axiom/tmp/$(date +%s)"
 mkdir -p $tmp/input/
 mkdir -p $tmp/output/
 start=$(pwd)
 
+trap clean_up SIGHUP SIGINT SIGTERM
 ##############################################################################
 #### Splitting
 divisor=$fleet_size
@@ -242,12 +254,11 @@ echo $instances | tr ' ' '\n' > $tmp/hosts
 
 ##############################################################################
 ### Merging output
-
 merging_output() {
-if [[ "$anew" != "true" ]];  then
-    rm -rf $outfile
-fi
-if [[ "$ext" == "txt" ]]; then
+    if [[ "$anew" != "true" ]];  then
+        rm -rf $outfile
+    fi
+    if [[ "$ext" == "txt" ]]; then
         echo "Mode set to txt.. Sorting unique."
         cat $tmp/output/* | sort -u > $tmp/merge
        
@@ -257,17 +268,17 @@ if [[ "$ext" == "txt" ]]; then
             mv "$tmp/merge" "$outfile"
         fi
 
-elif [[ "$ext" == "xml" ]]; then
+    elif [[ "$ext" == "xml" ]]; then
         echo "Mode set to XML.. Merging Nmap XML output..."
         "$AXIOM_PATH/interact/merge-xml.py" -d "$tmp/output" -o "$tmp/merge.xml" >> /dev/null
         mv "$tmp/merge.xml" "$outfile"
-        mv "$tmp/merge.html" "$outfile.html"
-elif [[ "$ext" == "csv" ]]; then
+        mv "$tmp/merge.xml.html" "$outfile.html"
+    elif [[ "$ext" == "csv" ]]; then
         echo "Mode set to CSV, merging..."
         header="$(cat $tmp/output/* | head -n 1)"
         echo "$header" > "$outfile" 
         cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
-elif [[ "$ext" == "" ]];  then
+    elif [[ "$ext" == "" ]];  then
         echo "Mode set to directory... Merging directories..."
         mkdir $tmp/merge
         cp -r $tmp/output/*/* $tmp/merge
@@ -283,50 +294,65 @@ elif [[ "$ext" == "" ]];  then
         fi
 fi
 
+
 echo -e "${BGreen}Output successfully saved to '$outfile'!"
-rm -rf "$tmp"
+#rm -rf "$tmp"
 }
+function oneshot() {
+    infile="$1"
+    outfile="$2"
+    command="$3"
+
+    total=$(cat "$AXIOM_PATH/selected.conf" | wc -l | awk '{ print $1 }')
+    threads=$(echo "$total * 30" | bc -l)
+
+    mkdir -p "$tmp"
+    echo "Cleaning up..."
+    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'sudo rm -rf output; mkdir -p output' _target_ -q --cache >> /dev/null" >> /dev/null
+    echo "Scanning..."
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec '$command' '_proxy_' -q  --cache " -threads $threads
+    echo "Dowloading results"
+    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:output/* $tmp/output/ --cache >> /dev/null"
+    merging_output
+}
+
+
 
 ##############################################################################
 ### The real meat of the scan...
 
+if [[ "$command" =~ "_target_" ]]; then
+    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE${Color_Off}" 
+    oneshot "$input" "$outfile" "$command" 
+    exit 0
+fi
+
+
 if [[ "$quiet" != "true" ]]; then
-echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
+    echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
 
-echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
-echo -e "${Blue}Files uploaded...${Color_Off}"
-echo ""
+    echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
+    interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
+    echo -e "${Blue}Files uploaded...${Color_Off}"
+    echo ""
 
-clean_up() {
+    echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+    echo -e "${Blue}Scan complete...${Color_Off}"
 
-  # Perform program exit housekeeping
-  # Optionally accepts an exit status
-  interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
-  merging_output
-  exit $1
-}
+    echo ""
+    echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
+    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+    echo -e "${Green}Files downloaded...${Color_Off}"
 
-trap clean_up SIGHUP SIGINT SIGTERM
-
-echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
-echo -e "${Blue}Scan complete...${Color_Off}"
-
-echo ""
-echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
-echo -e "${Green}Files downloaded...${Color_Off}"
-
-merging_output
+    merging_output
 else
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
-interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1" >/dev/null 2>&1
-echo -e "${BWhite}Running module '$module' against specified targets...${Color_Off}"
-interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
-interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
+    interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1" >/dev/null 2>&1
+    echo -e "${BWhite}Running module '$module' against specified targets...${Color_Off}"
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
 
-merging_output >/dev/null 2>&1
-
+    merging_output >/dev/null 2>&1
 fi

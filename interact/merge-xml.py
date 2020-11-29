@@ -68,7 +68,7 @@ def htmlER(mergeFile):
 	import os
 	cmd = '/usr/bin/xsltproc'
 	if os.path.isfile(cmd):
-		out = re.sub(r'.xml', '.html', mergeFile)
+		out = mergeFile + ".html"
 		cmd = cmd + " -o " + out + " " + mergeFile
 		os.system(cmd)
 		print ("Output HTML File:", os.path.abspath(out))
