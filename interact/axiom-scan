@@ -43,9 +43,9 @@ function help() {
 	echo -e "    Output to greppable output (will merge and sort unique)"
 	echo -e "  --fleet string (optional)"
 	echo -e "    Fleet to use, will use axiom-select by default."
-        echo -e "  --debug"
-        echo -e "    Enable debug mode (VERY VERBOSE!)"
-        echo -e "  --quiet"
+  echo -e "  --debug"
+  echo -e "    Enable debug mode (VERY VERBOSE!)"
+  echo -e "  --quiet"
 	echo -e "    Enable quiet mode"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
@@ -197,8 +197,6 @@ fi
 ext=$(echo $mod_data | jq -r '.ext')
 
 ####################################################################
-
-
 # Fleet
 if [[ "$fleet_name" == "" ]]; then
 	instances=$(cat "$AXIOM_PATH/selected.conf")
@@ -216,8 +214,9 @@ if [[ $fleet_size -lt 1 ]]; then
 fi
 
 
-control=$module"_"$(date "+%F-%H-%M-%S")
+
 # Setup tmp
+control=$module"_"$(date "+%F-%H-%M-%S")
 tmp="$HOME/.axiom/tmp/$(date +%s)"
 mkdir -p $tmp/input/
 mkdir -p $tmp/output/
@@ -319,13 +318,11 @@ function oneshot() {
 
 ##############################################################################
 ### The real meat of the scan...
-echo $control
 if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE${Color_Off}" 
     oneshot "$input" "$outfile" "$command" 
     exit 0
 fi
-
 
 if [[ "$quiet" != "true" ]]; then
     echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
