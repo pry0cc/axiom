@@ -232,7 +232,7 @@
         "/bin/su -l op -c 'go get -u github.com/hahwul/dalfox'",
         "Installing Jaeles Scanner",
         "/bin/su -l op -c 'GO111MODULE=on go get github.com/jaeles-project/jaeles && sudo mv /home/op/go/bin/jaeles /usr/bin/jaeles && jaeles config init",
-         "touch /home/op/.profile",
+        "touch /home/op/.profile",
         "touch /home/op/.z",
         "chown -R op:users /home/op",
         "sudo chmod +x /etc/update-motd.d/00-header"
