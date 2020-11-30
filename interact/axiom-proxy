@@ -4,12 +4,29 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
+single_mode="false"
+
+for var in "$@"
+do
+    if [[ "$var" == "--single" ]]; then
+        single_mode="true"
+    fi
+done
+
+
 echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_connect_time_out 8000,[ProxyList]," | tr ',' '\n' >proxychains.conf
 
 instance_data=$(instances)
 
+
+if [[ "$single_mode" == "true" ]]; then
+    tmp="$AXIOM_PATH/tmp/$(date +%s)"
+    mkdir -p "$tmp"
+    echo -e "global\n\t\tdaemon\n\t\tuser root\n\t\tgroup root\n\ndefaults\n\t\tmode tcp\n\t\tmaxconn 3000\n\t\ttimeout connect 5000ms\n\t\ttimeout client 50000ms\n\t\ttimeout server 50000ms\n\nlisten funnel_proxy\n\t\tbind *:1337\n\t\tmode tcp\n\t\tbalance roundrobin\n\t\tdefault_backend doxycannon\n\nbackend doxycannon" >> "$tmp/haproxy.cfg"
+fi
+
 i=0
-for instance in $(query_instances "$@" ) 
+for instance in $(query_instances "$1" ) 
 do
 	i=$((i+1))
 	ip=$(echo "$instance_data" | jq -r ".[] | select(.name==\"$instance\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
@@ -18,8 +35,16 @@ do
 	
 	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -N 2>&1 >>/dev/null &
 	echo -e "${BWhite}Proxy listener started on $port for $instance...${Color_Off}"
+    [[ "$single_mode" == "true" ]] && echo -e "\tserver $ip 127.0.0.1:$port" >> "$tmp/haproxy.cfg"
 	echo "socks5 127.0.0.1 $port" >>proxychains.conf
 	sleep 0.6
 done
 
 echo -e "${BGreen}Proxies connected and saved in ./proxychains.conf${Color_Off}"
+[[ "$single_mode" == "true" ]] && \
+    echo -e "${Blue}Building haproxy configuration...${Color_Off}"
+    echo -e "FROM haproxy:alpine\nCOPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg" > $tmp/Dockerfile && \
+    cd "$tmp" && \
+    docker build -t pry0cc/haproxy .&& \
+    echo -e "${BGreen}[*]${Green} Started SOCKS5 Listener on '${Blue}127.0.0.1:1337${BGreen}'... CTRL+C TO EXIT${BGreen}...${Color_Off}"
+    docker run --rm --network=host --name axiom-proxy pry0cc/haproxy
