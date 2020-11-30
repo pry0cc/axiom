@@ -6,8 +6,8 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 playbooks="$AXIOM_PATH/playbooks"
 
 echo -e -n  "${BWhite}"
-echo "axiom-playbook" | figlet -fslant  -w 1000
-echo "Author: @pry0cc"
+cat "$AXIOM_PATH/interact/axiom-playbook-banner.txt"
+echo ""
 echo -e  "${Color_Off}"
 
 module=""

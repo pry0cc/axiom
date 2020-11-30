@@ -12,7 +12,7 @@ i=0
 for instance in $(query_instances "$@" ) 
 do
 	i=$((i+1))
-	ip=$(echo $instance_data | jq -r ".[] | select(.name == \"$instance\") | .networks.v4[].ip_address")
+	ip=$(echo "$instance_data" | jq -r ".[] | select(.name==\"$instance\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
 	append=$(printf "%02d" "$i")
 	port="50$append"
 	
