@@ -94,14 +94,14 @@ error=false
 if [[ "$input" == "" ]]; then
     echo -e "${BRed}Error: ${Red}Please supply an input file by supplying it as the first argument...${Color_Off}"
     echo -e "${BWhite}Use '${Blue}axiom-playbook <input> -m <playbook>'${Color_Off}"
-    echo -e "${BWhite}Use '${Blue}axiom-scan --list${BWhite}' to list playbooks...${Color_Off}"
+    echo -e "${BWhite}Use '${Blue}axiom-playbook --list${BWhite}' to list playbooks...${Color_Off}"
     error=true
 fi
 
 if [[ "$module" == "" ]]; then
     echo -e "${BRed}Error: ${Red}Please supply a playbook using -m${Color_Off}"
     echo -e "${BWhite}Use '${Blue}'axiom-playbook <input> -m <playbook>'${Color_Off}"
-    echo -e "${BWhite}Use '${Blue}axiom-scan --list${BWhite}' to list playbooks...${Color_Off}"
+    echo -e "${BWhite}Use '${Blue}axiom-playbook --list${BWhite}' to list playbooks...${Color_Off}"
     error=true
 else
     if  [[ ! -f "$playbooks/$module" ]]; then
