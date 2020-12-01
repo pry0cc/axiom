@@ -43,9 +43,9 @@ function help() {
 	echo -e "    Output to greppable output (will merge and sort unique)"
 	echo -e "  --fleet string (optional)"
 	echo -e "    Fleet to use, will use axiom-select by default."
-    echo -e "  --debug"
-    echo -e "    Enable debug mode (VERY VERBOSE!)"
-    echo -e "  --quiet"
+  echo -e "  --debug"
+  echo -e "    Enable debug mode (VERY VERBOSE!)"
+  echo -e "  --quiet"
 	echo -e "    Enable quiet mode"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
@@ -56,11 +56,10 @@ function help() {
 clean_up() {
     # Perform program exit housekeeping
     # Optionally accepts an exit status
-    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
     merging_output
     exit $1
 }
-
 
 module="masscan"
 # User controlled
@@ -198,8 +197,6 @@ fi
 ext=$(echo $mod_data | jq -r '.ext')
 
 ####################################################################
-
-
 # Fleet
 if [[ "$fleet_name" == "" ]]; then
 	instances=$(cat "$AXIOM_PATH/selected.conf")
@@ -219,6 +216,7 @@ fi
 
 
 # Setup tmp
+control=$module"_"$(date "+%F-%H-%M-%S")
 tmp="$HOME/.axiom/tmp/$(date +%s)"
 mkdir -p $tmp/input/
 mkdir -p $tmp/output/
@@ -287,7 +285,7 @@ merging_output() {
         if [[ "$module" == "gowitness" ]]; then
                 echo "Downloading gowitness databases..."
                 mkdir -p "$tmp/dbs/"
-                interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
+                interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache >> /dev/null"
                 echo "Merging databases..."
                 gowitness merge --input-path $tmp/ -o gowitness.sqlite3
                 echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
@@ -296,7 +294,7 @@ fi
 
 
 echo -e "${BGreen}Output successfully saved to '$outfile'!"
-#rm -rf "$tmp"
+rm -rf "$tmp"
 }
 function oneshot() {
     infile="$1"
@@ -308,11 +306,11 @@ function oneshot() {
 
     mkdir -p "$tmp"
     echo "Cleaning up..."
-    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'sudo rm -rf output; mkdir -p output' _target_ -q --cache >> /dev/null" >> /dev/null
+    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'sudo rm -rf output ; mkdir -p $control/output' _target_ -q --cache >> /dev/null" >> /dev/null
     echo "Scanning..."
-    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec '$command' '_proxy_' -q  --cache " -threads $threads
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'cd $control ; $command' '_proxy_' -q  --cache " -threads $threads
     echo "Dowloading results"
-    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:output/* $tmp/output/ --cache >> /dev/null"
+    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:$control/output/* $tmp/output/ --cache >> /dev/null"
     merging_output
 }
 
@@ -320,39 +318,37 @@ function oneshot() {
 
 ##############################################################################
 ### The real meat of the scan...
-
 if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE${Color_Off}" 
     oneshot "$input" "$outfile" "$command" 
     exit 0
 fi
 
-
 if [[ "$quiet" != "true" ]]; then
     echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 ; mkdir $control >> /dev/null\""
 
     echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
+    interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:$control/input --cache  >/dev/null 2>&1"
     echo -e "${Blue}Files uploaded...${Color_Off}"
     echo ""
 
     echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ cd $control \; \"$command\"" -threads $i
     echo -e "${Blue}Scan complete...${Color_Off}"
 
     echo ""
     echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
     echo -e "${Green}Files downloaded...${Color_Off}"
 
     merging_output
 else
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
-    interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1" >/dev/null 2>&1
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3  ; mkdir $control>> /dev/null\"" >/dev/null 2>&1
+    interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:$control/input --cache  >/dev/null 2>&1" >/dev/null 2>&1
     echo -e "${BWhite}Running module '$module' against specified targets...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
-    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ cd $control \; \"$command\"" -threads $i
+    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:$control/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
 
     merging_output >/dev/null 2>&1
 fi
