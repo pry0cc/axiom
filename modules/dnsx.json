@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /usr/bin/dnsx -silent > output",
+	"command":"cat input | /usr/bin/dnsx -silent -r /home/op/lists/resolvers.txt > output",
 	"ext":"txt"
 }]
