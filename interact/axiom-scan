@@ -52,15 +52,18 @@ function help() {
 	echo -e "  <additional args>"
 	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
-
+PID=""
+tailPID=""
 clean_up() {
     # Perform program exit housekeeping
     # Optionally accepts an exit status
     interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
     merging_output
+    echo $PID
+    kill -9 $PID
+    kill -9 $tailPID
     exit $1
 }
-
 
 module="masscan"
 # User controlled
@@ -229,9 +232,12 @@ fi
 
 
 # Setup tmp
-tmp="$HOME/.axiom/tmp/$(date +%s)"
+uid=$(date +%s)
+tmp="$HOME/.axiom/tmp/$uid"
 mkdir -p $tmp/input/
 mkdir -p $tmp/output/
+mkdir -p $tmp/logs/
+mkdir -p $AXIOM_PATH/logs/
 start=$(pwd)
 
 trap clean_up SIGHUP SIGINT SIGTERM
@@ -309,7 +315,8 @@ fi
 
 
 echo -e "${BGreen}Output successfully saved to '$outfile'!"
-#rm -rf "$tmp"
+tar -cvzf $AXIOM_PATH/logs/$uid.tar.gz $tmp/logs
+rm -rf "$tmp"
 }
 function oneshot() {
     infile="$1"
@@ -323,12 +330,11 @@ function oneshot() {
     echo "Cleaning up..."
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'sudo rm -rf output; mkdir -p output' _target_ -q --cache >> /dev/null" >> /dev/null
     echo "Scanning..."
-    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec '$command' '_proxy_' -q  --cache " -threads $threads
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec '$command' '_proxy_' -q  --cache | tee $tmp/logs/_proxy_" -threads $threads
     echo "Dowloading results"
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:output/* $tmp/output/ --cache >> /dev/null"
     merging_output
 }
-
 
 
 ##############################################################################
@@ -353,7 +359,16 @@ if [[ "$quiet" != "true" ]]; then
     echo ""
 
     echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+
+    echo $tmp
+    interlace $silent -tL $tmp/hosts -c "touch $tmp/logs/_target_" -threads $i 
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\" 2>&1 >> $tmp/logs/_target_" -threads $i &
+    PID=$!
+    echo $PID
+    tail -f $tmp/logs/* &
+    tailPID=$!
+    wait $PID
+    kill -9 $tailPID >> /dev/null/
     echo -e "${Blue}Scan complete...${Color_Off}"
 
     echo ""
@@ -366,8 +381,13 @@ else
     interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
     interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1" >/dev/null 2>&1
     echo -e "${BWhite}Running module '$module' against specified targets...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+    interlace $silent -tL $tmp/hosts -c "touch $tmp/logs/_target_" -threads $i
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i &
+    PID=$!
+    tail -q -f $tmp/logs/* &
+    tailPID=$!
+    wait $PID
+    kill -9 $tailPID >> /dev/null/
     interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
-
     merging_output >/dev/null 2>&1
 fi
