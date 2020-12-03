@@ -247,7 +247,7 @@ lines_per_file=$(expr $lines / $divisor)
 
 # Shuffle the data  so that its nice and mixed!
 echo "Shuffling..."
-pv $input | shuf > $tmp/targets
+cat $input | shuf > $tmp/targets
 
 echo "Splitting."
 cd $tmp && split -l $lines_per_file targets && rm targets && cd $start
