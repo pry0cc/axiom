@@ -177,6 +177,7 @@ fi
 if [[ "$debug" == "true" ]]; then
     silent=""
 fi
+
 #command="sudo masscan -iL input -p80 --rate=100000 -oG output"
 #command="nmap -T5 -p80 -iL input -oX output"
 #command="cat input | /home/op/bin/ffuz -s -o output"
@@ -208,6 +209,7 @@ else
 fi
 
 echo -e "${BGreen}Starting axiom-scan using instances: ${Color_Off}[${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]${Color_Off}"
+$AXIOM_PATH/interact/axiom-ssh --just-generate
 echo -e "${BGreen}Command: [${Blue} $command${Color_Off}${BGreen}] | Ext: [${Blue}$ext${BGreen}]${Color_Off}"
 fleet_size=$(echo $instances | tr ' ' '\n' | wc -l| awk '{ print $1 }')
 
