@@ -56,12 +56,10 @@ PID=""
 tailPID=""
 clean_up() {
     # Perform program exit housekeeping
+    kill -9 $tailPID  2>&1 >> /dev/null
     # Optionally accepts an exit status
     interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
     merging_output
-    echo $PID
-    kill -9 $PID
-    kill -9 $tailPID
     exit $1
 }
 
@@ -240,7 +238,7 @@ mkdir -p $tmp/logs/
 mkdir -p $AXIOM_PATH/logs/
 start=$(pwd)
 
-trap clean_up SIGHUP SIGINT SIGTERM
+trap clean_up SIGINT
 ##############################################################################
 #### Splitting
 echo "Splitting file sequence..."
@@ -315,7 +313,7 @@ fi
 
 
 echo -e "${BGreen}Output successfully saved to '$outfile'!"
-tar -cvzf $AXIOM_PATH/logs/$uid.tar.gz $tmp/logs
+#tar -cvzf $AXIOM_PATH/logs/$uid.tar.gz $tmp/logs
 rm -rf "$tmp"
 }
 function oneshot() {
@@ -362,13 +360,13 @@ if [[ "$quiet" != "true" ]]; then
 
     echo $tmp
     interlace $silent -tL $tmp/hosts -c "touch $tmp/logs/_target_" -threads $i 
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\" 2>&1 >> $tmp/logs/_target_" -threads $i &
-    PID=$!
-    echo $PID
-    tail -f $tmp/logs/* &
+
+	tail -q -f $tmp/logs/* &
     tailPID=$!
-    wait $PID
-    kill -9 $tailPID >> /dev/null/
+
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\" 2>&1 >> $tmp/logs/_target_" -threads $i 
+    kill -9 $tailPID 2>&1 >> /dev/null
+
     echo -e "${Blue}Scan complete...${Color_Off}"
 
     echo ""
@@ -387,7 +385,7 @@ else
     tail -q -f $tmp/logs/* &
     tailPID=$!
     wait $PID
-    kill -9 $tailPID >> /dev/null/
+    kill -9 $tailPID >> /dev/null
     interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
     merging_output >/dev/null 2>&1
 fi

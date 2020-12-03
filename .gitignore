@@ -1,5 +1,6 @@
 keys/*
 .sshconfig
+logs/*
 accounts/*.json
 .syncthing.*
 selected.conf
