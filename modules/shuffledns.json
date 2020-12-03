@@ -1,4 +1,4 @@
 [{
-	"command":"zsh -c '/home/op/go/bin/shuffledns -r lists/resolvers.txt -list input > output'",
+	"command":"echo _target_ | shuffledns -v -r /home/op/lists/resolvers.txt -w /home/op/lists/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt -o /home/op/output/_target_",
 	"ext":"txt"
 }]

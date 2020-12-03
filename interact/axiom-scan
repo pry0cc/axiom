@@ -74,7 +74,7 @@ quiet=""
 silent="--silent" 
 anew="false"
 
-#
+threads="30"
 
 pass=()
 
@@ -114,6 +114,14 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
+	if [[ "$arg" == "--threads" ]]; then
+		n=$((i+1))
+		threads=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+
 	if [[ "$arg" == "-oG" ]]; then
 		n=$((i+1))
 		ext="txt"
@@ -229,6 +237,7 @@ start=$(pwd)
 trap clean_up SIGHUP SIGINT SIGTERM
 ##############################################################################
 #### Splitting
+echo "Splitting file sequence..."
 divisor=$fleet_size
 lines=$(wc -l "$input" | awk '{ print $1 }')
 lines_per_file=$(expr $lines / $divisor)
@@ -237,8 +246,10 @@ lines_per_file=$(expr $lines / $divisor)
 [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
 
 # Shuffle the data  so that its nice and mixed!
-cat $input | shuf > $tmp/targets
+echo "Shuffling..."
+pv $input | shuf > $tmp/targets
 
+echo "Splitting."
 cd $tmp && split -l $lines_per_file targets && rm targets && cd $start
 
 # Rename "xaa" etc  to 1 2 3 4 5
@@ -306,7 +317,7 @@ function oneshot() {
     command="$3"
 
     total=$(cat "$AXIOM_PATH/selected.conf" | wc -l | awk '{ print $1 }')
-    threads=$(echo "$total * 30" | bc -l)
+    threads=$(echo "$total * $threads" | bc -l)
 
     mkdir -p "$tmp"
     echo "Cleaning up..."
@@ -324,9 +335,11 @@ function oneshot() {
 ### The real meat of the scan...
 
 if [[ "$command" =~ "_target_" ]]; then
-    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE${Color_Off}" 
+    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! Using $threads threads per instance...${Color_Off}" 
     oneshot "$input" "$outfile" "$command" 
     exit 0
+else
+	echo "Scanning..."
 fi
 
 
