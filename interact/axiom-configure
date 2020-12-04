@@ -142,8 +142,6 @@ if [ $BASEOS == "Mac" ]; then
   curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
 	echo -e "${Blue}Installing jq...${Color_Off}"
 	brew install jq
-  echo -e "${Blue}Installing golang...${Color_Off}"
-  brew install golang
   echo -e "${Blue}Installing packer...${Color_Off}"
 	mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
 	git clone https://github.com/hashicorp/packer.git
