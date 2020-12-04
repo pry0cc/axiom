@@ -151,7 +151,7 @@ if [ $BASEOS == "Mac" ]; then
 	sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git
 	cd packer
 	make dev
-  sudo mv 
+  sudo mv $(go env GOPATH)/src/github.com/hashicorp/packer /usr/bin/packer
 fi
 
 if [ ! -d $AXIOM_PATH ]; then
