@@ -3,7 +3,7 @@
 AXIOM_PATH="$HOME/.axiom"
 
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
-echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n"
+echo -e "Detected SSH public key, would you like me to install this for your axiom setup? y/n"
 		read ans
 		if [ $ans == "n" ]; then
 			echo -e "Would you like to generate a fresh pair? y/n"
