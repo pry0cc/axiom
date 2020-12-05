@@ -1,3 +1,7 @@
+#!/bin/bash
+
+AXIOM_PATH="$HOME/.axiom"
+
 if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
 echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n"
 		read ans
@@ -39,8 +43,17 @@ echo "SSH Key ID $sshkeyid"; # ssh key id
 echo "Creating Ubuntu 18.04 Base VSI";
 id=$(echo "Y"| ibmcloud sl vs create -H $axiomhostname -D axiom.local -c 2 -m 4096 -d dal13 -o UBUNTU_18_64 --disk 100 -k $sshkeyid | grep -s "^ID" | tr -s " " | cut -d " " -f 2 ); # create axiom base image with sshkey
 echo "Base IBM Cloud Server ID is $id";
-echo "sleeping one minute";
-sleep 60;
+sleep 5
+amiactive="1"
+while true
+	amiactive=$(ibmcloud sl vs detail $id -output json | jq ".activeTransaction | {transactionStatus}" | jq '.[]' | jq '.name // empty')
+        do echo "Waiting for server to initialize. Current phase: "$amiactive"";
+	if [ "$amiactive" == "" ]; then
+		break
+	fi
+	sleep 10
+done;
+sleep 10
 echo "Upgrading Ubuntu 18.04 to Ubuntu 20.04... multiple reboots ahead";
 imageip=$(ibmcloud sl vs detail $id -output json | jq '.primaryIpAddress' | tr -d '"'); # Get VSI Public Address
 
