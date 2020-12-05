@@ -94,7 +94,7 @@ echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
 done
 #sleep 1
 echo -e "${BGreen}Running parallel file transfer...${Color_Off}"
-interlace -t 0x00sec.org -cL $AXIOM_PATH/tmp/cmds.txt
+interlace -t NULL -cL $AXIOM_PATH/tmp/cmds.txt
 else
 	rsync -e "ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig"  -avzr --progress $args
 fi
