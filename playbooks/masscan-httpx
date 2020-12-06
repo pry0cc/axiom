@@ -1,0 +1,1 @@
+cat input | masscan -p0-65535 | cut -d "/" -f 1 | awk '{ print $2 ":" $5 }' | httpx

@@ -1,1 +1,1 @@
-cat input | subfinder | dnsgen | massdns
+cat input | subfinder | shuffledns | dnsx -resp

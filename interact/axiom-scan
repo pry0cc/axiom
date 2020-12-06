@@ -4,6 +4,7 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
+begin=$(date +%s)
 
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
@@ -52,15 +53,20 @@ function help() {
 	echo -e "  <additional args>"
 	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
-
+PID=""
+tailPID=""
 clean_up() {
     # Perform program exit housekeeping
-    # Optionally accepts an exit status
-    interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+	if [[ "$command" =~ "_target_" ]]; then
+		interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:output/* $tmp/output/ --cache >> /dev/null"
+	else
+		kill -9 $tailPID   
+		wait $! 2>/dev/null
+		interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+	fi
     merging_output
     exit $1
 }
-
 
 module="masscan"
 # User controlled
@@ -92,9 +98,9 @@ do
 	if [[ "$arg" == "-m" ]]; then
 		n=$((i+1))
 		module=$(echo ${!n})
-        if [[ "$quiet" != "true" ]]; then
-		echo -e "${Blue}Selecting module '$module'${Color_Off}"
-        fi
+        #if [[ "$quiet" != "true" ]]; then
+		#echo -e "${Blue}Selecting module '$module'${Color_Off}"
+        #fi
 		set=true
 		pass+=($i)
 		pass+=($n)
@@ -216,40 +222,62 @@ else
 	instances=$(query_instances_cache "$fleet_name*")
 fi
 
-echo -e "${BGreen}Starting axiom-scan using instances: ${Color_Off}[${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]${Color_Off}"
-$AXIOM_PATH/interact/axiom-ssh --just-generate
-echo -e "${BGreen}Command: [${Blue} $command${Color_Off}${BGreen}] | Ext: [${Blue}$ext${BGreen}]${Color_Off}"
-fleet_size=$(echo $instances | tr ' ' '\n' | wc -l| awk '{ print $1 }')
 
+# Setup tmp
+uid=$(date +%s)
+tmp="$HOME/.axiom/tmp/$uid"
+mkdir -p $tmp/input/
+mkdir -p $tmp/output/
+mkdir -p $tmp/logs/
+mkdir -p $AXIOM_PATH/logs/
+start=$(pwd)
+
+echo -e -n "${BWhite}"
+echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfXyBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCg==" | base64 -d
+echo -e  "${Color_Off}"
+
+function formatSeconds (){
+	declare format='%02dh:%02dm:%02ds'         # time format hh:mm:sshconfig
+	declare timepassed=$1
+	declare seconds minutes hours
+
+	((seconds=timepassed%60))
+	((minutes=timepassed/60))
+	((hours=minutes/60))
+	((minutes=minutes%60))
+	printf "$format" $hours $minutes $seconds
+}
+
+stty -echoctl
+trap clean_up SIGHUP SIGINT SIGTERM
+
+##############################################################################
+#### Splitting
+#echo "Splitting file sequence..."
+
+fleet_size=$(echo $instances | tr ' ' '\n' | wc -l| awk '{ print $1 }')
+divisor=$fleet_size
+lines=$(wc -l "$input" | awk '{ print $1 }')
+
+echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $fleet_size [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
+echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | ${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
+
+$AXIOM_PATH/interact/axiom-ssh --just-generate
 if [[ $fleet_size -lt 1 ]]; then
 	echo -e "${BRed}Your fleet is either too small or doesn't exist, use axiom-fleet -i=5 to spin one up!${Color_Off}"
 	exit 1
 fi
 
-
-
-# Setup tmp
-tmp="$HOME/.axiom/tmp/$(date +%s)"
-mkdir -p $tmp/input/
-mkdir -p $tmp/output/
-start=$(pwd)
-
-trap clean_up SIGHUP SIGINT SIGTERM
-##############################################################################
-#### Splitting
-echo "Splitting file sequence..."
-divisor=$fleet_size
-lines=$(wc -l "$input" | awk '{ print $1 }')
 lines_per_file=$(expr $lines / $divisor)
 
 # Add an extra line per file if it isn't divisible equally (spreads them out equally across an odd / even number of fleet)
 [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
 
 # Shuffle the data  so that its nice and mixed!
-echo "Shuffling..."
+#echo "Shuffling..."
 cat $input | shuf > $tmp/targets
 
-echo "Splitting."
+#echo "Splitting."
 cd $tmp && split -l $lines_per_file targets && rm targets && cd $start
 
 # Rename "xaa" etc  to 1 2 3 4 5
@@ -307,11 +335,20 @@ merging_output() {
         fi
 fi
 
+cd "$tmp"
+tar -czf "$uid.tar.gz" logs/
+mv "$uid.tar.gz" "$AXIOM_PATH/logs/$uid.tar.gz"
+rm -rf "$tmp"
+end=$(date +%s)
 
-echo -e "${BGreen}Output successfully saved to '$outfile'!"
-#rm -rf "$tmp"
+runtime=$((end-begin))
+time=$(formatSeconds $runtime)
+echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
+echo -e "${BGreen}Output successfully saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid.tar.gz${Color_Off}'"
 }
 function oneshot() {
+	trap clean_up SIGINT
+    
     infile="$1"
     outfile="$2"
     command="$3"
@@ -320,15 +357,17 @@ function oneshot() {
     threads=$(echo "$total * $threads" | bc -l)
 
     mkdir -p "$tmp"
-    echo "Cleaning up..."
-    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'sudo rm -rf output; mkdir -p output' _target_ -q --cache >> /dev/null" >> /dev/null
-    echo "Scanning..."
-    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec '$command' '_proxy_' -q  --cache " -threads $threads
-    echo "Dowloading results"
+    echo -e -n "${BWhite}Cleaning up fleet... ${Color_Off}"
+    interlace --silent --no-bar -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" > /dev/null 2>&1
+    interlace --silent --no-bar -tL $tmp/hosts -c "touch $tmp/logs/_target_" -threads $fleet_size >/dev/null 2>&1 
+    echo -e "[ ${Green}OK${Color_Off} ]"
+
+    echo -e "${BWhite}Scanning...${Color_Off}"
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec 'mkdir -p output; $command' '_proxy_' -q  --cache | tee $tmp/logs/_proxy_" -threads $threads
+    echo -e "${Blue}Dowloading results${Color_Off}"
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:output/* $tmp/output/ --cache >> /dev/null"
     merging_output
 }
-
 
 
 ##############################################################################
@@ -338,22 +377,41 @@ if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! Using $threads threads per instance...${Color_Off}" 
     oneshot "$input" "$outfile" "$command" 
     exit 0
-else
-	echo "Scanning..."
+fi
+
+
+interactive=false
+
+if [[ "$module" == "masscan" ]]; then
+	echo "setting interactive"
+	interactive=true
 fi
 
 
 if [[ "$quiet" != "true" ]]; then
-    echo -e "${BWhite}Cleaning up fleet...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\""
+    echo -e -n "${BWhite}Cleaning up fleet... ${Color_Off}"
+    interlace --silent --no-bar -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" > /dev/null 2>&1
+    interlace --silent --no-bar -tL $tmp/hosts -c "touch $tmp/logs/_target_" -threads $fleet_size >/dev/null 2>&1 
+    echo -e "[ ${Green}OK${Color_Off} ]"
 
     echo -e "${BWhite}Uploading input files to fleet...${Color_Off}"
     interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1"
     echo -e "${Blue}Files uploaded...${Color_Off}"
     echo ""
 
-    echo -e "${BWhite}Running jobs against specified targets...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+	echo -e "${BWhite}Running jobs against specified targets... (To view logs: $tmp)${Color_Off}"
+
+	if [[ "$interactive" == "false" ]]; then
+		tail -q -f $tmp/logs/* &
+		tailPID=$!
+
+		interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command 2>&1\" 2>&1 >> $tmp/logs/_target_" -threads $fleet_size 
+
+		kill -9 $tailPID > /dev/null 2>&1 
+		wait $! 2>/dev/null
+	else
+		interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\" | tee $tmp/logs/_target_" -threads $fleet_size
+	fi
     echo -e "${Blue}Scan complete...${Color_Off}"
 
     echo ""
@@ -366,8 +424,21 @@ else
     interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
     interlace $silent -tL $tmp/hosts -c "axiom-scp $tmp/input/_target_ _target_:input --cache  >/dev/null 2>&1" >/dev/null 2>&1
     echo -e "${BWhite}Running module '$module' against specified targets...${Color_Off}"
-    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command\"" -threads $i
+    interlace --silent --no-bar -tL $tmp/hosts -c "touch $tmp/logs/_target_" -threads $fleet_size > /dev/null 2>&1
+    interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig _target_ \"$command 2>&1\" >> $tmp/logs/_target_ 2>&1" -threads $fleet_size 
     interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1" >/dev/null 2>&1
-
     merging_output >/dev/null 2>&1
+	
+	runtime=$((end-begin))
+	time=$(formatSeconds $runtime)
+	echo -e "${Blue}Successfully scanned $lines targets using module $module in $time!${Color_Off}"
+	res=0
+	if [[ "$ext" == "" ]]; then
+		res=$(ls -l $start/$outfile/ | wc -l | awk '{ print $1 }')
+	else
+		res=$(wc -l $start/$outfile | awk '{ print $1 }')
+	fi
+	echo "{\"module\":\"$module\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$fleet_size\",\"commmand\":\"$command\", \"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+	echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
+	echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid.tar.gz${Color_Off}'"
 fi
