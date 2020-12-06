@@ -1,5 +1,6 @@
 keys/*
 .sshconfig
+stats.log
 logs/*
 accounts/*.json
 .syncthing.*
