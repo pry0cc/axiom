@@ -367,6 +367,14 @@ function oneshot() {
     echo -e "${Blue}Dowloading results${Color_Off}"
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:output/* $tmp/output/ --cache >> /dev/null"
     merging_output
+    if [[ "$ext" == "" ]]; then
+		res=$(ls -l $start/$outfile/ | wc -l | awk '{ print $1 }')
+	else
+		res=$(wc -l $start/$outfile | awk '{ print $1 }')
+	fi
+
+    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$fleet_size\",\"commmand\":\"$command\", \"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+
 }
 
 
@@ -418,7 +426,13 @@ if [[ "$quiet" != "true" ]]; then
     echo -e "${BWhite}Downloading output from fleet...${Color_Off}"
     interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
     echo -e "${Green}Files downloaded...${Color_Off}"
+    if [[ "$ext" == "" ]]; then
+		res=$(ls -l $start/$outfile/ | wc -l | awk '{ print $1 }')
+	else
+		res=$(wc -l $start/$outfile | awk '{ print $1 }')
+	fi
 
+    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$fleet_size\",\"commmand\":\"$command\", \"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
     merging_output
 else
     interlace $silent -tL $tmp/hosts -c "ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no _target_ \"sudo rm -rf input output gowitness.sqlite3 >> /dev/null\"" >/dev/null 2>&1
@@ -438,7 +452,7 @@ else
 	else
 		res=$(wc -l $start/$outfile | awk '{ print $1 }')
 	fi
-	echo "{\"module\":\"$module\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$fleet_size\",\"commmand\":\"$command\", \"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$fleet_size\",\"commmand\":\"$command\", \"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
 	echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 	echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid.tar.gz${Color_Off}'"
 fi

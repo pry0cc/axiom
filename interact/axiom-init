@@ -148,6 +148,7 @@ if [[ "$quiet" != "true" ]]; then
 	echo -e "${BWhite}Initializing '$name'"
 fi
 
+
 image_name=""
 if [[ "$image" != "null" ]]
 then

@@ -14,16 +14,21 @@ base_image_id=""
 username=""
 ibm_cloud_api_key=""
 
+client_id=""
+client_secret=""
+tenant_id=""
+sub_id=""
+
 appliance_name=""
 appliance_key=""
 appliance_url=""
 
 echo -e "${BWhite}Axiom Account Setup${Color_Off}"
 echo -e "${Blue}You can use this wizard to add new accounts, once made, use axiom-account to switch between profiles${Color_Off}"
-echo -e -n "${Green}Please enter your provider (Default 'do', options: 'gcp', 'ibm'): \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter your provider (Default 'do', options: 'gcp', 'ibm', 'azure'): \n>> ${Color_Off}"
 read provider
 
-while [[ "$provider" != "do" ]] && [[ "$provider" != "gcp" ]] && [[ "$provider" != "ibm" ]];
+while [[ "$provider" != "do" ]] && [[ "$provider" != "gcp" ]] && [[ "$provider" != "ibm" ]] && [[ "$provider" != "azure" ]];
 do
     if [[ "$provider" == "" ]]
     then
@@ -32,10 +37,11 @@ do
         break
     fi
     echo -e "${BRed}'$provider' is not a valid provider ${Color_Off}"
-    echo -e -n "${Red}Please enter a valid provider 'do','gcp', 'ibm': \n>> ${Color_Off}"
+    echo -e -n "${Red}Please enter a valid provider 'do','gcp', 'ibm', 'azure': \n>> ${Color_Off}"
     read provider
 done
 
+if [[ "$provider" == "do" ]] | [[ "$provider" == "ibm" ]]; then
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
 if [[ "$provider" == "ibm" ]]; then	
 	echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
@@ -89,7 +95,34 @@ if [[ "$provider" == "ibm" ]]; then
 	read username
 
 fi
- 
+fi
+
+if [[ "$provider" == "azure" ]]; then
+	echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
+
+	read region
+
+	if [[ "$region" == "" ]]; then
+		echo -e "${Blue}Selected default option 'eastus'${Color_Off}"
+		region="eastus"
+	fi
+
+	echo -e -n "${Green}Please enter your default size: (Default 'Standard_B1s)', press enter) \n>> ${Color_Off}"
+	read size
+
+	if [[ "$size" == "" ]]; then
+    echo -e "${Blue}Selected default option 'Standard_B1s'${Color_Off}"
+    size="Standard_B1s"
+	fi
+
+	az login
+	az group create -n axiom -l "$region"
+	bac="$(az ad sp create-for-rbac --query "{ client_id: appId, client_secret: password, tenant_id: tenant }")" 
+	client_id="$(echo $bac | jq -r '.client_id')"
+	client_secret="$(echo $bac | jq -r '.client_secret')"
+	tenant_id="$(echo $bac | jq -r '.tenant_id')"
+	sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
+fi
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
@@ -114,6 +147,8 @@ if [[ "$provider" == "ibm" ]]; then
 	data="$(echo "{\"do_key\":\"$token\",\"ibm_cloud_api_key\":\"$ibm_cloud_api_key\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"cpu\":\"$cpu\",\"username\":\"$username\",\"base_image_id\":\"$base_image_id\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
 elif [[ "$provider" == "do" ]]; then
 	data="$(echo "{\"do_key\":\"$token\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
+elif [[ "$provider" == "azure" ]]; then
+	data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"axiom\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
 fi
 
 

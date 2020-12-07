@@ -84,25 +84,26 @@ then
 fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
-sizes=$(instance_sizes)
-slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
-#slug="s-1vcpu-1gb"
-instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-
 total_spend_per_instance_rounded="0"
+slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
-if [[ "$instance_data" != "" ]]
+price_hourly=0
+if [[ "$provider" == "do" ]]; then
+	sizes=$(instance_sizes)
+	instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
+	price_hourly=$(echo $instance_data | jq .price_hourly)
+elif [[ "$provider" == "azure" ]]; then
+	price_hourly=$(cat $AXIOM_PATH/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
+fi
+
+if [[ "$provider" == "do" ]] | [[ "$provider" == "azure" ]];
 then
-price_hourly=$(echo $instance_data | jq .price_hourly)
-cores=$(echo $instance_data | jq .vcpus)
-mem_big=$(echo $instance_data | jq .memory)
-mem=$(expr $mem_big / 1024)
-disk=$(echo $instance_data | jq .disk)
-total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
-total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\./0./')
-total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
-total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
-echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
+	
+	total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
+	total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\./0./')
+	total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
+	total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
+	echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
 fi
 
 echo -e "${BWhite}INITIALIZING IN 3 SECONDS, CTRL+C to quit... ${Color_Off}"

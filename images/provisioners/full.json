@@ -13,11 +13,11 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "./configs/sshd_config",
-      "destination": "/etc/ssh/sshd_config"
+      "source": "./configs",
+      "destination":"/tmp/configs"
     },
     {
-      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
       "inline": [
         "fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
         "add-apt-repository -y ppa:longsleep/golang-backports",
@@ -55,92 +55,23 @@
         "chown -R op:users /home/op",
         "echo 'op:{{ user `do_key` }}' | chpasswd",
         "rm /etc/resolv.conf",
-        "rm -rf /etc/update-motd.d/*"
-      ]
-    },
-    {
-      "type": "file",
-      "source": "./configs/resolv.conf",
-      "destination": "/etc/resolv.conf"
-    },
-    {
-      "type": "file",
-      "source": "./configs/docker",
-      "destination": "/etc/default/docker"
-    },
-    {
-      "type": "file",
-      "source": "./configs/telegram",
-      "destination": "/home/op/bin/telegram"
-    },
-    {
-      "type": "file",
-      "source": "./configs/add-path",
-      "destination": "/home/op/bin/add-path"
-    },
-    {
-      "type": "file",
-      "source": "./configs/authorized_keys",
-      "destination": "/home/op/.ssh/authorized_keys"
-    },
-    {
-      "type": "file",
-      "source": "./configs/telegram.json",
-      "destination": "/home/op/.telegram.json"
-    },
-    {
-      "type": "file",
-      "source": "./configs/tmux.conf",
-      "destination": "/home/op/.tmux.conf"
-    },
-    {
-      "type": "file",
-      "source": "./configs/tmux.conf.local",
-      "destination": "/home/op/.tmux.conf.local"
-    },
-    {
-      "type": "file",
-      "source": "./configs/tmux-splash.sh",
-      "destination": "/home/op/bin/tmux-splash.sh"
-    },
-    {
-      "type": "file",
-      "source": "./configs/zsh_history",
-      "destination": "/home/op/.zsh_history"
-    },
-    {
-      "type": "file",
-      "source": "./configs/00-header",
-      "destination": "/etc/update-motd.d/00-header"
-    },
-    {
-      "type": "file",
-      "source": "./configs/bashrc",
-      "destination": "/home/op/.bashrc"
-    },
-    {
-      "type": "file",
-      "source": "./configs/zshrc",
-      "destination": "/home/op/.zshrc"
-    },
-    {
-      "type": "file",
-      "source": "./configs/oh-my-zsh.tar.gz",
-      "destination": "/home/op/.oh-my-zsh.tar.gz"
-    },
-    {
-      "type": "file",
-      "source": "./configs/nvim.tar.gz",
-      "destination": "/home/op/.config/nvim.tar.gz"
-    },
-    {
-      "type": "file",
-      "source": "./configs/sudoers",
-      "destination": "/etc/sudoers"
-    },
-    {
-      "type": "shell",
-      "inline": [
+        "rm -rf /etc/update-motd.d/*",
+      	"mv /tmp/configs/sshd_config /etc/ssh/sshd_config",
+		"mv /tmp/configs/resolv.conf /etc/resolv.conf",
+		"mv /tmp/configs/docker /etc/default/docker",
+		"mv /tmp/configs/telegram /home/op/bin/telegram",
+		"mv /tmp/configs/authorized_keys /home/op/.ssh/authorized_keys",
+		"mv /tmp/configs/telegram.json /home/op/.telegram.json",
+		"mv /tmp/configs/tmux.conf /home/op/.tmux.conf",
+		"mv /tmp/configs/tmux.conf.local /home/op/.tmux.conf.local",
+		"mv /tmp/configs/tmux-splash.sh /home/op/bin/tmux-splash.sh",
+		"mv /tmp/configs/zsh_history /home/op/.zsh_history",
+		"mv /tmp/configs/00-header /etc/update-motd.d/00-header",
+		"mv /tmp/configs/bashrc /home/op/.bashrc",
+		"mv /tmp/configs/zshrc /home/op/.zshrc",
+		"mv /tmp/configs/oh-my-zsh.tar.gz /home/op/.oh-my-zsh.tar.gz",
+		"mv /tmp/configs/nvim.tar.gz /home/op/.config/nvim.tar.gz",
+		"mv /tmp/configs/sudoers /etc/sudoers",
         "chattr +i /etc/resolv.conf",
         "chown -R op:users /home/op",
         "cd /tmp && wget -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.0.1/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
@@ -171,7 +102,6 @@
         "cd /home/op/.config/ && tar -xf /home/op/.config/nvim.tar.gz",
         "cd /home/op/recon/emailgen && bundle update --bundler",
         "cd /home/op/recon/emailgen && bundle install",
-        "echo \"@hunter_key = '{{ user `hunter_key` }}'\" >> /home/op/recon/emailgen/tokens.rb",
         "echo 'Setting up sn0int repository'",
         "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list && apt-get update",
         "echo 'Installing fail2ban'",
@@ -235,12 +165,9 @@
         "touch /home/op/.profile",
         "touch /home/op/.z",
         "chown -R op:users /home/op",
-        "sudo chmod +x /etc/update-motd.d/00-header"
-      ]
-    },
-    {
-      "type": "shell",
-      "inline": ["chown -R op:users /home/op"]
+        "chmod +x /etc/update-motd.d/00-header"
+      ], "inline_shebang": "/bin/sh -x",
+	  "type": "shell"
     }
   ]
 }
