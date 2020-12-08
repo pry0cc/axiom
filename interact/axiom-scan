@@ -255,9 +255,20 @@ trap clean_up SIGHUP SIGINT SIGTERM
 #### Splitting
 #echo "Splitting file sequence..."
 
+# If available use nmap to expand CIDR targets to a list of IP address
+if nmap -h 1>/dev/null 2>/dev/null; then
+	#nmap is avaialble so use it to split the input file to a list of IPs and shuffle
+	#echo "Expanding CIDR(s) using nmap and shuffling..."
+	nmap -n -sL -iL $input | awk '/Nmap scan report for/ {print $5}' | shuf > $tmp/targets
+else
+	# nmap unavailable so just shuffle input as is and output to $tmp/targets
+	#echo "Shuffling..."
+	cat $input | shuf > $tmp/targets
+fi
+
 fleet_size=$(echo $instances | tr ' ' '\n' | wc -l| awk '{ print $1 }')
 divisor=$fleet_size
-lines=$(wc -l "$input" | awk '{ print $1 }')
+lines=$(wc -l "$tmp/targets" | awk '{ print $1 }')
 
 echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $fleet_size [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
 echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | ${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
@@ -272,10 +283,6 @@ lines_per_file=$(expr $lines / $divisor)
 
 # Add an extra line per file if it isn't divisible equally (spreads them out equally across an odd / even number of fleet)
 [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
-
-# Shuffle the data  so that its nice and mixed!
-#echo "Shuffling..."
-cat $input | shuf > $tmp/targets
 
 #echo "Splitting."
 cd $tmp && split -l $lines_per_file targets && rm targets && cd $start
