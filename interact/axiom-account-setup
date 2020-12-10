@@ -41,24 +41,35 @@ do
     read provider
 done
 
-if [[ "$provider" == "do" ]] | [[ "$provider" == "ibm" ]]; then
-echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
+if [[ "$provider" == "do" ]]; then
+	echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
+	read token
+	while [[ "$token" == "" ]]; do
+	echo -e "${BRed}Please provide a token, your entry contained no input.${Color_Off}"
+	echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
+	read token
+	done
+fi
+
 if [[ "$provider" == "ibm" ]]; then	
 	echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
+	read token
+	while [[ "$token" == "" ]]; do
+	echo -e "${BRed}Please provide a IBM Cloud Classic API key, your entry contained no input.${Color_Off}"
+	echo -e -n "${Green}Please enter your IBM Cloud Classic API key (required): \n>> ${Color_Off}"
+	read token
+	done
+
 fi
-read token
-
-while [[ "$token" == "" ]]
-do
-    echo -e "${BRed}Please provide a token, your entry contained no input.${Color_Off}"
-    echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
-    read token
-done
-
-
 if [[ "$provider" == "ibm" ]]; then	
 	echo -e -n "${Green}Create an IBM Cloud API Key (for ibmcli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
 	read ibm_cloud_api_key
+	while [[ "$ibm_cloud_api_key" == "" ]]; do
+	echo -e "${BRed}Please provide a IBM Cloud API key, your entry contained no input.${Color_Off}"
+	echo -e -n "${Green}Please enter your IBM Cloud API key (required): \n>> ${Color_Off}"
+	read ibm_cloud_api_key
+	done
+
 fi
 echo -e -n "${Green}Please enter your default region: (Default 'sfo2', press enter) \n>> ${Color_Off}"
 
@@ -94,7 +105,6 @@ if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Get your SoftLayer username here: https://cloud.ibm.com/iam/users/. Click your username and scroll down to VPN password to get your SoftLayer username (E.g 'SL838382832') \n>> ${Color_Off}"
 	read username
 
-fi
 fi
 
 if [[ "$provider" == "azure" ]]; then
