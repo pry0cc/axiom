@@ -51,7 +51,7 @@ if [[ "$provider" == "do" ]]; then
 	done
 fi
 
-if [[ "$provider" == "ibm" ]]; then	
+if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
 	read token
 	while [[ "$token" == "" ]]; do
@@ -59,9 +59,6 @@ if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Please enter your IBM Cloud Classic API key (required): \n>> ${Color_Off}"
 	read token
 	done
-
-fi
-if [[ "$provider" == "ibm" ]]; then	
 	echo -e -n "${Green}Create an IBM Cloud API Key (for ibmcli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
 	read ibm_cloud_api_key
 	while [[ "$ibm_cloud_api_key" == "" ]]; do
@@ -69,45 +66,36 @@ if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Please enter your IBM Cloud API key (required): \n>> ${Color_Off}"
 	read ibm_cloud_api_key
 	done
-
 fi
 
 if [[ "$provider" == "do" ]] || [[ "$provider" == "ibm" ]]; then
 echo -e -n "${Green}Please enter your default region: (Default 'sfo2', press enter) \n>> ${Color_Off}"
 read region
-if [[ "$region" == "" ]]; then
-    echo -e "${Blue}Selected default option 'sfo2'${Color_Off}"
-    region="sfo2"
+	if [[ "$region" == "" ]]; then
+	echo -e "${Blue}Selected default option 'sfo2'${Color_Off}"
+	region="sfo2"
+	fi
+	echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb, (2048 for IBM)', press enter) \n>> ${Color_Off}"
+	read size
+	if [[ "$size" == "" ]]; then
+	echo -e "${Blue}Selected default option 's-1vcpu-1gb'${Color_Off}"
+        size="s-1vcpu-1gb"
 fi
-fi
-
-
-
-echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb, (2048 for IBM)', press enter) \n>> ${Color_Off}"
-read size
-
-if [[ "$size" == "" ]]; then
-    echo -e "${Blue}Selected default option 's-1vcpu-1gb'${Color_Off}"
-    size="s-1vcpu-1gb"
 fi
 
 if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Please enter amount of CPU Cores: (E.g '2') \n>> ${Color_Off}"
 	read cpu
-
-  read -p "You need an Ubuntu 20.04 Base Image. Do you want to create one?" yn
-  case $yn in
-    [Yy]* ) bash "$AXIOM_PATH/images/provisioners/ibm-base-image-create.sh";;
-    [Nn]* ) echo "Not building base image";;
-    * ) echo "Please answer yes or no.";;
-  esac
-
+	read -p "You need an Ubuntu 20.04 Base Image. Do you want to create one?" yn
+	case $yn in
+	[Yy]* ) bash "$AXIOM_PATH/images/provisioners/ibm-base-image-create.sh";;
+	[Nn]* ) echo "Not building base image";;
+	* ) echo "Please answer yes or no.";;
+	esac
 	echo -e -n "${Green}Please enter Ubuntu 20.04 Base Image ID: (Example: 'ec374a70-bb8e-4207-85ba-6a0c36b6022a') \n>> ${Color_Off}"
 	read base_image_id
-
 	echo -e -n "${Green}Get your SoftLayer username here: https://cloud.ibm.com/iam/users/. Click your username and scroll down to VPN password to get your SoftLayer username (E.g 'SL838382832') \n>> ${Color_Off}"
 	read username
-
 fi
 
 if [[ "$provider" == "azure" ]]; then
@@ -124,8 +112,8 @@ if [[ "$provider" == "azure" ]]; then
 	read size
 
 	if [[ "$size" == "" ]]; then
-    echo -e "${Blue}Selected default option 'Standard_B1s'${Color_Off}"
-    size="Standard_B1s"
+	echo -e "${Blue}Selected default option 'Standard_B1s'${Color_Off}"
+	size="Standard_B1s"
 	fi
 
 	az login
@@ -163,7 +151,6 @@ elif [[ "$provider" == "do" ]]; then
 elif [[ "$provider" == "azure" ]]; then
 	data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"axiom\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
 fi
-
 
 echo -e "${BGreen}Profile settings below: ${Color_Off}"
 echo $data | jq
