@@ -156,7 +156,7 @@ image_id=$(get_image_id "$image_name")
 total=$(query_instances "$gen_name*" | tr ' ' '\n' | wc -l | awk '{ print $1 }')
 
 start=$((total+1))
-amount=$(($amount+$start))
+
 
 [[ "$total" -gt 1 ]] && start=$((start+1))
 
