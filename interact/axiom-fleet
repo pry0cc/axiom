@@ -153,10 +153,10 @@ for i in "${!regions_to_cycle[@]}"; do
 done
 
 image_id=$(get_image_id "$image_name")
-total=$(query_instances "$gen_name*" | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
 
 start=$((total+1))
-
+amount=$(($amount+$start))
 
 [[ "$total" -gt 1 ]] && start=$((start+1))
 
@@ -185,4 +185,4 @@ done
 
 $AXIOM_PATH/interact/axiom-select "$gen_name*"
 
-echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}" 
+echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}"
