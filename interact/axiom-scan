@@ -225,7 +225,7 @@ fi
 
 # Setup tmp
 uid=$module+$(date +%s)
-outfile=$(echo $outfile+$uid+"output.txt" | sed 's/^+//')
+#outfile=$(echo $outfile+$uid+"output.txt" | sed 's/^+//')
 tmp="$HOME/.axiom/tmp/$uid"
 mkdir -p $tmp/input/
 mkdir -p $tmp/output/
