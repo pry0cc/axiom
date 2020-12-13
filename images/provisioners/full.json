@@ -165,7 +165,8 @@
         "touch /home/op/.profile",
         "touch /home/op/.z",
         "chown -R op:users /home/op",
-        "chmod +x /etc/update-motd.d/00-header"
+        "chmod +x /etc/update-motd.d/00-header",
+        "chown root:root /etc/sudoers /etc/sudoers.d -R"
       ], "inline_shebang": "/bin/sh -x",
 	  "type": "shell"
     }
