@@ -58,7 +58,7 @@ tailPID=""
 clean_up() {
     # Perform program exit housekeeping
 	if [[ "$command" =~ "_target_" ]]; then
-		interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
+	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
 		kill -9 $tailPID   
 		wait $! 2>/dev/null
@@ -225,7 +225,7 @@ fi
 
 # Setup tmp
 uid=$module+$(date +%s)
-outfile=$(echo $outfile+$uid+"output.txt" | sed 's/^+//')
+#outfile=$(echo $outfile+$uid+"output.txt" | sed 's/^+//')
 tmp="$HOME/.axiom/tmp/$uid"
 mkdir -p $tmp/input/
 mkdir -p $tmp/output/
@@ -364,7 +364,7 @@ function oneshot() {
     echo -e "[ ${Green}OK${Color_Off} ]"
 
     echo -e "${BWhite}Scanning...${Color_Off}"
-    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -c "axiom-exec  'cd /home/op/scan/$uid/ ; $command' '_proxy_' -q  --cache | tee $tmp/logs/_proxy_" -threads $threads
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -o "/home/op/scan/$uid/output/" -c "axiom-exec  'cd /home/op/scan/$uid/ ; $command' '_proxy_' -q  --cache | tee $tmp/logs/_proxy_" -threads $threads
     echo -e "${Blue}Dowloading results${Color_Off}"
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
     merging_output
