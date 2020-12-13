@@ -1,4 +1,4 @@
 [{
-	"command":"/home/op/go/bin/subfinder -d _target_ -o output/_target_",
+	"command":"/home/op/go/bin/subfinder -d _target_ -o _output_/_target_",
 	"ext":"txt"
 }]
