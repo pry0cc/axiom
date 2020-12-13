@@ -1,4 +1,4 @@
 [{
-	"command":"echo _target_ | /home/op/go/bin/shuffledns -v -r /home/op/lists/resolvers.txt -w /home/op/lists/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt -o _output_/_target_",
+	"command":"echo _target_ | /home/op/go/bin/shuffledns -v -d _target_ -r /home/op/lists/resolvers.txt -w /home/op/lists/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt -o _output_/_target_",
 	"ext":"txt"
 }]
