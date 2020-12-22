@@ -65,8 +65,8 @@ if [[ "$provider" == "ibm" ]]; then
 	echo -e "${BRed}Please provide a IBM Cloud API key, your entry contained no input.${Color_Off}"
 	echo -e -n "${Green}Please enter your IBM Cloud API key (required): \n>> ${Color_Off}"
 	read ibm_cloud_api_key
-  ibmcloud login --apikey=$ibm_cloud_api_key
 	done
+  ibmcloud login --apikey=$ibm_cloud_api_key
 fi
 
 if [[ "$provider" == "do" ]] || [[ "$provider" == "ibm" ]]; then
