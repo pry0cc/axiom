@@ -383,7 +383,8 @@ function oneshot() {
 ### The real meat of the scan...
 
 if [[ "$command" =~ "_target_" ]]; then
-    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! Using $threads threads per instance...${Color_Off}" 
+    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($fleet_size * $threads)) TOTAL THREADS. Using $threads threads per instance with $fleet_size instances...${Color_Off}"
+    sleep 3
     oneshot "$input" "$outfile" "$command" 
     exit 0
 fi
