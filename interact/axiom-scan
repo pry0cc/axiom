@@ -73,13 +73,14 @@ module="masscan"
 fleet_name=""
 input=""
 outfile=$outfile
+set_wordlist=""
 args=""
 ext=""
 debug=""
 quiet=""
 silent="--silent" 
 anew="false"
-
+cache="false"
 threads="30"
 
 pass=()
@@ -113,6 +114,13 @@ do
 		pass+=($n)
 	fi
 
+    if [[ "$arg" == "-cache" ]]; then
+		n=$((i+1))
+        cache="true"
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
 	if [[ "$arg" == "-o" ]]; then
 		n=$((i+1))
 		outfile=$(echo ${!n})
@@ -127,6 +135,14 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
+    if [[ "$arg" == "-w" ]]; then
+		n=$((i+1))
+		set_wordlist=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+
 
 	if [[ "$arg" == "-oG" ]]; then
 		n=$((i+1))
@@ -199,6 +215,17 @@ fi
 
 mod_data=$(parse_module $module $ext)
 command_data=$(echo $mod_data | jq -r '.command')
+wordlist="$(echo "$mod_data" | jq -r '.wordlist?')"
+
+
+if [[ "$wordlist" == "null" ]]; then
+    wordlist="/home/op/lists/jhaddix-all.txt"
+fi
+
+if [[ "$set_wordlist" != "" ]]; then
+    wordlist="$set_wordlist"
+fi
+
 command=""
 
 if [[ "$command_data" =~ ">" ]]; then
@@ -211,6 +238,14 @@ else
 fi
 
 ext=$(echo $mod_data | jq -r '.ext')
+clean="$(echo "$wordlist" | sed 's/\//\\\//g')"
+wordlist="$clean"
+
+
+if [[ "$command" =~ "_wordlist_" ]]; then
+    new_command="$(echo "$command" | sed "s/_wordlist_/$wordlist/g")"
+    command="$new_command"
+fi
 
 ####################################################################
 
@@ -263,7 +298,11 @@ lines=$(wc -l "$input" | awk '{ print $1 }')
 echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $fleet_size [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
 echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | ${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
 
-$AXIOM_PATH/interact/axiom-ssh --just-generate
+if [[ "$cache" == "false" ]]; then
+    generate_sshconfig
+fi
+
+
 if [[ $fleet_size -lt 1 ]]; then
 	echo -e "${BRed}Your fleet is either too small or doesn't exist, use axiom-fleet -i=5 to spin one up!${Color_Off}"
 	exit 1
@@ -364,7 +403,7 @@ function oneshot() {
     echo -e "[ ${Green}OK${Color_Off} ]"
 
     echo -e "${BWhite}Scanning...${Color_Off}"
-    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -o "/home/op/scan/$uid/output/" -c "axiom-exec  'cd /home/op/scan/$uid/ ; $command' '_proxy_' -q  --cache | tee $tmp/logs/_proxy_" -threads $threads
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -o "/home/op/scan/$uid/output/" -c "axiom-exec  'cd /home/op/scan/$uid/ ; $command' '_proxy_' -q  --cache | tee -a $tmp/logs/_proxy_" -threads $threads
     echo -e "${Blue}Dowloading results${Color_Off}"
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
     merging_output

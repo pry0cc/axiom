@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /home/op/go/bin/httpx -silent -o output",
+	"command":"cat input | /home/op/go/bin/httpx -o output",
 	"ext":"txt"
 }]

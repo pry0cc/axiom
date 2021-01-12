@@ -1,4 +1,5 @@
 [{
-	"command":"nuclei -silent -update-templates ; cat input | nuclei -silent -t /home/op/nuclei-templates -o output",
-	"ext":"txt"
+	"command":"nuclei -silent -update-templates ; cat input | nuclei -t _wordlist_ -o output",
+	"ext":"txt",
+    "wordlist":"/home/op/nuclei-templates"
 }]

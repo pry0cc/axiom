@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /home/op/go/bin/gospider -S - --depth 3 -v -t 50 -c 3 -o output",
+	"ext":""
+}]

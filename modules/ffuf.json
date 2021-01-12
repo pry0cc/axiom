@@ -1,4 +1,5 @@
 [{
-	"command":"/home/op/go/bin/ffuf -w ~/lists/seclists/Discovery/Web-Content/common.txt -u '_target_/FUZZ' -of csv -o _output_/$RANDOM.txt -ac",
+	"command":"/home/op/go/bin/ffuf -w _wordlist_ -u '_target_/FUZZ' -of csv -o _output_/$RANDOM.txt -ac",
+    "wordlist":"~/lists/pry-web-quick.txt",
 	"ext":"csv"
 }]
