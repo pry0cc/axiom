@@ -240,6 +240,7 @@ generate_sshconfig() {
 	do 
 		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networkInterfaces[].accessConfigs[].natIP")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+    echo -e "ServerAliveInterval 60" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
 }
