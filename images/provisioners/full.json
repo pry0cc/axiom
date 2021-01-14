@@ -173,6 +173,8 @@
         "/bin/su -l root -c 'echo \"root soft nofile 65535\" >> /etc/security/limits.conf'",        
         "echo 'Setting SSH Alive Internal'",
         "/bin/su -l root -c 'echo \"ClientAliveInterval 60\" | sudo tee -a /etc/ssh/sshd_config'",
+        "echo 'Installing feroxbuster'",
+        "/bin/su -l root -c 'curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/master/install-nix.sh | bash && mv feroxbuster /usr/bin/'",
         "touch /home/op/.profile",
         "touch /home/op/.z",
         "chown -R op:users /home/op",
