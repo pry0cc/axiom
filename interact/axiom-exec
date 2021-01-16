@@ -80,7 +80,7 @@ then
 	then
     	echo -e "${BWhite}Executing parallel on fleet $name*...${Color_Off}"
 	fi
-	interlace -cL "$cmds_file" -t NULL
+	interlace -cL "$cmds_file" -t NULL --threads $i
 else
 	if [[ "$quiet" != "true" ]]
 	then
