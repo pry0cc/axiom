@@ -36,6 +36,10 @@ function help() {
 	echo -e "    Input file, supplied as a positional first argument"
 	echo -e "  -m string"
 	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
+	echo -e "  -w /path/to/wordlist/on/instance"
+	echo -e "    Wordlist to use to scan with (must be the path for the destination instances)"
+	echo -e "  --list"
+	echo -e "    List available modules"
 	echo -e "  -o string"
 	echo -e "    Output to default output (whatever that is for the module)"
 	echo -e "  -oX string"
@@ -114,13 +118,17 @@ do
 		pass+=($n)
 	fi
 
-    if [[ "$arg" == "-cache" ]]; then
-		n=$((i+1))
+    if [[ "$arg" == "--cache" ]]; then
         cache="true"
 		set=true
 		pass+=($i)
-		pass+=($n)
 	fi
+
+    if [[ "$arg" == "--list" ]]; then
+        list_modules
+        exit
+    fi
+
 	if [[ "$arg" == "-o" ]]; then
 		n=$((i+1))
 		outfile=$(echo ${!n})
