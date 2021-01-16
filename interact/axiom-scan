@@ -8,9 +8,10 @@ begin=$(date +%s)
 
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
-	echo -e -n "${Blue}"
-	find "$AXIOM_PATH/modules" -name "*.json" | tr '/' ' ' | awk '{ print $NF }' | cut -d "." -f1
-	echo -e -n "${Color_Off}"
+	#echo -e -n "${Blue}"
+	(echo "MODULE,COMMAND"; find "$AXIOM_PATH/modules/" -name '*.json' -exec echo -n {}, \; -exec jq -r '.[0].command' {} \; | sed 's/\/home\/op\/.axiom\/modules\///g' | sed 's/\.json//g' ) | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	#find "$AXIOM_PATH/modules" -name "*.json" | tr '/' ' ' | awk '{ print $NF }' | cut -d "." -f1
+	#echo -e -n "${Color_Off}"
 }
 
 function parse_module() {
