@@ -110,7 +110,7 @@ echo -e "${BWhite}INITIALIZING IN 3 SECONDS, CTRL+C to quit... ${Color_Off}"
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
-time=160
+time=200
 
 if [[ "$provider" == "ibm" ]]; then
 	# IBM IS SUPER SLOW SO ADD 200 seconds to fleets...
@@ -155,10 +155,12 @@ done
 image_id=$(get_image_id "$image_name")
 total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
 
-start=$((total+1))
+start=$((total))
+#[[ "$total" -lt 1 ]] && start=$((start+1))
+
 amount=$(($amount+$start))
 
-[[ "$total" -gt 1 ]] && start=$((start+1))
+start=$((start+1))
 
 o=0
 for i in $(seq -f "%02g" $start $amount)
