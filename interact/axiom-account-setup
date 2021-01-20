@@ -42,6 +42,14 @@ do
 done
 
 if [[ "$provider" == "do" ]]; then
+    echo -e "${BGreen}Sign up for an account using this link for 100\$ free credit: https://m.do.co/c/bd80643300bd\nObtain a personal access token from: https://cloud.digitalocean.com/account/api/tokens${Color_Off}"
+    echo -e -n "${Blue}Do you already have a DigitalOcean account? y/n ${Color_Off}"
+    read acc 
+
+    if [[ "$acc" == "n" ]]; then
+        echo -e "${Blue}Launching browser with signup page...${Color_Off}"
+        xdg-open "https://m.do.co/c/bd80643300bd"
+    fi
 	echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
 	read token
 	while [[ "$token" == "" ]]; do
@@ -66,6 +74,7 @@ if [[ "$provider" == "ibm" ]]; then
 	echo -e -n "${Green}Please enter your IBM Cloud API key (required): \n>> ${Color_Off}"
 	read ibm_cloud_api_key
 	done
+  ibmcloud login --apikey=$ibm_cloud_api_key
 fi
 
 if [[ "$provider" == "do" ]] || [[ "$provider" == "ibm" ]]; then

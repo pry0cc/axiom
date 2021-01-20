@@ -1,4 +1,0 @@
-[{
-	"command":"/home/op/go/bin/ffuf -w ~/lists/seclists/Discovery/Web-Content/common.txt -u '_target_/FUZZ' -of csv -o _output_/$RANDOM.txt -ac",
-	"ext":"csv"
-}]

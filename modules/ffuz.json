@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /home/op/bin/ffuz -s -o output",
+	"ext":"csv"
+}]

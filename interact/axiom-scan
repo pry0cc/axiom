@@ -8,9 +8,10 @@ begin=$(date +%s)
 
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
-	echo -e -n "${Blue}"
-	find "$AXIOM_PATH/modules" -name "*.json" | tr '/' ' ' | awk '{ print $NF }' | cut -d "." -f1
-	echo -e -n "${Color_Off}"
+	#echo -e -n "${Blue}"
+	(echo "MODULE,COMMAND"; find "$AXIOM_PATH/modules/" -name '*.json' -exec echo -n {}, \; -exec jq -r '.[0].command' {} \; | sed 's/\/home\/op\/.axiom\/modules\///g' | sed 's/\.json//g' ) | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	#find "$AXIOM_PATH/modules" -name "*.json" | tr '/' ' ' | awk '{ print $NF }' | cut -d "." -f1
+	#echo -e -n "${Color_Off}"
 }
 
 function parse_module() {
@@ -36,6 +37,10 @@ function help() {
 	echo -e "    Input file, supplied as a positional first argument"
 	echo -e "  -m string"
 	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
+	echo -e "  -w /path/to/wordlist/on/instance"
+	echo -e "    Wordlist to use to scan with (must be the path for the destination instances)"
+	echo -e "  --list"
+	echo -e "    List available modules"
 	echo -e "  -o string"
 	echo -e "    Output to default output (whatever that is for the module)"
 	echo -e "  -oX string"
@@ -73,13 +78,14 @@ module="masscan"
 fleet_name=""
 input=""
 outfile=$outfile
+set_wordlist=""
 args=""
 ext=""
 debug=""
 quiet=""
 silent="--silent" 
 anew="false"
-
+cache="false"
 threads="30"
 
 pass=()
@@ -113,6 +119,17 @@ do
 		pass+=($n)
 	fi
 
+    if [[ "$arg" == "--cache" ]]; then
+        cache="true"
+		set=true
+		pass+=($i)
+	fi
+
+    if [[ "$arg" == "--list" ]]; then
+        list_modules
+        exit
+    fi
+
 	if [[ "$arg" == "-o" ]]; then
 		n=$((i+1))
 		outfile=$(echo ${!n})
@@ -127,6 +144,14 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
+    if [[ "$arg" == "-w" ]]; then
+		n=$((i+1))
+		set_wordlist=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
+
 
 	if [[ "$arg" == "-oG" ]]; then
 		n=$((i+1))
@@ -199,6 +224,17 @@ fi
 
 mod_data=$(parse_module $module $ext)
 command_data=$(echo $mod_data | jq -r '.command')
+wordlist="$(echo "$mod_data" | jq -r '.wordlist?')"
+
+
+if [[ "$wordlist" == "null" ]]; then
+    wordlist="/home/op/lists/jhaddix-all.txt"
+fi
+
+if [[ "$set_wordlist" != "" ]]; then
+    wordlist="$set_wordlist"
+fi
+
 command=""
 
 if [[ "$command_data" =~ ">" ]]; then
@@ -211,6 +247,14 @@ else
 fi
 
 ext=$(echo $mod_data | jq -r '.ext')
+clean="$(echo "$wordlist" | sed 's/\//\\\//g')"
+wordlist="$clean"
+
+
+if [[ "$command" =~ "_wordlist_" ]]; then
+    new_command="$(echo "$command" | sed "s/_wordlist_/$wordlist/g")"
+    command="$new_command"
+fi
 
 ####################################################################
 
@@ -263,7 +307,11 @@ lines=$(wc -l "$input" | awk '{ print $1 }')
 echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $fleet_size [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
 echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | ${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
 
-$AXIOM_PATH/interact/axiom-ssh --just-generate
+if [[ "$cache" == "false" ]]; then
+    generate_sshconfig
+fi
+
+
 if [[ $fleet_size -lt 1 ]]; then
 	echo -e "${BRed}Your fleet is either too small or doesn't exist, use axiom-fleet -i=5 to spin one up!${Color_Off}"
 	exit 1
@@ -364,7 +412,7 @@ function oneshot() {
     echo -e "[ ${Green}OK${Color_Off} ]"
 
     echo -e "${BWhite}Scanning...${Color_Off}"
-    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -o "/home/op/scan/$uid/output/" -c "axiom-exec  'cd /home/op/scan/$uid/ ; $command' '_proxy_' -q  --cache | tee $tmp/logs/_proxy_" -threads $threads
+    interlace --silent -tL "$infile" -pL "$AXIOM_PATH/selected.conf" -o "/home/op/scan/$uid/output/" -c "axiom-exec  'cd /home/op/scan/$uid/ ; $command' '_proxy_' -q  --cache | tee -a $tmp/logs/_proxy_" -threads $threads
     echo -e "${Blue}Dowloading results${Color_Off}"
     interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
     merging_output
@@ -383,7 +431,8 @@ function oneshot() {
 ### The real meat of the scan...
 
 if [[ "$command" =~ "_target_" ]]; then
-    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! Using $threads threads per instance...${Color_Off}" 
+    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($fleet_size * $threads)) TOTAL THREADS. Using $threads threads per instance with $fleet_size instances...${Color_Off}"
+    sleep 3
     oneshot "$input" "$outfile" "$command" 
     exit 0
 fi
