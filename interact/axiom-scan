@@ -86,7 +86,7 @@ quiet=""
 silent="--silent" 
 anew="false"
 cache="false"
-threads="30"
+threads="0"
 
 pass=()
 
@@ -247,9 +247,15 @@ else
 fi
 
 ext=$(echo $mod_data | jq -r '.ext')
+default_threads=$(echo $mod_data | jq -r '.threads?')
 clean="$(echo "$wordlist" | sed 's/\//\\\//g')"
 wordlist="$clean"
 
+if [[ "$threads" -lt "1" ]]; then
+	if [[ "$default_threads" -gt 0 ]]; then
+		threads="$default_threads"
+	fi
+fi
 
 if [[ "$command" =~ "_wordlist_" ]]; then
     new_command="$(echo "$command" | sed "s/_wordlist_/$wordlist/g")"
