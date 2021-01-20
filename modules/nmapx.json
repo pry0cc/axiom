@@ -1,10 +1,12 @@
 [
 	{
 		"command":"sudo nmap -oG _output_/_target_.txt _target_",
-		"ext":"txt"
+		"ext":"txt",
+		"threads":"15"
 	},
 	{
 		"command":"sudo nmap -oX _output_/_target_.xml _target_",
-		"ext":"xml"
+		"ext":"xml",
+		"threads":"15"
 	}
 ]
