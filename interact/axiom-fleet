@@ -167,7 +167,7 @@ for i in $(seq -f "%02g" $start $amount)
 do
    time=$((time+6))
    name="$gen_name$i"
-   echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost: \$$total_spend_per_instance_rounded"
+   echo -e "${BWhite}Initializing $name... This instance estimated cost: \$$total_spend_per_instance_rounded"
    args=""
  
 	if [[ "$cycle_regions" != "false" ]]; then
