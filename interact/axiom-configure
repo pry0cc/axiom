@@ -79,12 +79,12 @@ if [ $BASEOS == "Linux" ]; then
     echo -e "${Blue}Installing gowitness...${Color_Off}"
     sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
     echo -e "${Blue}Increasing ulimit, a reboot is required to take effect ...${Color_Off}"
-		sudo bash -c 'echo "DefaultLimitNOFILE=65535" >> /etc/systemd/user.conf'
-		sudo bash -c 'echo "DefaultLimitNOFILE=65535" >> /etc/systemd/system.conf'
-		echo "$USER hard nofile 65535" | sudo tee -a /etc/security/limits.conf > /dev/null
-    echo "$USER soft nofile 65535" | sudo tee -a /etc/security/limits.conf > /dev/null
-    echo "root hard nofile 65535" | sudo tee -a /etc/security/limits.conf > /dev/null
-    echo "root soft nofile 65535" | sudo tee -a /etc/security/limits.conf > /dev/null
+		sudo bash -c 'echo "DefaultLimitNOFILE=655350" >> /etc/systemd/user.conf'
+		sudo bash -c 'echo "DefaultLimitNOFILE=655350" >> /etc/systemd/system.conf'
+		echo "$USER hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
+    echo "$USER soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
+    echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
+    echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
 
     
 	elif [ $OS == "Fedora" ]; then
