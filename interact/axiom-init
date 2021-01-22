@@ -255,7 +255,7 @@ fi
 
 if [ "$deploy" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
-	$AXIOM_PATH/interact/axiom-deploy "$deploy"
+	$AXIOM_PATH/interact/axiom-deploy "$deploy" "$name"
 fi
 
 #if [ "$domain" != false ]; then

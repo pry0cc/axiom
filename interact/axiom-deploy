@@ -43,37 +43,37 @@ do
         echo -e "${BWhite}Deployment profiles${Color_Off}"
         (echo '"ID","Description"'; cat ~/.axiom/profiles/* | jq -r '[.name,.description] | @csv')  | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
         exit 0
+        fi
+    done
+
+    if [[ -z "$1" ]]; then
+        echo -e "${BRed}Error profile doesn't exist '$1'"
     fi
-done
 
-if [[ -z "$1" ]]; then
-    echo -e "${BRed}Error profile doesn't exist '$1'"
-fi
+    if [[ -z "$2" ]]; then
+        echo -e "${BRed}Error no instance supplied"
+        exit 0
+    fi
 
-if [[ -z "$2" ]]; then
-    echo -e "${BRed}Error no instance supplied"
-    exit 0
-fi
+    if [[ "$profile" == "" ]]; then
+        help
+    else
+        name="${type}ing"
+        prof_path="$AXIOM_PATH/profiles/$profile.json"
 
-if [[ "$profile" == "" ]]; then
-    help
-else
-    name="${type}ing"
-    prof_path="$AXIOM_PATH/profiles/$profile.json"
+        if [[ -f "$prof_path" ]]; then
+            echo -e "${BWhite}$name '$profile' : '$query'"
 
-    if [[ -f "$prof_path" ]]; then
-        echo -e "${BWhite}$name '$profile' : '$query'"
+            [[ "$cache" == "" ]] && generate_sshconfig
 
-        [[ "$cache" == "" ]] && generate_sshconfig
+            count=$(query_instances_cache "$query" | wc -c)
+            id="$RANDOM"
+            script="$AXIOM_PATH/tmp/$id.sh"
 
-        count=$(query_instances_cache "$query" | tr " " "\n" | wc -l | awk '{ print $1 }')
-        id="$RANDOM"
-        script="$AXIOM_PATH/tmp/$id.sh"
+            jq -r ".$type[]" "$prof_path" > "$script"
+            chmod +x "$script"
 
-        jq -r ".$type[]" "$prof_path" > "$script"
-        chmod +x "$script"
-
-        if [[ "$count" -gt 0 ]]; then
+        if [[ "$count" -gt 1 ]]; then
             echo -e "${BWhite}Uploading profile to '$query'${Color_Off}${Blue}"
             axiom-scp "$script" "$query":"/tmp/$id.sh" --cache
             axiom-exec "/tmp/$id.sh" "$query" --cache
