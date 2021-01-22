@@ -35,6 +35,6 @@ function gen_app_sshconfig() {
 		ip=$(appliance_ip "$appliance")
 		jump="$app_name"
 
-		echo -e "Host $appliance\n\tHostName $ip\n\tUser root\n\tPort 22\n\tProxyJump $jump\n" >> "$AXIOM_PATH/.sshconfig"
+		echo -e "Host $appliance\n\tHostName $ip\n\tUser op\n\tPort 22\n\tProxyJump $jump\n" >> "$AXIOM_PATH/.sshconfig"
 	done
 }
