@@ -1,4 +1,4 @@
 [{
-	"command":"sudo massdns -r /home/op/lists/resolvers.txt -t A -o S input > output",
+	"command":"sudo /usr/bin/massdns -r /home/op/lists/resolvers.txt -t A -o S input -o output",
 	"ext":"txt"
 }]
