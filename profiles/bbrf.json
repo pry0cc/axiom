@@ -1,0 +1,15 @@
+{
+	"name":"bbrf",
+	"description":"BBRF Server",
+	"install": [
+        "git clone https://github.com/pry0cc/bbrf-client",
+        "cd /home/op/bbrf-client",
+        "chmod +x server-install.sh",
+        "./server-install.sh"
+	],
+	"uninstall":[
+		"docker rm bbrf-client_couchdb_1 -f",
+		"rm -rf /home/op/bbrf-client"
+	],
+    "notes":"Place the configuration in ~/.bbrf/config.json"
+}
