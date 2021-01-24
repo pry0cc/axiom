@@ -45,7 +45,8 @@ The original and best supported provider for Axiom is Digital Ocean! If you're s
 
 ## Installation
 
-(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`)
+(You will need curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`). 
+<br> Run this command, as your standard user, not as root.
 
 ```
 bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
