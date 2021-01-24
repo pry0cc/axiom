@@ -129,7 +129,6 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  urlprobe
 - [x]  oh-my-zsh
 - [x]  tmux
-- [x]  masscan
 - [x]  massdns
 - [x]  subgen
 - [x]  proxychains w/ Tor setup
@@ -137,6 +136,5 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  docker
 - [x]  metasploit
 - [x]  dalfox
-- [x]  subjack
 
 And many more! Do you want to add a package to axiom? [Let me know!](https://github.com/pry0cc/axiom/issues)
