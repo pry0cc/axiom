@@ -192,12 +192,7 @@ waitabit() {
 	printf "    \b\b\b\b"
 }
 
-
-boot_script="$AXIOM_PATH/tmp/$name.sh"
-
 mkdir -p "$AXIOM_PATH/tmp/"
-cat $AXIOM_PATH/configs/init.sh | sed "s/CHANGEME/$default_expiry/g" > "$boot_script"
-chmod +x "$boot_script"
 
 if [ -z "$image_id" ]; then
 	echo -e "${BRed}An image has not been found in this region. Do you need to run 'axiom-build'?${Color_Off}"
@@ -209,7 +204,7 @@ if [[ "$user_region" == "" ]]; then
 	user_region="$region"
 fi
 
-create_instance "$name" "$image_id" "$size" "$user_region" "$boot_script"  &
+create_instance "$name" "$image_id" "$size" "$user_region" &
 PID="$!"
 if [ "$quiet" != "true" ]; then
 	show_spinner "$PID"
@@ -231,7 +226,6 @@ fi
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
 
-rm "$boot_script"
 
 if [[ "$no_select" != "true" ]]; then
 	echo "$name" > $AXIOM_PATH/selected.conf

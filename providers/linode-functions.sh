@@ -56,22 +56,18 @@ selected_instance() {
 
 get_image_id() {
 	query="$1"
-	images=$(doctl compute snapshot list -o json)
-	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
-	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
+	images=$(linode-cli images list --json)
+	name=$(echo $images | jq -r ".[].label" | grep "$query" | tail -n 1)
+	id=$(echo $images |  jq -r ".[] | select(.label==\"$name\") | .id")
 	echo $id
 }
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
     force="$2"
-
-    if [ "$force" == "true" ]
-        then
-        doctl compute droplet delete -f "$name"
-    else
-        doctl compute droplet delete "$name"
-    fi
+	id="$(instance_id "$name")"
+    
+    linode-cli linodes delete "$id"
 }
 
 # TBD 
@@ -114,7 +110,7 @@ list_subdomains() {
 }
 # get JSON data for snapshots
 snapshots() {
-	doctl compute snapshot list -o json
+	linode-cli images list --json
 }
 
 delete_record() {
@@ -135,9 +131,9 @@ delete_snapshot() {
 	name="$1"
 
 	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
+	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.label==\"$name\") | .id")
 	
-	doctl compute snapshot delete "$snapshot_id" -f
+	linode-cli images delete "$snapshot_id" 
 }
 
 add_dns_record() {
@@ -238,9 +234,9 @@ generate_sshconfig() {
 	droplets="$(instances)"
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
 
-	for name in $(echo "$droplets" | jq -r '.[].name')
+	for name in $(echo "$droplets" | jq -r '.[].label')
 	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
+		ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[]")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
     echo -e "ServerAliveInterval 60" >> $AXIOM_PATH/.sshconfig.new
 	done
@@ -253,14 +249,21 @@ generate_sshconfig() {
 }
 
 # create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)
+
+image_id() {
+	name="$1"
+	snapshots | jq -r ".[] | select(.label==\"$name\") | .id"
+}
+
 create_instance() {
 	name="$1"
 	image_id="$2"
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
-
-	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null 
+	root_pass="$(jq -r .do_key "$AXIOM_PATH/axiom.json")"
+	#doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null 
+	linode-cli linodes create  --type "$size_slug" --region "$region" --image "$image_id" --label "$name" --root_pass "$root_pass" 2>&1 >> /dev/null
 	sleep 10
 }
 
