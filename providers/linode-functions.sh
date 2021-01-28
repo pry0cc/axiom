@@ -170,7 +170,7 @@ query_instances() {
 		if [[ "$var" =~ "*" ]]
 		then
 			var=$(echo "$var" | sed 's/*/.*/g')
-			selected="$selected $(echo $droplets | jq -r '.[].name' | grep "$var")"
+			selected="$selected $(echo $droplets | jq -r '.[].label' | grep "$var")"
 		else
 			if [[ $query ]];
 			then
@@ -183,7 +183,7 @@ query_instances() {
 
 	if [[ "$query" ]]
 	then
-		selected="$selected $(echo $droplets | jq -r '.[].name' | grep -w "$query")"
+		selected="$selected $(echo $droplets | jq -r '.[].label' | grep -w "$query")"
 	else
 		if [[ ! "$selected" ]]
 		then
