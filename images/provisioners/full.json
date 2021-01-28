@@ -27,7 +27,7 @@
         "DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew upgrade -qq",
         "echo Apt-get install all ma packages",
         "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES sudo apt-get -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew -y --fix-missing install tor apt-transport-https ca-certificates debian-keyring p7zip zsh curl figlet zlib1g-dev python python3.7 default-jdk python3-pip python3-venv libpcap-dev ruby ruby-dev nmap vim dirmngr gnupg-agent gnupg2 libpq-dev software-properties-common golang-go fonts-liberation libappindicator3-1 libcairo2 libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 libxss1 xdg-utils masscan zmap sqlmap dirb jq ufw neovim ranger bat grc mosh net-tools",
-        "wget https://github.com/digitalocean/doctl/releases/download/v1.55.0/doctl-1.55.0-linux-amd64.tar.gz && tar xf doctl-1.55.0-linux-amd64.tar.gz && rm doctl-1.55.0-linux-amd64.tar.gz && mv doctl /usr/bin/",
+        "snap install doctl",
         "ufw allow 22",
         "ufw allow 2266",
         "ufw allow 60000/udp",
