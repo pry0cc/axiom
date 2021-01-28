@@ -262,9 +262,8 @@ create_instance() {
 	region="$4"
 	boot_script="$5"
 	root_pass="$(jq -r .do_key "$AXIOM_PATH/axiom.json")"
-	#doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --user-data-file "$boot_script" 2>&1 >>/dev/null 
 	linode-cli linodes create  --type "$size_slug" --region "$region" --image "$image_id" --label "$name" --root_pass "$root_pass" 2>&1 >> /dev/null
-	sleep 10
+	sleep 200
 }
 
 # Function used for splitting $src across $instances and rename the split files.
