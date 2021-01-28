@@ -5,6 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 begin=$(date +%s)
+mkdir -p $HOME/.ssh/sockets
 
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
