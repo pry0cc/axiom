@@ -124,6 +124,7 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  projectdiscovery nuclei
 - [x]  projectdiscovery chaos
 - [x]  projectdiscovery shuffledns
+- [x]  projectdiscovery httpx
 - [x]  dnsprobe
 - [x]  dnsvalidator
 - [x]  urlprobe
