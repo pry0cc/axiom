@@ -221,10 +221,12 @@ if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "
 	echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc
 	echo "compdef _axiom-restore axiom-restore" >>~/.zshrc
 	echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc
+  source ~/.zshrc
 
 elif [ "$SHELL" == "/bin/bash" ]; then
 	echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
 	echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
+  source ~/.bashrc
 else
 	echo -e "${Red}I don't have a predefined setup for your shell!"
 	echo "Please add $AXIOM_PATH/interact to your \$PATH! ${Color_Off}"
