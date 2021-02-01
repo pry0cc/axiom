@@ -2,7 +2,7 @@
   "builders": [
     {
       "type": "googlecompute",
-      "project_id": "x00sec",
+      "project_id": "axiom-project",
       "source_image": "ubuntu-2004-focal-v20200902",
       "image_name":"axiom-{{ user `region` }}-{{ timestamp}}",
       "ssh_username": "root",

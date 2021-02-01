@@ -22,6 +22,7 @@ if [[ "$acc" == "n" ]]; then
     xdg-open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
 fi
 	
+
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
 read token
 while [[ "$token" == "" ]]; do
@@ -84,3 +85,15 @@ fi
 echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
 echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
+echo -e -n "${Yellow}Would you like me to open a ticket to get an image increase to 18GB for you?${Color_Off} [y]/n >> "
+read acc
+
+if [[ "$acc" == "" ]]; then
+	acc="y"
+fi
+
+if [[ "$acc" == "y" ]]; then
+	linode-cli tickets create --description 'Hello! I have recently installed the axiom framework http://github.com/pry0cc/axiom and would like to request an image increase to 18GB please for the purposes of running packer. Thank you have a great day!' --summary 'Image increase request to 18GB for Axiom'
+	echo -e "${Green}Opened a ticket with Linode support! Please wait patiently for a few hours and when you get an increase run 'axiom-build'!${Color_Off}"
+	echo "View open tickets at: https://cloud.linode.com/support/tickets"
+fi
