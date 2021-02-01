@@ -8,7 +8,7 @@
 		"subscription_id": "{{ user `subscription_id` }}",
 
 		"managed_image_resource_group_name": "{{ user `resource_group` }}",
-		"managed_image_name": "axiom-{{ user `location` }}-{{timestamp}}",
+		"managed_image_name": "axiom-{{ user `region` }}-{{timestamp}}",
 
 		"os_type": "Linux",
 		"image_publisher": "Canonical",
