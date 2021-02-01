@@ -3,184 +3,24 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
-token=""
-region=""
-provider=""
-size=""
-email=""
-
-cpu=""
-base_image_id=""
-username=""
-ibm_cloud_api_key=""
-
-client_id=""
-client_secret=""
-tenant_id=""
-sub_id=""
-
-appliance_name=""
-appliance_key=""
-appliance_url=""
-
 echo -e "${BWhite}Axiom Account Setup${Color_Off}"
 echo -e "${Blue}You can use this wizard to add new accounts, once made, use axiom-account to switch between profiles${Color_Off}"
-echo -e -n "${Green}Please enter your provider (Default 'do', options: 'gcp', 'ibm', 'azure'): \n>> ${Color_Off}"
+account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh" | tr '/' ' ' | awk '{ print $NF }' | tr -d '.sh')
+account_str=$(echo $account_helpers | sed 's/ /, /g')
+echo -e -n "${Green}Please enter your provider ($account_str): \n>> ${Color_Off}"
 read provider
+provider_path="$AXIOM_PATH/interact/account-helpers/$provider.sh"
 
-while [[ "$provider" != "do" ]] && [[ "$provider" != "gcp" ]] && [[ "$provider" != "ibm" ]] && [[ "$provider" != "azure" ]];
+while [[ ! -f "$provider_path" ]]; 
 do
-    if [[ "$provider" == "" ]]
-    then
-        echo -e "${Blue}Selected default option 'do'${Color_Off}"
-        provider="do"
-        break
-    fi
-    echo -e "${BRed}'$provider' is not a valid provider ${Color_Off}"
-    echo -e -n "${Red}Please enter a valid provider 'do','gcp', 'ibm', 'azure': \n>> ${Color_Off}"
-    read provider
+	echo -e -n "${Green}This is not a valid provider, please enter your a valid provider ($account_str): \n>> ${Color_Off}"
+	read provider
+	provider_path="$AXIOM_PATH/interact/account-helpers/$provider.sh"
 done
 
-if [[ "$provider" == "do" ]]; then
-    echo -e "${BGreen}Sign up for an account using this link for 100\$ free credit: https://m.do.co/c/bd80643300bd\nObtain a personal access token from: https://cloud.digitalocean.com/account/api/tokens${Color_Off}"
-    echo -e -n "${Blue}Do you already have a DigitalOcean account? y/n ${Color_Off}"
-    read acc 
-
-    if [[ "$acc" == "n" ]]; then
-        echo -e "${Blue}Launching browser with signup page...${Color_Off}"
-        xdg-open "https://m.do.co/c/bd80643300bd"
-    fi
-	echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
-	read token
-	while [[ "$token" == "" ]]; do
-	echo -e "${BRed}Please provide a token, your entry contained no input.${Color_Off}"
-	echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
-	read token
-	done
-fi
-
-if [[ "$provider" == "ibm" ]]; then
-	echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
-	read token
-	while [[ "$token" == "" ]]; do
-	echo -e "${BRed}Please provide a IBM Cloud Classic API key, your entry contained no input.${Color_Off}"
-	echo -e -n "${Green}Please enter your IBM Cloud Classic API key (required): \n>> ${Color_Off}"
-	read token
-	done
-	echo -e -n "${Green}Create an IBM Cloud API Key (for ibmcli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
-	read ibm_cloud_api_key
-	while [[ "$ibm_cloud_api_key" == "" ]]; do
-	echo -e "${BRed}Please provide a IBM Cloud API key, your entry contained no input.${Color_Off}"
-	echo -e -n "${Green}Please enter your IBM Cloud API key (required): \n>> ${Color_Off}"
-	read ibm_cloud_api_key
-	done
-  ibmcloud login --apikey=$ibm_cloud_api_key
-fi
-
-if [[ "$provider" == "do" ]] || [[ "$provider" == "ibm" ]]; then
-echo -e -n "${Green}Please enter your default region: (Default 'sfo2', press enter) \n>> ${Color_Off}"
-read region
-	if [[ "$region" == "" ]]; then
-	echo -e "${Blue}Selected default option 'sfo2'${Color_Off}"
-	region="sfo2"
-	fi
-	echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb, (2048 for IBM)', press enter) \n>> ${Color_Off}"
-	read size
-	if [[ "$size" == "" ]]; then
-	echo -e "${Blue}Selected default option 's-1vcpu-1gb'${Color_Off}"
-        size="s-1vcpu-1gb"
-fi
-fi
-
-if [[ "$provider" == "ibm" ]]; then
-	echo -e -n "${Green}Please enter amount of CPU Cores: (E.g '2') \n>> ${Color_Off}"
-	read cpu
-	read -p "You need an Ubuntu 20.04 Base Image. Do you want to create one?" yn
-	case $yn in
-	[Yy]* ) bash "$AXIOM_PATH/images/provisioners/ibm-base-image-create.sh";;
-	[Nn]* ) echo "Not building base image";;
-	* ) echo "Please answer yes or no.";;
-	esac
-	echo -e -n "${Green}Please enter Ubuntu 20.04 Base Image ID: (Example: 'ec374a70-bb8e-4207-85ba-6a0c36b6022a') \n>> ${Color_Off}"
-	read base_image_id
-	echo -e -n "${Green}Get your SoftLayer username here: https://cloud.ibm.com/iam/users/. Click your username and scroll down to VPN password to get your SoftLayer username (E.g 'SL838382832') \n>> ${Color_Off}"
-	read username
-fi
-
-if [[ "$provider" == "azure" ]]; then
-	echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
-
-	read region
-
-	if [[ "$region" == "" ]]; then
-		echo -e "${Blue}Selected default option 'eastus'${Color_Off}"
-		region="eastus"
-	fi
-
-	echo -e -n "${Green}Please enter your default size: (Default 'Standard_B1s)', press enter) \n>> ${Color_Off}"
-	read size
-
-	if [[ "$size" == "" ]]; then
-	echo -e "${Blue}Selected default option 'Standard_B1s'${Color_Off}"
-	size="Standard_B1s"
-	fi
-
-	az login
-	az group create -n axiom -l "$region"
-	bac="$(az ad sp create-for-rbac --query "{ client_id: appId, client_secret: password, tenant_id: tenant }")" 
-	client_id="$(echo $bac | jq -r '.client_id')"
-	client_secret="$(echo $bac | jq -r '.client_secret')"
-	tenant_id="$(echo $bac | jq -r '.tenant_id')"
-	sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
-fi
-
-echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
-read email
-
-echo -e -n "${Green}Would you like to configure connection to an Axiom Pro Instance? Y/n (Must be deployed.) (optional, default 'n', press enter) \n>> ${Color_Off}"
-read ans
-
-if [[ "$ans" == "Y" ]]; then
-    echo -e -n "${Green}Enter the axiom pro instance name \n>> ${Color_Off}"
-    read appliance_name
-
-    echo -e -n "${Green}Enter the instance URL (e.g \"https://pro.acme.com\") \n>> ${Color_Off}"
-    read appliance_url
-
-    echo -e -n "${Green}Enter the access secret key \n>> ${Color_Off}"
-    read appliance_key 
-fi
-
-data=""
-
-if [[ "$provider" == "ibm" ]]; then
-	data="$(echo "{\"do_key\":\"$token\",\"ibm_cloud_api_key\":\"$ibm_cloud_api_key\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"cpu\":\"$cpu\",\"username\":\"$username\",\"base_image_id\":\"$base_image_id\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
-elif [[ "$provider" == "do" ]]; then
-	data="$(echo "{\"do_key\":\"$token\",\"region\":\"$region\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
-elif [[ "$provider" == "azure" ]]; then
-	data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"axiom\",\"provider\":\"$provider\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
-fi
-
-echo -e "${BGreen}Profile settings below: ${Color_Off}"
-echo $data | jq
-echo -e "${BWhite}Press enter if you want to save these to a new profile, type 'r' if you wish to start again.${Color_Off}"
-read ans
-
-if [[ "$ans" == "r" ]];
-then
-    $0
-    exit
-fi
-
-echo -e -n "${BWhite}Please enter your profile name (e.g 'personal', must be all lowercase/no specials)\n>> ${Color_Off}"
-read title
-
-if [[ "$title" == "" ]]; then
-    title="personal"
-    echo -e "${Blue}Named profile 'personal'${Color_Off}"
-fi
-
-echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
-echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
-
-$AXIOM_PATH/interact/axiom-account $title
+bash "$provider_path"
+echo -e "${Blue}Now your account is setup, we need to run a build"
+echo "A build will take about 25 minutes, spin up a temporary instance, and then snapshot it to use for our future boxes"
+echo -e "Starting Build in 5 seconds... Ctrl+C to quit, remember, you can just type axiom-build at any time${Color_Off}"
+sleep 5
+bash "$AXIOM_PATH/interact/axiom-build"
