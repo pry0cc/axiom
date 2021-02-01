@@ -35,12 +35,14 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 -   [Contributors](#contributors)
 
 ## $100 Free Credit
+
 The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd) 
 
 <p align="center">
-<a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/credit.png" height="42px"/></a>
-</p>
-
+<a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/credit.png" height="42px"/></a></p>
+  
+## Linode $20 Free Credit
+Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for $20 free credit on Linode :) 
 
 
 ## Installation
