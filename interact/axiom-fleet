@@ -96,15 +96,15 @@ elif [[ "$provider" == "azure" ]]; then
 	price_hourly=$(cat $AXIOM_PATH/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
 fi
 
-if [[ "$provider" == "do" ]] | [[ "$provider" == "azure" ]];
-then
-	
-	total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
-	total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\./0./')
-	total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
-	total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
-	echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
-fi
+#if [[ "$provider" == "do" ]] | [[ "$provider" == "azure" ]];
+#then
+#	
+#	total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
+#	total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\./0./')
+#	total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
+#	total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
+#	echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
+#fi
 
 echo -e "${BWhite}INITIALIZING IN 3 SECONDS, CTRL+C to quit... ${Color_Off}"
 
@@ -162,7 +162,7 @@ for i in $(seq -f "%02g" $start $amount)
 do
    time=$((time+6))
    name="$gen_name$i"
-   echo -e "${BWhite}Initializing $name... This instance estimated cost: \$$total_spend_per_instance_rounded"
+   echo -e "${BWhite}Initializing $name..."
    args=""
  
 	if [[ "$cycle_regions" != "false" ]]; then

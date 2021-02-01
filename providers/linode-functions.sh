@@ -263,7 +263,7 @@ create_instance() {
 	boot_script="$5"
 	root_pass="$(jq -r .do_key "$AXIOM_PATH/axiom.json")"
 	linode-cli linodes create  --type "$size_slug" --region "$region" --image "$image_id" --label "$name" --root_pass "$root_pass" 2>&1 >> /dev/null
-	sleep 200
+	sleep 260
 }
 
 # Function used for splitting $src across $instances and rename the split files.
