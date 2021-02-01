@@ -91,7 +91,7 @@ if [ $BASEOS == "Linux" ]; then
     
 	elif [ $OS == "Fedora" ]; then
   	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		sudo apt-get update && sudo apt-get install fzf git unzip python3-pip curl net-tools git unzip xsltproc
+		sudo dnf update && sudo dnf install fzf git rubypick python3-pip curl net-tools unzip
 		echo -e "${Blue}Installing jq...${Color_Off}"
 		sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		echo -e "${Blue}Installing packer...${Color_Off}"
