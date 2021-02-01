@@ -8,7 +8,7 @@
 [![Follow on Twitter](https://img.shields.io/twitter/follow/pry0cc.svg?logo=twitter)](https://twitter.com/pry0cc)
 
 <p align="center">
-<a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="https://raw.githubusercontent.com/projectdiscovery/nuclei/master/static/read-the-docs-button.png" height="42px"/></a>
+<a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="https://github.com/projectdiscovery/nuclei/raw/367d12700e252ec7066c79b1b97a6427544d931c/static/read-the-docs-button.png" height="42px"/></a>
 </p>
 
 **Axiom is a dynamic infrastructure framework** to efficiently work with multi-cloud environments, build and deploy repeatable infrastructure focussed on offensive and defensive security. 
@@ -91,50 +91,51 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 
 # Packages To Date
 
-- [x]  Golang (setup, path configured, latest version)
-- [x]  gowitness
-- [x]  aquatone
-- [x]  httprobe
-- [x]  subfinder
-- [x]  assetfinder
-- [x]  gf
-- [x]  anew
-- [x]  masscan
-- [x]  sn0int
-- [x]  kxss
-- [x]  jq
-- [x]  SecLists
-- [x]  gobuster
-- [x]  nmap
-- [x]  waybackurls
 - [x]  amass
+- [x]  anew
 - [x]  anti-burl
-- [x]  hakrawler
-- [x]  zdns
-- [x]  zmap
-- [x]  ffuf
-- [x]  gau
+- [x]  aquatone
+- [x]  assetfinder
+- [x]  dalfox
 - [x]  dirb
-- [x]  subjack
-- [x]  SQLMap
-- [x]  fbrobe
-- [x]  getjs
-- [x]  openvpn
-- [x]  projectdiscovery chaos-client
-- [x]  projectdiscovery nuclei
-- [x]  projectdiscovery chaos
-- [x]  projectdiscovery shuffledns
 - [x]  dnsprobe
 - [x]  dnsvalidator
-- [x]  urlprobe
-- [x]  oh-my-zsh
-- [x]  tmux
-- [x]  massdns
-- [x]  subgen
-- [x]  proxychains w/ Tor setup
-- [x]  mosh
 - [x]  docker
+- [x]  fbrobe
+- [x]  ffuf
+- [x]  gau
+- [x]  getjs
+- [x]  gf
+- [x]  gobuster
+- [x]  Golang (setup, path configured, latest version)
+- [x]  gowitness
+- [x]  hakrawler
+- [x]  httprobe
+- [x]  jq
+- [x]  kxss
+- [x]  masscan
+- [x]  massdns
 - [x]  metasploit
-- [x]  dalfox
+- [x]  mosh
+- [x]  nmap
+- [x]  oh-my-zsh
+- [x]  openvpn
+- [x]  projectdiscovery chaos
+- [x]  projectdiscovery chaos-client
+- [x]  projectdiscovery httpx
+- [x]  projectdiscovery nuclei
+- [x]  projectdiscovery shuffledns
+- [x]  proxychains w/ Tor setup
+- [x]  SecLists
+- [x]  sn0int
+- [x]  SQLMap
+- [x]  subfinder
+- [x]  subgen
+- [x]  subjack
+- [x]  tmux
+- [x]  urlprobe
+- [x]  waybackurls
+- [x]  zdns
+- [x]  zmap
 
 And many more! Do you want to add a package to axiom? [Let me know!](https://github.com/pry0cc/axiom/issues)
