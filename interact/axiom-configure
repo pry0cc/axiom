@@ -144,8 +144,15 @@ if [ ! $? -eq 0 ] && [[ -z "$GOPATH" ]]; then
 fi
 
 if [ $BASEOS == "Mac" ]; then
-  echo -e "${Blue}Installing brew...${Color_Off}"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  whereis brew
+  if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
+    echo -e "${Blue}Installing brew...${Color_Off}"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
+    echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
+    echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
+  fi
     echo -e "${Blue}Installing doctl...${Color_Off}"
     brew install doctl
   echo -e "${Blue}Installing go...${Color_Off}"
