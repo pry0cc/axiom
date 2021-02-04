@@ -3,7 +3,9 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
-mkdir -p $HOME/.ssh/sockets
+mkdir -p "$HOME/.ssh/sockets"
+mkdir -p "$HOME/.axiom/tmp"
+
 
 droplets=$(instances)
 selected=$(cat $AXIOM_PATH/selected.conf)
