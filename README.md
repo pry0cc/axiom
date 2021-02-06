@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="screenshots/logov2.png" alt="axio m" width="400px"></a>
+  <img src="screenshots/logov2.png" alt="axio m" width="530px"></a>
   <br>
 </h1>
 
