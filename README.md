@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="screenshots/axiom-logo-new.png" alt="axio m" width="270px"></a>
+  <img src="screenshots/logov2.png" alt="axio m" width="270px"></a>
   <br>
 </h1>
 
