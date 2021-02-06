@@ -29,11 +29,16 @@ while [[ "$token" == "" ]]; do
 	read token
 done
 
-echo -e -n "${Green}Please enter your default region: (Default 'nyc1', press enter) \n>> ${Color_Off}"
+doctl auth init -t "$token" | grep -vi "using token"
+
+echo -e -n "${Green}Autoselecting default region based on ping...${Color_Off}"
+default_region="$(for region in $(doctl compute region list | grep -v 'Slug' | awk '{ print $1 }'); do echo -n "$region,"; ping -c 1 speedtest-$region.digitalocean.com | grep "avg" | awk '{ print $4 }' | tr "/" ' ' | cut -d " " -f 1; done | sort -k2 -t , -n | head -n 1 | cut -d "," -f 1)"
+
+echo -e -n "${Green}Please enter your default region: (Default '$default_region', press enter) \n>> ${Color_Off}"
 read region
 	if [[ "$region" == "" ]]; then
-	echo -e "${Blue}Selected default option 'nyc1'${Color_Off}"
-	region="nyc1"
+	echo -e "${Blue}Selected default option '$default_region'${Color_Off}"
+	region="$default_region"
 	fi
 	echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb', press enter) \n>> ${Color_Off}"
 	read size
