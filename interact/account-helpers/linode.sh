@@ -21,8 +21,8 @@ if [[ "$acc" == "n" ]]; then
     echo -e "${Blue}Launching browser with signup page...${Color_Off}"
     xdg-open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
 fi
-	
-
+echo -e "${Green}Installing linode-cli\n ${Color_Off}"	
+sudo pip3 install linode-cli --upgrade
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
 read token
 while [[ "$token" == "" ]]; do
