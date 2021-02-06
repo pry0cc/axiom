@@ -29,11 +29,11 @@ while [[ "$token" == "" ]]; do
 	read token
 done
 
-echo -e -n "${Green}Please enter your default region: (Default 'sfo2', press enter) \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter your default region: (Default 'nyc1', press enter) \n>> ${Color_Off}"
 read region
 	if [[ "$region" == "" ]]; then
-	echo -e "${Blue}Selected default option 'sfo2'${Color_Off}"
-	region="sfo2"
+	echo -e "${Blue}Selected default option 'nyc1'${Color_Off}"
+	region="nyc1"
 	fi
 	echo -e -n "${Green}Please enter your default size: (Default 's-1vcpu-1gb', press enter) \n>> ${Color_Off}"
 	read size
