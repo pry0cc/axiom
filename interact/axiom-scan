@@ -68,7 +68,7 @@ tailPID=""
 clean_up() {
     # Perform program exit housekeeping
 	if [[ "$command" =~ "_target_" ]]; then
-	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
+	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
 		kill -9 $tailPID   
 		wait $! 2>/dev/null
@@ -92,6 +92,7 @@ silent="--silent"
 anew="false"
 cache="false"
 threads="0"
+local_wordlist=""
 
 pass=()
 
@@ -158,7 +159,7 @@ do
 	fi
 if [[ "$arg" == "-wL" ]]; then
 		n=$((i+1))
-		wordlist_local=$(echo ${!n})
+		local_wordlist=$(echo ${!n})
 		set=true
 		pass+=($i)
 		pass+=($n)
@@ -235,6 +236,12 @@ fi
 #command="cat input | /home/op/bin/ffuz -s -o output"
 #command="rm -rf output; mkdir -p output; /home/op/go/bin/gowitness file -f input -P output"
 
+echo -e -n "${BWhite}"
+echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfXyBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCg==" | base64 -d
+echo -e  "${Color_Off}"
+
+
+
 mod_data=$(parse_module $module $ext)
 command_data=$(echo $mod_data | jq -r '.command')
 wordlist="$(echo "$mod_data" | jq -r '.wordlist?')"
@@ -247,6 +254,21 @@ fi
 if [[ "$set_wordlist" != "" ]]; then
     wordlist="$set_wordlist"
 fi
+
+destination_wordlist=""
+if [[ "$local_wordlist" != "" ]]; then
+    if [[ -f "$local_wordlist" ]]; then
+        local_wordlist_filename="$(echo "$local_wordlist" | tr '/' ' ' | awk '{ print $NF }')"
+        total=$(wc -l "$AXIOM_PATH/selected.conf" | awk '{ print $1 }')
+        destination_wordlist="/home/op/lists/$local_wordlist_filename"
+        wordlist="$destination_wordlist"
+    else
+        echo -e "${Red}Error: file not found '$local_wordlist'...${Color_Off}"
+        exit 1
+    fi
+fi
+
+
 
 command=""
 
@@ -295,11 +317,6 @@ mkdir -p $tmp/output/
 mkdir -p $tmp/logs/
 mkdir -p $AXIOM_PATH/logs/
 start=$(pwd)
-
-echo -e -n "${BWhite}"
-echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfXyBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCg==" | base64 -d
-echo -e  "${Color_Off}"
-
 function formatSeconds (){
 	declare format='%02dh:%02dm:%02ds'         # time format hh:mm:sshconfig
 	declare timepassed=$1
@@ -328,6 +345,12 @@ echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | ${BWhit
 
 if [[ "$cache" == "false" ]]; then
     generate_sshconfig
+fi
+
+if [[ -f "$local_wordlist" ]]; then
+    echo -e "${Green}Uploading custom local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
+    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache >> /dev/null"
+    echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
 fi
 
 
