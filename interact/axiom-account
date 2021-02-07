@@ -29,6 +29,7 @@ then
             size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
             region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
 
+            mkdir -p "$HOME/.config"
             echo -e "[DEFAULT]\ndefault-user = axiom\n\n[axiom]\ntoken = $token\nregion = $region\ntype = $size\nimage = linode/alpine3.10" > "$HOME/.config/linode-cli"
         fi
 
