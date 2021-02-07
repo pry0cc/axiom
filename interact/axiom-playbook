@@ -6,7 +6,7 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 playbooks="$AXIOM_PATH/playbooks"
 
 echo -e -n  "${BWhite}"
-cat "$AXIOM_PATH/interact/axiom-playbook-banner.txt"
+echo "ICAgICAgICAgICAgICBfICAgICAgICAgICAgICAgICAgICAgICAgICAgICBfXyAgICAgICAgICAgIF9fICAgICAgICAgICAgICAgIF9fCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fICAvIC9fX18gX19fICBfXy8gL18gIF9fX18gIF9fX18gIC8gL19fCiAvIF9fIGAvIHwvXy8gLyBfXyBcLyBfXyBgX18gXF9fX19fXy8gX18gXC8gLyBfXyBgLyAvIC8gLyBfXyBcLyBfXyBcLyBfXyBcLyAvL18vCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fLyAvXy8gLyAvIC9fLyAvIC9fLyAvIC9fLyAvIC9fLyAvIC9fLyAvICw8ClxfXyxfL18vfF8vXy9cX19fXy9fLyAvXy8gL18vICAgICAvIC5fX18vXy9cX18sXy9cX18sIC9fLl9fXy9cX19fXy9cX19fXy9fL3xffAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvXy8gICAgICAgICAgICAvX19fXy8KQXV0aG9yOiBAcHJ5MGNj" | base64 -d
 echo ""
 echo -e  "${Color_Off}"
 
@@ -93,8 +93,6 @@ error=false
 
 if [[ "$input" == "" ]]; then
     echo -e "${BRed}Error: ${Red}Please supply an input file by supplying it as the first argument...${Color_Off}"
-    echo -e "${BWhite}Use '${Blue}axiom-playbook <input> -m <playbook>'${Color_Off}"
-    echo -e "${BWhite}Use '${Blue}axiom-playbook --list${BWhite}' to list playbooks...${Color_Off}"
     error=true
 fi
 
