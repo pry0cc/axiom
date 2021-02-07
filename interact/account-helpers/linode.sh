@@ -23,7 +23,7 @@ if [[ "$acc" == "n" ]]; then
 fi
 echo -e "${Green}Installing linode-cli\n ${Color_Off}"	
 sudo pip3 install linode-cli --upgrade
-linode-cli 
+#linode-cli 
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
 read token
 while [[ "$token" == "" ]]; do
@@ -44,6 +44,7 @@ read region
 	echo -e "${Blue}Selected default option 'g6-standard-1'${Color_Off}"
         size="g6-standard-1"
 fi
+
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email

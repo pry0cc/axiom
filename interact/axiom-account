@@ -23,6 +23,15 @@ then
             doctl auth init -t "$token" | grep -vi "using token"
         fi
 
+        if [[ "$provider" == "linode" ]]; 
+        then
+            token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+            size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
+            region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
+
+            echo -e "[DEFAULT]\ndefault-user = axiom\n\n[axiom]\ntoken = $token\nregion = $region\ntype = $size\nimage = linode/alpine3.10" > "$HOME/.config/linode-cli"
+        fi
+
         if [[ "$provider" == "ibm" ]]; 
         then
             token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
