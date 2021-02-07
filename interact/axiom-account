@@ -40,7 +40,7 @@ then
 
 			if [[ ! -f "$HOME/.packer.d/plugins/packer-builder-ibmcloud" ]]; then
 				echo -e "${Red}It seems that you don't have the packer plugin for ibm cloud?${Color_Off}"
-				echo -n -e "${Blue}Would you like me to install it for you? (https://github.com/pry0cc/packer-plugin-ibmcloud):\n y/n >> ${Color_Off}"
+				echo -n -e "${Blue}Would you like me to install it for you? (https://github.com/IBM/packer-plugin-ibmcloud/):\n y/n >> ${Color_Off}"
 				read ans
 
 				if [[ "$ans" == "y" ]]; then
