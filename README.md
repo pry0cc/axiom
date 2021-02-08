@@ -76,8 +76,8 @@ Or buy me a coffee to keep me powered :)
 | OS         | Supported | Tested        |  
 |------------|-----------|---------------|
 | Ubuntu     |    Yes    | Ubuntu 20.04  |
+| Kali       |    Yes    | Kali 2020.4   |
 | MacOS      |    Yes    | MacOS 10.15   |
-| Debian     |    Yes    |     No        |
 | Arch Linux |    Yes    |     Yes       | 
 | Windows    | Partially | WSL w/ Ubuntu |
 
