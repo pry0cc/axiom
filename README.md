@@ -69,11 +69,12 @@ If you like Axiom and it saves you time, money or just brings you happy feelings
 
 Or buy me a coffee to keep me powered :)
 
+<a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" style="height: 5px !important;width: 25px !important;" ></a>
+
 ## Sponsored By SecurityTrails!
 <img src="https://securitytrails.com/images/logo.png" width="300">
 We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for your free account <a href="https://securitytrails.com/app/signup?utm_source=axiom">here!</a>
 
-<a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" style="height: 5px !important;width: 25px !important;" ></a>
 ---
 
 # Operating Systems Supported
