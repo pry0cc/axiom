@@ -55,7 +55,7 @@ then
 fi
 
 total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
-cmds_file="$AXIOM_PATH/tmp/$RANDOM-cmd.txt"
+cmds_file="$AXIOM_PATH/tmp/$RANDOM$RANDOM-cmd.txt"
 full=""
 
 touch $cmds_file
