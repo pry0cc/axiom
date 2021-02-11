@@ -194,6 +194,8 @@
         "touch /home/op/.z",
         "chown -R op:users /home/op",
         "chmod +x /etc/update-motd.d/00-header",
+        "echo 'Installing Nuclei dev branch'",
+        "git clone https://github.com/projectdiscovery/nuclei && cd nuclei && git checkout dev && cd v2/cmd/nuclei/ && go get -u && go build && mv nuclei /home/op/bin/nuclei-dev",
         "chown root:root /etc/sudoers /etc/sudoers.d -R"
       ], "inline_shebang": "/bin/sh -x",
 	  "type": "shell"
