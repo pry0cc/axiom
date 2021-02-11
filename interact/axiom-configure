@@ -64,7 +64,7 @@ if [ $BASEOS == "Linux" ]; then
         sudo pacman -S fzf packer jq doctl
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc
+        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc uuid-runtime
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -91,7 +91,7 @@ if [ $BASEOS == "Linux" ]; then
     
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf update && sudo dnf install bc fzf git rubypick python3-pip curl net-tools unzip
+		    sudo dnf update && sudo dnf install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
 		    echo -e "${Blue}Installing jq...${Color_Off}"
 		    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		    echo -e "${Blue}Installing packer...${Color_Off}"
@@ -102,7 +102,7 @@ if [ $BASEOS == "Linux" ]; then
 		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
 	elif [ $OS == "UbuntuWSL" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc
+        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc uuid-runtime
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -124,6 +124,7 @@ if [ $BASEOS == "Linux" ]; then
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         mkdir "${HOME}/.ssh/sockets"
+
 	fi
 fi
 
