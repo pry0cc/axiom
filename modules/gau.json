@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /home/op/go/bin/gau -o output",
+	"command":"cat input | /home/op/go/bin/gau | tee output",
 	"ext":"txt"
 }]
