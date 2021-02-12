@@ -144,7 +144,7 @@ add_dns_record() {
     domain="$2"
     ip="$3"
 
-    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
+    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip 
 }
 
 msg_success() {
