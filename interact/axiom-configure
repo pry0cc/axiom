@@ -16,6 +16,8 @@ cat << EOF
 
 The Dynamic Infrastructure Framework - @pry0cc
 
+Sponsored by SecurityTrails - https://securitytrails.com/app/signup
+
 EOF
 
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
@@ -197,6 +199,8 @@ if [ ! -d $AXIOM_PATH ]; then
 else
     cd $AXIOM_PATH && git pull
 fi
+
+"$AXIOM_PATH/interact/account-helpers/generate_amass.sh"
 
 echo -e "${Blue}Configuring your cloud account...${Color_Off}"
 $AXIOM_PATH/interact/axiom-account-setup
