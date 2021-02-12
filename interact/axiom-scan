@@ -43,7 +43,9 @@ function help() {
 	echo -e "  -w /path/to/wordlist/on/instance"
 	echo -e "    Wordlist to use to scan with (must be the path for the destination instances)"
     echo -e "  -wL /path/to/local"
-	echo -e "    Wordlist to use to scan with (must be the path for the destination instances)"
+	echo -e "    Wordlist Local to use to scan with (must be the path for the destination instances)"
+    #echo -e "  -wD /path/to/local"
+    #echo -e "    Wordlist Distribute use to scan with (Specify a path for local file, will be sharded and uploaded)"
 	echo -e "  --list"
 	echo -e "    List available modules"
 	echo -e "  -o string"
@@ -93,6 +95,7 @@ anew="false"
 cache="false"
 threads="0"
 local_wordlist=""
+distribute_wordlist=""
 
 pass=()
 
@@ -157,15 +160,20 @@ do
 		pass+=($i)
 		pass+=($n)
 	fi
-if [[ "$arg" == "-wL" ]]; then
+    if [[ "$arg" == "-wL" ]]; then
 		n=$((i+1))
 		local_wordlist=$(echo ${!n})
 		set=true
 		pass+=($i)
 		pass+=($n)
 	fi
-
-
+     if [[ "$arg" == "-wD" ]]; then
+		n=$((i+1))
+		distribute_wordlist=$(echo ${!n})
+		set=true
+		pass+=($i)
+		pass+=($n)
+	fi
 
 	if [[ "$arg" == "-oG" ]]; then
 		n=$((i+1))
@@ -269,6 +277,20 @@ if [[ "$local_wordlist" != "" ]]; then
 fi
 
 
+#wordlist_lines=0
+#if [[ "$distribute_wordlist" != "" ]]; then
+#    if [[ -f "$distribute_wordlist" ]]; then
+#        start=$(pwd)
+#        wordlist_lines=$(wc -l "$distribute_wordlist" | awk '{ print $1 }')
+#        local_wordlist_filename="$(echo "$distribute_wordlist" | tr '/' ' ' | awk '{ print $NF }')"
+#        total=$(wc -l "$AXIOM_PATH/selected.conf" | awk '{ print $1 }')
+#        destination_wordlist="/home/op/lists/$local_wordlist_filename"
+#        wordlist="$destination_wordlist"
+#    else
+#        echo -e "${Red}Error: file not found '$distribute_wordlist'...${Color_Off}"
+#        exit 1
+#    fi
+#fi
 
 command=""
 
@@ -383,6 +405,28 @@ done
 
 total=$i
 echo $instances | tr ' ' '\n' > $tmp/hosts
+
+##############################################################################
+
+#if [[ "$distribute_wordlist" != "" ]]; then
+#    cd $start
+#    mkdir -p "$tmp/wordlist/"
+#    lines_per_file=$(expr $wordlist_lines / $divisor)
+#    [[ $(expr $wordlist_lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
+#    cat "$distribute_wordlist" | shuf > $tmp/wordlist/wordlist
+#    cd $tmp/wordlist && split -l $lines_per_file wordlist && rm wordlist && cd $start
+#    i=1
+#    for f in $(find $tmp/wordlist -type f | tr '/' ' ' | awk '{ print $NF }')
+#    do
+#	    instance="$(echo $instances | awk "{ print \$$i }")"
+#    	i=$((i+1))
+#	    mv "$tmp/wordlist/$f" "$tmp/wordlist/$instance"
+#    done
+#    echo -e "${Green}Uploading custom local wordlist sharded (the wordlist is split up across the fleet): $distribute_wordlist to $destination_wordlist...${Color_Off}"
+#    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $tmp/wordlist/_target_  _target_:$destination_wordlist --cache >> /dev/null"
+#    echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
+#
+#fi
 
 ##############################################################################
 ### Merging output
