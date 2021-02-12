@@ -40,6 +40,7 @@ fi
 
 cd "$AXIOM_PATH"/ || exit
 
+counter=0
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" "$image_path";
 then
@@ -55,16 +56,17 @@ then
 		time="$seconds seconds"
 	fi
 
-    echo -e "${BGreen}Your build completed successfully in $time !${Color_Off}"
+    echo -e "${BGreen}Your build completed successfully in $time! You should run axiom-update && axiom-build weekly to get the latest and greatest updates!" ${Color_Off}"
     echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
 	  "$AXIOM_PATH"/interact/axiom-prune
-    "$NOTIFY_CMD" "Axiom Info" "Build completed successfully!"
+    "$NOTIFY_CMD" "Axiom Info" "Build completed successfully! 
 else
+    counter=$((counter+1))
     echo -e "${BRed}Your build failed :( Please take a look at the errors!${Color_Off}"
-    echo -e "${Blue}Builds may fail every now and then, there are some known bugs in Ubuntu Server that cause this."
-	  echo -e "Im sorry, but it just fails sometimes, just sit back and relax and we'll try again until  it works ;)${Color_Off}"
+    echo -e "${Yellow}This can happen sometimes, if you have a [404] error while using Linode, this is likely because you need to request support for a larger image size to 18GB! ${Color_Off}"
+    echo -e "${Yellow}For support, take a screenshot of the last 20 lines and open a issue at https://github.com/pry0cc/axiom/issues${Color_Off}"
+    echo -e "${Green}Sometimes just running a build again can work, so please try at least once: 'axiom-build', thanks!${Color_Off}"
     "$NOTIFY_CMD" "Axiom Info" "Build failed :("
-    "$AXIOM_PATH"/interact/axiom-build
 fi
 
 
