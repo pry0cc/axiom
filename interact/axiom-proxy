@@ -18,12 +18,9 @@ echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_
 
 instance_data=$(instances)
 
-
-if [[ "$single_mode" == "true" ]]; then
-    tmp="$AXIOM_PATH/tmp/$(date +%s)"
-    mkdir -p "$tmp"
-    echo -e "global\n\t\tdaemon\n\t\tuser root\n\t\tgroup root\n\ndefaults\n\t\tmode tcp\n\t\tmaxconn 3000\n\t\ttimeout connect 5000ms\n\t\ttimeout client 50000ms\n\t\ttimeout server 50000ms\n\nlisten funnel_proxy\n\t\tbind *:1337\n\t\tmode tcp\n\t\tbalance roundrobin\n\t\tdefault_backend doxycannon\n\nbackend doxycannon" >> "$tmp/haproxy.cfg"
-fi
+tmp="$AXIOM_PATH/tmp/$(date +%s)"
+mkdir -p "$tmp"
+echo -e "global\n\t\tdaemon\n\t\tuser root\n\t\tgroup root\n\ndefaults\n\t\tmode tcp\n\t\tmaxconn 3000\n\t\ttimeout connect 5000ms\n\t\ttimeout client 50000ms\n\t\ttimeout server 50000ms\n\nlisten funnel_proxy\n\t\tbind *:1337\n\t\tmode tcp\n\t\tbalance roundrobin\n\t\tdefault_backend doxycannon\n\nbackend doxycannon" >> "$tmp/haproxy.cfg"
 
 i=0
 for instance in $(query_instances "$1" ) 
