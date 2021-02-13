@@ -1,6 +1,5 @@
 #!/bin/bash
-#set -x
-reset
+
 ###########################################################################################################
 # Header
 
@@ -12,7 +11,8 @@ begin=$(date +%s)
 mkdir -p $HOME/.ssh/sockets
 start="$(pwd)"
 
-#reset
+reset
+
 echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
 yBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAg
@@ -142,6 +142,7 @@ merge_output() {
     fi
     if [[ "$ext" == "txt" ]]; then
         echo "Mode set to txt.. Sorting unique."
+        touch "$tmp/output/place"
         cat $tmp/output/* | sort -u > $tmp/merge
 
         if [[ "$anew" == "true" ]]; then
@@ -157,6 +158,7 @@ merge_output() {
         mv "$tmp/merge.xml.html" "$outfile.html"
     elif [[ "$ext" == "csv" ]]; then
         echo "Mode set to CSV, merging..."
+        touch "$tmp/output/place"
         header="$(cat $tmp/output/* | head -n 1)"
         echo "$header" > "$outfile"
         cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
@@ -215,6 +217,12 @@ do
         if [[ "$arg" == "-m" ]]; then
             n=$((i+1))
             module=$(echo ${!n})
+
+            if [[ "$module" == "ffuf" ]]; then
+                ext="csv"
+            fi
+
+
             set=true
             pass+=($i)
             pass+=($n)
@@ -315,10 +323,6 @@ do
 
     fi
 done
-
-if [[ "$module" == "ffuf" ]]; then
-    ext="csv"
-fi
 
 if [[ "$cache" == "false" ]]; then
     generate_sshconfig
