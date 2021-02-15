@@ -432,6 +432,7 @@ fi
 thread_str=""
 
 if [[ "$command" =~ "_target_" ]]; then
+    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($fleet_size * $threads)) TOTAL THREADS. Using $threads threads per instance with $fleet_size instances...${Color_Off}"
     thread_str="${BWhite}Threads:${Color_Off} [ ${Red}$threads${Color_Off} ] | "
 fi
 
