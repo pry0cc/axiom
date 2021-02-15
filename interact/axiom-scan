@@ -213,6 +213,7 @@ cache="false"
 fleet=""
 threads=30
 interactive=""
+uid="$module+$(date +%s)"
 outfile="$start/$uid"
 args=""
 pass=()
@@ -351,8 +352,6 @@ if [[ "$cache" == "false" ]]; then
     generate_sshconfig
 fi
 
-uid="$module+$(date +%s)"
-outfile="$start/$uid"
 tmp="$AXIOM_PATH/tmp/$uid"
 mkdir -p "$tmp/input"
 mkdir -p "$tmp/split"
