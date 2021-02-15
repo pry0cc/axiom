@@ -432,7 +432,6 @@ fi
 thread_str=""
 
 if [[ "$command" =~ "_target_" ]]; then
-    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($fleet_size * $threads)) TOTAL THREADS. Using $threads threads per instance with $fleet_size instances...${Color_Off}"
     thread_str="${BWhite}Threads:${Color_Off} [ ${Red}$threads${Color_Off} ] | "
 fi
 
@@ -470,6 +469,8 @@ fi
 
 if [[ "$command" =~ "_target_" ]]; then
     # Is single shot mode 
+    echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
+    sleep 3
     $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output' >> $tmp/logs/_target_ 2>&1"
     $interlace_cmd -c "axiom-scp _target_:$scan_dir/output/* $tmp/output/ --cache >/dev/null 2>&1"
 else
