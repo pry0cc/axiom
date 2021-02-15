@@ -364,6 +364,9 @@ input_file="$1"
 total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 lines="$(wc -l "$input_file" | awk '{ print $1 }')"
 
+stty -echoctl
+trap clean_up SIGHUP SIGINT SIGTERM
+
 # Fleet
 if [[ "$fleet" == "" ]]; then
     instances=$(cat "$tmp/hosts")
