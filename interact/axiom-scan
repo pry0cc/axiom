@@ -212,8 +212,6 @@ user_specified_wordlist=""
 cache="false"
 fleet=""
 threads=30
-uid="$module+$(date +%s)"
-outfile="$start/$uid"
 interactive=""
 args=""
 pass=()
@@ -353,6 +351,7 @@ if [[ "$cache" == "false" ]]; then
 fi
 
 uid="$module+$(date +%s)"
+outfile="$start/$uid"
 tmp="$AXIOM_PATH/tmp/$uid"
 mkdir -p "$tmp/input"
 mkdir -p "$tmp/split"
