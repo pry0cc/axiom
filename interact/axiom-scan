@@ -11,7 +11,7 @@ begin=$(date +%s)
 mkdir -p $HOME/.ssh/sockets
 start="$(pwd)"
 
-#reset
+reset
 
 echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
