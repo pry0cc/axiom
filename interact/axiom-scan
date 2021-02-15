@@ -242,7 +242,7 @@ do
         if [[ "$arg" == "-o" ]]; then
             n=$((i+1))
             outfile=$(echo ${!n})
-            ext="txt"
+            ext=""
             set=true
             pass+=($i)
             pass+=($n)
@@ -320,10 +320,19 @@ do
     fi
 done
 
+if [[ ! -f $input ]]; then
+	echo -e "${BRed}File does not exist, please specify one as the first argument... ${Color_Off}"
+	help
+	exit 1
+fi
+
+if [[ "$debug" == "true" ]]; then
+    silent=""
+fi
+
 if [[ "$module" == "ffuf" ]]; then
     ext="csv"
 fi
-
 
 if [[ "$cache" == "false" ]]; then
     generate_sshconfig
