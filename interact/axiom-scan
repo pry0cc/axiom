@@ -339,11 +339,6 @@ if [[ ! -f $input ]]; then
 	exit 1
 fi
 
-if [[ ! $outfile ]]; then
-	echo -e "${BRed}You must specify an output file with -o, -oD, -oX, or -oG,... ${Color_Off}"
-	exit 1
-fi
-
 if [[ "$debug" == "true" ]]; then
     silent=""
 fi
