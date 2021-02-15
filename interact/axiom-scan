@@ -213,6 +213,7 @@ cache="false"
 fleet=""
 threads=30
 interactive=""
+outfile="$start/$uid"
 args=""
 pass=()
 
