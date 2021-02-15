@@ -88,6 +88,19 @@ function help() {
 	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
 
+clean_up() {
+    # Perform program exit housekeeping
+	if [[ "$command" =~ "_target_" ]]; then
+	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
+	else
+		kill -9 $tailPID   
+		wait $! 2>/dev/null
+		interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+	fi
+    merging_output
+    exit $1
+}
+
 apply_wordlist() {
     command="$1"
     wordlist="$2"
@@ -472,4 +485,4 @@ time=$(formatSeconds $runtime)
 
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid.tar.gz${Color_Off}'"
- echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
