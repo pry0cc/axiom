@@ -11,7 +11,7 @@ begin=$(date +%s)
 mkdir -p $HOME/.ssh/sockets
 start="$(pwd)"
 
-reset
+#reset
 
 echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
@@ -98,6 +98,7 @@ apply_wordlist() {
 
 add_extra_args() {
     command="$1"
+    args="$2"
 
     if [[ "$command" =~ "|" ]]; then
         first="$(echo "$command" | cut -d "|" -f 1)"
@@ -218,11 +219,6 @@ do
             n=$((i+1))
             module=$(echo ${!n})
 
-            if [[ "$module" == "ffuf" ]]; then
-                ext="csv"
-            fi
-
-
             set=true
             pass+=($i)
             pass+=($n)
@@ -324,6 +320,11 @@ do
     fi
 done
 
+if [[ "$module" == "ffuf" ]]; then
+    ext="csv"
+fi
+
+
 if [[ "$cache" == "false" ]]; then
     generate_sshconfig
 fi
@@ -393,6 +394,7 @@ command="$(parse_module "$module" "$ext" | jq -r '.command')"
 command="$(apply_wordlist "$command" "$wordlist")"
 command="$(add_extra_args "$command" "$args")"
 
+
 default_threads="$(parse_module "$module" | jq -r '.threads?')"
 if [[ "$default_threads" != "" ]]; then
     threads="$default_threads"
@@ -402,8 +404,14 @@ if [[ "$user_specified_threads" != "" ]]; then
     threads="$user_specified_threads"
 fi
 # Print the command header
+thread_str=""
+
+if [[ "$command" =~ "_target_" ]]; then
+    thread_str="${BWhite}Threads:${Color_Off} [ ${Red}$threads${Color_Off} ] | "
+fi
+
 echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $total_instances [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
-echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | ${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
+echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | $thread_str${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
 
 # Destination directory on the instances and the command used to SSH to them
 scan_dir="/home/op/scan/$uid"
@@ -436,16 +444,15 @@ fi
 
 if [[ "$command" =~ "_target_" ]]; then
     # Is single shot mode 
-    $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace -threads $threads --silent --no-bar -tL input -cL command -o output' >> $tmp/logs/_target_ 2>&1"
+    $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output' >> $tmp/logs/_target_ 2>&1"
     $interlace_cmd -c "axiom-scp _target_:$scan_dir/output/* $tmp/output/ --cache >/dev/null 2>&1"
 else
     if [[ "$interactive" == "true" ]]; then
         $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command'"
-        $interlace_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache >/dev/null 2>&1"
     else
         $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command' >> $tmp/logs/_target_ 2>&1"
-        $interlace_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache >/dev/null 2>&1"
     fi
+    $interlace_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache >/dev/null 2>&1"
 fi
 
 merge_output
