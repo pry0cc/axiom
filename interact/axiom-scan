@@ -214,7 +214,7 @@ fleet=""
 threads=30
 interactive=""
 uid="$module+$(date +%s)"
-outfile="$start/$uid"
+outfile="$start/scan+$(date %s)"
 args=""
 pass=()
 
