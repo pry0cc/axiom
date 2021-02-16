@@ -168,7 +168,7 @@
         "wget -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.11.1/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
         "/bin/su -l op -c 'mkdir -p /home/op/go/src/github.com/zmap/ && git clone https://github.com/zmap/zdns.git /home/op/go/src/github.com/zmap/zdns  && cd /home/op/go/src/github.com/zmap/zdns/zdns && go build && go install'",
         "echo 'Installing dalfox'",
-        "/bin/su -l op -c 'go get -u github.com/hahwul/dalfox'",
+        "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/hahwul/dalfox/v2'",
         "echo 'Installing gospider'",
         "/bin/su -l op -c 'go get -u github.com/jaeles-project/gospider'",
         "echo 'Increasing ulimit'",
