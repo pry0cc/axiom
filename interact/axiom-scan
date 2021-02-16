@@ -343,7 +343,7 @@ if [[ "$debug" == "true" ]]; then
     silent=""
 fi
 
-if [[ "$module" == "ffuf" ]]; then
+if [[ "$module" =~ "ffuf" ]]; then
     ext="csv"
 fi
 
