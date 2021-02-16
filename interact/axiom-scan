@@ -176,7 +176,7 @@ merge_output() {
         header="$(cat $tmp/output/* | head -n 1)"
         echo "$header" > "$outfile"
         cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
-    elif [[ "$ext" == "" ]];  then
+    elif [[ "$ext" == "" ]] || [[ "$ext" == "dir" ]];  then
         echo "Mode set to directory... Merging directories..."
         mkdir $tmp/merge
         
@@ -205,7 +205,7 @@ merge_output() {
 
 wordlist=""
 module=""
-ext=""
+ext="default"
 default_wordlist="/home/op/lists/seclists/Discovery/Web-Content/common.txt"
 local_wordlist=""
 user_specified_wordlist=""
@@ -256,7 +256,6 @@ do
         if [[ "$arg" == "-o" ]]; then
             n=$((i+1))
             outfile=$(echo ${!n})
-            ext="txt"
             set=true
             pass+=($i)
             pass+=($n)
@@ -291,7 +290,7 @@ do
         fi
         if [[ "$arg" == "-oD" ]]; then
             n=$((i+1))
-            ext=""
+            ext="dir"
             outfile=$(echo ${!n})
             set=true
             pass+=($i)
@@ -419,10 +418,13 @@ fi
 ###########################################################################################################
 
 # The command to execute on the remote host
+if [[ "$ext" == "default" ]]; then
+    ext="$(parse_module "$module" | jq -r '.ext')"
+fi
+
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
 command="$(apply_wordlist "$command" "$wordlist")"
 command="$(add_extra_args "$command" "$args")"
-
 
 default_threads="$(parse_module "$module" | jq -r '.threads?')"
 if [[ "$default_threads" != "" ]]; then
