@@ -256,7 +256,7 @@ do
         if [[ "$arg" == "-o" ]]; then
             n=$((i+1))
             outfile=$(echo ${!n})
-            ext=""
+            ext="txt"
             set=true
             pass+=($i)
             pass+=($n)
@@ -346,6 +346,10 @@ fi
 
 if [[ "$module" == "ffuf" ]]; then
     ext="csv"
+fi
+
+if [[ "$module" == "gowitness" ]]; then
+    ext=""
 fi
 
 if [[ "$cache" == "false" ]]; then
