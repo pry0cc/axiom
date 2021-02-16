@@ -1,10 +1,10 @@
 [
 	{
-		"command":"sudo masscan --rate=100000 -iL input -oG output",
+		"command":"sudo masscan -iL input -oG output",
 		"ext":"txt"
 	},
 	{
-		"command":"sudo masscan --rate=100000 -iL input -oX output",
+		"command":"sudo masscan -iL input -oX output",
 		"ext":"xml"
 	}
 ]
