@@ -9,18 +9,35 @@ Andreas Hontzia (@honze_net)
   <xsl:template match="/">
     <html lang="en">
       <head>
-        <meta name="referrer" content="no-referrer"/>
+        <meta name="referrer" content="no-referrer"/> 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" type="text/css" integrity="sha384-VEpVDzPR2x8NbTDZ8NFW4AWbtT2g/ollEzX/daZdW/YvUBlbgVtsxMftnJ84k0Cn" crossorigin="anonymous"/>
-        <link id="dark-theme-style" rel="stylesheet" />
         <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha384-fJU6sGmyn07b+uD1nMk7/iSb4yvaowcueiQhfVgQuD98rfva8mcr1eSvjchfpMrH" crossorigin="anonymous"></script>
         <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" integrity="sha384-rgWRqC0OFPisxlUvl332tiM/qmaNxnlY46eksSZD84t+s2vZlqGeHrncwIRX7CGp" crossorigin="anonymous"></script>
         <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha384-7PXRkl4YJnEpP8uU4ev9652TTZSxrqC8uOpcV1ftVEC7LVyLZqqDUAaq+Y+lGgr9" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <style>
+          .target:before {
+            content: "";
+            display: block;
+            height: 50px;
+            margin: -20px 0 0;
+          }
           @media only screen and (min-width:1900px) {
             .container {
               width: 1800px;
               }
+          }
+          .footer {
+            margin-top:60px;
+            padding-top:60px;
+            width: 100%;
+            height: 180px;
+            background-color: #f5f5f5;
+          }
+          .clickable {
+            cursor: pointer;
           }
           .panel-heading > h3:before {
             font-family: 'Glyphicons Halflings';
@@ -34,8 +51,8 @@ Andreas Hontzia (@honze_net)
         <title>Scan Report Nmap <xsl:value-of select="/nmaprun/@version"/></title>
       </head>
       <body>
-        <nav class="navbar navbar-default navbar-fixed-top navbar-dark bg-dark">
-          <div class="container-fluid text-center">
+        <nav class="navbar navbar-default navbar-fixed-top">
+          <div class="container-fluid">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
@@ -51,13 +68,6 @@ Andreas Hontzia (@honze_net)
                 <li><a href="#onlinehosts">Online Hosts</a></li>
                 <li><a href="#openservices">Open Services</a></li>
               </ul>
-              <form class="navbar-form navbar-right" role="search">
-                  <button href="javascript:void()"
-                    class="btn btn-default"
-                    id="theme-toggler"
-                    onclick="toggleTheme()"
-                  ></button>
-                </form>
             </div>
           </div>
         </nav>
@@ -139,7 +149,7 @@ Andreas Hontzia (@honze_net)
                   <xsl:attribute name="data-target">#<xsl:value-of select="translate(address/@addr, '.', '-')"/></xsl:attribute>
                 <h3 class="panel-title"><xsl:value-of select="address/@addr"/><xsl:if test="count(hostnames/hostname) > 0"> - <xsl:value-of select="hostnames/hostname/@name"/></xsl:if></h3>
               </div>
-              <div class="panel-body collapse">
+              <div class="panel-body collapse in">
                 <xsl:attribute name="id"><xsl:value-of select="translate(address/@addr, '.', '-')"/></xsl:attribute>
                 <xsl:if test="count(hostnames/hostname) > 0">
                   <h4>Hostnames</h4>
@@ -297,47 +307,6 @@ Andreas Hontzia (@honze_net)
               Designed and built by Andreas Hontzia (<a href="https://www.twitter.com/honze_net">@honze_net</a>).<br/>
             </p>
           </div>
-          <script type="text/javascript">
-            // you can use app's unique identifier here
-            const LOCAL_STORAGE_KEY = "toggle-bootstrap-theme";
-            const LOCAL_META_DATA = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-            // you can change this url as needed
-            const DARK_THEME_PATH = "https://bootswatch.com/3/darkly/bootstrap.min.css";
-            const LIGHT_THEME_PATH = "https://bootswatch.com/3/flatly/bootstrap.min.css";
-            const DARK_STYLE_LINK = document.getElementById("dark-theme-style");
-            const THEME_TOGGLER = document.getElementById("theme-toggler");
-            let isDark = LOCAL_META_DATA &amp;&amp; LOCAL_META_DATA.isDark;
-            // check if user has already selected dark theme earlier
-            if (isDark) {
-              enableDarkTheme();
-            } else {
-              disableDarkTheme();
-            }
-            /**
-             * Apart from toggling themes, this will also store user's theme preference in local storage.
-             * So when user visits next time, we can load the same theme.
-             *
-             */
-            function toggleTheme() {
-              isDark = !isDark;
-              if (isDark) {
-                enableDarkTheme();
-              } else {
-                disableDarkTheme();
-              }
-              const META = { isDark };
-              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(META));
-            }
-            function enableDarkTheme() {
-              DARK_STYLE_LINK.setAttribute("href", DARK_THEME_PATH);
-              THEME_TOGGLER.innerHTML = "🌞 Light";
-            }
-            function disableDarkTheme() {
-              DARK_STYLE_LINK.setAttribute("href", LIGHT_THEME_PATH);
-              THEME_TOGGLER.innerHTML = "🌙 Dark";
-
-            }
-          </script>
         </footer>
       </body>
     </html>
