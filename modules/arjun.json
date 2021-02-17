@@ -1,0 +1,4 @@
+[{
+	"command":"/usr/local/bin/arjun -i input -oT output",
+	"ext":"txt"
+}]
