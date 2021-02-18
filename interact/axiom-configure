@@ -143,21 +143,21 @@ if ! [ -x "$(command -v go)" ]; then
        echo -e "${Blue}Installing Golang${Color_Off}"
        wget https://golang.org/dl/go1.14.4.linux-amd64.tar.gz
        sudo tar -C /usr/local -xzf go1.14.4.linux-amd64.tar.gz 
-       mkdir "${HOME}/go"
+       mkdir -p "${HOME}/go"
        export GOROOT=/usr/local/go/
        export GOPATH=$HOME/go
-       export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-       echo 'export GOROOT=/usr/local/go/' >>~/.bash_profile
-       echo 'export GOPATH=$HOME/go' >>~/.bash_profile
-       echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >>~/.bash_profile
-       source ~/.bash_profile
+       export PATH=$GOPATH/bin:$GOROOT/bin:$PATH    
+       echo "export GOROOT=/usr/local/go/" >> ${HOME}/.bash_profile
+       echo "export GOPATH=$HOME/go" >> ${HOME}/.bash_profile
+       echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >> ${HOME}/.bash_profile
+       source ${HOME}/.bash_profile
        sleep 1
        break
        ;;
        no)
-       echo -e "${Red}Please install go and rerun this script"
-       echo -e "Aborting installation...${Color_Off}"
-       exit 1
+       echo -e "${Red}Please install go after running axiom-build"
+       sleep 1
+       break
        ;;
    esac 
    done
