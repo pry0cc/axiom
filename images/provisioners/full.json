@@ -149,7 +149,7 @@
         "echo 'Installing gau'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
         "echo 'Installing dnsx'",
-        "git clone https://github.com/projectdiscovery/dnsx.git; cd dnsx/cmd/dnsx; sudo go build; sudo mv dnsx /usr/bin/dnsx",
+        "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/dnsx/cmd/dnsx'",
         "echo 'Installing shuffledns'",
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/shuffledns/cmd/shuffledns'",
         "echo 'Installing chaos client'",
