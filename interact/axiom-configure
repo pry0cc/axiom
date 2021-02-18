@@ -88,7 +88,6 @@ if [ $BASEOS == "Linux" ]; then
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         mkdir -p "${HOME}/.ssh/sockets"
-        mkdir -p "${HOME}/.axiom/tmp/"
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -125,7 +124,6 @@ if [ $BASEOS == "Linux" ]; then
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         mkdir -p "${HOME}/.ssh/sockets"
-        mkdir -p "${HOME}/.axiom/tmp/"
 
 	fi
 fi
@@ -193,7 +191,6 @@ if [ $BASEOS == "Mac" ]; then
          export PATH=$PATH:$(go env GOPATH)/bin
          source ~/.bash_profile
          mkdir -p "${HOME}/.ssh/sockets"
-         mkdir -p "${HOME}/.axiom/tmp/"
 fi
 
 if [ ! -d $AXIOM_PATH ]; then
@@ -203,6 +200,7 @@ else
     cd $AXIOM_PATH && git pull
 fi
 
+mkdir -p "${HOME}/.axiom/tmp/"
 "$AXIOM_PATH/interact/account-helpers/generate_amass.sh"
 
 echo -e "${Blue}Configuring your cloud account...${Color_Off}"
