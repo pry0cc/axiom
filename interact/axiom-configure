@@ -87,12 +87,9 @@ if [ $BASEOS == "Linux" ]; then
         echo "$USER soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
-        mkdir "${HOME}/.ssh/"
-        mkdir "${HOME}/.ssh/sockets"
-        mkdir "${HOME}/.axiom/tmp/"
+        mkdir -p "${HOME}/.ssh/sockets"
+        mkdir -p "${HOME}/.axiom/tmp/"
 
-
-    
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
 		    sudo dnf update && sudo dnf install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
@@ -127,9 +124,8 @@ if [ $BASEOS == "Linux" ]; then
         echo "$USER soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
-        mkdir "${HOME}/.ssh/"
-        mkdir "${HOME}/.ssh/sockets"
-        mkdir "${HOME}/.axiom/tmp/"
+        mkdir -p "${HOME}/.ssh/sockets"
+        mkdir -p "${HOME}/.axiom/tmp/"
 
 	fi
 fi
@@ -196,9 +192,8 @@ if [ $BASEOS == "Mac" ]; then
          make dev
          export PATH=$PATH:$(go env GOPATH)/bin
          source ~/.bash_profile
-         mkdir "${HOME}/.ssh/"
-         mkdir "${HOME}/.ssh/sockets"
-         mkdir "${HOME}/.axiom/tmp/"
+         mkdir -p "${HOME}/.ssh/sockets"
+         mkdir -p "${HOME}/.axiom/tmp/"
 fi
 
 if [ ! -d $AXIOM_PATH ]; then
