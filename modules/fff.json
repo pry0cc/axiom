@@ -1,0 +1,10 @@
+[
+ {
+        "command":"cat input | /home/op/go/bin/fff | tee output",
+        "ext":"txt"
+ },
+ {
+        "command":"cat input | /home/op/go/bin/fff -S --output output",
+        "ext":"dir"
+ }
+]
