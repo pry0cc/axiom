@@ -1,0 +1,7 @@
+[{
+        "command":"/usr/bin/feroxbuster -u _target_ -w _wordlist_ -o _output_/_cleantarget_",
+        "wordlist":"/home/op/lists/seclists/Discovery/Web-Content/big.txt",
+        "threads":"2",
+        "ext":""
+
+}]
