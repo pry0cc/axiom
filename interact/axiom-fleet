@@ -157,22 +157,24 @@ amount=$(($amount+$start))
 
 start=$((start+1))
 
+echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
 do
    time=$((time+6))
    name="$gen_name$i"
-   echo -e "${BWhite}Initializing $name..."
+   echo -n -e "$name "
    args=""
  
 	if [[ "$cycle_regions" != "false" ]]; then
 		args="--uregion=${regions_to_cycle[o]}"	
 	fi
 	
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
-   sleep 0.5
+#   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
+   sleep 0.9
    o=$((o+1))
 done
+echo -n -e "${Color_Off} ]\n"
 
 while [ $time -gt 0 ]; do
     echo -ne ">> T-Minus $time to fleet $gen_name initialization...\033[0K\r"
