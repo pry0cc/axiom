@@ -1,0 +1,4 @@
+[{
+        "command":"/usr/bin/rustscan -a input -g | tee output",
+        "ext":"txt"
+}]
