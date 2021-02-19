@@ -119,12 +119,19 @@ apply_wordlist() {
 add_extra_args() {
     command="$1"
     args="$2"
+    pipe=$(echo "$command" | grep -o "|" | wc -l)
 
-    if [[ "$command" =~ "|" ]]; then
+    if [[ "$pipe" = 1 ]]; then
         first="$(echo "$command" | cut -d "|" -f 1)"
         second="$(echo "$command" | cut -d "|" -f 2)"
-
-        command="$first | $second $args"
+        command="$first |  $second $args"
+        echo "$command"
+  
+    elif [[ "$pipe" = 2 ]]; then
+        first="$(echo "$command" | cut -d "|" -f 1)"
+        second="$(echo "$command" | cut -d "|" -f 2)"
+        third="$(echo "$command" | cut -d "|" -f 3)"
+        command="$first | $second $args | $third"
         echo "$command"
     else
         echo "$command $args"
