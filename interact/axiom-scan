@@ -98,6 +98,13 @@ clean_up() {
 		interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 	fi
     merge_output
+    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+    end=$(date +%s)
+    runtime=$((end-begin))
+    time=$(formatSeconds $runtime)
+    echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
+    echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid${Color_Off}'"
+    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
     exit $1
 }
 
@@ -490,11 +497,11 @@ else
 fi
 
 merge_output
-
+mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
 end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
-echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid.tar.gz${Color_Off}'"
+echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid${Color_Off}'"
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
