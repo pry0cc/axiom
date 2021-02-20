@@ -122,38 +122,44 @@ add_extra_args() {
     pipe=$(echo "$command" | grep -o "|" | wc -l)
 
     if [[ "$pipe" = 1 ]]; then
-    
-	  if [[ "$command" =~ ^'cat input |' ]]; then
+
+        if [[ "$command" =~ ^'cat input |' ]]; then
         first="$(echo "$command" | cut -d "|" -f 1)"
         second="$(echo "$command" | cut -d "|" -f 2)"
         command="$first |  $second $args"
        	echo "$command"
-    fi
+        fi
 
-    if  [[ "$command" =~ ^'echo _target_ |' ]]; then
+        if [[ "$command" =~ ^'echo _target_ |' ]]; then
         first="$(echo "$command" | cut -d "|" -f 1)"
         second="$(echo "$command" | cut -d "|" -f 2)"
         command="$first |  $second $args"
         echo "$command"
-    fi
+        fi
 
+        if [[ "$command" =~ '| tee output'$ ]]; then
+        first="$(echo "$command" | cut -d "|" -f 1)"
+        second="$(echo "$command" | cut -d "|" -f 2)"
+        command="$first $args | $second"
+        echo "$command"
+        fi
 
-    if  [[ "$command" =~ '| tee output'$ ]]; then
-	      first="$(echo "$command" | cut -d "|" -f 1)"
-	      second="$(echo "$command" | cut -d "|" -f 2)"
-	      command="$first $args | $second"
-	      echo "$command"
-    fi
+        if [[ "$command" =~ ^'nuclei' ]]; then
+        first="$(echo "$command" | cut -d "|" -f 1)"
+        second="$(echo "$command" | cut -d "|" -f 2)"
+        command="$first |  $second $args"
+        echo "$command"
+        fi
 
-    elif [[ "$pipe" = 2 ]]; then
+     elif [[ "$pipe" = 2 ]]; then
         first="$(echo "$command" | cut -d "|" -f 1)"
         second="$(echo "$command" | cut -d "|" -f 2)"
         third="$(echo "$command" | cut -d "|" -f 3)"
         command="$first | $second $args | $third"
         echo "$command"
-    else
+        else
         echo "$command $args"
-    fi
+     fi
 }
 
 
