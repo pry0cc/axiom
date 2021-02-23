@@ -193,7 +193,6 @@
         "/bin/su -l root -c 'curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/master/install-nix.sh | bash && mv feroxbuster /usr/bin/'",
         "/bin/su -l op -c 'go clean -modcache'",
         "/bin/su -l root -c 'rm -r /home/op/go/src/'",
-        "/bin/su -l root -c 'rm -r /root/go/src/'",
         "/bin/su -l root -c 'apt-get clean'",
         "echo 'Installing gf'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/gf'",
