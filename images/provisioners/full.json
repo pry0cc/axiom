@@ -101,7 +101,8 @@
         "git clone https://github.com/securing/DumpsterDiver.git /home/op/recon/DumpsterDiver && cd /home/op/recon/DumpsterDiver && pip3 install --ignore-installed -r requirements.txt",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
         "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
-        "git clone https://github.com/projectdiscovery/nuclei.git; cd nuclei/v2/cmd/nuclei/; go build; sudo mv nuclei /usr/local/bin/",
+        "echo 'Installing Nuclei'",
+        "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei'",
         "wget -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
         "wget -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
         "cd /home/op && tar -xf /home/op/.oh-my-zsh.tar.gz",
@@ -200,8 +201,6 @@
         "touch /home/op/.z",
         "chown -R op:users /home/op",
         "chmod +x /etc/update-motd.d/00-header",
-        "echo 'Installing Nuclei dev branch'",
-        "git clone https://github.com/projectdiscovery/nuclei && cd nuclei && git checkout dev && cd v2/cmd/nuclei/ && go get -u && go build && mv nuclei /home/op/bin/nuclei-dev",
         "chown root:root /etc/sudoers /etc/sudoers.d -R"
       ], "inline_shebang": "/bin/sh -x",
 	  "type": "shell"
