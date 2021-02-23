@@ -90,12 +90,13 @@ function help() {
 
 clean_up() {
     # Perform program exit housekeeping
+    echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
 	if [[ "$command" =~ "_target_" ]]; then
 	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
 		kill -9 $tailPID   
 		wait $! 2>/dev/null
-		interlace $silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
+		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 	fi
     merge_output
     mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
