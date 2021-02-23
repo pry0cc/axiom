@@ -171,7 +171,7 @@ do
 	fi
 	
    $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
-   sleep 0.9
+   sleep 0.6
    o=$((o+1))
 done
 echo -n -e "${Color_Off} ]\n"
