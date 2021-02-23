@@ -118,49 +118,35 @@ apply_wordlist() {
 
 add_extra_args() {
     command="$1"
+    new_command=""
     args="$2"
-    pipe=$(echo "$command" | grep -o "|" | wc -l)
+    args_set="false"
 
-    if [[ "$pipe" = 1 ]]; then
+    counter=0
+    pieces="$(echo "$command" | grep -o "|" | wc -l | awk '{ print $1 }')"
+    echo "total: $pieces"
 
-        if [[ "$command" =~ ^'cat input |' ]]; then
-        first="$(echo "$command" | cut -d "|" -f 1)"
-        second="$(echo "$command" | cut -d "|" -f 2)"
-        command="$first |  $second $args"
-       	echo "$command"
-        fi
-
-        if [[ "$command" =~ ^'echo _target_ |' ]]; then
-        first="$(echo "$command" | cut -d "|" -f 1)"
-        second="$(echo "$command" | cut -d "|" -f 2)"
-        command="$first |  $second $args"
-        echo "$command"
-        fi
-
-        if [[ "$command" =~ '| tee output'$ ]]; then
-        first="$(echo "$command" | cut -d "|" -f 1)"
-        second="$(echo "$command" | cut -d "|" -f 2)"
-        command="$first $args | $second"
-        echo "$command"
-        fi
-
-        if [[ "$command" =~ ^'nuclei' ]]; then
-        first="$(echo "$command" | cut -d "|" -f 1)"
-        second="$(echo "$command" | cut -d "|" -f 2)"
-        command="$first |  $second $args"
-        echo "$command"
-        fi
-
-     elif [[ "$pipe" = 2 ]]; then
-        first="$(echo "$command" | cut -d "|" -f 1)"
-        second="$(echo "$command" | cut -d "|" -f 2)"
-        third="$(echo "$command" | cut -d "|" -f 3)"
-        command="$first | $second $args | $third"
-        echo "$command"
+    OLDIFS=$IFS
+    IFS="|" 
+    for piece in $command
+    do
+        if [[ "$piece" != "" ]] && [[ ! "$piece" =~ "cat" ]] && [[ ! "$piece" =~ "tee" ]] && [[ "$args_set" != "true" ]]; then
+            new_command="$new_command $piece $args"
+            args_set=""true
         else
-        echo "$command $args"
-     fi
+            new_command="$new_command $piece"
+        fi    
+
+        if [[ "$counter" -lt "$pieces" ]]; then
+            new_command="$new_command | "
+            counter=$((counter+1))
+        fi
+    done
+
+    IFS=$OLDIFS
+    echo $new_command
 }
+
 
 
 split_file() {
