@@ -168,6 +168,8 @@
         "/bin/su -l op -c 'go get -u github.com/hahwul/dalfox'",
         "echo 'Installing gospider'",
         "/bin/su -l op -c 'go get -u github.com/jaeles-project/gospider'",
+        "echo 'Installing cngo'",
+        "/bin/su -l op -c 'go get -u github.com/yghonem14/cngo",
         "echo 'Increasing ulimit'",
         "/bin/su -l root -c 'echo \"DefaultLimitNOFILE=655350\" >> /etc/systemd/user.conf'",
         "/bin/su -l root -c 'echo \"DefaultLimitNOFILE=655350\" >> /etc/systemd/system.conf'",
