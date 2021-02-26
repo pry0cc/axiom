@@ -1,0 +1,4 @@
+[{
+	"command":"/home/op/bin/gorgo.py -i input -o output",
+	"ext":"txt"
+}]
