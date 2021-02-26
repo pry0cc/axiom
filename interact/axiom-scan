@@ -94,7 +94,6 @@ clean_up() {
 	if [[ "$command" =~ "_target_" ]]; then
 	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
-		kill -9 $tailPID   
 		wait $! 2>/dev/null
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 	fi
@@ -104,8 +103,10 @@ clean_up() {
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
     echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
-    echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid${Color_Off}'"
+    echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
     echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+    kill -9 $tailPID
+#    axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
     exit $1
 }
 
@@ -521,5 +522,8 @@ runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
-echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Logs are stored at '${Blue}$AXIOM_PATH/logs/$uid${Color_Off}'"
+echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+#axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
+kill -9 $tailPID
+

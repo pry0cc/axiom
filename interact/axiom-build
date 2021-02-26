@@ -6,6 +6,7 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner="full"
 start_time=$(date +%s)
+op_ssh_password=$(openssl rand -base64 48 | tr -d +)
 
 if [ ! -z $1 ]
 then
@@ -40,9 +41,20 @@ fi
 
 cd "$AXIOM_PATH"/ || exit
 
+if [ -z "$op_ssh_password" ]; then 
+op_ssh_password=$(date +%s | sha256sum | base64 | head -c 32)
+echo -e "${Red}openssl is not installed, defaulting to a less secure password: $op_ssh_password"
+fi
+
+if [ -z "$op_ssh_password" ]; then 
+echo -e "Unable to generate random password for Packer image.. exiting"
+exit 0
+fi
+
 counter=0
+echo -e "${Green}Keep this password for your records: $op_ssh_password${Color_Off}"
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
-if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" "$image_path";
+if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" "$image_path";
 then
 	end_time=$(date +%s)
 	seconds="$(expr $end_time - $start_time)"
