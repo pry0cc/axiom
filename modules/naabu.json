@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /home/op/go/bin/naabu -json -o output",
+	"ext":"txt"
+}]
