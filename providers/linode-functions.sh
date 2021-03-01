@@ -113,6 +113,11 @@ snapshots() {
 	linode-cli images list --json
 }
 
+# get text data for snapshots
+snapshots() {
+	linode-cli images list --text
+}
+
 delete_record() {
     domain="$1"
     id="$2"
