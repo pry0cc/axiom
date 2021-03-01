@@ -14,7 +14,7 @@ function help() {
     echo -e "  --help"
     echo -e "    Display this help menu"
     echo -e "  --regions"
-    echo -e "    Supply comma-separated regions to cycle through e.g. --regions=NYC1, NYC2, NYC3,AMS2, AMS3"
+    echo -e "    Supply comma-separated regions to cycle through e.g. --regions=NYC1,NYC2,NYC3,AMS2,AMS3"
 }
 
 gen_name=""
