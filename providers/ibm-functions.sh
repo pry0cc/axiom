@@ -24,7 +24,7 @@ snapshots() {
 }
 
 # get image data in text
-snapshots() {
+returnimages() {
 	ibmcloud sl image list --private
 }
 
