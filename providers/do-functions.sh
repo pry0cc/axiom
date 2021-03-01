@@ -116,6 +116,11 @@ snapshots() {
 	doctl compute snapshot list -o json
 }
 
+# get text data for snapshots
+returnimages() {
+	doctl compute image list
+}
+
 delete_record() {
     domain="$1"
     id="$2"
