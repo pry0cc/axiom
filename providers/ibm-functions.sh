@@ -17,8 +17,15 @@ get_image_id() {
 	echo $id
 }
 
+# get JSON data for snapshots
+
 snapshots() {
 	ibmcloud sl image list --output json --private
+}
+
+# get image data in text
+snapshots() {
+	ibmcloud sl image list --private
 }
 
 delete_snapshot() {
@@ -116,7 +123,6 @@ list_subdomains() {
 
     doctl compute domain records list $domain -o json | jq '.[]'
 }
-# get JSON data for snapshots
 
 delete_record() {
     domain="$1"
