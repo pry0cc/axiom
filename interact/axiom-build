@@ -6,7 +6,7 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner="full"
 start_time=$(date +%s)
-op_ssh_password=$(openssl rand -base64 48 | tr -d +)
+op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d "\n")
 
 if [ ! -z $1 ]
 then
@@ -40,11 +40,6 @@ then
 fi
 
 cd "$AXIOM_PATH"/ || exit
-
-if [ -z "$op_ssh_password" ]; then 
-op_ssh_password=$(date +%s | sha256sum | base64 | head -c 32)
-echo -e "${Red}openssl is not installed, defaulting to a less secure password: $op_ssh_password"
-fi
 
 if [ -z "$op_ssh_password" ]; then 
 echo -e "Unable to generate random password for Packer image.. exiting"
