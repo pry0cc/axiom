@@ -114,7 +114,7 @@ snapshots() {
 }
 
 # get text data for snapshots
-snapshots() {
+returnimages() {
 	linode-cli images list --text
 }
 
