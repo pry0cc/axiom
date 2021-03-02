@@ -3,7 +3,7 @@
     {
       "type": "linode",
       "ssh_username": "root",
-      "image_label": "axiom-{{ user `region` }}-{{timestamp}}",
+      "image_label": "{{ user `snapshot_name` }}",
       "instance_label":"axiom-{{timestamp}}",
       "image_description":"Axiom image",
       "linode_token": "{{ user `do_key` }}",
