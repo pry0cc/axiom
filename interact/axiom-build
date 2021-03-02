@@ -20,6 +20,7 @@ jq '.sshprivatekey="'$privatekey'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv
 jq '.sshpublickey="'$publickey'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 #
 
+
 if [ ! -z $1 ]
 then
 	provisioner="$1"
@@ -51,6 +52,7 @@ then
 fi
 
 cd "$AXIOM_PATH"/ || exit
+
 
 # change password or fail
 if [ -z "$op_ssh_password" ]; then 
