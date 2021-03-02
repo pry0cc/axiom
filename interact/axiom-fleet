@@ -9,8 +9,8 @@ function help() {
     echo -e "Example Usage: ${Blue}axiom-fleet -i=10${Color_Off}"
     echo -e "  -i int"
     echo -e "    How many instances you'd like to spin up"
-    echo -e "  -t int"
-    echo -e "    Set an expiry time (in hours)."
+    echo -e "  --regions"
+    echo -e "    Supply comma-separated regions to cycle through e.g. --regions=NYC1,NYC2,NYC3,AMS2,AMS3"
     echo -e "  --help"
     echo -e "    Display this help menu"
 }
