@@ -92,7 +92,7 @@ clean_up() {
     # Perform program exit housekeeping
     echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
 	if [[ "$command" =~ "_target_" ]]; then
-	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
+	    interlace --silent -threads $total -tL "$AXIOM_PATH/$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
 		wait $! 2>/dev/null
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
@@ -389,6 +389,7 @@ mkdir -p "$tmp/output"
 mkdir -p "$tmp/logs"
 
 cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
+cp "$AXIOM_PATH/selected.conf" "$tmp/selected.conf"
 
 input_file="$1"
 total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
@@ -427,7 +428,7 @@ destination_wordlist=""
 if [[ "$local_wordlist" != "" ]]; then
     if [[ -f "$local_wordlist" ]]; then
         local_wordlist_filename="$(echo "$local_wordlist" | tr '/' ' ' | awk '{ print $NF }')"
-        total=$(wc -l "$AXIOM_PATH/selected.conf" | awk '{ print $1 }')
+        total=$(wc -l "$AXIOM_PATH/$tmp/selected.conf" | awk '{ print $1 }')
         destination_wordlist="/home/op/lists/$local_wordlist_filename"
         wordlist="$destination_wordlist"
     else
@@ -438,7 +439,7 @@ fi
 
 if [[ -f "$local_wordlist" ]]; then
     echo -e "${Green}Uploading custom local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
-    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache >> /dev/null"
+    interlace --silent -threads $total -tL "$AXIOM_PATH/$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache >> /dev/null"
     echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
 fi
 
@@ -526,4 +527,3 @@ echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved t
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
 #axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
 kill -9 $tailPID
-
