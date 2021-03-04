@@ -94,7 +94,6 @@ clean_up() {
 	if [[ "$command" =~ "_target_" ]]; then
 	    interlace --silent -threads $total -tL "$AXIOM_PATH/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
-		wait $! 2>/dev/null
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 	fi
     merge_output
