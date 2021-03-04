@@ -94,7 +94,6 @@ clean_up() {
 	if [[ "$command" =~ "_target_" ]]; then
 	    interlace --silent -threads $total -tL "$AXIOM_PATH/$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache >> /dev/null"
 	else
-		wait $! 2>/dev/null
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache  >/dev/null 2>&1"
 	fi
     merge_output
@@ -396,7 +395,7 @@ total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 lines="$(wc -l "$input_file" | awk '{ print $1 }')"
 
 stty -echoctl
-trap clean_up SIGHUP SIGINT SIGTERM
+trap clean_up SIGINT SIGTERM
 
 # Fleet
 if [[ "$fleet" == "" ]]; then
