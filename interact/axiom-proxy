@@ -14,9 +14,9 @@ do
 done
 
 
+generate_sshconfig
 echo "random_chain,proxy_dns ,remote_dns_subnet 224,tcp_read_time_out 15000,tcp_connect_time_out 8000,[ProxyList]," | tr ',' '\n' >proxychains.conf
 
-instance_data=$(instances)
 
 
 if [[ "$single_mode" == "true" ]]; then
@@ -26,14 +26,14 @@ if [[ "$single_mode" == "true" ]]; then
 fi
 
 i=0
-for instance in $(query_instances "$1" ) 
+for instance in $(query_instances_cache "$1" ) 
 do
 	i=$((i+1))
-	ip=$(echo "$instance_data" | jq -r ".[] | select(.name==\"$instance\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
+	ip=$(instance_ip_cache "$instance")
 	append=$(printf "%02d" "$i")
 	port="50$append"
 	
-	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -N 2>&1 >>/dev/null &
+	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -R 8080:127.0.0.1:8080 -N 2>&1 >>/dev/null &
 	echo -e "${BWhite}Proxy listener started on $port for $instance...${Color_Off}"
     [[ "$single_mode" == "true" ]] && echo -e "\tserver $ip 127.0.0.1:$port" >> "$tmp/haproxy.cfg"
 	echo "socks5 127.0.0.1 $port" >>proxychains.conf
@@ -45,6 +45,6 @@ echo -e "${BGreen}Proxies connected and saved in ./proxychains.conf${Color_Off}"
     echo -e "${Blue}Building haproxy configuration...${Color_Off}"
     echo -e "FROM haproxy:alpine\nCOPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg" > $tmp/Dockerfile && \
     cd "$tmp" && \
-    docker build -t pry0cc/haproxy .&& \
+    sudo docker build -t pry0cc/haproxy .&& \
     echo -e "${BGreen}[*]${Green} Started SOCKS5 Listener on '${Blue}127.0.0.1:1337${BGreen}'... CTRL+C TO EXIT${BGreen}...${Color_Off}"
-    docker run --rm --network=host --name axiom-proxy pry0cc/haproxy
+    sudo docker run --rm --network=host --name axiom-proxy pry0cc/haproxy
