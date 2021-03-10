@@ -15,7 +15,7 @@
 
 Axiom works by pre-installing your tools of choice onto a 'base image', and then using that image to deploy fresh instances. From there, you can connect and instantly gain access to many tools useful for both bug hunters and pentesters. With the power of immutable infrastructure, most of which is done for you, you can just spin up 15 boxes, perform a distributed nmap/ffuf/screenshotting scan, and then shut them down.  
 
-Because you can create many disposable instances very easily, axiom allows you to distribute scans of many different tools including dnsgen dnsx ffuf gau gowitness httpx masscan massdns nmap nuclei shuffledns & subfinder. Once installed and setup, you can distribute a scan of a large set of targets across 10-15 instances within minutes and get results extremely quickly. This is called [axiom-scan](https://github.com/pry0cc/axiom/wiki/Scans).
+Because you can create many disposable instances very easily, axiom allows you to distribute scans of many different tools including dnsgen dnsx ffuf gau gowitness httpx masscan massdns nmap naabu nuclei shuffledns & subfinder. Once installed and setup, you can distribute a scan of a large set of targets across 10-15 instances within minutes and get results extremely quickly. This is called [axiom-scan](https://github.com/pry0cc/axiom/wiki/Scans).
 
 Axiom supports several cloud providers, eventually, axiom should be completely cloud agnostic allowing unified control of a wide variety of different cloud environments with ease. Currently, DigitalOcean, IBM Cloud, & Linode are officially supported providers. Google Compute is partially implemented. AWS & Azure are on the roadmap. If you would like prioritization of a feature or provider implementation, please contact me @pry0cc on Twitter and we can discuss :)
 
@@ -130,6 +130,7 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  projectdiscovery chaos
 - [x]  projectdiscovery chaos-client
 - [x]  projectdiscovery httpx
+- [x]  projectdiscovery naabu
 - [x]  projectdiscovery nuclei
 - [x]  projectdiscovery shuffledns
 - [x]  proxychains w/ Tor setup
