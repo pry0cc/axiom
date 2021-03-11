@@ -94,7 +94,7 @@ clean_up() {
     # Perform program exit housekeeping
     echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
 	if [[ "$command" =~ "_target_" ]]; then
-        interlace --silent -threads $total -tL "$AXIOM_PATH/$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache -F=$sshconfig >> /dev/null"
+        interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache -F=$sshconfig >> /dev/null"
 	else
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache -F=$sshconfig  >/dev/null 2>&1"
 	fi
