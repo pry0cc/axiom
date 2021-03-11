@@ -64,7 +64,7 @@ function help() {
 	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
 	echo -e "  -w /path/to/wordlist/on/instance"
 	echo -e "    Wordlist to use to scan with (must be the path for the destination instances)"
-  echo -e "  -wL /path/to/local"
+    echo -e "  -wL /path/to/local"
 	echo -e "    Wordlist Local to use to scan with (must be the path for the destination instances)"
 	echo -e "  --list"
 	echo -e "    List available modules"
@@ -78,9 +78,11 @@ function help() {
 	echo -e "    Output to a directory"
 	echo -e "  --fleet string (optional)"
 	echo -e "    Fleet to use, will use axiom-select by default."
-  echo -e "  --debug"
-  echo -e "    Enable debug mode (VERY VERBOSE!)"
-  echo -e "  --quiet"
+    echo -e "  -F string (optional)"
+    echo -e "    Custom SSH configuration file to launch fleet from"
+    echo -e "  --debug"
+    echo -e "    Enable debug mode (VERY VERBOSE!)"
+    echo -e "  --quiet"
 	echo -e "    Enable quiet mode"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
@@ -240,7 +242,7 @@ threads=30
 interactive=""
 uid="$module+$(date +%s)"
 outfile="$start/scan+$(date +%s)"
-ssh_config="$AXIOM_PATH/.sshconfig"
+sshconfig="$AXIOM_PATH/.sshconfig"
 #sshconfig="/home/op/tmp/sshconf"
 args=""
 pass=()
@@ -267,6 +269,14 @@ do
         if [[ "$arg" == "--anew" ]]; then
             n=$((i+1))
             anew="true"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "-F" ]]; then
+            n=$((i+1))
+            sshconfig=$(echo ${!n})
+            cache="true"
             set=true
             pass+=($i)
             pass+=($n)
@@ -391,7 +401,7 @@ mkdir -p "$tmp/logs"
 
 cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
 cp "$AXIOM_PATH/selected.conf" "$tmp/selected.conf"
-cp "$AXIOM_PATH/.sshconfig" "$tmp/sshconfig" 
+cp "$sshconfig" "$tmp/sshconfig" 
 
 sshconfig="$tmp/sshconfig"
 
