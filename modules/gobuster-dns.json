@@ -1,0 +1,4 @@
+[{
+	"command":"/usr/bin/gobuster dns -q -w input -o output -d ",
+	"ext":"txt"
+}]

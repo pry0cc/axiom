@@ -1,0 +1,5 @@
+[{
+	"command":"/usr/bin/gobuster dir -q -w input -o output -u ",
+	"ext":"txt"
+}]
+
