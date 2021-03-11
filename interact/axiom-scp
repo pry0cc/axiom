@@ -7,22 +7,44 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 instances=""
 cache=false
 args=""
+custom_config=""
+ssh_conf=""
 
 i=0
 for var in "$@"
 do
-    if [ $var == "--cache" ]
-	then
+    set=false
+    if [[ "$var" == "--cache" ]]; then
 		cache=true
-	else
+        set=true
+    fi
+
+    if [[ "$var" =~ "-F=" ]]; then
+        custom_config="$(echo "$var" | cut -d '=' -f 2)"
+        cache=true
+        set=true
+    fi
+
+    if [[ "$set" == "false" ]]; then
 		args="$args $var"
-	fi
+    fi
 	i=$((i+1))
 done
 
 if [ $cache != "true" ]
 then
 	generate_sshconfig
+fi
+
+if [[ "$custom_config" != "" ]]; then
+    if [[ -f "$custom_config" ]]; then
+        ssh_conf="$custom_config"
+    else
+        echo -e "${Red}Error: Config '$custom_config' not found... Reverting to default...${Color_Off}"
+        ssh_conf="$AXIOM_PATH/.sshconfig"
+    fi
+else
+    ssh_conf="$AXIOM_PATH/.sshconfig"
 fi
 
 echo -n "" > $AXIOM_PATH/tmp/cmds.txt
@@ -32,7 +54,7 @@ do
 	host=$(echo $var | cut -d ":" -f 1)
 	if [[ "$host" =~ "*" ]]
 	then
-		instances=$(query_instances_cache "$host")
+		instances=$(query_instances_cache "-F=$ssh_conf" "$host")
 		full=$(echo "$var" | sed "s/\$name/$instance/g")
 		if [[ "$str" ]]
 		then
@@ -51,50 +73,49 @@ do
 	fi
 done
 
-if [ "$instances" ]
-then
-for instance in $instances
-do
-line=""
-for var in $args
-do
-	host=$(echo $var | cut -d ":" -f 1)
-	str=""
-	if [[ "$host" =~ "*" ]]
-	then
-		full=$(echo "$var" | sed "s/$host/$instance/g"| sed 's/\*//g')
-		if [[ "$str" ]]
-		then
-			str="$str $full"
-		else
-			str="$full"
-		fi
-	else
-		if [[ "$str" ]]
-		then
-			str="$str $var"
-		else
-			str="$var"
-		fi
-	fi
+if [ "$instances" ]; then
+    for instance in $instances
+    do
+        line=""
+    for var in $args
+    do
+	    host=$(echo $var | cut -d ":" -f 1)
+	    str=""
+	    if [[ "$host" =~ "*" ]]
+	    then
+		    full=$(echo "$var" | sed "s/$host/$instance/g"| sed 's/\*//g')
+		    if [[ "$str" ]]
+		    then
+			    str="$str $full"
+		    else
+			    str="$full"
+		    fi
+	    else
+		    if [[ "$str" ]]
+		    then
+			    str="$str $var"
+		    else
+			    str="$var"
+		    fi
+        fi
 
-	str=$(echo $str | sed "s/\$name/$instance/g")
+	    str=$(echo $str | sed "s/\$name/$instance/g")
 
-	if [ "$line" ]
-	then
-		line="$line $str"
-	else
-		line="$str"
-	fi
-done
-ssh_conf="$AXIOM_PATH/.sshconfig"
-cmd="rsync -e 'ssh -o StrictHostKeyChecking=no -F $ssh_conf' -azr --progress $line"
-echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
-#scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
-done
-#sleep 1
-echo -e "${BGreen}Running parallel file transfer...${Color_Off}"
-interlace -t NULL -cL $AXIOM_PATH/tmp/cmds.txt
+	    if [ "$line" ]
+	    then
+		    line="$line $str"
+	    else
+		    line="$str"
+	    fi
+    done
+
+    cmd="rsync -e 'ssh -o StrictHostKeyChecking=no -F $ssh_conf' -azr --progress $line"
+    echo "$cmd" >> $AXIOM_PATH/tmp/cmds.txt
+    #scp -r -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig $line
+    done
+    #sleep 1
+    echo -e "${BGreen}Running parallel file transfer...${Color_Off}"
+    interlace --silent -t NULL -cL $AXIOM_PATH/tmp/cmds.txt
 else
-	rsync -e "ssh -o StrictHostKeyChecking=no -F $AXIOM_PATH/.sshconfig"  -avzr --progress $args
+    rsync -e "ssh -o StrictHostKeyChecking=no -F $ssh_conf"  -avzr --progress $args
 fi
