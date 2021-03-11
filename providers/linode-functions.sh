@@ -23,7 +23,13 @@ instance_ip() {
 
 instance_ip_cache() {
 	name="$1"
-	cat "$AXIOM_PATH"/.sshconfig | grep -A 1 "$name" | awk '{ print $2 }' | tail -n 1
+    config="$2"
+    ssh_config="$AXIOM_PATH/.sshconfig"
+
+    if [[ "$config" != "" ]]; then
+        ssh_config="$config"
+    fi
+    cat "$ssh_config" | grep -A 1 "$name" | awk '{ print $2 }' | tail -n 1
 }
 
 instance_list() {
@@ -198,12 +204,14 @@ query_instances() {
 
 query_instances_cache() {
 	selected=""
+    ssh_conf="$AXIOM_PATH/.sshconfig"
 
 	for var in "$@"; do
-		if [[ "$var" =~ "*" ]]
-		then
+        if [[ "$var" =~ "-F=" ]]; then
+            ssh_conf="$(echo "$var" | cut -d "=" -f 2)"
+        elif [[ "$var" =~ "*" ]]; then
 			var=$(echo "$var" | sed 's/*/.*/g')
-			selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep "$var")"
+            selected="$selected $(cat "$ssh_conf" | grep "Host " | awk '{ print $2 }' | grep "$var")"
 		else
 			if [[ $query ]];
 			then
@@ -216,7 +224,7 @@ query_instances_cache() {
 
 	if [[ "$query" ]]
 	then
-		selected="$selected $(cat "$AXIOM_PATH"/.sshconfig | grep "Host " | awk '{ print $2 }' | grep -w "$query")"
+        selected="$selected $(cat "$ssh_conf" | grep "Host " | awk '{ print $2 }' | grep -w "$query")"
 	else
 		if [[ ! "$selected" ]]
 		then
