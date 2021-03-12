@@ -3,8 +3,8 @@
     {
       "type": "linode",
       "ssh_username": "root",
-      "image_label": "axiom-{{ user `region` }}-{{timestamp}}",
-      "instance_label":"axiom-{{timestamp}}",
+      "image_label":  "{{ `snapshot_name` }}",
+      "instance_label": "{{ `snapshot_name` }}",
       "image_description":"Axiom image",
       "linode_token": "{{ user `do_key` }}",
       "image": "linode/ubuntu20.04",
