@@ -78,6 +78,10 @@ function help() {
 	echo -e "    Output to a directory"
 	echo -e "  --fleet string (optional)"
 	echo -e "    Fleet to use, will use axiom-select by default."
+	echo -e "  --spinup int (optional)"
+	echo -e "    How many instances to spin up"
+    echo -e "  --rm-when-done (optional)"
+	echo -e "    Delete selected instances when scan is complete."
     echo -e "  -F string (optional)"
     echo -e "    Custom SSH configuration file to launch fleet from"
     echo -e "  --debug"
@@ -243,7 +247,8 @@ interactive=""
 uid="$module+$(date +%s)"
 outfile="$start/scan+$(date +%s)"
 sshconfig="$AXIOM_PATH/.sshconfig"
-#sshconfig="/home/op/tmp/sshconf"
+rm_when_done="false"
+spinup=0
 args=""
 pass=()
 
@@ -286,6 +291,12 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--rm-when-done" ]]; then
+            rm_when_done="true"
+            set=true
+            pass+=($i)
+        fi
+
         if [[ "$arg" == "--list" ]]; then
             list_modules
             exit
@@ -333,6 +344,14 @@ do
             pass+=($i)
             pass+=($n)
         fi 
+        if [[ "$arg" == "--spinup" ]]; then
+            n=$((i+1))
+            spinup=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+
         if [[ "$arg" == "-oG" ]]; then
             n=$((i+1))
             ext="txt"
@@ -386,6 +405,13 @@ fi
 
 if [[ "$module" == "gowitness" ]]; then
     ext=""
+fi
+
+if [[ "$spinup" -gt 0 ]]; then
+    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
+    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
+    echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
+    sleep 60
 fi
 
 if [[ "$cache" == "false" ]]; then
@@ -531,7 +557,18 @@ else
 fi
 
 merge_output
+
+if [[ "$rm_when_done" == "true" ]]; then
+    for instance in $(cat "$tmp/selected.conf");
+    do
+        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
+        sleep 0.4
+    done
+fi
+
+
 mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+
 end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
