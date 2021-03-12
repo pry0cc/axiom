@@ -45,7 +45,7 @@ The original and best supported provider for Axiom is Digital Ocean! If you're s
 Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for $20 free credit on Linode :) 
 
 
-## Installation
+## Installation - Easy Install
 
 You will also need to install the newest versions of all packages `sudo apt dist-upgrade` and curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`.
 <br>
