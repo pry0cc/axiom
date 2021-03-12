@@ -4,7 +4,7 @@
       "type": "googlecompute",
       "project_id": "axiom-project",
       "source_image": "ubuntu-2004-focal-v20200902",
-      "image_name":"axiom-{{ user `region` }}-{{ timestamp}}",
+      "image_name":  "{{ `snapshot_name` }}",
       "ssh_username": "root",
       "account_file":"{{ user `account_file_path` }}",
       "zone": "{{ user `region` }}"
