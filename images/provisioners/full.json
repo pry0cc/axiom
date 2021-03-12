@@ -3,7 +3,7 @@
     {
       "type": "digitalocean",
       "ssh_username": "root",
-      "snapshot_name":  "{{ `snapshot_name` }}",
+      "snapshot_name": "{{ user `snapshot_name` }}",
       "api_token": "{{ user `do_key` }}",
       "image": "ubuntu-20-04-x64",
       "region": "{{ user `region`  }}",
