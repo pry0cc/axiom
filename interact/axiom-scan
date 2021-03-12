@@ -10,15 +10,6 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 begin=$(date +%s)
 mkdir -p $HOME/.ssh/sockets
 start="$(pwd)"
-
-reset
-
-echo -e -n "${BWhite}"
-echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
-yBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCg==" | base64 -d
-echo -e  "${Color_Off}"
-
 ###########################################################################################################
 # Functions
 function formatSeconds (){
@@ -78,6 +69,10 @@ function help() {
 	echo -e "    Output to a directory"
 	echo -e "  --fleet string (optional)"
 	echo -e "    Fleet to use, will use axiom-select by default."
+	echo -e "  --spinup int (optional)"
+	echo -e "    How many instances to spin up"
+    echo -e "  --rm-when-done (optional)"
+	echo -e "    Delete selected instances when scan is complete."
     echo -e "  -F string (optional)"
     echo -e "    Custom SSH configuration file to launch fleet from"
     echo -e "  --debug"
@@ -243,7 +238,8 @@ interactive=""
 uid="$module+$(date +%s)"
 outfile="$start/scan+$(date +%s)"
 sshconfig="$AXIOM_PATH/.sshconfig"
-#sshconfig="/home/op/tmp/sshconf"
+rm_when_done="false"
+spinup=0
 args=""
 pass=()
 
@@ -286,6 +282,12 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--rm-when-done" ]]; then
+            rm_when_done="true"
+            set=true
+            pass+=($i)
+        fi
+
         if [[ "$arg" == "--list" ]]; then
             list_modules
             exit
@@ -333,6 +335,14 @@ do
             pass+=($i)
             pass+=($n)
         fi 
+        if [[ "$arg" == "--spinup" ]]; then
+            n=$((i+1))
+            spinup=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+
         if [[ "$arg" == "-oG" ]]; then
             n=$((i+1))
             ext="txt"
@@ -370,6 +380,15 @@ do
     fi
 done
 
+reset
+
+echo -e -n "${BWhite}"
+echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
+yBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCg==" | base64 -d
+echo -e  "${Color_Off}"
+
+
 if [[ ! -f $input ]]; then
 	echo -e "${BRed}Input file does not exist, please specify one as the first argument... ${Color_Off}"
 	help
@@ -386,6 +405,13 @@ fi
 
 if [[ "$module" == "gowitness" ]]; then
     ext=""
+fi
+
+if [[ "$spinup" -gt 0 ]]; then
+    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
+    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
+    echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
+    sleep 60
 fi
 
 if [[ "$cache" == "false" ]]; then
@@ -531,7 +557,18 @@ else
 fi
 
 merge_output
+
+if [[ "$rm_when_done" == "true" ]]; then
+    for instance in $(cat "$tmp/selected.conf");
+    do
+        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
+        sleep 0.4
+    done
+fi
+
+
 mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+
 end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
