@@ -77,14 +77,16 @@ We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for y
 
 ---
 
+
 # Operating Systems Supported
-| OS         | Supported | Tested        |  
-|------------|-----------|---------------|
-| Ubuntu     |    Yes    | Ubuntu 20.04  |
-| Kali       |    Yes    | Kali 2020.4   |
-| MacOS      |    Yes    | MacOS 10.15   |
-| Arch Linux |    Yes    |     Yes       | 
-| Windows    | Partially | WSL w/ Ubuntu |
+| OS         | Supported | Easy Install  | Tested        | 
+|------------|-----------|---------------|---------------|
+| Ubuntu     |    Yes    | Yes           | Ubuntu 20.04  |
+| Kali       |    Yes    | Yes           | Kali 2020.4   |
+| Debian     |    Yes    | Yes           | Debian 10     |
+| Windows    |    Yes    | Yes           | WSL w/ Ubuntu |
+| MacOS      |    Yes    | No            | MacOS 10.15   |
+| Arch Linux |    Yes    | No            | No            |
 
 
 
