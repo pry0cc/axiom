@@ -86,7 +86,7 @@ We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for y
 | Debian     |    Yes    | Yes           | Debian 10     |
 | Windows    |    Yes    | Yes           | WSL w/ Ubuntu |
 | MacOS      |    Yes    | No            | MacOS 10.15   |
-| Arch Linux |    Yes    | No            | No            |
+| Arch Linux |    Yes    | No            | Yes           |
 
 
 
