@@ -442,7 +442,7 @@ destination_wordlist=""
 if [[ "$local_wordlist" != "" ]]; then
     if [[ -f "$local_wordlist" ]]; then
         local_wordlist_filename="$(echo "$local_wordlist" | tr '/' ' ' | awk '{ print $NF }')"
-        total=$(wc -l "$AXIOM_PATH/$tmp/selected.conf" | awk '{ print $1 }')
+        total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
         destination_wordlist="/home/op/lists/$local_wordlist_filename"
         wordlist="$destination_wordlist"
     else
@@ -453,7 +453,7 @@ fi
 
 if [[ -f "$local_wordlist" ]]; then
     echo -e "${Green}Uploading custom local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
-    interlace --silent -threads $total -tL "$AXIOM_PATH/$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
+    interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
     echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
 fi
 
