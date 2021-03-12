@@ -6,7 +6,7 @@
       "username": "{{ user `username` }}",
       "datacenter_name": "{{ user `region` }}",
       "base_image_id":"{{ user `base_image_id` }}",
-      "image_name": "axiom-{{ user `region` }}-{{timestamp}}",
+      "image_name": "{{ `snapshot_name` }}",
       "instance_name": "packer-{{timestamp}}",
       "image_description": "Axiom full image built at {{isotime}}",
       "image_type": "standard",
