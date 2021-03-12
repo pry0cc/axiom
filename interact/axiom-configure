@@ -66,7 +66,7 @@ if [ $BASEOS == "Linux" ]; then
         sudo pacman -S fzf packer jq doctl
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc uuid-runtime
+        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc uuid-runtime rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
