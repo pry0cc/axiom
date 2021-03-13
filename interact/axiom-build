@@ -60,7 +60,7 @@ fi
 counter=0
 echo -e "${Green}Keep this password for your records: $op_ssh_password${Color_Off}"
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
-if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$imageid" "$image_path";
+if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$snapshot_name" "$image_path";
 then
 	end_time=$(date +%s)
 	seconds="$(expr $end_time - $start_time)"
