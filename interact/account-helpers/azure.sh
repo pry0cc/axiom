@@ -62,7 +62,7 @@ if [[ "$ans" == "Y" ]]; then
     read appliance_key 
 fi
 
-data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"axiom\",\"provider\":\"azure\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\",\"use_azure_cli_auth\":$use_azure_cli_auth}")"
+data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"axiom\",\"provider\":\"azure\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\",\"use_azure_cli_auth\":\"$use_azure_cli_auth\"}")"
 
 echo -e "${BGreen}Profile settings below: ${Color_Off}"
 echo $data | jq
