@@ -1,0 +1,5 @@
+[{
+	"command":"/usr/bin/whois _target_ | tee output/_target_",
+	"ext":"dir",
+	"threads":"10"
+}]
