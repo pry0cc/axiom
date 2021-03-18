@@ -66,10 +66,6 @@ do
         image="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
         #echo -e "${BWhite}Setting number of instances to $amount...${Color_Off}"
     fi
-	if [[ "$var" =~ "-r" ]]
-    then
-		regions=$(snapshots | jq -r '.[] | select(.name | contains("axiom")) | .name'  | cut -d "-" -f 2 | sort -u)
-    fi
 done
 
 
