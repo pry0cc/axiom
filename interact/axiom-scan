@@ -157,7 +157,7 @@ split_file() {
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
     cat "$file" | shuf > "$tmp/split/targets"
 
-    cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd $start
+    cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
     # Rename "xaa" etc  to 1 2 3 4 5
     i=1
     for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
