@@ -154,7 +154,7 @@ if [[ "$image" != "null" ]]
 then
 	image_name="$image-$region"
 else
-	image_name="axiom-$region"
+  image_name="$(jq -r ".imageid" "$AXIOM_PATH/axiom.json")"
 fi
 
 image_id=""
