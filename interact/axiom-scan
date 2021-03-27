@@ -195,7 +195,7 @@ split_file() {
 
 merge_output() {
     if [[ "$anew" != "true" ]];  then
-        rm -rf $outfile
+        rm -rf "$outfile"
     fi
     if [[ "$ext" == "txt" ]]; then
         echo "Mode set to txt.. Sorting unique."
@@ -218,23 +218,23 @@ merge_output() {
         touch "$tmp/output/place"
         header="$(cat $tmp/output/* | head -n 1)"
         echo "$header" > "$outfile"
-        cat $tmp/output/* | grep -v "$header" | sort -u -V >> $outfile
+        cat $tmp/output/* | grep -v "$header" | sort -u -V >> "$outfile"
     elif [[ "$ext" == "" ]] || [[ "$ext" == "dir" ]];  then
         echo "Mode set to directory... Merging directories..."
         mkdir $tmp/merge
         
         if [[ "$command" =~ "_target_" ]]; then
             cp -r $tmp/output/* $tmp/merge
-            rm -rf $outfile
-            mv $tmp/merge $outfile
+            rm -rf "$outfile"
+            mv $tmp/merge "$outfile"
         else
            if [ $BASEOS == "Linux" ]; then 
             cp -r --backup=t $tmp/output/*/* $tmp/merge
            else
             cp -r $tmp/output/*/* $tmp/merge
            fi
-           rm -rf $outfile
-           mv $tmp/merge/output $outfile
+           rm -rf "$outfile"
+           mv $tmp/merge/output "$outfile"
         fi
         if [[ "$module" == "gowitness" ]]; then
             echo "Downloading gowitness databases..."
