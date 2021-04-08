@@ -1,0 +1,5 @@
+[{
+            "command":"python3 -u /home/op/ParamSpider/paramspider.py -d _target_ --exclude woff,css,js,png,svg,jpg",
+                "ext":"",
+                    "threads":"2"
+}]
