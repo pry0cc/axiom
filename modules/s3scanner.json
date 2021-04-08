@@ -1,0 +1,4 @@
+[{
+	"command":"python3 /home/op/S3Scanner/s3scanner.py input -o output",
+	"ext":"txt"
+}]
