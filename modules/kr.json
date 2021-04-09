@@ -1,0 +1,4 @@
+[{
+	"command":"/usr/bin/kr brute input -o output",
+	"ext":"txt"
+}]
