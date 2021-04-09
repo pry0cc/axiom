@@ -135,6 +135,8 @@
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/naabu/v2/cmd/naabu'",
         "echo 'Installing gron'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/gron'",
+        "echo 'Installing Gxss'",
+        "/bin/su -l op -c 'go get -u github.com/KathanP19/Gxss'",
         "echo 'Installing anew'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/anew'",
         "echo 'Installing anti-burl'",
