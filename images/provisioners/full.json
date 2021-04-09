@@ -179,6 +179,8 @@
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/hahwul/dalfox/v2'",
         "echo 'Installing gospider'",
         "/bin/su -l op -c 'go get -u github.com/jaeles-project/gospider'",
+        "echo 'Installing kiterunner'",
+        "/bin/su -l root -c 'wget https://github.com/assetnote/kiterunner/releases/download/v1.0.1/kiterunner_1.0.1_linux_amd64.tar.gz ; tar -zxvf kiterunner_1.0.1_linux_amd64.tar.gz ; rm kiterunner_1.0.1_linux_amd64.tar.gz ; mv kr /usr/bin/'",
         "echo 'Increasing ulimit'",
         "/bin/su -l root -c 'echo \"DefaultLimitNOFILE=655350\" >> /etc/systemd/user.conf'",
         "/bin/su -l root -c 'echo \"DefaultLimitNOFILE=655350\" >> /etc/systemd/system.conf'",
