@@ -1,0 +1,4 @@
+[{
+	"command":"/usr/bin/kr scan input -o output",
+	"ext":"txt"
+}]
