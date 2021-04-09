@@ -1,4 +1,4 @@
 [{
-	"command":"/usr/bin/kr brute input -o output",
+	"command":"/usr/bin/kr brute input -o text | tee output",
 	"ext":"txt"
 }]
