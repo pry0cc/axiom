@@ -6,6 +6,19 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 
 single_mode="false"
 
+function ctrlc() {
+	echo -e "${Blue}Cleaning up SSH connections before exiting...${Color_Off}"
+        PIDS=$(ps aux | awk '/ssh -p2266 -o StrictHostKeyChecking=no -D/ && /-R 8080:127.0.0.1:8080 -N/' | grep -v awk | awk '{ print $2 }')
+        for LINE in $PIDS
+        do
+             kill -9 $PIDS
+        done
+        echo -e "${BGreen}Done cleaning up SSH connections and exiting${Color_Off}"
+        exit 2
+}
+
+trap ctrlc 2
+
 for var in "$@"
 do
     if [[ "$var" == "--single" ]]; then
