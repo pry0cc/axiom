@@ -1,0 +1,4 @@
+[{
+	"command":"/home/op/recon/puredns/puredns resolve input | tee output",
+	"ext":"txt"
+}]
