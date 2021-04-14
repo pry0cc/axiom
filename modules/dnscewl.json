@@ -1,4 +1,4 @@
 [{
-    "command":"/usr/bin/DNScewl --tL input -p /home/op/lists/resolvers.txt --subs --no-color | tail -n +14 | tee output",
+    "command":"/usr/bin/DNScewl --tL input -p /home/op/lists/permutations.txt --subs --no-color | tail -n +14 | tee output",
     "ext":"txt"
 }]
