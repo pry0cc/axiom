@@ -87,7 +87,7 @@
         "sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.0/gowitness-2.3.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness",
         "wget -O /home/op/bin/ffuz https://raw.githubusercontent.com/pry0cc/ffuz/main/ffuz && chmod +x /home/op/bin/ffuz",
         "sudo wget https://raw.githubusercontent.com/xero/figlet-fonts/master/Bloody.flf -O /usr/share/figlet/Bloody.flf",
-        "/bin/su -l op -c 'cd /home/op/lists/assetnote; wget -r --no-parent -R index.html\* https://wordlists-cdn.assetnote.io/data/ -nH'",
+        "mkdir -p /home/op/lists/assetnote; cd /home/op/lists/assetnote; wget -r --no-parent -R 'index.html*' https://wordlists-cdn.assetnote.io/data/ -nH",
         "git clone https://github.com/ProjectAnte/dnsgen /home/op/recon/dnsgen && cd /home/op/recon/dnsgen && pip3 install -r requirements.txt && sudo python3 setup.py install",
         "git clone https://github.com/navisecdelta/EmailGen.git /home/op/recon/emailgen",
         "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
