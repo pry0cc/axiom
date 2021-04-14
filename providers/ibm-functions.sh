@@ -245,13 +245,15 @@ quick_ip() {
 generate_sshconfig() {
 	droplets="$(instances)"
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
+  
+  echo -e "Host *\n\tControlMaster auto\n\tControlPath  ~/.ssh/sockets/%r@%h-%p\n\tControlPersist 600" >> $AXIOM_PATH/.sshconfig.new
+	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
 
 	for name in $(echo "$droplets" | jq -r '.[].hostname')
 	do 
 		ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryIpAddress")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-    echo -e "ServerAliveInterval 60" >> $AXIOM_PATH/.sshconfig.new
-    echo -e "Host *\n\tControlMaster auto\n\tControlPath  ~/.ssh/sockets/%r@%h-%p\n\tControlPersist 600" >> $AXIOM_PATH/.sshconfig.new
+
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
 }

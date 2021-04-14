@@ -230,12 +230,14 @@ generate_sshconfig() {
 	boxes="$(az vm list-ip-addresses)"
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
 
+	echo -e "Host *\n\tControlMaster auto\n\tControlPath  ~/.ssh/sockets/%r@%h-%p\n\tControlPersist 600" >> $AXIOM_PATH/.sshconfig.new
+	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
+    
 	for name in $(echo "$boxes" | jq -r '.[].virtualMachine.name')
 	do 
 		ip=$(echo "$boxes" | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-    echo -e "ServerAliveInterval 60" >> $AXIOM_PATH/.sshconfig.new
-    echo -e "Host *\n\tControlMaster auto\n\tControlPath  ~/.ssh/sockets/%r@%h-%p\n\tControlPersist 600" >> $AXIOM_PATH/.sshconfig.new
+
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
 	
