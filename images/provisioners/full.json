@@ -129,6 +129,8 @@
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/fff'",
         "echo 'Installing assetfinder'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/assetfinder'",
+        "echo 'Installing cf-check'",
+        "/bin/su -l op -c 'go get -u github.com/dwisiswant0/cf-check'",
         "echo 'Installing waybackurls'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/waybackurls'",
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/httpx/cmd/httpx'",
