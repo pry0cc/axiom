@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /home/op/go/bin/Gxss -c 100 -o output",
+	"command":"cat input | /home/op/go/bin/Gxss -c 100 -p Xss | tee output",
 	"ext":"txt"
 }]
