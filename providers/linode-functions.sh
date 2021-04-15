@@ -91,7 +91,7 @@ regions() {
 
 instance_sizes() {
 	echo "Needs conversion"
-    doctl compute size list -o json
+    #doctl compute size list -o json
 }
 
 # List DNS records for domain
