@@ -167,6 +167,8 @@
         "/bin/su -l op -c 'go get -u github.com/1ndianl33t/urlprobe'",
         "echo 'Installing gau'",
         "/bin/su -l op -c 'GO111MODULE=on go get -u github.com/lc/gau'",
+        "echo 'Installing waybackurls'",
+        "/bin/su -l op -c 'go get -v github.com/tomnomnom/hacks/waybackurls'",
         "echo 'Installing dnsx'",
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/dnsx/cmd/dnsx'",
         "echo 'Installing shuffledns'",
