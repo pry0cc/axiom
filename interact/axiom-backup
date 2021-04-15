@@ -1,32 +1,53 @@
 #!/usr/bin/env bash
 
 AXIOM_PATH="$HOME/.axiom"
+DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
+account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+snapshot_name=axiom-$region-$(date +%s)
 
-instance=""
+BASEOS="$(uname)"
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
+imageid="$(jq -r ".imageid" "$AXIOM_PATH/axiom.json")"
+linodeid=""
+dropletid=""
+vsiid=""
 
-if [ -z "$1" ]  || [ "$1" == "--now" ]
-then
-    instance="$(instance_menu)"
-else
-	instance="$1"
+if [[ "$provider" == "linode" ]]; then
+tput setaf 4; echo "Enter the Linode ID to use for axiom-init/axiom-fleet"
+tput setaf 15;linode-cli linodes list
+tput setaf 6; read linodeid
+newimageid=$(linode-cli linodes disks-list "$linodeid" --text | grep axiom | tr '\t' ' ' | cut -d ' ' -f 1)
+newimagelabel=$(linode-cli images create --disk_id "$newimageid" --text --label $snapshot_name | grep axiom | cut -f 2 | tr -d ' ') 
+jq '.imageid="'$newimagelabel'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+tput setaf 4; echo "Created image out of Linode"
+tput setaf 6; echo "It can take a few minutes for the image to become active"
+tput setaf 4; echo "Updated $account_path, replaced imageid $imageid with $snapshot_name"
 fi
 
-generate_sshconfig
 
-box_path="$AXIOM_PATH/boxes/$1"
-
-if [ ! -d "$box_path" ]
-then
-    "$AXIOM_PATH"/interact/axiom-boxes new "$1"
+if [[ "$provider" == "do" ]]; then
+tput setaf 4; echo "Enter the Droplet ID to use for axiom-init/axiom-fleet"
+tput setaf 15; doctl compute droplet list
+tput setaf 6; read dropletid
+newimageid=$(doctl compute droplet-action snapshot "$dropletid" --snapshot-name "$snapshot_name") 
+jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+tput setaf 4; echo "Created image out of Droplet"
+tput setaf 6; echo "It can take a few minutes for the image to become active"
+tput setaf 4; echo "Updated $account_path, replaced imageid $imageid with $snapshot_name"
 fi
 
 
-echo -e "${BWhite}Backing up $instance... ${Color_Off}"
-echo -n -e "${Blue}" 
-
-rsync -avzr -e "ssh -F $AXIOM_PATH/.sshconfig" --progress --include-from="$AXIOM_PATH"/boxes/backup-files.txt "$instance":~/ "$AXIOM_PATH"/boxes/"$instance"/
-
-echo -n -e "${Color_Off}" 
-echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}" 
+if [[ "$provider" == "ibm" ]]; then
+tput setaf 4; echo "Enter the VSI ID to use for axiom-init/axiom-fleet"
+tput setaf 15; ibmcloud sl vs list
+tput setaf 6; read vsiid
+ibmcloud sl vs capture "$vsiid" --name $snapshot_name
+jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+tput setaf 4; echo "Created image out of VSI"
+tput setaf 6; echo "It can take a few minutes for the image to become active"
+tput setaf 4; echo "Updated "$account_path" , replaced imageid $imageid with $snapshot_name"
+fi
