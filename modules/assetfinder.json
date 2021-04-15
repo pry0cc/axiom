@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /home/op/go/bin/assetfinder | tee output",
+	"command":"cat input | /home/op/go/bin/assetfinder --subs-only | tee output",
 	"ext":"txt"
 }]

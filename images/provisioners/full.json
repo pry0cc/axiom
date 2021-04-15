@@ -139,6 +139,8 @@
         "/bin/su -l op -c 'go get -u github.com/m4dm0e/dirdar'",
         "echo 'Installing Gxss'",
         "/bin/su -l op -c 'go get -u github.com/KathanP19/Gxss'",
+        "echo 'Installing Crobat'",
+        "/bin/su -l op -c 'go get github.com/cgboal/sonarsearch/crobat'",
         "echo 'Installing waybackurls'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/waybackurls'",
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/httpx/cmd/httpx'",

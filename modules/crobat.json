@@ -1,0 +1,5 @@
+[{
+	"command":"/home/op/go/bin/crobat -s _target_ -u | tee _output_/_target_",
+	"ext":"txt",
+	"threads":"1"
+}]
