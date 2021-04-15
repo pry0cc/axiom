@@ -94,6 +94,7 @@
         "git clone https://github.com/navisecdelta/EmailGen.git /home/op/recon/emailgen",
         "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
         "git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt",
+        "git clone https://github.com/UnaPibaGeek/ctfr.git /home/op/recon/ctfr && cd /home/op/recon/ctfr && pip3 install -r requirements.txt",
         "git clone https://github.com/sa7mon/S3Scanner.git /home/op/recon/S3Scanner ; cd /home/op/recon/S3Scanner ; pip3 install -r requirements.txt",
         "git clone https://github.com/s0md3v/Corsy.git /home/op/recon/Corsy ; cd /home/op/recon/Corsy ; pip3 install -r requirements.txt",
         "git clone https://github.com/navisecdelta/PwnFile.git /home/op/hashes/pwnfile",
