@@ -82,37 +82,42 @@ instance_exists() {
 }
 
 list_regions() {
-    doctl compute region list
+    linode-cli regions list
 }
 
 regions() {
-    doctl compute region list -o json
+    linode-cli regions list --json | jq -r '.[].id'
 }
 
 instance_sizes() {
-    doctl compute size list -o json
+	echo "Needs conversion"
+    #doctl compute size list -o json
 }
 
 # List DNS records for domain
 list_dns() {
 	domain="$1"
 
-	doctl compute domain records list "$domain"
+	echo "Needs conversion"
+	# doctl compute domain records list "$domain"
 }
 
 list_domains_json() {
-    doctl compute domain list -o json
+    echo "Needs conversion"
+    # doctl compute domain list -o json
 }
 
 # List domains
 list_domains() {
-	doctl compute domain list
+	echo "Needs conversion"
+	# doctl compute domain list
 }
 
 list_subdomains() {
     domain="$1"
 
-    doctl compute domain records list $domain -o json | jq '.[]'
+	echo "Needs conversion"
+    # doctl compute domain records list $domain -o json | jq '.[]'
 }
 # get JSON data for snapshots
 snapshots() {
@@ -123,14 +128,16 @@ delete_record() {
     domain="$1"
     id="$2"
 
-    doctl compute domain records delete $domain $id
+	echo "Needs conversion"
+    #doctl compute domain records delete $domain $id
 }
 
 delete_record_force() {
     domain="$1"
     id="$2"
 
-    doctl compute domain records delete $domain $id -f
+	echo "Needs conversion"
+    #doctl compute domain records delete $domain $id -f
 }
 # Delete a snapshot by its name
 delete_snapshot() {
@@ -147,7 +154,8 @@ add_dns_record() {
     domain="$2"
     ip="$3"
 
-    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
+	echo "Needs conversion"
+    # doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
 }
 
 msg_success() {
