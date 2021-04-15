@@ -10,7 +10,7 @@ then
 elif [ "$1" == "select" ]
 then
 	region_json=$(regions)
-	lines=$(echo $region_json | jq -r '.[].slug' | grep "$2" | wc -l | awk '{ print $1 }')
+	lines=$(echo $region_json | grep "$2" | wc -l | awk '{ print $1 }')
 	
 	if [ "$lines" -gt 0 ]
 	then

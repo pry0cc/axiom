@@ -89,7 +89,7 @@ list_regions() {
 }
 
 regions() {
-    doctl compute region list -o json
+    doctl compute region list -o json | jq -r '.[].slug'
 }
 
 instance_sizes() {
