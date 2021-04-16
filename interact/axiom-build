@@ -74,7 +74,7 @@ then
 		time="$seconds seconds"
 	fi
 
-    echo -e "${BGreen}Your build completed successfully in $time! You should run axiom-update && axiom-build weekly to get the latest and greatest updates! ${Color_Off}"
+    echo -e "${BGreen}Your build completed successfully in $time! You should run axiom-update && axiom-build weekly to get the latest and greatest updates!" ${Color_Off}"
     echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
 	  "$AXIOM_PATH"/interact/axiom-prune
     "$NOTIFY_CMD" "Axiom Info" "Build completed successfully! 
