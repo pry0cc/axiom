@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /home/op/go/bin/gauplus -t 20 -subs -random-agent -o output",
+	"ext":"txt"
+}]
