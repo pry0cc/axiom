@@ -43,7 +43,7 @@ echo "SSH Key ID $sshkeyid"; # ssh key id
 echo "Creating Ubuntu 18.04 Base VSI";
 id=$(echo "Y"| ibmcloud sl vs create -H $axiomhostname -D axiom.local -c 2 -m 4096 -d dal13 -o UBUNTU_18_64 --disk 100 -k $sshkeyid | grep -s "^ID" | tr -s " " | cut -d " " -f 2 ); # create axiom base image with sshkey
 echo "Base IBM Cloud Server ID is $id";
-sleep 10
+sleep 20
 amiactive="1"
 while true
 	amiactive=$(ibmcloud sl vs detail $id -output json | jq ".activeTransaction | {transactionStatus}" | jq '.[]' | jq '.name // empty')
