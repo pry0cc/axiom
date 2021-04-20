@@ -54,8 +54,10 @@ create_instance() {
 	region="$4"
 	boot_script="$5"
 
-	location="$(az account list-locations | jq -r ".[] | select(.name==\"$region\") | .displayName")"
-	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug"  >/dev/null 2>&1 
+	#location="$(az account list-locations | jq -r ".[] | select(.name==\"$region\") | .displayName")"
+	location="$region"
+	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True >/dev/null 2>&1 
+
 	az vm open-port --resource-group axiom --name "$name" --port 0-65535 >/dev/null 2>&1 
 	sleep 10
 }
@@ -105,9 +107,22 @@ delete_instance() {
     force="$2"
 
     if [ "$force" == "true" ]; then
-        az vm delete --name "$name" --resource-group axiom --yes
+		# Does not delete all of the related resources like other platforms.
+        # az vm delete --name "$name" --resource-group axiom --yes --debug
+		# recommeded to delete resources by tags instead
+		az resource delete --ids $(az resource list --tag "$name"=True -otable --query "[].id" -otsv) >/dev/null 2>&1
+		
+		# when deleting a fleet, there is a virtual network left over from the first VM becuse it's used by the others
+		# need to figure out how to delete it...
+		
     else
-    	az vm delete --name "$name" --resource-group axiom
+    	# az vm delete --name "$name" --resource-group axiom
+		echo -e -n "  Are you sure you want to delete $name (y/N) - default NO: "
+		read ans
+		if [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
+			echo -e "${Red}...deleting $name...${Color_Off}"
+			az resource delete --ids $(az resource list --tag "$name"=True -otable --query "[].id" -otsv) >/dev/null 2>&1
+		fi
     fi
 }
 
@@ -117,7 +132,7 @@ instance_exists() {
 }
 
 list_regions() {
-    az account list-locations | jq -r '.[].displayName'
+    az account list-locations | jq -r '.[].name'
 }
 
 regions() {
@@ -125,7 +140,8 @@ regions() {
 }
 
 instance_sizes() {
-    az vm list-sizes --location "East US"
+	location="$(jq -r '.region?' "$AXIOM_PATH/axiom.json")"
+    az vm list-sizes --location "$location"
 }
 
 snapshots() {
@@ -266,22 +282,27 @@ conf_check() {
 list_dns() {
 	domain="$1"
 
-	doctl compute domain records list "$domain"
+	echo "Needs conversion"
+	#doctl compute domain records list "$domain"
 }
 
 list_domains_json() {
-    doctl compute domain list -o json
+
+	echo "Needs conversion"
+    #doctl compute domain list -o json
 }
 
 # List domains
 list_domains() {
-	doctl compute domain list
+	echo "Needs conversion"
+	#doctl compute domain list
 }
 
 list_subdomains() {
     domain="$1"
 
-    doctl compute domain records list $domain -o json | jq '.[]'
+	echo "Needs conversion"
+    #doctl compute domain records list $domain -o json | jq '.[]'
 }
 # get JSON data for snapshots
 
@@ -289,21 +310,24 @@ delete_record() {
     domain="$1"
     id="$2"
 
-    doctl compute domain records delete $domain $id
+	echo "Needs conversion"
+    #doctl compute domain records delete $domain $id
 }
 
 delete_record_force() {
     domain="$1"
     id="$2"
 
-    doctl compute domain records delete $domain $id -f
+    echo "Needs conversion"
+	#doctl compute domain records delete $domain $id -f
 }
 add_dns_record() {
     subdomain="$1"
     domain="$2"
     ip="$3"
 
-    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
+    echo "Needs conversion"
+	#doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
 }
 
 
