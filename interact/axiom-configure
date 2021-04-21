@@ -134,6 +134,39 @@ if [ $BASEOS == "Linux" ]; then
 fi
 
 
+if [ $BASEOS == "Mac" ]; then
+         whereis brew
+  if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
+         echo -e "${Blue}Installing brew...${Color_Off}"
+         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+         echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
+         echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
+         echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
+  fi
+         echo -e "${Blue}Installing doctl...${Color_Off}"
+         brew install doctl
+         echo -e "${Blue}Installing go...${Color_Off}"
+         brew install golang
+         echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
+         curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+         echo -e "${Blue}Installing jq...${Color_Off}"
+         brew install jq
+         echo -e "${Blue}Installing coreutils...${Color_Off}"
+         brew install coreutils
+         echo -e "${Blue}Installing packer...${Color_Off}"
+         mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
+         sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git
+         echo -e "${Blue}Installing Python3...${Color_Off}"
+         brew install python3
+         cd packer
+         make dev
+         export PATH=$PATH:$(go env GOPATH)/bin
+         source ~/.bash_profile
+         mkdir -p "${HOME}/.ssh/sockets"
+fi
+
+
 #install go
 if ! [ -x "$(command -v go)" ]; then
        echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
@@ -166,37 +199,6 @@ if ! [ -x "$(command -v go)" ]; then
    done
 fi
 
-if [ $BASEOS == "Mac" ]; then
-         whereis brew
-  if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
-         echo -e "${Blue}Installing brew...${Color_Off}"
-         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-         echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
-         echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
-         echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
-  fi
-         echo -e "${Blue}Installing doctl...${Color_Off}"
-         brew install doctl
-         echo -e "${Blue}Installing go...${Color_Off}"
-         brew install golang
-         echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
-         curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-         echo -e "${Blue}Installing jq...${Color_Off}"
-         brew install jq
-         echo -e "${Blue}Installing coreutils...${Color_Off}"
-         brew install coreutils
-         echo -e "${Blue}Installing packer...${Color_Off}"
-         mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
-         sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git
-         echo -e "${Blue}Installing Python3...${Color_Off}"
-         brew install python3
-         cd packer
-         make dev
-         export PATH=$PATH:$(go env GOPATH)/bin
-         source ~/.bash_profile
-         mkdir -p "${HOME}/.ssh/sockets"
-fi
 
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
