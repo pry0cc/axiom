@@ -177,9 +177,9 @@ if ! [ -x "$(command -v go)" ]; then
        yes)
 
        echo -e "${Blue}Installing Golang${Color_Off}"
-       wget https://golang.org/dl/go1.14.4.linux-amd64.tar.gz
-       sudo tar -C /usr/local -xzf go1.14.4.linux-amd64.tar.gz 
-       rm go1.14.4.linux-amd64.tar.gz
+       wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+       sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+       rm go1.16.3.linux-amd64.tar.gz
        mkdir -p "${HOME}/go"
        export GOROOT=/usr/local/go/
        export GOPATH=$HOME/go
