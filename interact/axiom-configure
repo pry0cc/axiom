@@ -67,18 +67,20 @@ if [ $BASEOS == "Linux" ]; then
         sudo pacman -S fzf packer jq doctl
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc uuid-runtime rsync
+        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace
         cd /tmp/interlace && sudo python3 setup.py install
         echo -e "${Blue}Installing doctl...${Color_Off}"
-        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
+        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
         echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
         curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        echo -e "${Blue}Installing azure az...${Color_Off}"
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
         echo -e "${Blue}Increasing ulimit, a reboot is required to take effect ...${Color_Off}"
@@ -92,29 +94,31 @@ if [ $BASEOS == "Linux" ]; then
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf update && sudo dnf install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
+		    sudo dnf update && sudo dnf -y install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
 		    echo -e "${Blue}Installing jq...${Color_Off}"
 		    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		    echo -e "${Blue}Installing packer...${Color_Off}"
-		    wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
-		    echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf -y update && sudo dnf -y install fzf git
+		    wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
 		    echo -e "${Blue}Installing doctl...${Color_Off}"
-		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
+		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+            echo -e "${Blue}Installing gowitness...${Color_Off}"
+            sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
 	elif [ $OS == "UbuntuWSL" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools git unzip xsltproc bc uuid-runtime
+        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace
         cd /tmp/interlace && sudo python3 setup.py install
         echo -e "${Blue}Installing doctl...${Color_Off}"
-        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl
+        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
         echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
         curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        echo -e "${Blue}Installing azure az...${Color_Off}"
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
         echo -e "${Blue}Increasing ulimit, a reboot is required to take effect ...${Color_Off}"
@@ -129,38 +133,6 @@ if [ $BASEOS == "Linux" ]; then
 	fi
 fi
 
-
-#install go
-if ! [ -x "$(command -v go)" ]; then
-       echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
-       PS3="Please select an option : "
-       choices=("yes" "no")
-       select choice in "${choices[@]}"; do
-       case $choice in
-       yes)
-
-       echo -e "${Blue}Installing Golang${Color_Off}"
-       wget https://golang.org/dl/go1.14.4.linux-amd64.tar.gz
-       sudo tar -C /usr/local -xzf go1.14.4.linux-amd64.tar.gz 
-       mkdir -p "${HOME}/go"
-       export GOROOT=/usr/local/go/
-       export GOPATH=$HOME/go
-       export PATH=$GOPATH/bin:$GOROOT/bin:$PATH    
-       echo "export GOROOT=/usr/local/go/" >> ${HOME}/.bash_profile
-       echo "export GOPATH=\$HOME/go" >> ${HOME}/.bash_profile
-       echo "export PATH=\$GOPATH/bin:\$GOROOT/bin:\$PATH" >> ${HOME}/.bash_profile
-       source ${HOME}/.bash_profile
-       sleep 1
-       break
-       ;;
-       no)
-       echo -e "${Red}Please install go after running axiom-build"
-       sleep 1
-       break
-       ;;
-   esac 
-   done
-fi
 
 if [ $BASEOS == "Mac" ]; then
          whereis brew
@@ -193,6 +165,41 @@ if [ $BASEOS == "Mac" ]; then
          source ~/.bash_profile
          mkdir -p "${HOME}/.ssh/sockets"
 fi
+
+
+#install go
+if ! [ -x "$(command -v go)" ]; then
+       echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
+       PS3="Please select an option : "
+       choices=("yes" "no")
+       select choice in "${choices[@]}"; do
+       case $choice in
+       yes)
+
+       echo -e "${Blue}Installing Golang${Color_Off}"
+       wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+       sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+       rm go1.16.3.linux-amd64.tar.gz
+       mkdir -p "${HOME}/go"
+       export GOROOT=/usr/local/go/
+       export GOPATH=$HOME/go
+       export PATH=$GOPATH/bin:$GOROOT/bin:$PATH    
+       echo "export GOROOT=/usr/local/go/" >> ${HOME}/.bash_profile
+       echo "export GOPATH=\$HOME/go" >> ${HOME}/.bash_profile
+       echo "export PATH=\$GOPATH/bin:\$GOROOT/bin:\$PATH" >> ${HOME}/.bash_profile
+       source ${HOME}/.bash_profile
+       sleep 1
+       break
+       ;;
+       no)
+       echo -e "${Red}Please install go after running axiom-build"
+       sleep 1
+       break
+       ;;
+   esac 
+   done
+fi
+
 
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"

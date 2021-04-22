@@ -1,0 +1,4 @@
+[{
+	"command":"/home/op/recon/puredns/puredns bruteforce input | tee output",
+	"ext":"txt"
+}]
