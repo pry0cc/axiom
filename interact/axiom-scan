@@ -468,6 +468,7 @@ if [[ "$fleet" == "" ]]; then
     instances=$(cat "$tmp/hosts")
 else
     instances=$(query_instances_cache "$fleet*")
+    total_instances="$(echo $instances | wc -l | awk '{ print $1 }')"
 fi
 
 if [[ "$module" == "masscan" ]]; then
