@@ -250,7 +250,7 @@ generate_sshconfig() {
 
 	for name in $(echo "$droplets" | jq -r '.[].name')
 	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[1] | select(.type==\"public\") | .ip_address")
+		ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
 		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
