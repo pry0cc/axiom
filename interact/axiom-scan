@@ -48,7 +48,7 @@ function formatSeconds (){
 
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
-	(echo "MODULE,COMMAND"; find "$AXIOM_PATH/modules/" -name '*.json' -exec echo -n {}, \; -exec jq -r '.[0].command' {} \; | sed 's/\/home\/op\/.axiom\/modules\///g' | sed 's/\.json//g' ) | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "MODULE,COMMAND"; find "$AXIOM_PATH/modules/" -name '*.json' -exec echo -n {}, \; -exec jq -r '.[0].command' {} \; | sort -t/ | sed 's/\/home\/op\/.axiom\/modules\///g' | sed 's/\.json//g' ) | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 function parse_module() {
