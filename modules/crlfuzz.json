@@ -1,0 +1,4 @@
+[{
+	"command":"/home/op/go/bin/crlfuzz -l input -o output",
+	"ext":"txt"
+}]
