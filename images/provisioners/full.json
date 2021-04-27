@@ -111,7 +111,7 @@
         "/bin/su -l op -c 'git clone https://github.com/securing/DumpsterDiver.git /home/op/recon/DumpsterDiver && cd /home/op/recon/DumpsterDiver && pip3 install --ignore-installed -r requirements.txt'",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
         "echo 'Installing sqlmap'",
-        "git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git /home/op/recon/sqlmap-dev"
+        "git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git /home/op/recon/sqlmap-dev",
         "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
         "echo 'Installing Nuclei'",
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei'",
