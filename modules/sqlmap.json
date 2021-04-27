@@ -1,0 +1,5 @@
+[{
+  "command":"python3 -u /home/op/recon/sqlmap-dev/sqlmap.py -d _target_ -o _output_/_cleantarget_",
+  "ext":"txt",
+  "threads":"10"
+}]
