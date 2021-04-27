@@ -4,5 +4,26 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
-[[ ! -z "$1" ]] && query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
+
+function help() {
+	echo -e "${BWhite}Usage of axiom-select${Color_Off}"
+	echo -e "Example Usage: ${Blue}axiom-select fleet* || axiom-select --auto ${Color_Off}"
+	echo -e "  <instance> string"
+	echo -e "    List of axiom instances, or supply instance prefix and wildcard (i.e axiom-select elion* or axiom-select elion01 elion02 elion03)"
+	echo -e "  --auto (optional)"
+	echo -e "    Automatically select fleet"
+}
+
+    if [ "$1" == "--auto" ]; then
+        instance_list | grep -P '^[a-z]{2,6}[0-9]{2}$' | sort -u  > "$AXIOM_PATH/selected.conf"
+  
+    elif [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]]; then
+        help
+        exit
+
+    elif [[ ! -z "$1" ]]; then
+        query_instances "$@" | sort -u | tr ' ' '\n' > "$AXIOM_PATH/selected.conf"
+
+    fi
+
 echo -e "${BWhite}Selected: ${Color_Off}[${Blue} "$(cat $AXIOM_PATH/selected.conf | sed 's/\n/ /g') ${Color_Off}]""

@@ -24,8 +24,10 @@ newimageid=$(linode-cli linodes disks-list "$linodeid" --text | grep axiom | tr 
 newimagelabel=$(linode-cli images create --disk_id "$newimageid" --text --label $snapshot_name | grep axiom | cut -f 2 | tr -d ' ') 
 jq '.imageid="'$newimagelabel'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 tput setaf 4; echo "Created image out of Linode"
-tput setaf 6; echo "It can take a few minutes for the image to become active"
-tput setaf 4; echo "Updated $account_path, replaced imageid $imageid with $snapshot_name"
+tput setaf 6; echo "Updated $account_path, replaced imageid $imageid with $snapshot_name"
+tput setaf 4; echo "It can take a few minutes for the image to become active"
+tput setaf 6; echo "Once the image is active run axiom-init or axiom-fleet to deploy using your custom image"
+
 fi
 
 
@@ -36,8 +38,10 @@ tput setaf 6; read dropletid
 newimageid=$(doctl compute droplet-action snapshot "$dropletid" --snapshot-name "$snapshot_name") 
 jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 tput setaf 4; echo "Created image out of Droplet"
-tput setaf 6; echo "It can take a few minutes for the image to become active"
-tput setaf 4; echo "Updated $account_path, replaced imageid $imageid with $snapshot_name"
+tput setaf 6; echo "Updated $account_path, replaced imageid $imageid with $snapshot_name"
+tput setaf 4; echo "It can take a few minutes for the image to become active"
+tput setaf 6; echo "Once the image is active run axiom-init or axiom-fleet to deploy using your custom image"
+
 fi
 
 
@@ -48,6 +52,8 @@ tput setaf 6; read vsiid
 ibmcloud sl vs capture "$vsiid" --name $snapshot_name
 jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 tput setaf 4; echo "Created image out of VSI"
-tput setaf 6; echo "It can take a few minutes for the image to become active"
-tput setaf 4; echo "Updated "$account_path" , replaced imageid $imageid with $snapshot_name"
+tput setaf 6; echo "Updated "$account_path" , replaced imageid $imageid with $snapshot_name"
+tput setaf 4; echo "It can take a few minutes for the image to become active"
+tput setaf 6; echo "Once the image is active run axiom-init or axiom-fleet to deploy using your custom image"
+
 fi

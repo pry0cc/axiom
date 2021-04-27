@@ -1,0 +1,4 @@
+[{
+"command": "/bin/bash input | tee output",
+"ext":"txt"
+}]

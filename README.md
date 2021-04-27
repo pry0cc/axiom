@@ -129,6 +129,7 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  nmap
 - [x]  oh-my-zsh
 - [x]  openvpn
+- [x]  Paramspider
 - [x]  projectdiscovery chaos
 - [x]  projectdiscovery chaos-client
 - [x]  projectdiscovery httpx

@@ -63,8 +63,7 @@ selected_instance() {
 get_image_id() {
 	query="$1"
 	images=$(linode-cli images list --json)
-	name=$(echo $images | jq -r ".[].label" | grep "$query" | tail -n 1)
-	id=$(echo $images |  jq -r ".[] | select(.label==\"$name\") | .id")
+	id=$(echo $images |  jq -r ".[] | select(.label==\"$query\") | .id")
 	echo $id
 }
 #deletes instance, if the second argument is set to "true", will not prompt
