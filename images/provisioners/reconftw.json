@@ -98,6 +98,7 @@
         "/bin/su -l op -c 'git clone https://github.com/UnaPibaGeek/ctfr.git /home/op/recon/ctfr && cd /home/op/recon/ctfr && pip3 install -r requirements.txt'",
         "/bin/su -l op -c 'git clone https://github.com/darkoperator/dnsrecon.git /home/op/recon/dnsrecon && cd /home/op/recon/dnsrecon && pip3 install -r requirements.txt'",
         "/bin/su -l op -c 'pip3 install s3scanner'",
+        "/bin/su -l op -c 'pip3 install webscreenshot'",
         "/bin/su -l op -c 'git clone https://github.com/s0md3v/Corsy.git /home/op/recon/Corsy ; cd /home/op/recon/Corsy ; pip3 install -r requirements.txt'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX'",
         "git clone --depth 1 https://github.com/drwetter/testssl.sh.git /home/op/recon/testssl.sh",
