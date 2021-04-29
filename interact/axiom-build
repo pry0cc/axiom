@@ -5,7 +5,7 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
 region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
-provisioner="full"
+provisioner=""
 start_time=$(date +%s)
 op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d '\n' | tr -d /)
 
@@ -16,6 +16,46 @@ jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXI
 jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 #
 
+# Get the provisioner file
+if [ -z "$provisioner" ]; then
+    echo -e ""
+    echo -e '\033[1mTime to pick your provisioner. Options: default, reconftw, barebones, custom\033[0m'
+    echo -e "${Yellow}Default: includes most modules.${Color_Off}"
+    echo -e "${Green}ReconFTW: includes all modules.${Color_Off}"
+    echo -e "${Yellow}Barebones: includes no modules.${Color_Off}"
+    echo -e "${Green}Custom: custom Packer JSON you provide.${Color_Off}"
+    echo -e -n "${Blue}Which axiom provisioner would you like to use: default, reconftw, barebones, custom? (option: press enter to select Default) \n>>${Color_Off}"
+
+    read ans
+    if [[ $ans == "default" ]] || [[ $ans == "Default" ]]; then 
+              echo -e "${Green}Selected provisioner option 'Default'${Color_Off}"
+              provisioner="full"
+    fi
+    if [[ $ans == "reconftw" ]] ||  [[ $ans == "Reconftw" ]] ||  [[ $ans == "ReconFTW" ]]; then
+               echo -e "${Green}Selected provisioner option 'ReconFTW'${Color_Off}"
+               provisioner="reconftw"
+    fi
+    if [[ $ans == "barebones" ]] || [[ $ans == "Barebones" ]]; then
+               echo -e "${Green}Selected provisioner option 'Barebones'${Color_Off}"
+               provisioner="barebones"
+    fi
+    if [[ $ans == "custom" ]] || [[ $ans == "Custom" ]]; then
+               echo -e -n "${Green}Enter the full path to the custom Packer JSON. \n>>${Color_Off}"
+               read ans
+               provisioner=$ans
+    fi
+    if [[ $ans == "" ]]; then
+	       echo -e "${Green}Selected default provisioner option 'Default'${Color_Off}"
+               provisioner="full"
+    fi
+fi
+
+
+# opportunity to cancel axiom-build
+echo -e "${Red}Now your account is setup, we need to run a build"
+echo "A build will take about 25 minutes, spin up a temporary instance, and then snapshot it to use for our future boxes"
+echo -e "Starting Build in 5 seconds... Ctrl+C to quit, remember, you can just type axiom-build at any time${Color_Off}"
+sleep 5
 
 if [ ! -z $1 ]
 then

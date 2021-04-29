@@ -1,0 +1,5 @@
+[{
+  "command":"python3 -u /home/op/recon/dnsrecon/dnsrecon.py -d _target_ -a -j _output_/_cleantarget_",
+  "ext":"json",
+  "threads":"1"
+}]
