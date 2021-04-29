@@ -52,7 +52,7 @@ fi
 
 
 # opportunity to cancel axiom-build
-echo -e "${Red}Now your account is setup, we need to run a build"
+echo -e "${Red}Now your account is setup, now running axiom-build"
 echo "A build will take about 25 minutes, spin up a temporary instance, and then snapshot it to use for our future boxes"
 echo -e "Starting Build in 5 seconds... Ctrl+C to quit, remember, you can just type axiom-build at any time${Color_Off}"
 sleep 5
