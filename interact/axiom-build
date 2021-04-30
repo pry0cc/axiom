@@ -40,9 +40,13 @@ if [ -z "$provisioner" ]; then
                provisioner="barebones"
     fi
     if [[ $ans == "custom" ]] || [[ $ans == "Custom" ]]; then
-               echo -e -n "${Green}Enter the full path to the custom Packer JSON. \n>>${Color_Off}"
+               echo -e "${Red}Your Packer JSON must be located in "$AXIOM_PATH/images/provisioners/". Make sure to move it.${Color_Off}"
+               echo -e "${Green}Listing all provisioners available in "$AXIOM_PATH/images/provisioners/" ...${Color_Off}"
+               ls -1 $AXIOM_PATH/images/provisioners/ | sort -u | sed -e 's/\.json$//' | grep -v -w 'ibm-base-image-create.sh' 
+               echo -e -n "${Green}Enter the provisioner filename. \n>>${Color_Off}"
                read ans
                provisioner=$ans
+               echo -e "${Green}Selected provisioner option 'Custom', using $ans ${Color_Off}"
     fi
     if [[ $ans == "" ]]; then
 	       echo -e "${Green}Selected default provisioner option 'Default'${Color_Off}"
