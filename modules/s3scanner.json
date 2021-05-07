@@ -1,4 +1,4 @@
 [{
-	"command":"python3 /home/op/recon/S3Scanner/s3scanner.py input -o output",
+	"command":"/home/op/.local/bin/s3scanner scan -f input | tee output",
 	"ext":"txt"
 }]
