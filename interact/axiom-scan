@@ -246,9 +246,9 @@ merge_output() {
         fi
          if [[ "$module" == "naabu-nmap" ]]; then
             echo "Merging naabu and nmap output"
-            cd $output
+            cd $outfile
             mmv '*.*.~*~' '#1#3.#2'
-            cat $output/*.txt | sort -u > $outfile/final_naabu.txt
+            cat $outfile/*.txt | sort -u > $outfile/final_naabu.txt
             echo "Mode set to XML.. Merging Nmap XML output..."
             "$AXIOM_PATH/interact/merge-xml.py" -d "$outfile/output" -o "$outfile/final_nmap.xml" >> /dev/null
             rm -rf "$outfile/naabu*"
