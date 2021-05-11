@@ -251,8 +251,8 @@ merge_output() {
             cat $outfile/*.txt | sort -u > $outfile/final_naabu.txt
             echo "Merging Nmap XML output..."
             "$AXIOM_PATH/interact/merge-xml.py" -d "$outfile" -o "$outfile/final_nmap.xml" >> /dev/null
-            rm -rf "$outfile/naabu*"
-            rm -rf "$outfile/nmap*"
+            rm -rf $outfile/naabu*
+            rm -rf $outfile/nmap*
             echo -e "${Green}Done: '${Blue}Merging both naabu ouput and nmap${Color_Off}'"
         fi
     fi
