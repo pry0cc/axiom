@@ -228,11 +228,8 @@ merge_output() {
             rm -rf "$outfile"
             mv $tmp/merge "$outfile"
         else
-           if [ $BASEOS == "Linux" ]; then 
-            cp -r --backup=t $tmp/output/*/* $tmp/merge
-           else
-            cp -r $tmp/output/*/* $tmp/merge
-           fi
+           mkdir "$tmp/merge/output/"
+           mmv -a "$tmp/output/*/*" "$tmp/merge/output/#2"
            rm -rf "$outfile"
            mv $tmp/merge/output "$outfile"
         fi
@@ -246,8 +243,6 @@ merge_output() {
         fi
          if [[ "$module" == "naabu-nmap" ]]; then
             echo "Merging naabu and nmap output"
-            cd $outfile
-            mmv '*.*.~*~' '#1#3.#2'
             cat $outfile/*.txt | sort -u > $outfile/final_naabu.txt
             echo "Merging Nmap XML output..."
             "$AXIOM_PATH/interact/merge-xml.py" -d "$outfile" -o "$outfile/final_nmap.xml" >> /dev/null
