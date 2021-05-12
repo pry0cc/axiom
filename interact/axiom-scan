@@ -229,7 +229,39 @@ merge_output() {
             mv $tmp/merge "$outfile"
         else
            mkdir "$tmp/merge/output/"
-           mmv -a "$tmp/output/*/*" "$tmp/merge/output/#2"
+           cd $tmp/output
+           for pathname in `find . -type f -follow -print`; do
+
+            # create destination pathname
+            dest="$tmp/merge/${pathname#*/*/}"
+            dir=`dirname $dest`
+
+            # create directories
+            if [[ ! -f "$dir" ]]
+            then
+                mkdir -p $dir
+            fi
+
+            z=0;
+            if [[ $dest =~ "." ]]; 
+            then
+                extension=".${dest##*.}"
+                filename="${dest%.*}"
+            else
+                extension=""
+                filename="${dest%.*}"  
+            fi
+            
+            while [ -e "$dest" ]; do
+                # destination name exists, remove backup number from end of
+                # pathname and replace with next one in the sequence
+                z=$(( z + 1 ))
+                dest="${filename}${z}${extension}" 
+            done
+            cp "$pathname" "$dest"
+          done
+
+
            rm -rf "$outfile"
            mv $tmp/merge/output "$outfile"
         fi
