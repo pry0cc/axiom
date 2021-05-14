@@ -1,0 +1,4 @@
+[{
+	"command":"python3 /home/op/recon/commix/commix.py input --output-dir output",
+	"ext":""
+}]
