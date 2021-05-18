@@ -64,10 +64,10 @@ if [ $BASEOS == "Linux" ]; then
 
     if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
         echo -e "${Blue}Congrats, you run arch..."
-        sudo pacman -S fzf packer jq doctl
+        sudo pacman -S fzf packer jq doctl mmv
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime rsync
+        sudo apt-get update && sudo apt-get install mmv fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -94,7 +94,7 @@ if [ $BASEOS == "Linux" ]; then
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf update && sudo dnf -y install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
+		    sudo dnf update && sudo dnf -y mmv install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
 		    echo -e "${Blue}Installing jq...${Color_Off}"
 		    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		    echo -e "${Blue}Installing packer...${Color_Off}"
@@ -105,7 +105,7 @@ if [ $BASEOS == "Linux" ]; then
             sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
 	elif [ $OS == "UbuntuWSL" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime
+        sudo apt-get update && sudo apt-get install mmv fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -159,6 +159,8 @@ if [ $BASEOS == "Mac" ]; then
          sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git
          echo -e "${Blue}Installing Python3...${Color_Off}"
          brew install python3
+         echo -e "${Blue}Installing MMV...${Color_Off}"
+         brew install mmv
          cd packer
          make dev
          export PATH=$PATH:$(go env GOPATH)/bin

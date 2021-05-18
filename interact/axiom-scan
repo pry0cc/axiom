@@ -228,12 +228,42 @@ merge_output() {
             rm -rf "$outfile"
             mv $tmp/merge "$outfile"
         else
-           if [ $BASEOS == "Linux" ]; then 
-            cp -r --backup=t $tmp/output/*/* $tmp/merge
-           else
-            cp -r $tmp/output/*/* $tmp/merge
-           fi
+           mkdir "$tmp/merge/output/"
+           cd $tmp/output
+           for pathname in `find . -type f -follow -print`; do
+
+            # create destination pathname
+            dest="$tmp/merge/${pathname#*/*/}"
+            dir=`dirname $dest`
+
+            # create directories
+            if [[ ! -f "$dir" ]]
+            then
+                mkdir -p $dir
+            fi
+
+            z=0;
+            if [[ $dest =~ "." ]]; 
+            then
+                extension=".${dest##*.}"
+                filename="${dest%.*}"
+            else
+                extension=""
+                filename="${dest%.*}"  
+            fi
+            
+            while [ -e "$dest" ]; do
+                # destination name exists, remove backup number from end of
+                # pathname and replace with next one in the sequence
+                z=$(( z + 1 ))
+                dest="${filename}${z}${extension}" 
+            done
+            cp "$pathname" "$dest"
+          done
+
+
            rm -rf "$outfile"
+           cd "$start"
            mv $tmp/merge/output "$outfile"
         fi
         if [[ "$module" == "gowitness" ]]; then
@@ -243,6 +273,15 @@ merge_output() {
             echo "Merging databases..."
             gowitness merge --input-path $tmp/ -o gowitness.sqlite3
             echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
+        fi
+         if [[ "$module" == "naabu-nmap" ]]; then
+            echo "Merging naabu and nmap output"
+            cat $outfile/*.txt | sort -u > $outfile/final_naabu.txt
+            echo "Merging Nmap XML output..."
+            "$AXIOM_PATH/interact/merge-xml.py" -d "$outfile" -o "$outfile/final_nmap.xml" >> /dev/null
+            rm -rf $outfile/naabu*
+            rm -rf $outfile/nmap*
+            echo -e "${Green}Done: '${Blue}Merging both naabu ouput and nmap${Color_Off}'"
         fi
     fi
 }
