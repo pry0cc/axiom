@@ -263,6 +263,7 @@ merge_output() {
 
 
            rm -rf "$outfile"
+           cd "$start"
            mv $tmp/merge/output "$outfile"
         fi
         if [[ "$module" == "gowitness" ]]; then
