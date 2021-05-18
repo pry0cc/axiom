@@ -48,6 +48,7 @@
         "wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
         "wget -O /tmp/rustscan.deb https://github.com/brandonskerritt/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb && dpkg -i /tmp/rustscan.deb",
         "wget -O /tmp/findomain https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-linux && mv /tmp/findomain /usr/bin/findomain && chmod +x /usr/bin/findomain",
+        "wget -O /tmp/scrying.deb https://github.com/nccgroup/scrying/releases/download/v0.9.0-alpha.1/scrying_0.9.0-alpha.1_amd64.deb && dpkg -i /tmp/scrying.deb && apt install xvfb",
         "cd /tmp && git clone https://github.com/s0md3v/Arjun && cd Arjun && sudo python3 setup.py install",
         "wget https://bootstrap.pypa.io/get-pip.py",
         "python3 get-pip.py aiodnsbrute",
