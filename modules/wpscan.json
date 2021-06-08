@@ -1,0 +1,5 @@
+[{
+	"command":"/usr/local/bin/wpscan --url _target_ -f cli-no-colour -o _output_/_cleantarget_ ",
+	"ext":"dir",
+	"threads":"1"
+}]
