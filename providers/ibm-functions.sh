@@ -88,12 +88,12 @@ instance_exists() {
 
 list_regions() {
 #     doctl compute region list
-      ibmcloud sl vs option | grep -E '^datacenter' --color=never | tr -s ' ' | cut -d ' ' -f 2
+      ibmcloud sl vs options | grep -E '^datacenter' --color=never | tr -s ' ' | cut -d ' ' -f 2
 }
 
 regions() {
 #    doctl compute region list -o json
-     ibmcloud sl vs option | grep -E '^datacenter' --color=never | tr -s ' ' | cut -d ' ' -f 2
+     ibmcloud sl vs options | grep -E '^datacenter' --color=never | tr -s ' ' | cut -d ' ' -f 2
 }
 
 instance_sizes() {
