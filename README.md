@@ -111,6 +111,7 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  dnsvalidator
 - [x]  docker
 - [x]  fbrobe
+- [x]  feroxbuster
 - [x]  ffuf
 - [x]  gau
 - [x]  getjs
