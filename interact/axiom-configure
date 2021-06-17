@@ -266,7 +266,8 @@ if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "
 elif [ "$SHELL" == "/bin/bash" ]; then
     echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
-  source ~/.bashrc
+    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
+    source ~/.bashrc
 else
     echo -e "${Red}I don't have a predefined setup for your shell!"
     echo "Please add $AXIOM_PATH/interact to your \$PATH! ${Color_Off}"
