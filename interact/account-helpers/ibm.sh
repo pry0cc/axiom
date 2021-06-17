@@ -12,19 +12,23 @@ provider=""
 size=""
 email=""
 cpu=""
-base_image_id=""
 username=""
 ibm_cloud_api_key=""
 
+function getUsernameAPIkey {
 
-echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
-read token
-while [[ "$token" == "" ]]; do
-	echo -e "${BRed}Please provide a IBM Cloud Classic API key, your entry contained no input.${Color_Off}"
-	echo -e -n "${Green}Please enter your IBM Cloud Classic API key (required): \n>> ${Color_Off}"
-	read token
-done
-	
+email=$(cat ~/.bluemix/config.json  | grep Owner | cut -d '"' -f 4)
+username=$(ibmcloud sl user list | grep $email | tr -s ' ' | cut -d ' ' -f 2)
+accountnumber=$(ibmcloud sl user list | grep $email | tr -s ' ' | cut -d ' ' -f 1)
+token=$(ibmcloud sl user detail $accountnumber --keys  | grep APIKEY | tr -s ' ' | cut -d ' ' -f 2)
+if [ -z "$apikey" ]
+then
+echo "Generate an API key"
+fi
+}
+
+function apikeys {
+
 echo -e -n "${Green}Create an IBM Cloud API Key (for ibmcli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
 read ibm_cloud_api_key
 while [[ "$ibm_cloud_api_key" == "" ]]; do
@@ -33,34 +37,61 @@ while [[ "$ibm_cloud_api_key" == "" ]]; do
 	read ibm_cloud_api_key
 done
 ibmcloud login --apikey=$ibm_cloud_api_key
+getUsernameAPIkey
+}
 
-echo -e -n "${Green}Please enter your default region: (Default 'sfo2', press enter) \n>> ${Color_Off}"
+function specs {
+
+echo -e -n "${Green}Please enter your default region: (Default 'dal13', press enter) \n>> ${Color_Off}"
 read region
 if [[ "$region" == "" ]]; then
-	echo -e "${Blue}Selected default option 'sfo2'${Color_Off}"
-	region="sfo2"
+	echo -e "${Blue}Selected default option 'dal13'${Color_Off}"
+	region="dal13"
 fi
 
 echo -e -n "${Green}Please enter your default size: (Default '2048', press enter) \n>> ${Color_Off}"
 read size
 if [[ "$size" == "" ]]; then
 	echo -e "${Blue}Selected default option '2048'${Color_Off}"
-    size="2048"
+  size="2048"
 fi
 
-echo -e -n "${Green}Please enter amount of CPU Cores: (E.g '2') \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter amount of CPU Cores: (Default '2', press enter) \n>> ${Color_Off}"
 read cpu
-read -p "You need an Ubuntu 20.04 Base Image. Do you want to create one?" yn
-case $yn in
-	[Yy]* ) bash "$AXIOM_PATH/images/provisioners/ibm-base-image-create.sh";;
-	[Nn]* ) echo "Not building base image";;
-	* ) echo "Please answer yes or no.";;
-esac
+if [[ "$cpu" == "" ]]; then
+  echo -e "${Blue}Selected default option '2'${Color_Off}"
+  cpu="2"
+fi
+}
 
-echo -e -n "${Green}Please enter Ubuntu 20.04 Base Image ID: (Example: 'ec374a70-bb8e-4207-85ba-6a0c36b6022a') \n>> ${Color_Off}"
-read base_image_id
-echo -e -n "${Green}Get your SoftLayer username here: https://cloud.ibm.com/iam/users/. Click your username and scroll down to VPN password to get your SoftLayer username (E.g 'SL838382832') \n>> ${Color_Off}"
-read username
+PS3='Choose how to authenticate to IBM Cloud: '
+types=("SSO" "Username & Password" "API Keys" "Quit")
+ select i in "${types[@]}"; do
+   case $i in
+   "SSO")
+     echo "Attempting to authenticate with SSO!"
+     ibmcloud login --sso
+     getUsernameAPIkey
+     specs
+     break
+     ;;
+  "username and password")
+     ibmcloud login
+     specs
+     break
+     ;;
+  "API keys")
+     apikeys
+     specs
+     break
+     ;; 
+  "Quit")
+     echo "User requested exit"
+     exit
+     ;;
+   *) echo "invalid option $REPLY";;
+ esac
+done
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
