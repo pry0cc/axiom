@@ -21,9 +21,15 @@ email=$(cat ~/.bluemix/config.json  | grep Owner | cut -d '"' -f 4)
 username=$(ibmcloud sl user list | grep $email | tr -s ' ' | cut -d ' ' -f 2)
 accountnumber=$(ibmcloud sl user list | grep $email | tr -s ' ' | cut -d ' ' -f 1)
 token=$(ibmcloud sl user detail $accountnumber --keys  | grep APIKEY | tr -s ' ' | cut -d ' ' -f 2)
-if [ -z "$apikey" ]
+if [ -z "$token" ]
 then
-echo "Generate an API key"
+echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
+read token
+while [[ "$token" == "" ]]; do
+	echo -e "${BRed}Please provide a IBM Cloud Classic API key, your entry contained no input.${Color_Off}"
+	echo -e -n "${Green}Please enter your IBM Cloud Classic API key (required): \n>> ${Color_Off}"
+	read token
+done
 fi
 }
 
