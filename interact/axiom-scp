@@ -11,6 +11,25 @@ custom_config=""
 ssh_conf=""
 
 i=0
+
+function help() {
+        echo -e "${Red}Usage of axiom-scp copying files between fleets${Color_Off}"
+        echo -e "Example Usage: ${Blue}axiom-scp 'myfleet*':~/home/op/myfile.txt '~/local/folder/\$name.txt'${Color_Off}"
+        echo -e "    Copy a remote file from all instances in myfleet to local folder."
+        echo -e "    You must specify an output directory, \$name.txt is a required literal string and gets interpolated from the instance name."
+        echo -e "Example Usage: ${Blue}axiom-scp myfleet05:~/home/op/myfile-from-myfleet05.txt '~/local/folder/myfile-from-myfleet05.txt' ${Color_Off}"
+        echo -e "    Copy a remote file from one instance 'myfleet05' to a local file"
+        echo -e "Example Usage: ${Blue}axiom-scp myfile.txt 'myfleet*':~/home/op/myfile.txt ${Color_Off}" 
+        echo -e "    Copy a local file to all instances in myfleet"
+        echo -e "Example Usage: ${Blue}axiom-scp mytemplates/ 'myfleet*':/home/op/custom-templates ${Color_Off}"
+        echo -e "    Copy a local folder to all instances in myfleet"
+} 
+
+if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]]; then
+help
+exit
+fi
+
 for var in "$@"
 do
     set=false

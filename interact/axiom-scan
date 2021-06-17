@@ -124,6 +124,7 @@ clean_up() {
     echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
     kill -9 $tailPID
 #    axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
+    stty sane
     exit $1
 }
 
@@ -414,7 +415,7 @@ do
     fi
 done
 
-reset
+#reset
 
 echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
@@ -614,3 +615,4 @@ echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved t
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
 #axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
 kill -9 $tailPID
+stty sane
