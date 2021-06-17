@@ -6,6 +6,21 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 mkdir -p "$HOME/.ssh/sockets"
 mkdir -p "$HOME/.axiom/tmp"
 
+function help() {
+        echo -e "${BWhite}Usage of axiom-exec${Color_Off}"
+        echo -e "Example Usage: ${Blue}axiom-exec 'id' 'my-fleet*' --cache${Color_Off}"
+        echo -e "  <commands> required positional string"
+        echo -e "   Commands to run on the remote axiom instances, wrapped in single or double quotes"
+        echo -e "  <fleet prefix> positional string"
+        echo -e "   The instance or fleet name to execute the command on, supports wildcard (i.e myfleet*), wrapped in signle or double quotes"
+        echo -e "  --cache positional option"
+        echo -e "    Use SSH cache (works if recently interacted with)"
+} 
+
+if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]]; then
+help
+exit
+fi
 
 droplets=$(instances)
 selected=$(cat $AXIOM_PATH/selected.conf)
