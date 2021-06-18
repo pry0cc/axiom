@@ -52,7 +52,7 @@ if [ $BASEOS == "Linux" ]; then
     if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
        echo "Needs Conversation"
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
-       if ! [ -x "$(command -v git)" ]; then
+       if ! [ -x "$(command -v ibmcloud)" ]; then
        echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
        curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
        fi
@@ -61,7 +61,7 @@ if [ $BASEOS == "Linux" ]; then
        echo "Needs Conversation"
        if
 	elif [ $OS == "UbuntuWSL" ]; then
-       if ! [ -x "$(command -v git)" ]; then
+       if ! [ -x "$(command -v ibmcloud)" ]; then
        echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
        curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
        fi
@@ -78,7 +78,7 @@ if [ $BASEOS == "Mac" ]; then
          echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
          echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
   fi
-       if ! [ -x "$(command -v git)" ]; then
+       if ! [ -x "$(command -v ibmcloud)" ]; then
        echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
        curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
        fi
