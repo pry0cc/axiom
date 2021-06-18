@@ -90,7 +90,6 @@ if [ $BASEOS == "Linux" ]; then
         echo "$USER soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
-        mkdir -p "${HOME}/.ssh/sockets"
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -128,7 +127,6 @@ if [ $BASEOS == "Linux" ]; then
         echo "$USER soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root hard nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
         echo "root soft nofile 655350" | sudo tee -a /etc/security/limits.conf > /dev/null
-        mkdir -p "${HOME}/.ssh/sockets"
 
 	fi
 fi
@@ -165,7 +163,6 @@ if [ $BASEOS == "Mac" ]; then
          make dev
          export PATH=$PATH:$(go env GOPATH)/bin
          source ~/.bash_profile
-         mkdir -p "${HOME}/.ssh/sockets"
 fi
 
 
