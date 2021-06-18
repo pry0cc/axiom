@@ -1,4 +1,4 @@
-u#!/bin/bash
+#!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
 
