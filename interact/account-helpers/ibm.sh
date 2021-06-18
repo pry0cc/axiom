@@ -187,7 +187,7 @@ $AXIOM_PATH/interact/axiom-account $title
 
 # check if account is authenticated, if its not prompt for auth choice
 loggedin=$(ibmcloud account show --output json | wc -l)
-if [[ -z "$loggedin" ]]; then
+if [ "$loggedin" -eq "0" ]; then
 
 #prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
 prompt="Choose how to authenticate to IBM Cloud:"
