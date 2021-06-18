@@ -1,4 +1,4 @@
-o#!/bin/bash
+#!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
