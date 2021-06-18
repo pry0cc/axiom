@@ -5,7 +5,7 @@
       "api_key": "{{ user `do_key` }}",
       "username": "{{ user `username` }}",
       "datacenter_name": "{{ user `region` }}",
-      "base_image_id":"{{ user `base_image_id` }}",
+      "base_os_code":"UBUNTU_20_64",
       "image_name": "{{ user `snapshot_name` }}",
       "instance_name": "packer-{{timestamp}}",
       "image_description": "Axiom full image built at {{isotime}}",
