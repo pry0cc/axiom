@@ -38,53 +38,48 @@ case $BASEOS in
 esac
 
 if [ $BASEOS == "Linux" ]; then
-    if $(uname -a | grep -qi "Microsoft"); then
-        OS="UbuntuWSL"
-    else
-        if ! command -v lsb_release &> /dev/null; then
-            echo "lsb_release could not be found, unable to determine your distribution"
-            echo "If you are using Arch, please get lsb_release from AUR"
-            exit 1
-        fi
-        OS=$(lsb_release -i | awk '{ print $3 }')
-    fi
-
-    if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
-       echo "Needs Conversation"
-    elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
-       if ! [ -x "$(command -v ibmcloud)" ]; then
-       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
-       curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-       fi
-
-	elif [ $OS == "Fedora" ]; then
-       echo "Needs Conversation"
-       if
-	elif [ $OS == "UbuntuWSL" ]; then
-       if ! [ -x "$(command -v ibmcloud)" ]; then
-       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
-       curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-       fi
-	fi
+ if $(uname -a | grep -qi "Microsoft"); then
+  OS="UbuntuWSL"
+ else
+ if ! command -v lsb_release &> /dev/null; then
+  echo "lsb_release could not be found, unable to determine your distribution"
+  echo "If you are using Arch, please get lsb_release from AUR"
+  exit 1
+ fi
+  OS=$(lsb_release -i | awk '{ print $3 }')
+ fi
+ if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+  echo "Needs Conversation"
+   elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
+     if ! [ -x "$(command -v ibmcloud)" ]; then
+      echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+      curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+     fi
+elif [ $OS == "Fedora" ]; then
+  echo "Needs Conversation"
+	 elif [ $OS == "UbuntuWSL" ]; then
+     if ! [ -x "$(command -v ibmcloud)" ]; then
+      echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+      curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+     fi
+ fi
 fi
 
 if [ $BASEOS == "Mac" ]; then
-         whereis brew
+ whereis brew
   if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
-         echo -e "${Blue}Installing brew...${Color_Off}"
-         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   echo -e "${Blue}Installing brew...${Color_Off}"
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   else
-         echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
-         echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
-         echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
+   echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
+   echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
+   echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
   fi
-       if ! [ -x "$(command -v ibmcloud)" ]; then
-       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
-       curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-       fi
+   if ! [ -x "$(command -v ibmcloud)" ]; then
+    echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+    curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+   fi
 fi
-
-
 
 function getUsernameAPIkey {
 
