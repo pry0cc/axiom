@@ -6,6 +6,14 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
 current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g')
 
+function bootstrap() {
+account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh"  | grep -v "generate" | tr '/' ' ' | awk '{ print $NF }' | tr -d '.sh')
+account_str=$(echo $account_helpers | sed 's/ /, /g')
+provider_path="$AXIOM_PATH/interact/account-helpers/$provider.sh"
+bash "$provider_path" 
+}
+
+
 if [ ! -z "$1" ]
 then
 	path="$AXIOM_PATH/accounts/$1.json"
@@ -36,6 +44,7 @@ then
 
         if [[ "$provider" == "ibm" ]]; 
         then
+            bootstrap
             token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
             ibmcloud login --apikey "$token"
 
