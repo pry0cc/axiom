@@ -70,11 +70,13 @@ if [[ "$cpu" == "" ]]; then
 fi
 }
 
+
 prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
-PS3="$prompt "
-types=("SSO" "Username & Password" "API Keys" "Quit")
- select i in "${types[@]}"; do
-   case $i in
+PS3=$prompt
+types=("SSO" "Username & Password" "API Keys")
+ select opt in "${types[@]}" 
+   do
+   case $opt in
    "SSO")
      echo "Attempting to authenticate with SSO!"
      ibmcloud login --sso
@@ -82,20 +84,16 @@ types=("SSO" "Username & Password" "API Keys" "Quit")
      specs
      break
      ;;
-  "username and password")
+  "Username & Password")
      ibmcloud login
      specs
      break
      ;;
-  "API keys")
+  "API Keys")
      apikeys
      specs
      break
      ;; 
-  "Quit")
-     echo "User requested exit"
-     exit
-     ;;
    *) echo "invalid option $REPLY";;
  esac
 done
