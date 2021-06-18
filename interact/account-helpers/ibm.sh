@@ -53,14 +53,14 @@ if [ $BASEOS == "Linux" ]; then
    elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
      if ! [ -x "$(command -v ibmcloud)" ]; then
       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
-      curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+      curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
      fi
 elif [ $OS == "Fedora" ]; then
   echo "Needs Conversation"
 	 elif [ $OS == "UbuntuWSL" ]; then
      if ! [ -x "$(command -v ibmcloud)" ]; then
       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
-      curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+      curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
      fi
  fi
 fi
@@ -137,32 +137,10 @@ fi
 }
 
 
-prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
-PS3=$prompt
-types=("SSO" "Username & Password" "API Keys")
- select opt in "${types[@]}" 
-   do
-   case $opt in
-   "SSO")
-     echo "Attempting to authenticate with SSO!"
-     ibmcloud login --sso
-     getUsernameAPIkey
-     specs
-     break
-     ;;
-  "Username & Password")
-     ibmcloud login
-     specs
-     break
-     ;;
-  "API Keys")
-     apikeys
-     specs
-     break
-     ;; 
-   *) echo "invalid option $REPLY";;
- esac
-done
+function setprofile {
+
+
+
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
@@ -204,4 +182,43 @@ fi
 
 echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
 echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
+$AXIOM_PATH/interact/axiom-account $title
+}
+
+# check if account is authenticated, if its not prompt for auth choice
+loggedin=$(ibmcloud account show --output json | wc -l)
+if [[ -z "$loggedin" ]]; then
+
+#prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
+prompt="Choose how to authenticate to IBM Cloud:"
+
+PS3=$prompt
+types=("SSO" "Username & Password" "API Keys")
+ select opt in "${types[@]}"
+   do
+   case $opt in
+   "SSO")
+     echo "Attempting to authenticate with SSO!"
+     ibmcloud login --sso
+     getUsernameAPIkey
+     specs
+     setprofile
+     break
+     ;;
+  "Username & Password")
+     ibmcloud login
+     specs
+     setprofile
+     break
+     ;;
+  "API Keys")
+     apikeys
+     specs
+     setprofile
+     break
+     ;; 
+   *) echo "invalid option $REPLY";;
+ esac
+done
+fi
 $AXIOM_PATH/interact/axiom-account $title
