@@ -8,7 +8,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 begin=$(date +%s)
-mkdir -p $HOME/.ssh/sockets
+rm -p $HOME/.ssh/sockets
 start="$(pwd)"
 BASEOS="$(uname)"
 case $BASEOS in

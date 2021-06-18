@@ -15,6 +15,72 @@ cpu=""
 username=""
 ibm_cloud_api_key=""
 
+BASEOS="$(uname)"
+case $BASEOS in
+'Linux')
+    BASEOS='Linux'
+    ;;
+'FreeBSD')
+    BASEOS='FreeBSD'
+    alias ls='ls -G'
+    ;;
+'WindowsNT')
+    BASEOS='Windows'
+    ;;
+'Darwin')
+    BASEOS='Mac'
+    ;;
+'SunOS')
+    BASEOS='Solaris'
+    ;;
+'AIX') ;;
+*) ;;
+esac
+
+if [ $BASEOS == "Linux" ]; then
+ if $(uname -a | grep -qi "Microsoft"); then
+  OS="UbuntuWSL"
+ else
+ if ! command -v lsb_release &> /dev/null; then
+  echo "lsb_release could not be found, unable to determine your distribution"
+  echo "If you are using Arch, please get lsb_release from AUR"
+  exit 1
+ fi
+  OS=$(lsb_release -i | awk '{ print $3 }')
+ fi
+ if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+  echo "Needs Conversation"
+   elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
+     if ! [ -x "$(command -v ibmcloud)" ]; then
+      echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+      curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+     fi
+elif [ $OS == "Fedora" ]; then
+  echo "Needs Conversation"
+	 elif [ $OS == "UbuntuWSL" ]; then
+     if ! [ -x "$(command -v ibmcloud)" ]; then
+      echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+      curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+     fi
+ fi
+fi
+
+if [ $BASEOS == "Mac" ]; then
+ whereis brew
+  if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
+   echo -e "${Blue}Installing brew...${Color_Off}"
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+   echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
+   echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
+   echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
+  fi
+   if ! [ -x "$(command -v ibmcloud)" ]; then
+    echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+    curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+   fi
+fi
+
 function getUsernameAPIkey {
 
 email=$(cat ~/.bluemix/config.json  | grep Owner | cut -d '"' -f 4)
@@ -71,32 +137,10 @@ fi
 }
 
 
-prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
-PS3=$prompt
-types=("SSO" "Username & Password" "API Keys")
- select opt in "${types[@]}" 
-   do
-   case $opt in
-   "SSO")
-     echo "Attempting to authenticate with SSO!"
-     ibmcloud login --sso
-     getUsernameAPIkey
-     specs
-     break
-     ;;
-  "Username & Password")
-     ibmcloud login
-     specs
-     break
-     ;;
-  "API Keys")
-     apikeys
-     specs
-     break
-     ;; 
-   *) echo "invalid option $REPLY";;
- esac
-done
+function setprofile {
+
+
+
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
@@ -138,4 +182,43 @@ fi
 
 echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
 echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
+$AXIOM_PATH/interact/axiom-account $title
+}
+
+# check if account is authenticated, if its not prompt for auth choice
+loggedin=$(ibmcloud account show --output json | wc -l)
+if [ "$loggedin" -eq "0" ]; then
+
+#prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
+prompt="Choose how to authenticate to IBM Cloud:"
+
+PS3=$prompt
+types=("SSO" "Username & Password" "API Keys")
+ select opt in "${types[@]}"
+   do
+   case $opt in
+   "SSO")
+     echo "Attempting to authenticate with SSO!"
+     ibmcloud login --sso
+     getUsernameAPIkey
+     specs
+     setprofile
+     break
+     ;;
+  "Username & Password")
+     ibmcloud login
+     specs
+     setprofile
+     break
+     ;;
+  "API Keys")
+     apikeys
+     specs
+     setprofile
+     break
+     ;; 
+   *) echo "invalid option $REPLY";;
+ esac
+done
+fi
 $AXIOM_PATH/interact/axiom-account $title
