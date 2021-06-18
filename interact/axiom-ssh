@@ -1,4 +1,4 @@
-#!/bin/bash
+o#!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
@@ -13,8 +13,6 @@ cache=false
 just_generate=false
 
 args="-F $ssh_config"
-
-mkdir -p $HOME/.ssh/sockets
 
 for var in "$@"
 do
