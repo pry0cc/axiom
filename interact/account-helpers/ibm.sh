@@ -70,7 +70,8 @@ if [[ "$cpu" == "" ]]; then
 fi
 }
 
-PS3='Choose how to authenticate to IBM Cloud: '
+prompt=$(tput setaf 2; echo "Choose how to authenticate to IBM Cloud:" )
+PS3="$prompt "
 types=("SSO" "Username & Password" "API Keys" "Quit")
  select i in "${types[@]}"; do
    case $i in
