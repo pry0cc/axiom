@@ -15,6 +15,11 @@ cpu=""
 username=""
 ibm_cloud_api_key=""
 
+if ! [ -x "$(command -v ibmcloud)" ]; then
+echo -e "${Blue}Installing ibmcloud cli...${Color_Off}"
+curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+fi
+
 function getUsernameAPIkey {
 
 email=$(cat ~/.bluemix/config.json  | grep Owner | cut -d '"' -f 4)
