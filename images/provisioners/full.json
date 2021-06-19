@@ -177,6 +177,8 @@
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/shuffledns/cmd/shuffledns'",
         "echo 'Installing chaos client'",
         "/bin/su -l op -c 'GO111MODULE=on go get github.com/projectdiscovery/chaos-client/cmd/chaos'",
+        "echo 'Installing interactsh client'",
+        "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/interactsh/cmd/interactsh-client'",
         "echo 'Installing unfurl'",
         "/bin/su -l op -c 'go get -u github.com/tomnomnom/unfurl'",
         "echo 'Installing qsreplace'",
