@@ -84,7 +84,7 @@ executeorgalorg() {
 if [[ $stdin = 1 ]]; then
 if [ -p /dev/stdin ]; then
   echo "Data was piped to this script!"
-  orgalorg -w -y -o "$tmp/hosts" -i /dev/stdin -C bash 
+  orgalorg -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
   exit 1
  else
   echo "No input given!"
