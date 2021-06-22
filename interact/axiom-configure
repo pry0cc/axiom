@@ -167,7 +167,6 @@ if ! [ -x "$(command -v go)" ]; then
        echo "export GOPATH=$HOME/go/pkg" >> ${HOME}/.bash_profile
        echo export PATH=$PATH:$GOROOT/bin:$GOPATH/bin >> ${HOME}/.bash_profile
        source ${HOME}/.bash_profile
-       bash
        sleep 1
        break
        ;;
