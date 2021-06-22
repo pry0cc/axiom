@@ -159,12 +159,10 @@ if ! [ -x "$(command -v go)" ]; then
        sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
        rm go1.16.3.linux-amd64.tar.gz
        mkdir -p "${HOME}/go"
-       export GOROOT=/usr/local/go/
        export GOPATH=$HOME/go
-       export PATH=$GOPATH/bin:$GOROOT/bin:$PATH    
-       echo "export GOROOT=/usr/local/go/" >> ${HOME}/.bashrc
+       export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
        echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
-       echo "export PATH=\$GOPATH/bin:\$GOROOT/bin:\$PATH" >> ${HOME}/.bashrc
+       echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
        source ${HOME}/.bashrc
        sleep 1
        break
