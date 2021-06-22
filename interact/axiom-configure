@@ -161,11 +161,10 @@ if ! [ -x "$(command -v go)" ]; then
        mkdir -p "${HOME}/go"
        export GOROOT=$HOME/go
        export GOPATH=$HOME/go/pkg
-       export PATH=$PATH:$GOROOT/bin
-       export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+       export PATH=$PATH:$GOROOT/bin:$GOPATH/bin:/usr/local/go/bin/
        echo "export GOROOT=$HOME/go" >> ${HOME}/.bash_profile
        echo "export GOPATH=$HOME/go/pkg" >> ${HOME}/.bash_profile
-       echo export PATH=$PATH:$GOROOT/bin:$GOPATH/bin:/usr/local/go/bin/ >> ${HOME}/.bash_profile
+       echo "export PATH=$PATH:$GOROOT/bin:$GOPATH/bin:/usr/local/go/bin/" >> ${HOME}/.bash_profile
        source ${HOME}/.bash_profile
        sleep 1
        break
