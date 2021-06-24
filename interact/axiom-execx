@@ -38,10 +38,11 @@ function usage() {
     cat << EOF
     Usage: Experimental axiom-exec (axiom-execx)
     -C|--Command               Execute command across fleet
-    -l|--instances             List of axiom instances to execute on, must be wrapped in double quotes (Defaults to ~/.axiom/selected.conf)
+    -i|--instances             List of axiom instances to execute on, must be wrapped in double quotes (Defaults to ~/.axiom/selected.conf)
     -s|--stdin                 Take commands from STDIN
     -v|--verbose               Increase verbosity
     -h|--help                  Display this help menu
+    -l|--serial                Execute commands in serial.
 EOF
 }
 
