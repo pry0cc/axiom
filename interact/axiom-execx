@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+
+###################################################################
+# Title	: axiom-execx                                                                                             
+# About	: This is just a simple (read poorly-written) wrapper for two great tools, orgalorg (https://github.com/reconquest/orgalorg), and gee (https://github.com/hahwul/gee).
+# orgalorg is doing most of the heavy lifting. For more details on orgalorg visit the github or run orgalorg -h for the manual.                                                                                 
+# The reason for axiom-execx was to create a more reliable axiom-exec (https://github.com/pry0cc/axiom/blob/master/interact/axiom-exec), that had better variable expansion and execution control.
+# In addition to a more reliable axiom-exec, orgalorg also includes upload and download features, read the orgalorg --help page for more info.
+#
+# Examples: 
+# Taking a file of commands and executing them in serial `axiom-execx -s commands -l`
+# Executing commands from STDIN: `cat commands | axiom-execx --stdin`
+# Execute commands listed from command line `axiom-execx -C "id ; whoami ; hostname"`
+# Running commands against a specifc set of axiom instances or fleet: `axiom-execx -C id -i "jepsen01 jepsen02 jepsen03"`
+# 
+# Author : 0xtavian                                                
+# Github : https://github.com/0xtavian                                           
+###################################################################
+
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
@@ -12,13 +30,13 @@ setup_colors() {
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
     NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
   else
-    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
+   NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
   fi
 }
 
 setuptools() {
 # install orgalorg and gee
-if ! type "orgalorg" > /dev/null; then
+if ! type "orgalorg"  > /dev/null; then
 go get github.com/reconquest/orgalorg
 fi
 if ! type "gee" > /dev/null; then
@@ -37,13 +55,21 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 function usage() {
     cat << EOF
     Usage: Experimental axiom-exec (axiom-execx)
+    Examples:
+     Execute commands from a file, in serial mode : axiom-execx -s commands.txt -l
+     Execute commands from STDIN :  cat commands.txt | axiom-execx --stdin
+     From command line : axiom-execx -C "id ; whoami ; hostname"
+     Against a specifc set of axiom instances or fleet : axiom-execx -C id -i "jepsen01 jepsen02 jepsen03"
+     orgalorg --help for more info 
+   
     -C|--Command               Execute command across fleet
     -i|--instances             List of axiom instances to execute on, must be wrapped in double quotes (Defaults to ~/.axiom/selected.conf)
-    -s|--stdin                 Take commands from STDIN
+    -s|--stdin                 Take commands from STDIN or from a file
     -v|--verbose               Increase verbosity
     -h|--help                  Display this help menu
     -l|--serial                Execute commands in serial.
 EOF
+exit 
 }
 
 msg() {
@@ -88,7 +114,7 @@ if [ -p /dev/stdin ]; then
   orgalorg -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
   exit 1
  else
-  echo "No input given!"
+  orgalorg -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
 fi fi
 
 if [[ $stdin = 0 ]]; then
@@ -104,16 +130,20 @@ parse_params() {
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
+    -l | --serial) ;;            
     -v | --verbose) set -x ;;
-    -s | --stdin) stdin=1 ;;
+    -s | --stdin) stdin=1
+    command="${2-}"
+    shift # past argument
+    ;;
     -i | --instances) selected=0 instances="${2-}"
     shift # past argument
-    shift # past value
     ;; # provided instances must be wrapped in double quotes
     -C | --Command) # pass commands to orgalorg 
-      command="${2}"
+      command="${2-}"
       shift
       ;;
+    -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
     shift
@@ -123,7 +153,7 @@ parse_params() {
 
   # check required params and arguments
 
-if [[ -z "${command-}" && "$stdin" != 1 ]] ; 
+if [[ -z "$command" && "$stdin" != 1 ]] ; 
 then 
 echo "You must supply a command in line with -C or from stdin with --stdin" 
 usage
