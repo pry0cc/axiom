@@ -114,7 +114,6 @@ parse_params() {
       command="${2}"
       shift
       ;;
-    -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
     shift
