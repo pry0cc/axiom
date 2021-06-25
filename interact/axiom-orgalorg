@@ -9,10 +9,10 @@
 # In addition to a more reliable axiom-exec, orgalorg also includes upload and download features, read the orgalorg --help page for more info.
 #
 # Examples: 
-# Taking a file of commands and executing them in serial `axiom-execx -s commands -l`
-# Executing commands from STDIN: `cat commands | axiom-execx --stdin`
-# Execute commands listed from command line `axiom-execx -C "id ; whoami ; hostname"`
-# Running commands against a specifc set of axiom instances or fleet: `axiom-execx -C id -i "jepsen01 jepsen02 jepsen03"`
+# Taking a file of commands and executing them in serial `axiom-orgalorg -s commands -l`
+# Executing commands from STDIN: `cat commands | axiom-orgalorg --stdin`
+# Execute commands listed from command line `axiom-orgalorg -C "id ; whoami ; hostname"`
+# Running commands against a specifc set of axiom instances or fleet: `axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"`
 # 
 # Author : 0xtavian                                                
 # Github : https://github.com/0xtavian                                           
@@ -44,12 +44,12 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 function usage() {
     cat << EOF
-    Usage: Experimental axiom-exec (axiom-execx)
+    Usage: Experimental axiom-exec (axiom-orgalorg)
     Examples:
-     Execute commands from a file, in serial mode : axiom-execx -s commands.txt -l
-     Execute commands from STDIN :  cat commands.txt | axiom-execx --stdin
-     From command line : axiom-execx -C "id ; whoami ; hostname"
-     Against a specifc set of axiom instances or fleet : axiom-execx -C id -i "jepsen01 jepsen02 jepsen03"
+     Execute commands from a file, in serial mode : axiom-orgalorg -s commands.txt -l
+     Execute commands from STDIN :  cat commands.txt | axiom-orgalorg --stdin
+     From command line : axiom-orgalorg -C "id ; whoami ; hostname"
+     Against a specifc set of axiom instances or fleet : axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"
      orgalorg --help for more info 
    
     -C|--Command               Execute command across fleet
