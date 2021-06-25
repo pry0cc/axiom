@@ -9,10 +9,10 @@
 # In addition to a more reliable axiom-exec, orgalorg also includes upload and download features, read the orgalorg --help page for more info.
 #
 # Examples: 
-# Taking a file of commands and executing them in serial `axiom-orgalorg -l -s commands`
-# Executing commands from STDIN: `cat commands | axiom-orgalorg --stdin`
-# Execute commands listed from command line `axiom-orgalorg -C "id ; whoami ; hostname"`
-# Running commands against a specifc set of axiom instances or fleet: `axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"`
+# Taking a file of commands and executing them in serial axiom-orgalorg -l -s commands
+# Executing commands from STDIN: cat commands | axiom-orgalorg --stdin
+# Execute commands listed from command line `axiom-orgalorg -C "id ; whoami ; hostname"
+# Running commands against a specifc set of axiom instances or fleet: axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"
 # Evaluating one liners : axiom-orgalorg -C 'sleep $(($RANDOM % 10)) &&  echo random sleep over'
 #
 # Author : 0xtavian                                                
