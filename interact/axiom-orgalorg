@@ -46,7 +46,7 @@ function usage() {
     cat << EOF
     Usage: Experimental axiom-exec (axiom-orgalorg)
     Examples:
-     Execute commands from a file, in serial mode : axiom-orgalorg -s commands.txt -l
+     Execute commands from a file, in serial mode : axiom-orgalorg -l -s commands.txt 
      Execute commands from STDIN :  cat commands.txt | axiom-orgalorg --stdin
      From command line : axiom-orgalorg -C "id ; whoami ; hostname"
      Against a specifc set of axiom instances or fleet : axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"
