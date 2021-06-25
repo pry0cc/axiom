@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
 ###################################################################
-# Title	: axiom-execx                                                                                             
-# About	: This is just a simple (read poorly-written) wrapper for two great tools, orgalorg (https://github.com/reconquest/orgalorg), and gee (https://github.com/hahwul/gee).
-# orgalorg is doing most of the heavy lifting. For more details on orgalorg visit the github or run orgalorg -h for the manual.                                                                                 
-# The reason for axiom-execx was to create a more reliable axiom-exec (https://github.com/pry0cc/axiom/blob/master/interact/axiom-exec), that had better variable expansion and execution control.
+# Title	: axiom-orgalorg                                                                                             
+# About	: This is just a simple wrapper for a great tool, orgalorg (https://github.com/reconquest/orgalorg). 
+# For more details on orgalorg visit the github or run orgalorg -h for the manual.                                                                                 
+# The reason for axiom-orgalorg was to create a more reliable axiom-exec (https://github.com/pry0cc/axiom/blob/master/interact/axiom-exec), that had 
+# better variable expansion and execution control.
 # In addition to a more reliable axiom-exec, orgalorg also includes upload and download features, read the orgalorg --help page for more info.
 #
 # Examples: 
@@ -26,21 +27,10 @@ rm -r $HOME/.ssh/sockets > /dev/null 2>&1
 start="$(pwd)"
 BASEOS="$(uname)"
 
-setup_colors() {
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
-  else
-   NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
-  fi
-}
-
 setuptools() {
 # install orgalorg and gee
 if ! type "orgalorg"  > /dev/null; then
 go get github.com/reconquest/orgalorg
-fi
-if ! type "gee" > /dev/null; then
-GO111MODULE=on go get -v github.com/hahwul/gee
 fi
 }
 
@@ -93,8 +83,8 @@ mkdir -p "$tmp/output"
 mkdir -p "$tmp/logs"
 }
 
-generateSSHfile() {
 # take instances in axiom select or from command line and select them
+generateSSHfile() {
 if [[ $selected = 1 ]]; then
   for i in $(cat "$AXIOM_PATH/selected.conf");
   do instance_ip $i | tee -a "$tmp/ips" &>/dev/null;  done
@@ -108,29 +98,42 @@ fi
 }
 
 executeorgalorg() {
+# parse serial flag
+if [[ $serial = 1 ]]; then
+serial='-l'
+else
+serial=
+fi
+
+# check if stdin flag is provided
 if [[ $stdin = 1 ]]; then
+# if the stdin flag is provided check that /dev/stdin has content
 if [ -p /dev/stdin ]; then
   echo "Data was piped to this script!"
-  orgalorg -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
+echo $args  
+orgalorg $serial -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
   exit 1
  else
-  orgalorg -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
+# if the stdin flag is provided but /dev/stdin does not have content, execute commands from a file instead
+  orgalorg $serial -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
 fi fi
 
 if [[ $stdin = 0 ]]; then
- orgalorg -w -y -o "$tmp/hosts" -C $command
+# execute command from command line
+ orgalorg $serial -w -y -o "$tmp/hosts" -C $command 
 fi
 }
 
 parse_params() {
   # default values of variables 
+  serial=0
   stdin=0
   selected=1
 
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
-    -l | --serial) ;;            
+    -l | --serial) serial=1 ;;            
     -v | --verbose) set -x ;;
     -s | --stdin) stdin=1
     command="${2-}"
@@ -143,7 +146,6 @@ parse_params() {
       command="${2-}"
       shift
       ;;
-    -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
     shift
@@ -151,8 +153,7 @@ parse_params() {
 
   args=("$@")
 
-  # check required params and arguments
-
+# check required params and arguments
 if [[ -z "$command" && "$stdin" != 1 ]] ; 
 then 
 echo "You must supply a command in line with -C or from stdin with --stdin" 
@@ -162,14 +163,15 @@ fi
 
 return 0
 }
-
 parse_params "$@"
-setup_colors
 
 # script logic here
+main() {
 setuptools
 tmpfiles
 generateSSHfile
 executeorgalorg
+echo -e "${BGreen}Local logs saved to '${Blue}$AXIOM_PATH/tmp/$uid${BGreen}'!${Color_Off}" 
+}
 
-echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/tmp/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
+main
