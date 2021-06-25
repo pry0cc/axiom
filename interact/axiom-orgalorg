@@ -13,7 +13,8 @@
 # Executing commands from STDIN: `cat commands | axiom-orgalorg --stdin`
 # Execute commands listed from command line `axiom-orgalorg -C "id ; whoami ; hostname"`
 # Running commands against a specifc set of axiom instances or fleet: `axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"`
-# 
+# Evaluating one liners : axiom-orgalorg -C 'sleep $(($RANDOM % 10)) &&  echo random sleep over'
+#
 # Author : 0xtavian                                                
 # Github : https://github.com/0xtavian                                           
 ###################################################################
@@ -50,6 +51,8 @@ function usage() {
      Execute commands from STDIN :  cat commands.txt | axiom-orgalorg --stdin
      From command line : axiom-orgalorg -C "id ; whoami ; hostname"
      Against a specifc set of axiom instances or fleet : axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"
+     Evaluating one liners : axiom-orgalorg -C 'sleep $(($RANDOM % 10)) &&  echo random sleep over'
+
      orgalorg --help for more info
 
     -l|--serial                Execute commands in serial (positional option)
