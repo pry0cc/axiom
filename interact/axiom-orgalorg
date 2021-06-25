@@ -109,13 +109,11 @@ fi
 if [[ $stdin = 1 ]]; then
 # if the stdin flag is provided check that /dev/stdin has content
 if [ -p /dev/stdin ]; then
-  echo "Data was piped to this script!"
-echo $args  
-orgalorg $serial -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
+ orgalorg $serial -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
   exit 1
- else
+else
 # if the stdin flag is provided but /dev/stdin does not have content, execute commands from a file instead
-  orgalorg $serial -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
+ orgalorg $serial -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
 fi fi
 
 if [[ $stdin = 0 ]]; then
