@@ -9,7 +9,7 @@
 # In addition to a more reliable axiom-exec, orgalorg also includes upload and download features, read the orgalorg --help page for more info.
 #
 # Examples: 
-# Taking a file of commands and executing them in serial `axiom-orgalorg -s commands -l`
+# Taking a file of commands and executing them in serial `axiom-orgalorg -l -s commands`
 # Executing commands from STDIN: `cat commands | axiom-orgalorg --stdin`
 # Execute commands listed from command line `axiom-orgalorg -C "id ; whoami ; hostname"`
 # Running commands against a specifc set of axiom instances or fleet: `axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"`
@@ -50,14 +50,14 @@ function usage() {
      Execute commands from STDIN :  cat commands.txt | axiom-orgalorg --stdin
      From command line : axiom-orgalorg -C "id ; whoami ; hostname"
      Against a specifc set of axiom instances or fleet : axiom-orgalorg -C id -i "jepsen01 jepsen02 jepsen03"
-     orgalorg --help for more info 
-   
-    -C|--Command               Execute command across fleet
-    -i|--instances             List of axiom instances to execute on, must be wrapped in double quotes (Defaults to ~/.axiom/selected.conf)
+     orgalorg --help for more info
+
+    -l|--serial                Execute commands in serial (positional option)
+    -v|--verbose               Increase verbosity (positional option)  
+    -i|--instances             List of axiom instances to execute on, must be wrapped in double quotes (Defaults to ~/.axiom/selected.conf)    
+    -C|--Command               Execute command across fleet, should be wrapped in double or single quotes
     -s|--stdin                 Take commands from STDIN or from a file
-    -v|--verbose               Increase verbosity
     -h|--help                  Display this help menu
-    -l|--serial                Execute commands in serial.
 EOF
 exit 
 }
