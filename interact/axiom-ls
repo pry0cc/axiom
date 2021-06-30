@@ -31,3 +31,4 @@ else
 fi
 
 $AXIOM_PATH/interact/header.sh
+tput init
