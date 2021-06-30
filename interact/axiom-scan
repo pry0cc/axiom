@@ -49,6 +49,8 @@ function formatSeconds (){
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
 	(echo "MODULE,COMMAND"; find "$AXIOM_PATH/modules/" -name '*.json' -exec echo -n {}, \; -exec jq -r '.[0].command' {} \; | sort -t/ | sed 's/\/home\/op\/.axiom\/modules\///g' | sed 's/\.json//g' ) | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+  tput init
+
 }
 
 function parse_module() {
@@ -125,6 +127,7 @@ clean_up() {
     kill -9 $tailPID
 #    axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
     stty sane
+    tput init
     exit $1
 }
 
@@ -166,8 +169,6 @@ add_extra_args() {
     echo $new_command
 }
 
-
-
 split_file() {
     file="$1"
     divisor="$2"
@@ -192,7 +193,6 @@ split_file() {
 
     total=$i
 }
-
 
 merge_output() {
     if [[ "$anew" != "true" ]];  then
@@ -225,7 +225,7 @@ merge_output() {
         mkdir $tmp/merge
         
         if [[ "$command" =~ "_target_" ]]; then
-            cp -r $tmp/output/* $tmp/merge
+            find $tmp/output -type f -print0 | xargs -0 -I{} cp {} $tmp/merge
             rm -rf "$outfile"
             mv $tmp/merge "$outfile"
         else
@@ -408,14 +408,17 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--debug" ]]; then
+            debug="true"
+            set=true
+            pass+=($i)
+        fi
         if  [[ "$set" != "true" ]]; then
             args="$args $arg"
         fi
 
     fi
 done
-
-#reset
 
 echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfX
@@ -431,6 +434,7 @@ if [[ ! -f $input ]]; then
 fi
 
 if [[ "$debug" == "true" ]]; then
+    set -xv
     silent=""
 fi
 
@@ -616,3 +620,4 @@ echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"result
 #axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
 kill -9 $tailPID
 stty sane
+tput init
