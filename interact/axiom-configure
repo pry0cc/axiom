@@ -144,7 +144,6 @@ if [ $BASEOS == "Mac" ]; then
          source ~/.bash_profile
 fi
 
-
 #install go
 if ! [ -x "$(command -v go)" ]; then
        echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
@@ -176,6 +175,17 @@ if ! [ -x "$(command -v go)" ]; then
    done
 fi
 
+#install gee
+if ! [ -x "$(command -v gee)" ]; then
+echo "gee (https://github.com/hahwul/gee) not found in path"
+geebinary=$HOME/go/bin/gee
+if test -f "$geebinary"; then
+    echo "located gee binary in $HOME/go/bin/gee"
+else 
+echo "installing gee https://github.com/hahwul/gee"
+GO111MODULE=on go get -v github.com/hahwul/gee
+fi
+fi
 
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
