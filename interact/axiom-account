@@ -45,20 +45,6 @@ then
         if [[ "$provider" == "ibm" ]]; 
         then
             bootstrap
-            token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
-            ibmcloud login --apikey "$token"
-
-			if [[ ! -f "$HOME/.packer.d/plugins/packer-builder-ibmcloud" ]]; then
-				echo -e "${Red}It seems that you don't have the packer plugin for ibm cloud?${Color_Off}"
-				echo -n -e "${Blue}Would you like me to install it for you? (https://github.com/IBM/packer-plugin-ibmcloud/):\n y/n >> ${Color_Off}"
-				read ans
-
-				if [[ "$ans" == "y" ]]; then
-					os="$(uname -s | tr '[:upper:]' '[:lower:]')"
-					mkdir -p ~/.packer.d/plugins/
-          wget https://github.com/IBM/packer-plugin-ibmcloud/releases/download/v1.0.1/packer-builder-ibmcloud_1.0.1_linux_64-bit.tar.gz -O - | tar -xz -C ~/.packer.d/plugins/
-				fi
-			fi
 
         fi
 
