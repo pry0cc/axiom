@@ -186,9 +186,9 @@ $AXIOM_PATH/interact/axiom-account $title
 }
 
 
-# check if account is authenticated, if its not prompt for auth choice
+# then prompt for auth choice if account is not authenticated or if 'build' is passed
 loggedin=$(ibmcloud account show --output json | wc -l)
-if [ "$loggedin" -eq "0" ]; then
+if [ "$loggedin" -eq "0" ] || [ "$1" == "build" ]; then
 prompt="Choose how to authenticate to IBM Cloud:"
 PS3=$prompt
 types=("SSO" "Username & Password" "API Keys")
