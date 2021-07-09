@@ -1,4 +1,5 @@
 [{
-  "command":"python3 /home/op/recon/sqlmap-dev/sqlmap.py -u _target_ -b --batch --disable-coloring --random-agent --output-dir _output_/_cleantarget_",
-  "ext":""
+ "command":" echo _target_ | python3 /home/op/recon/sqlmap-dev/sqlmap.py -u _target_ -b --batch --disable-coloring --random-agent --output-dir _output_/_cleantarget_",
+  "ext":"",
+  "threads":"1"
 }]
