@@ -195,7 +195,7 @@ else
 # if gee is installed, use gee to split the file 
     escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
     cat $file | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-   
+    total=$(ls $tmp/input | wc -l)
 fi
 }
 
