@@ -196,6 +196,7 @@ else
     escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
     cat $file | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
     total=$(ls $tmp/input | wc -l)
+
 fi
 }
 
@@ -226,11 +227,19 @@ merge_output() {
         echo "$header" > "$outfile"
         cat $tmp/output/* | grep -v "$header" | sort -u -V >> "$outfile"
     elif [[ "$ext" == "" ]] || [[ "$ext" == "dir" ]];  then
-            echo "Mode set to directory... Merging directories..."
-            mkdir $tmp/merge
+        echo "Mode set to directory... Merging directories..."
+        mkdir $tmp/merge
+      
+        if [[ "$command" =~ "_target_" ]]; then
+            start=$(pwd)
+            cd $tmp/output ; find -type f -print0 | xargs -0 -I{} cp -r --parent --backup=t {} $tmp/merge/ ; cd "$start"
+            rm -rf $outfile
+            mv $tmp/merge $outfile
+        else
             find $tmp/output -type f -print0 | xargs -0 -I{} cp --backup=t {} $tmp/merge
-            rm -rf "$outfile"
-            mv $tmp/merge "$outfile"
+            rm -rf $outfile
+            mv $tmp/merge/ $outfile
+        fi
         if [[ "$module" == "gowitness" ]]; then
             echo "Downloading gowitness databases..."
             mkdir -p "$tmp/dbs/"
