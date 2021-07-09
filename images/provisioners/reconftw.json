@@ -89,7 +89,7 @@
         "cd /tmp && wget -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.1.0/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
         "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o '/tmp/awscliv2.zip' && cd /tmp && unzip awscliv2.zip && sudo ./aws/install",
         "/bin/su -l op -c 'curl https://raw.githubusercontent.com/mitsuhiko/pipsi/master/get-pipsi.py | python3'",
-        "sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.0/gowitness-2.3.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness",
+        "sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness",
         "wget -O /home/op/bin/ffuz https://raw.githubusercontent.com/pry0cc/ffuz/main/ffuz && chmod +x /home/op/bin/ffuz",
         "sudo wget https://raw.githubusercontent.com/xero/figlet-fonts/master/Bloody.flf -O /usr/share/figlet/Bloody.flf",
         "/bin/su -l op -c 'aws s3 sync s3://assetnote-wordlists/data/ ~/lists/assetnote --no-sign-request'",
