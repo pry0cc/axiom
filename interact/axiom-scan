@@ -111,7 +111,7 @@ clean_up() {
     # Perform program exit housekeeping
     echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
 	if [[ "$command" =~ "_target_" ]]; then
-        interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/* $tmp/output/ --cache -F=$sshconfig >> /dev/null"
+        interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/ $tmp/output/ --cache -F=$sshconfig >> /dev/null"
 	else
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache -F=$sshconfig  >/dev/null 2>&1"
 	fi
@@ -172,13 +172,13 @@ split_file() {
     file="$1"
     divisor="$2"
     tmp="$3"
-
+ 
+# if gee is NOT-installed, use bash
+if ! [ -x "$(command -v gee)" ]; then
     lines="$(wc -l "$file" | awk '{ print $1 }')"
     lines_per_file=$(expr $lines / $divisor)
-
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
     cat "$file" | shuf > "$tmp/split/targets"
-
     cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
     # Rename "xaa" etc  to 1 2 3 4 5
     i=1
@@ -189,8 +189,14 @@ split_file() {
 
         mv "$tmp/split/$f" "$tmp/input/$instance"
     done
-
     total=$i
+
+else
+# if gee is installed, use gee to split the file 
+    escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
+    cat $file | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+    total=$(ls $tmp/input | wc -l)
+fi
 }
 
 merge_output() {
@@ -220,22 +226,11 @@ merge_output() {
         echo "$header" > "$outfile"
         cat $tmp/output/* | grep -v "$header" | sort -u -V >> "$outfile"
     elif [[ "$ext" == "" ]] || [[ "$ext" == "dir" ]];  then
-        echo "Mode set to directory... Merging directories..."
-        mkdir $tmp/merge
-        
-        if [[ "$command" =~ "_target_" ]]; then
-            find $tmp/output -type f -print0 | xargs -0 -I{} cp {} $tmp/merge
+            echo "Mode set to directory... Merging directories..."
+            mkdir $tmp/merge
+            find $tmp/output -type f -print0 | xargs -0 -I{} cp --backup=t {} $tmp/merge
             rm -rf "$outfile"
             mv $tmp/merge "$outfile"
-        else
-           if [ $BASEOS == "Linux" ]; then 
-            cp -r --backup=t $tmp/output/*/* $tmp/merge
-           else
-            cp -r $tmp/output/*/* $tmp/merge 
-           fi
-           rm -rf "$outfile"
-           mv $tmp/merge/output "$outfile"
-        fi
         if [[ "$module" == "gowitness" ]]; then
             echo "Downloading gowitness databases..."
             mkdir -p "$tmp/dbs/"
@@ -276,8 +271,6 @@ rm_when_done="false"
 spinup=0
 args=""
 pass=()
-
-# check for module definition in arguments
 
 if [[ "$*" != *-m* ]]
 then
@@ -593,7 +586,7 @@ if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
     sleep 3
     $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output' >> $tmp/logs/_target_ 2>&1"
-    $interlace_cmd -c "axiom-scp _target_:$scan_dir/output/* $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1"
+    $interlace_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1"
 else
     if [[ "$interactive" == "true" ]]; then
         $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command'"
