@@ -196,7 +196,6 @@ else
     escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
     cat $file | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
     total=$(ls $tmp/input | wc -l)
-
 fi
 }
 
@@ -280,6 +279,13 @@ rm_when_done="false"
 spinup=0
 args=""
 pass=()
+
+if [[ "$*" != *-m* ]]
+then
+  echo -e "\033[0;31m No module for axiom-scan defined. Pass one with -m."
+	help
+	exit 1
+fi
 
 i=0
 for arg in "$@"
