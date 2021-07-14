@@ -21,7 +21,9 @@
                 "chown -R op:users /home/op",
                 "echo 'op:{{ user `op_random_password` }}' | chpasswd",
                 "rm /etc/resolv.conf",
-                "rm -rf /etc/update-motd.d/*"
+                "rm -rf /etc/update-motd.d/*",
+                "systemctl disable systemd-resolved.service",
+                "systemctl stop systemd-resolved.service"
             ]
         },
         {
@@ -52,6 +54,7 @@
         {
             "type":"shell",
             "inline": [
+                "chmod 644 /etc/resolv.conf",
                 "chattr +i /etc/resolv.conf",
                 "chown -R op:users /home/op",
                 "touch /home/op/.profile",
