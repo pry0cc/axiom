@@ -14,7 +14,7 @@
         {
             "type":"shell",
             "inline": [
-            	"fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
+                "fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
                 "add-apt-repository -y ppa:longsleep/golang-backports",
                 "apt-get update -qq",
                 "DEBIAN_FRONTEND=noninteractive UCF_FORCE_CONFFNEW=YES apt-get upgrade -qq",
@@ -26,6 +26,8 @@
                 "python3.7 get-pip.py",
                 "systemctl start docker",
                 "systemctl enable tor",
+                "systemctl disable systemd-resolved.service",
+                "systemctl stop systemd-resolved.service",
                 "ufw --force enable",
                 "useradd -G sudo,docker -s /usr/bin/zsh -m op",
                 "mkdir -p /home/op/.ssh /home/op/bin /home/op/.config/ /home/op/work/",
@@ -45,11 +47,11 @@
             "source":"./configs/resolv.conf",
             "destination":"/etc/resolv.conf"
         },
-		{
-			"type":"file",
-			"source":"./configs/docker",
-			"destination":"/etc/default/docker"
-		},
+        {
+            "type":"file",
+            "source":"./configs/docker",
+            "destination":"/etc/default/docker"
+        },
         {
             "type":"file",
             "source":"./configs/authorized_keys",
@@ -103,6 +105,7 @@
         {
             "type":"shell",
             "inline": [
+                "chmod 644 /etc/resolv.conf",
                 "chattr +i /etc/resolv.conf",
                 "chown -R op:users /home/op",
                 "git clone https://github.com/pry0cc/Reaper.git /tmp/reaper && cd /tmp/reaper && ./set-expiry.sh \"1000 years\" &&./install.sh",
