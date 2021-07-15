@@ -1,5 +1,5 @@
 [{
-  "command":"/usr/bin/sqlmap -m input -b --batch --disable-coloring --random-agent --results-file output",
+  "command":"/home/op/recon/sqlmap-dev -m input -b --batch --disable-coloring --random-agent --results-file output",
   "ext":"csv",
-  "threads":1
+  "threads":"1"
 }]
