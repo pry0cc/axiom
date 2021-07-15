@@ -206,8 +206,7 @@ merge_output() {
     if [[ "$ext" == "txt" ]]; then
         echo "Mode set to txt.. Sorting unique."
         touch "$tmp/output/place"
-        cat $tmp/output/* | sort -u > $tmp/merge
-
+        find $tmp/output/ -type f -exec cat {} \; | sort -u > $tmp/merge
         if [[ "$anew" == "true" ]]; then
             cat "$tmp/merge" | anew "$outfile"
         else
@@ -222,9 +221,9 @@ merge_output() {
     elif [[ "$ext" == "csv" ]]; then
         echo "Mode set to CSV, merging..."
         touch "$tmp/output/place"
-        header="$(cat $tmp/output/* | head -n 1)"
+        header="$(find $tmp/output/ -type f -exec cat {} \; | head -n 1)"
         echo "$header" > "$outfile"
-        cat $tmp/output/* | grep -v "$header" | sort -u -V >> "$outfile"
+        find $tmp/output/ -type f -exec cat {} \; | grep -v "$header" | sort -u -V >> "$outfile"
     elif [[ "$ext" == "" ]] || [[ "$ext" == "dir" ]];  then
             echo "Mode set to directory... Merging directories..."
             mkdir $tmp/merge
@@ -241,7 +240,7 @@ merge_output() {
         fi
            if [[ "$module" == "naabu-nmap" ]]; then
             echo "Merging naabu and nmap output"
-            cat $outfile/*.txt | sort -u > $outfile/final_naabu.txt
+            find . -name "*.txt" | xargs cat | sort -u > $outfile/final_naabu.txt
             echo "Merging Nmap XML output..."
             "$AXIOM_PATH/interact/merge-xml.py" -d "$outfile" -o "$outfile/final_nmap.xml" >> /dev/null
             rm -rf $outfile/naabu*
