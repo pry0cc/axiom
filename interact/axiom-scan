@@ -272,6 +272,13 @@ spinup=0
 args=""
 pass=()
 
+if [[ "$*" != *-m* ]]
+then
+  echo -e "\033[0;31m No module for axiom-scan defined. Pass one with -m."
+	help
+	exit 1
+fi
+
 i=0
 for arg in "$@"
 do
