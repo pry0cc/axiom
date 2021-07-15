@@ -99,8 +99,7 @@ if [[ $selected = 1 ]]; then
   do instance_ip $i | tee -a "$tmp/ips" &>/dev/null;  done
  cat "$tmp/ips" | sed -e 's/^/op@/' | sed  s/$/:2266/ | tee -a "$tmp/hosts" &>/dev/null
 else
-  axiom-select $instances
-  for i in $(cat "$AXIOM_PATH/selected.conf");
+  for i in $(echo $instances);
   do instance_ip $i | tee -a "$tmp/ips" &>/dev/null;  done
   cat "$tmp/ips" | sed -e 's/^/op@/' | sed  s/$/:2266/ | tee -a "$tmp/hosts" &>/dev/null
 fi
