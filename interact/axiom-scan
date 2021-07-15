@@ -117,6 +117,8 @@ clean_up() {
 	fi
     merge_output
     mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+    echo -e "${Blue}Killing remote processes${Color_Off}"
+    axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill"  >/dev/null 2>&1
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
@@ -124,7 +126,6 @@ clean_up() {
     echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
     echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
     kill -9 $tailPID
-#    axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
     stty sane
     tput init
     exit $1
@@ -612,10 +613,11 @@ end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
+echo -e "${Blue}Killing remote processes${Color_Off}"
+axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill"  >/dev/null 2>&1
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
-#axiom-exec "lsof /home/op/scan/${uid}/  | cut -d ' ' -f 2 | xargs sudo kill" -q
 kill -9 $tailPID
 stty sane
 tput init

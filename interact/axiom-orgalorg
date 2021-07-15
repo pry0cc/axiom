@@ -30,8 +30,14 @@ BASEOS="$(uname)"
 
 setuptools() {
 # install orgalorg and gee
-if ! type "orgalorg"  > /dev/null; then
+if ! [ -x "$(command -v orgalorg)" ]; then
+orgalorgbinary=$HOME/go/bin/orgalorg
+if test -f "$orgalorgbinary"; then
+    echo "located orgalorg binary in $HOME/go/bin/orgalorg"
+else 
+echo "installing orgalorg https://github.com/reconquest/orgalorg"
 go get github.com/reconquest/orgalorg
+fi
 fi
 }
 
@@ -93,8 +99,7 @@ if [[ $selected = 1 ]]; then
   do instance_ip $i | tee -a "$tmp/ips" &>/dev/null;  done
  cat "$tmp/ips" | sed -e 's/^/op@/' | sed  s/$/:2266/ | tee -a "$tmp/hosts" &>/dev/null
 else
-  axiom-select $instances
-  for i in $(cat "$AXIOM_PATH/selected.conf");
+  for i in $(echo $instances);
   do instance_ip $i | tee -a "$tmp/ips" &>/dev/null;  done
   cat "$tmp/ips" | sed -e 's/^/op@/' | sed  s/$/:2266/ | tee -a "$tmp/hosts" &>/dev/null
 fi
@@ -112,16 +117,16 @@ fi
 if [[ $stdin = 1 ]]; then
 # if the stdin flag is provided check that /dev/stdin has content
 if [ -p /dev/stdin ]; then
- orgalorg $serial -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
+ $HOME/go/bin/orgalorg $serial -w -y -o "$tmp/hosts" -i /dev/stdin -C /bin/zsh 
   exit 1
 else
 # if the stdin flag is provided but /dev/stdin does not have content, execute commands from a file instead
- orgalorg $serial -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
+ $HOME/go/bin/orgalorg $serial -w -y -o "$tmp/hosts" -i $command -C /bin/zsh 
 fi fi
 
 if [[ $stdin = 0 ]]; then
 # execute command from command line
- orgalorg $serial -w -y -o "$tmp/hosts" -C $command 
+  $HOME/go/bin/orgalorg $serial -w -y -o "$tmp/hosts" -C $command 
 fi
 }
 
