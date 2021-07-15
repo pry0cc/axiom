@@ -1,5 +1,5 @@
 [{
- "command":" echo _target_ | python3 /home/op/recon/sqlmap-dev/sqlmap.py -u _target_ -b --batch --disable-coloring --random-agent --output-dir _output_/_cleantarget_",
-  "ext":"",
-  "threads":"1"
+  "command":"/usr/bin/sqlmap -m input -b --batch --disable-coloring --random-agent --results-file output",
+  "ext":"csv",
+  "threads":1
 }]
