@@ -8,13 +8,7 @@ builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner=""
 start_time=$(date +%s)
 op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d '\n' | tr -d /)
-
-# add data to account.json
-snapshot_name=axiom-$region-$(date +%s)
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
-jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
-jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
-#
 
 # Get the provisioner file
 if [ -z "$provisioner" ]; then
@@ -60,6 +54,12 @@ echo -e "${Red}Now your account is setup, now running axiom-build"
 echo "A build will take about 25 minutes, spin up a temporary instance, and then snapshot it to use for our future boxes"
 echo -e "Starting Build in 5 seconds... Ctrl+C to quit, remember, you can just type axiom-build at any time${Color_Off}"
 sleep 5
+
+# add data to account.json
+snapshot_name=axiom-$region-$provisioner-$(date +%s)
+jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+#
 
 if [ ! -z $1 ]
 then
