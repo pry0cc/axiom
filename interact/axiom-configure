@@ -67,16 +67,16 @@ if [ $BASEOS == "Linux" ]; then
         sudo pacman -S fzf packer jq doctl mmv
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync
+        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y &>/dev/null
         echo -e "${Blue}Installing jq...${Color_Off}"
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq  &>/dev/null
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip  &>/dev/null
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        git clone https://github.com/codingo/Interlace.git /tmp/interlace
-        cd /tmp/interlace && sudo python3 setup.py install
+        git clone https://github.com/codingo/Interlace.git /tmp/interlace  &>/dev/null
+        cd /tmp/interlace && sudo python3 setup.py install &>/dev/null
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
+        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness &>/dev/null
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -89,19 +89,19 @@ if [ $BASEOS == "Linux" ]; then
 		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
-	
+_—	
   elif [ $OS == "UbuntuWSL" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq &>/dev/null
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip &>/dev/null
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        git clone https://github.com/codingo/Interlace.git /tmp/interlace
-        cd /tmp/interlace && sudo python3 setup.py install
+        git clone https://github.com/codingo/Interlace.git /tmp/interlace &>/dev/null
+        cd /tmp/interlace && sudo python3 setup.py install &>/dev/null
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
+        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness &>/dev/null
 	fi
 fi
 
@@ -135,36 +135,42 @@ if [ $BASEOS == "Mac" ]; then
          source ~/.bash_profile
 fi
 
-#install go
-if ! [ -x "$(command -v go)" ]; then
-       echo -e "${Blue}It looks like go is not installed, would you like to install it now${Color_Off}"
-       PS3="Please select an option : "
-       choices=("yes" "no")
-       select choice in "${choices[@]}"; do
-       case $choice in
-       yes)
-
-       echo -e "${Blue}Installing Golang${Color_Off}"
-       wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-       sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-       rm go1.16.3.linux-amd64.tar.gz
-       mkdir -p "${HOME}/go"
-       export GOPATH=$HOME/go
-       export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
-       echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
-       echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
-       source ${HOME}/.bashrc
-       sleep 1
-       break
-       ;;
-       no)
-       echo -e "${Red}Please install go after running axiom-build"
-       sleep 1
-       break
-       ;;
-   esac 
-   done
-fi
+# Pick your shell
+echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
+ PS3="Please select an option : "
+  choices=("bash" "zsh")
+  select choice in "${choices[@]}"; do
+   case $choice in
+   bash)
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+    rm go1.16.3.linux-amd64.tar.gz
+    mkdir -p "${HOME}/go"
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
+    echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
+    source ${HOME}/.bashrc
+   break
+   ;;
+  zsh)
+    sudo apt install zsh -y &>/dev/null 
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+    rm go1.16.3.linux-amd64.tar.gz
+    mkdir -p "${HOME}/go"
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+    echo "export GOPATH=\$HOME/go" >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
+    source ${HOME}/.zshrc
+   break
+   ;;
+esac
+done
 
 #install gee
 if ! [ -x "$(command -v gee)" ]; then
@@ -227,22 +233,22 @@ fi
 
 if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "$SHELL" == "/bin/zsh" ]; then
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
-    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc
-    echo "compdef _axiom-ssh axiom-rm" >>~/.zshrc
-    echo "compdef _axiom-ssh axiom-ssh" >>~/.zshrc
-    echo "compdef _axiom-ssh axiom-select" >>~/.zshrc
-    echo "compdef _axiom-ssh axiom-backup" >>~/.zshrc
-    echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc
-    echo "compdef _axiom-restore axiom-restore" >>~/.zshrc
-    echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc
-  source ~/.zshrc
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc &>/dev/null
+    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-ssh axiom-rm" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-ssh axiom-ssh" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-ssh axiom-select" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-ssh axiom-backup" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-restore axiom-restore" >>~/.zshrc &>/dev/null
+    echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc &>/dev/null
+  source ~/.zshrc &>/dev/null
 
 elif [ "$SHELL" == "/bin/bash" ]; then
     echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
     echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
-    source ~/.bashrc
+    source ~/.bashrc &>/dev/null
 else
     echo -e "${Red}I don't have a predefined setup for your shell!"
     echo "Please add $AXIOM_PATH/interact to your \$PATH! ${Color_Off}"
