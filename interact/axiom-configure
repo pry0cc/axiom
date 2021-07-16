@@ -152,6 +152,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
     echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
     source ${HOME}/.bashrc
+    SHELL=/bin/bash
    break
    ;;
   zsh)
@@ -167,6 +168,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     echo "export GOPATH=\$HOME/go" >>~/.zshrc
     echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
     source ${HOME}/.zshrc
+    SHELL=/usr/bin/zsh
    break
    ;;
 esac
