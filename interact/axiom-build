@@ -69,8 +69,6 @@ jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXI
 jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 jq '.provisioner="'$provisioner'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 
-
-
 # ###########################################################################################################
 # this code unlikely works but seems to have no consequence: TODO remove 
 if [ ! -z $1 ]
