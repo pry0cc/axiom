@@ -93,13 +93,11 @@ then
 fi
 ###########################################################################################################
 
-
 # ###########################################################################################################
 # Generate the Packer final provisioner by combining the Cloud Provider builder and provisioner file
 image_path="$AXIOM_PATH/images/axiom.json"
 $AXIOM_PATH/interact/axiom-provider "$provider"
 "$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
-
 
 # ###########################################################################################################
 # Check if authorized SSH keys are added to axiom's configs before building
