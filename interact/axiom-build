@@ -1,8 +1,13 @@
 #!/bin/bash 
+
+###########################################################################################################
+# Header
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
+# ###########################################################################################################
+# Variable Declarations
 region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner=""
@@ -11,6 +16,7 @@ op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d '
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
 
+# ###########################################################################################################
 # Get the provisioner file
 if [ -z "$provisioner" ]; then
     echo -e ""
@@ -49,22 +55,24 @@ if [ -z "$provisioner" ]; then
     fi
 fi
 
-
+# ###########################################################################################################
 # opportunity to cancel axiom-build
 echo -e "${Red}Now your account is setup, now running axiom-build"
 echo "A build will take about 25 minutes, spin up a temporary instance, and then snapshot it to use for our future boxes"
 echo -e "Starting Build in 5 seconds... Ctrl+C to quit, remember, you can just type axiom-build at any time${Color_Off}"
 sleep 5
 
-# add data to account.json
+# ###########################################################################################################
+# add data to account.json i.e account_path
 snapshot_name=axiom-$provisioner-$(date +%s)
 jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 jq '.provisioner="'$provisioner'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 
 
-#
 
+# ###########################################################################################################
+# this code unlikely works but seems to have no consequence: TODO remove 
 if [ ! -z $1 ]
 then
 	provisioner="$1"
@@ -83,11 +91,18 @@ then
 	echo -e "${Red}Error: unfortunately, can not find builder path...${Color_Off}"
 	exit
 fi
+###########################################################################################################
 
+
+# ###########################################################################################################
+# Generate the Packer final provisioner by combining the Cloud Provider builder and provisioner file
 image_path="$AXIOM_PATH/images/axiom.json"
 $AXIOM_PATH/interact/axiom-provider "$provider"
 "$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
 
+
+# ###########################################################################################################
+# Check if authorized SSH keys are added to axiom's configs before building
 if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
 then
 	echo -e "${BRed}You have no authorized keys file at $AXIOM_PATH/configs/authorized_keys"
@@ -96,9 +111,11 @@ then
 	exit
 fi
 
+# ###########################################################################################################
+# If axiom_path isnt set, exit
 cd "$AXIOM_PATH"/ || exit
 
-
+# ###########################################################################################################
 # change password or fail
 if [ -z "$op_ssh_password" ]; then 
 echo -e "Unable to generate random password for Packer image.. exiting"
@@ -106,8 +123,10 @@ exit 0
 fi
 #
 
+# ###########################################################################################################
+# Execute the Packer binary to build the final image
 counter=0
-echo -e "${Green}Keep this password for your records: $op_ssh_password${Color_Off}"
+echo -e "${Green}This password is stored in $account_path, for your records: $op_ssh_password${Color_Off}"
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$snapshot_name" "$image_path";
 then
