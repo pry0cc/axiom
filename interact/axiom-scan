@@ -73,6 +73,8 @@ function help() {
 	echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
 	echo -e "  <input> string"
 	echo -e "    Input file, supplied as a positional first argument"
+        echo -e "  --shuffle"
+        echo -e "    Randomize input file before uploading"
 	echo -e "  -m string"
 	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
 	echo -e "  -w /path/to/wordlist/on/instance"
@@ -102,7 +104,7 @@ function help() {
   echo -e "  --quiet"
 	echo -e "    Enable quiet mode"
   echo -e "  --no-logs"
-  echo -e "    Delete local and remote logs"
+        echo -e "    Delete remote and local logs when finished"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
 	echo -e "  <additional args>"
@@ -110,7 +112,15 @@ function help() {
 }
 
 clean_up() {
-    # Perform program exit housekeeping
+  # Perform program exit housekeeping
+  # remove fleet if specified  
+  if [[ "$rm_when_done" == "true" ]]; then
+  for instance in $(cat "$tmp/selected.conf");
+  do
+   "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
+    sleep 0.4
+  done
+  fi
     echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
 	if [[ "$command" =~ "_target_" ]]; then
         interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/ $tmp/output/ --cache -F=$sshconfig >> /dev/null"
@@ -120,10 +130,10 @@ clean_up() {
     merge_output
     echo -e "${Blue}Killing remote processes${Color_Off}"
     axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1
-    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
-    if [[ "$keeplogs" != "true" ]]; then
-     delete_logs
+    if [[ "$keeplogs" == "false" ]]; then
+    delete_logs
     fi 
+    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
@@ -136,11 +146,12 @@ clean_up() {
     exit $1
 }
 
+
 delete_logs() {
     echo -e "${Blue}Deleting remote logs${Color_Off}"
-    axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1
-    echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output ${Color_Off}"
-    ls $AXIOM_PATH/logs/$uid/ | grep -v output | xargs sudo rm -r >/dev/null 2>&1
+    axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/ " -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1
+    echo -e "${Blue}Deleting local logs, except $AXIOM_PATH/logs/$uid/output${Color_Off}"
+    ls $AXIOM_PATH/tmp/$uid/ | grep -v output | xargs sudo rm -r >/dev/null 2>&1
 }
 
 apply_wordlist() {
@@ -169,7 +180,7 @@ add_extra_args() {
             args_set=""true
         else
             new_command="$new_command $piece"
-        fi    
+        fi
 
         if [[ "$counter" -lt "$pieces" ]]; then
             new_command="$new_command | "
@@ -182,16 +193,23 @@ add_extra_args() {
 }
 
 split_file() {
-    file="$1"
-    divisor="$2"
-    tmp="$3"
- 
+file="$1"
+divisor="$2"
+tmp="$3"
+
+# randomize input list if shuffle is true, if not, pass thru
+if [[ "$shuffle" != "false" ]]; then
+ shuf="perl -MList::Util -e 'print List::Util::shuffle <>'"
+else
+ shuf='tee'
+fi
+
 # if gee is NOT-installed, use bash
 if ! [ -x "$(command -v gee)" ]; then
     lines="$(wc -l "$file" | awk '{ print $1 }')"
     lines_per_file=$(expr $lines / $divisor)
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
-    cat "$file" | shuf > "$tmp/split/targets"
+    cat "$file" | $shuf > "$tmp/split/targets"
     cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
     # Rename "xaa" etc  to 1 2 3 4 5
     i=1
@@ -207,7 +225,7 @@ if ! [ -x "$(command -v gee)" ]; then
 else
 # if gee is installed, use gee to split the file 
     escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-    cat $file | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+    cat $file | $shuf | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
     total=$(ls $tmp/input | wc -l)
 fi
 }
@@ -284,6 +302,7 @@ spinup=0
 args=""
 pass=()
 keeplogs="true"
+shuffle="false"
 
 if [[ "$*" != *-m* ]]
 then
@@ -429,6 +448,11 @@ do
         fi
         if [[ "$arg" == "--no-logs" ]]; then
             keeplogs="false"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--shuffle" ]]; then
+            shuffle="true"
             set=true
             pass+=($i)
         fi
@@ -624,18 +648,21 @@ if [[ "$rm_when_done" == "true" ]]; then
     done
 fi
 
-
-mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
-
 end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
 echo -e "${Blue}Killing remote processes${Color_Off}"
 axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1
+if [[ "$keeplogs" == "false" ]]; then
+delete_logs
+fi 
+
+mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
 kill -9 $tailPID
 stty sane
-tput ini
+tput init
