@@ -11,26 +11,7 @@ begin=$(date +%s)
 rm -r $HOME/.ssh/sockets > /dev/null 2>&1
 start="$(pwd)"
 BASEOS="$(uname)"
-case $BASEOS in
-'Linux')
-    BASEOS='Linux'
-    ;;
-'FreeBSD')
-    BASEOS='FreeBSD'
-    alias ls='ls -G'
-    ;;
-'WindowsNT')
-    BASEOS='Windows'
-    ;;
-'Darwin')
-    BASEOS='Mac'
-    ;;
-'SunOS')
-    BASEOS='Solaris'
-    ;;
-'AIX') ;;
-*) ;;
-esac
+
 ###########################################################################################################
 # Functions
 function formatSeconds (){
@@ -69,46 +50,46 @@ function parse_module() {
 }
 
 function help() {
-	echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
-	echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
-	echo -e "  <input> string"
-	echo -e "    Input file, supplied as a positional first argument"
-  echo -e "  --dont-shuffle"
-  echo -e "    Dont randomize input file before uploading (default is to randomize)"
-	echo -e "  -m string"
-	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
-	echo -e "  -w /path/to/wordlist/on/instance"
-	echo -e "    Wordlist to use to scan with (must be a path to a remote wordlist)"
-  echo -e "  -wL /path/to/local"
-	echo -e "    Wordlist Local to use to scan with (must be a path to a local wordlist)"
-	echo -e "  --list"
-	echo -e "    List available modules"
-	echo -e "  -o string"
-	echo -e "    Output to default output (whatever that is for the module)"
-	echo -e "  -oX string"
-	echo -e "    Output in XML/HTML, supported in (nmap & masscan)"
-	echo -e "  -oG string"
-	echo -e "    Output to greppable output (will merge and sort unique)"
-	echo -e "  -oD string"
-	echo -e "    Output to a directory"
-	echo -e "  --fleet string (optional)"
-	echo -e "    Fleet to use, will use axiom-select by default."
-	echo -e "  --spinup int (optional)"
-	echo -e "    How many instances to spin up"
-  echo -e "  --rm-when-done (optional)"
-	echo -e "    Delete selected instances when scan is complete."
-  echo -e "  -F string (optional)"
-  echo -e "    Custom SSH configuration file to launch fleet from"
-  echo -e "  --debug"
-  echo -e "    Enable debug mode (VERY VERBOSE!)"
-  echo -e "  --quiet"
-	echo -e "    Enable quiet mode"
-  echo -e "  --no-logs"
-        echo -e "    Delete remote and local logs when finished"
-	echo -e "  --help"
-	echo -e "    Display this help menu"
-	echo -e "  <additional args>"
-	echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
+        echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
+        echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
+        echo -e "  --list (optional)"
+        echo -e "    List available modules"
+        echo -e "  <input> required string"
+        echo -e "    Input file, supplied as a positional first argument"
+        echo -e "  -m required string"
+        echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
+        echo -e "  --dont-shuffle (optional)"
+        echo -e "    Do not randomize input file before uploading (default is to randomize)"
+        echo -e "  -wL /path/to/local"
+        echo -e "    Wordlist Local to use to scan with (must be a path to a local wordlist)"
+        echo -e "  -w /path/to/wordlist/on/instance"
+        echo -e "    Wordlist to use to scan with (must be a path to a remote wordlist)"
+        echo -e "  -o string"
+	      echo -e "    Output to default output (whatever that is for the module)"
+        echo -e "  -oX string"
+        echo -e "    Output in XML/HTML, supported in (nmap & masscan)"
+        echo -e "  -oG string"
+        echo -e "    Output to greppable output (will merge and sort unique)"
+        echo -e "  -oD string"
+        echo -e "    Output to a directory"
+        echo -e "  -F string (optional)"
+        echo -e "    Custom SSH configuration file to launch fleet from"
+        echo -e "  --fleet string (optional)"
+        echo -e "    Fleet to use, will use axiom-select by default."
+        echo -e "  --spinup int (optional)"
+        echo -e "    How many instances to spin up"
+        echo -e "  --rm-when-done (optional)"
+      	echo -e "    Delete selected instances when scan is complete."
+        echo -e "  --rm-logs (optional)"
+        echo -e "    Delete remote and local logs when finished (default keeps all logs)"
+        echo -e "  --debug (optional)"
+        echo -e "    Enable debug mode (VERY VERBOSE!)"
+        echo -e "  --quiet"
+	      echo -e "    Enable quiet mode (placeholder: does not work)"
+      	echo -e "  --help (optional)"
+      	echo -e "    Display this help menu"
+      	echo -e "  <additional args>"
+	      echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
 
 clean_up() {
@@ -455,7 +436,7 @@ do
             set=true
             pass+=($i)
         fi
-        if [[ "$arg" == "--no-logs" ]]; then
+        if [[ "$arg" == "--rm-logs" ]]; then
             keeplogs="false"
             set=true
             pass+=($i)
