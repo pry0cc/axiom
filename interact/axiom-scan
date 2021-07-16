@@ -101,6 +101,8 @@ function help() {
   echo -e "    Enable debug mode (VERY VERBOSE!)"
   echo -e "  --quiet"
 	echo -e "    Enable quiet mode"
+  echo -e "  --no-logs"
+  echo -e "    Delete local and remote logs"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
 	echo -e "  <additional args>"
@@ -119,6 +121,9 @@ clean_up() {
     echo -e "${Blue}Killing remote processes${Color_Off}"
     axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1
     mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+    if [[ "$keeplogs" != "true" ]]; then
+     delete_logs
+    fi 
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
@@ -129,6 +134,13 @@ clean_up() {
     stty sane
     tput init
     exit $1
+}
+
+delete_logs() {
+    echo -e "${Blue}Deleting remote logs${Color_Off}"
+    axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1
+    echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output ${Color_Off}"
+    ls $AXIOM_PATH/logs/$uid/ | grep -v output | xargs sudo rm -r >/dev/null 2>&1
 }
 
 apply_wordlist() {
@@ -271,6 +283,7 @@ rm_when_done="false"
 spinup=0
 args=""
 pass=()
+keeplogs="true"
 
 if [[ "$*" != *-m* ]]
 then
@@ -411,6 +424,11 @@ do
         fi
         if [[ "$arg" == "--debug" ]]; then
             debug="true"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--no-logs" ]]; then
+            keeplogs="false"
             set=true
             pass+=($i)
         fi
@@ -620,4 +638,4 @@ echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved t
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
 kill -9 $tailPID
 stty sane
-tput init
+tput ini
