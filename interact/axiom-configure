@@ -156,7 +156,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    ;;
   zsh)
     sudo apt install zsh -y &>/dev/null 
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     echo -e "${Blue}Installing Golang${Color_Off}"
     wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
     sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
@@ -261,3 +261,4 @@ echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
 cd
+$SHELL
