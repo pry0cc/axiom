@@ -120,9 +120,13 @@ fi
 #
 
 # ###########################################################################################################
+# Display account.json one last time, since its been updated
+cat "$account_path" | jq
+echo -e "${Green}This password is stored in $account_path, for your records: $op_ssh_password${Color_Off}"
+
+# ###########################################################################################################
 # Execute the Packer binary to build the final image
 counter=0
-echo -e "${Green}This password is stored in $account_path, for your records: $op_ssh_password${Color_Off}"
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$snapshot_name" "$image_path";
 then
