@@ -31,12 +31,12 @@ BASEOS="$(uname)"
 setuptools() {
 # install orgalorg and gee
 if ! [ -x "$(command -v orgalorg)" ]; then
-orgalorgbinary=$HOME/go/bin/orgalorg
+ orgalorgbinary=$HOME/go/bin/orgalorg
 if test -f "$orgalorgbinary"; then
-    echo "located orgalorg binary in $HOME/go/bin/orgalorg"
+ echo "Executing axiom-orgalorg"
 else 
-echo "installing orgalorg https://github.com/reconquest/orgalorg"
-go get github.com/reconquest/orgalorg
+ echo "installing orgalorg https://github.com/reconquest/orgalorg"
+ go get github.com/reconquest/orgalorg
 fi
 fi
 }
