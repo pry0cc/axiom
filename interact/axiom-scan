@@ -73,8 +73,8 @@ function help() {
 	echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
 	echo -e "  <input> string"
 	echo -e "    Input file, supplied as a positional first argument"
-  echo -e "  --shuffle"
-  echo -e "    Randomize input file before uploading"
+  echo -e "  --dont-shuffle"
+  echo -e "    Dont randomize input file before uploading (default is to randomize)"
 	echo -e "  -m string"
 	echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
 	echo -e "  -w /path/to/wordlist/on/instance"
@@ -210,7 +210,7 @@ if ! [ -x "$(command -v gee)" ]; then
 if [[ "$shuffle" != "false" ]]; then
 perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
 else
-cat $file  > "$tmp/split/targets"
+cp "$file" "$tmp/split/targets"
 fi
 cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
 
@@ -233,7 +233,7 @@ escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
 if [[ "$shuffle" != "false" ]]; then
 perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 else
-cat  "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 fi
     total=$(ls $tmp/input | wc -l)
 fi
@@ -311,7 +311,7 @@ spinup=0
 args=""
 pass=()
 keeplogs="true"
-shuffle="false"
+shuffle="true"
 
 if [[ "$*" != *-m* ]]
 then
@@ -460,8 +460,8 @@ do
             set=true
             pass+=($i)
         fi
-        if [[ "$arg" == "--shuffle" ]]; then
-            shuffle="true"
+        if [[ "$arg" == "--dont-shuffle" ]]; then
+            shuffle="false"
             set=true
             pass+=($i)
         fi
