@@ -153,7 +153,11 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
     source ${HOME}/.bashrc
     SHELL=/bin/bash
-   break
+    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
+    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
+    source ~/.bashrc 
+  break
    ;;
   zsh)
     sudo apt install zsh
@@ -167,6 +171,16 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
     echo "export GOPATH=\$HOME/go" >>~/.zshrc
     echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
+    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
+    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
+#    echo "compdef _axiom-ssh axiom-rm" >>~/.zshrc 
+#    echo "compdef _axiom-ssh axiom-ssh" >>~/.zshrc 
+#    echo "compdef _axiom-ssh axiom-select" >>~/.zshrc
+#    echo "compdef _axiom-ssh axiom-backup" >>~/.zshrc 
+#    echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc 
+#    echo "compdef _axiom-restore axiom-restore" >>~/.zshrc 
+#    echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc 
     source ${HOME}/.zshrc
     SHELL=/usr/bin/zsh
    break
@@ -233,34 +247,9 @@ else
     fi
 fi
 
-if [ "$SHELL" == "/usr/local/bin/zsh" ] || [ "$SHELL" == "/usr/bin/zsh" ] || [ "$SHELL" == "/bin/zsh" ]; then
-    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc &>/dev/null
-    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-ssh axiom-rm" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-ssh axiom-ssh" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-ssh axiom-select" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-ssh axiom-backup" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-restore axiom-restore" >>~/.zshrc &>/dev/null
-    echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc &>/dev/null
-  source ~/.zshrc &>/dev/null
-
-elif [ "$SHELL" == "/bin/bash" ]; then
-    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
-    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
-    source ~/.bashrc &>/dev/null
-else
-    echo -e "${Red}I don't have a predefined setup for your shell!"
-    echo "Please add $AXIOM_PATH/interact to your \$PATH! ${Color_Off}"
-    echo "(export PATH=\"\$PATH:$HOME/.axiom/interact\")"
-fi
-
 export PATH="$PATH:$HOME/.axiom/interact"
 
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
 cd
-$SHELL
