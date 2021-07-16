@@ -117,12 +117,11 @@ if [ -z "$op_ssh_password" ]; then
 echo -e "Unable to generate random password for Packer image.. exiting"
 exit 0
 fi
-#
 
 # ###########################################################################################################
 # Display account.json one last time, since its been updated
+echo -e "${Green}Password for user op is stored in $account_path, for your records${Color_Off}"
 cat "$account_path" | jq
-echo -e "${Green}Password for user op is stored in $account_path, for your records: $op_ssh_password${Color_Off}"
 
 # ###########################################################################################################
 # Execute the Packer binary to build the final image
