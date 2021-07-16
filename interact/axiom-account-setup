@@ -19,4 +19,3 @@ do
 done
 
 bash "$provider_path"
-bash "$AXIOM_PATH/interact/axiom-build"
