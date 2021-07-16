@@ -70,13 +70,13 @@ builder_path="$AXIOM_PATH/images/builders/$builder.json"
 
 if [ ! -f "$prov_path" ]
 then
-	echo -e "${Red}Error: unfortunately, there is no $provisioner_path...${Color_Off}"
+	echo -e "${Red}Error: unfortunately, could not find path to provisioner file...${Color_Off}"
 	exit
 fi
 	
 if [ ! -f "$builder_path" ]
 then
-	echo -e "${Red}Error: unfortunately, there is no $builder_path...${Color_Off}"
+	echo -e "${Red}Error: unfortunately, could not find path to builder file...${Color_Off}"
 	exit
 fi
 
