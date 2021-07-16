@@ -67,7 +67,7 @@ if [ $BASEOS == "Linux" ]; then
         sudo pacman -S fzf packer jq doctl mmv
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install mmv fzf git ruby python3-pip curl net-tools unzip xsltproc bc uuid-runtime rsync
+        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -75,10 +75,6 @@ if [ $BASEOS == "Linux" ]; then
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace
         cd /tmp/interlace && sudo python3 setup.py install
-        echo -e "${Blue}Installing doctl...${Color_Off}"
-        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
-        echo -e "${Blue}Installing azure az...${Color_Off}"
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.2.0/gowitness-2.2.0-linux-amd64 && sudo chmod +x /usr/bin/gowitness
 
