@@ -9,6 +9,7 @@ provisioner=""
 start_time=$(date +%s)
 op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d '\n' | tr -d /)
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
 
 # Get the provisioner file
 if [ -z "$provisioner" ]; then
@@ -84,6 +85,7 @@ then
 fi
 
 image_path="$AXIOM_PATH/images/axiom.json"
+$AXIOM_PATH/interact/axiom-provider "$provider"
 "$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
 
 if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
