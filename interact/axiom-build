@@ -23,7 +23,7 @@ if [ -z "$provisioner" ]; then
     read ans
     if [[ $ans == "default" ]] || [[ $ans == "Default" ]]; then 
               echo -e "${Green}Selected provisioner option 'Default'${Color_Off}"
-              provisioner="full"
+              provisioner="default"
     fi
     if [[ $ans == "reconftw" ]] ||  [[ $ans == "Reconftw" ]] ||  [[ $ans == "ReconFTW" ]]; then
                echo -e "${Green}Selected provisioner option 'ReconFTW'${Color_Off}"
@@ -44,7 +44,7 @@ if [ -z "$provisioner" ]; then
     fi
     if [[ $ans == "" ]]; then
 	       echo -e "${Green}Selected default provisioner option 'Default'${Color_Off}"
-               provisioner="full"
+               provisioner="default"
     fi
 fi
 
