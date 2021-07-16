@@ -155,7 +155,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    break
    ;;
   zsh)
-    sudo apt install zsh -y &>/dev/null 
+    sudo apt install zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     echo -e "${Blue}Installing Golang${Color_Off}"
     wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
