@@ -122,7 +122,7 @@ fi
 # ###########################################################################################################
 # Display account.json one last time, since its been updated
 cat "$account_path" | jq
-echo -e "${Green}This password is stored in $account_path, for your records: $op_ssh_password${Color_Off}"
+echo -e "${Green}Password for user op is stored in $account_path, for your records: $op_ssh_password${Color_Off}"
 
 # ###########################################################################################################
 # Execute the Packer binary to build the final image
