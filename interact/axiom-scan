@@ -26,6 +26,8 @@ function formatSeconds (){
         printf "$format" $hours $minutes $seconds
 }
 
+###########################################################################################################
+# List path of all axiom modules and their commands axiom-scan --list
 function list_modules() {
 	echo -e "${Green}Available Modules:${Color_Off}"
 	(echo "MODULE,COMMAND"; find "$AXIOM_PATH/modules/" -name '*.json' -exec echo -n {}\` \; -exec jq -r '.[0].command' {} \; | sort -t/ | sed 's/\/$HOME\/.axiom\/modules\///g' | sed 's/\.json//g' ) | column -t -s\` | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
@@ -33,6 +35,9 @@ function list_modules() {
 
 }
 
+###########################################################################################################
+# Parsing the modules with jq. TODO: Ignore comments when parsing. This will allow us to have comments in the modules itself. 
+# Allowing us to provide extra details/examples of the modules
 function parse_module() {
 	module="$1"
 	ext="$2"
@@ -49,6 +54,8 @@ function parse_module() {
 	fi
 }
 
+###########################################################################################################
+# Help Menu: TODO: * fix --quiet * add option to supply different SSH key * exit if the module doesnt exist 
 function help() {
         echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
         echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
@@ -92,16 +99,9 @@ function help() {
 	      echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
 }
 
-clean_up() {
-  # Perform program exit housekeeping
-  # remove fleet if specified  
-  if [[ "$rm_when_done" == "true" ]]; then
-  for instance in $(cat "$tmp/selected.conf");
-  do
-   "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
-    sleep 0.4
-  done
-  fi
+###########################################################################################################
+#  When CONTROL+C is pressed during a scan, perform exit housekeeping. Allow us to download and merge the available results after canceling
+clean_up() { 
     echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
 	if [[ "$command" =~ "_target_" ]]; then
         interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/ $tmp/output/ --cache -F=$sshconfig >> /dev/null"
@@ -127,6 +127,9 @@ clean_up() {
     exit $1
 }
 
+###########################################################################################################
+#  axiom can take up a lot of space with logs. When --rm-logs option is present, after the scan is finished or canceled, axiom-orgalorg will delete the remote logs.
+#  To avoid undesirable scan results after merging, we keep the original un-merged scan result as well as the final merged copy. Everything else pertaining to the scan deleted.
 delete_logs() {
     echo -e "${Blue}Deleting remote logs${Color_Off}"
     axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1
@@ -136,6 +139,12 @@ delete_logs() {
     cd "$start"
 }
 
+
+###########################################################################################################
+#  Providing wordlists in modules can be done with _wordlist_, usually something like -w _wordlist_ is provided in the module. Think of this like a placeholder for wordlists
+#  that can be easily switched out in-line or from the module. Look at the nuclei module for an example of _wordlist_ being used in a "simple module" https://github.com/pry0cc/axiom/blob/master/modules/nuclei.json.
+#  Example command: axiom-scan mytargets.txt -m nuclei -w /home/op/my-nuclei-templates-on-remote-server/ -o myresults.txt. Although Nuclei doesnt have a -w
+#  in this case, we are treating Nuclei's -templates(-t) argument as a wordlist (-w). In essence we are overwriting the wordlist argument for all modules, in an attempt to normalize the '-w' for all modules.
 apply_wordlist() {
     command="$1"
     wordlist="$2"
@@ -144,6 +153,9 @@ apply_wordlist() {
     echo "$command" | sed "s/_wordlist_/$wordlist_escaped/g"
 }
 
+###########################################################################################################
+# Parse the extra arguments passed from the command line and add them to the final command
+# TODO: use gee's prefix and suffix features instead
 add_extra_args() {
     command="$1"
     new_command=""
@@ -175,7 +187,9 @@ add_extra_args() {
 }
 
 
-
+###########################################################################################################
+# divide the the target list by how many instances are selected (axiom-select). Equally distribute the total target list across the fleet.
+# If gee is present, use it over bash. gee is an incredibly useful tool for distribution https://github.com/hahwul/gee <3 hahwul
 split_file() {
 file="$1"
 divisor="$2"
@@ -187,7 +201,7 @@ if ! [ -x "$(command -v gee)" ]; then
     lines_per_file=$(expr $lines / $divisor)
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
  
-# shuffle the target list if requested
+# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
 if [[ "$shuffle" != "false" ]]; then
 perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
 else
@@ -208,9 +222,9 @@ do
 
 else
 
-# if gee is installed, use gee to split the file 
+# if gee is installed, use gee to split the file. https://github.com/hahwul/gee <3 hahwul
 escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# shuffle the target list if requested
+# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
 if [[ "$shuffle" != "false" ]]; then
 perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 else
@@ -220,6 +234,10 @@ fi
 fi
 }
 
+
+###########################################################################################################
+# Merge the output in a certain way specified in the module or if the user specified -oX -oG or -oD it will overwrite the default (-o).
+# If only supplying -o as an output argument via the command line, the output format will default to the first ext mentioned in the module.
 merge_output() {
     if [[ "$anew" != "true" ]];  then
         rm -rf "$outfile"
@@ -272,8 +290,7 @@ merge_output() {
 }
 
 ###########################################################################################################
-# Variable Declarations
-
+# Declare defaut variables
 wordlist=""
 module=""
 ext="default"
