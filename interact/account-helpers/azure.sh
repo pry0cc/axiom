@@ -19,6 +19,9 @@ email=""
 # Packer::Azure CLI authentication will use the credential marked as isDefault
 use_azure_cli_auth="true"
 
+echo -e "${Blue}Installing azure az...${Color_Off}"
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
 echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
 
 read region
