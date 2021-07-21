@@ -93,6 +93,8 @@ function help() {
         echo -e "    Enable debug mode (VERY VERBOSE!)"
         echo -e "  --quiet"
 	      echo -e "    Enable quiet mode (placeholder: does not work)"
+        echo -e "  --cache"
+	      echo -e "    Do not regenerate SSH config"
       	echo -e "  --help (optional)"
       	echo -e "    Display this help menu"
       	echo -e "  <additional args>"
