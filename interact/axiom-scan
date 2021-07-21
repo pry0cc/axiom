@@ -659,8 +659,6 @@ end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
-echo -e "${Blue}Killing remote processes${Color_Off}"
-axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1
 if [[ "$keeplogs" == "false" ]]; then
 delete_logs
 fi 
