@@ -192,50 +192,76 @@ add_extra_args() {
 ###########################################################################################################
 # divide the the target list by how many instances are selected (axiom-select). Equally distribute the total target list across the fleet.
 # If gee is present, use it over bash. gee is an incredibly useful tool for distribution https://github.com/hahwul/gee <3 hahwul
-split_file() {
-file="$1"
-divisor="$2"
-tmp="$3"
 
-# if gee is NOT-installed, use bash
-if ! [ -x "$(command -v gee)" ]; then
+split_file() {
+    file="$1"
+    divisor="$2"
+    tmp="$3"
+
     lines="$(wc -l "$file" | awk '{ print $1 }')"
     lines_per_file=$(expr $lines / $divisor)
-    [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
- 
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
-if [[ "$shuffle" != "false" ]]; then
-perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
-else
-cp "$file" "$tmp/split/targets"
-fi
-cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
 
-# Rename "xaa" etc  to 1 2 3 4 5
-i=1
-for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
-do
+    [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
+    perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
+
+    cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
+    # Rename "xaa" etc  to 1 2 3 4 5
+    i=1
+    for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
+    do
         instance="$(echo $instances | awk "{ print \$$i }")"
         i=$((i+1))
 
         mv "$tmp/split/$f" "$tmp/input/$instance"
     done
+
     total=$i
-
-else
-
-# if gee is installed, use gee to split the file. https://github.com/hahwul/gee <3 hahwul
-escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
-if [[ "$shuffle" != "false" ]]; then
-perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-else
-cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-fi
-    total=$(ls $tmp/input | wc -l)
-fi
 }
 
+# issue with gee https://github.com/hahwul/gee/issues/29
+#split_file() {
+#file="$1"
+#divisor="$2"
+#tmp="$3"
+
+# if gee is NOT-installed, use bash
+#if ! [ -x "$(command -v gee)" ]; then
+#    lines="$(wc -l "$file" | awk '{ print $1 }')"
+#    lines_per_file=$(expr $lines / $divisor)
+#    [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
+ 
+# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+#if [[ "$shuffle" != "false" ]]; then
+#perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
+#else
+#cp "$file" "$tmp/split/targets"
+#fi
+#cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
+
+# Rename "xaa" etc  to 1 2 3 4 5
+#i=1
+#for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
+#do
+#        instance="$(echo $instances | awk "{ print \$$i }")"
+#        i=$((i+1))
+
+#        mv "$tmp/split/$f" "$tmp/input/$instance"
+#    done
+#    total=$i
+
+#else
+
+# if gee is installed, use gee to split the file. 
+#escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
+# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+#if [[ "$shuffle" != "false" ]]; then
+#perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+#else
+#cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+#fi
+#    total=$(ls $tmp/input | wc -l)
+#fi
+#}
 
 ###########################################################################################################
 # Merge the output in a certain way specified in the module or if the user specified -oX -oG or -oD it will overwrite the default (-o).
