@@ -272,7 +272,7 @@ split_file() {
 
 ###########################################################################################################
 # Merge the output in a certain way specified in the module or if the user specified -oX -oG or -oD it will overwrite the default (-o).
-# If only supplying -o as an output argument via the command line, the output format will default to the first ext mentioned in the module.
+# If only supplying -o as an output argument via the command line, the output format will default to the first extension mentioned in the module.
 merge_output() {
     if [[ "$anew" != "true" ]];  then
         rm -rf "$outfile"
