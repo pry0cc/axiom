@@ -120,6 +120,8 @@ if [ $BASEOS == "Mac" ]; then
          sudo chown -R $(whoami) /usr/local/Homebrew 
          sudo chown -R $(whoami) /usr/local/var/homebrew
          sudo chown -R $(whoami) /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
+         sudo chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions
+         chmod u+w /usr/local/share/zsh /usr/local/share/zsh/site-functions
          chmod u+w /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
          echo -e "${Blue}Installing go...${Color_Off}"
          brew install golang
