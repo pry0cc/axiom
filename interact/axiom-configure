@@ -118,6 +118,16 @@ if [ $BASEOS == "Mac" ]; then
   fi
          echo -e "${Blue}Installing go...${Color_Off}"
          brew install golang
+         mkdir -p "${HOME}/go"
+         export GOPATH=$HOME/go
+         export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+         echo "export GOPATH=\$HOME/go" >>~/.zshrc
+         echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
+         echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+         echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
+         echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
+         source ${HOME}/.zshrc
+         SHELL=$(which zsh)
          echo -e "${Blue}Installing jq...${Color_Off}"
          brew install jq
          echo -e "${Blue}Installing Python3...${Color_Off}"
@@ -132,8 +142,6 @@ if [ $BASEOS == "Mac" ]; then
          sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git     
          cd packer
          make dev
-         export PATH=$PATH:$(go env GOPATH)/bin
-         source ~/.bash_profile
 fi
 
 if [ $BASEOS == "Linux" ]; then
