@@ -12,9 +12,35 @@ provider=""
 size=""
 email=""
 
+BASEOS="$(uname)"
+case $BASEOS in
+'Linux')
+    BASEOS='Linux'
+    ;;
+'FreeBSD')
+    BASEOS='FreeBSD'
+    alias ls='ls -G'
+    ;;
+'WindowsNT')
+    BASEOS='Windows'
+    ;;
+'Darwin')
+    BASEOS='Mac'
+    ;;
+'SunOS')
+    BASEOS='Solaris'
+    ;;
+'AIX') ;;
+*) ;;
+esac
+
 echo -e "${Blue}Installing doctl...${Color_Off}"
+if [ $BASEOS == "Mac" ]; then
+brew install doctl
+else
 wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
-        
+fi
+
 echo -e "${BGreen}Sign up for an account using this link for 100\$ free credit: https://m.do.co/c/bd80643300bd\nObtain a personal access token from: https://cloud.digitalocean.com/account/api/tokens${Color_Off}"
 echo -e -n "${Blue}Do you already have a DigitalOcean account? y/n ${Color_Off}"
 read acc 

@@ -116,25 +116,37 @@ if [ $BASEOS == "Mac" ]; then
          echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
          echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
   fi
-         echo -e "${Blue}Installing doctl...${Color_Off}"
-         brew install doctl
+         echo -e 'Setting permissions'
+         sudo chown -R $(whoami) /usr/local/Homebrew 
+         sudo chown -R $(whoami) /usr/local/var/homebrew
+         sudo chown -R $(whoami) /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
+         sudo chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions
+         chmod u+w /usr/local/share/zsh /usr/local/share/zsh/site-functions
+         chmod u+w /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
          echo -e "${Blue}Installing go...${Color_Off}"
          brew install golang
+         mkdir -p "${HOME}/go"
+         export GOPATH=$HOME/go
+         echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+         echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
          echo -e "${Blue}Installing jq...${Color_Off}"
          brew install jq
-         echo -e "${Blue}Installing packer...${Color_Off}"
-         mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
-         sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git
          echo -e "${Blue}Installing Python3...${Color_Off}"
          brew install python3
-         echo -e "${Blue}Installing MMV...${Color_Off}"
-         brew install mmv
-         cd packer
-         make dev
-         export PATH=$PATH:$(go env GOPATH)/bin
-         source ~/.bash_profile
+         echo -e "${Blue}Installing Interlace...${Color_Off}"
+         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
+         cd /tmp/interlace && sudo python3 setup.py install 
+         echo -e "${Blue}Installing gowitness...${Color_Off}"
+         wget -O /usr/local/bin/ https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64
+         echo -e "${Blue}Installing packer...${Color_Off}"
+         brew tap hashicorp/tap
+         brew install hashicorp/tap/packer
+         brew upgrade hashicorp/tap/packer
+         source ${HOME}/.zshrc
+         SHELL=$(which zsh)
 fi
 
+if [ $BASEOS == "Linux" ]; then
 # Pick your shell
 echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
  PS3="Please select an option : "
@@ -174,31 +186,19 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
     echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
-#    echo "compdef _axiom-ssh axiom-rm" >>~/.zshrc 
-#    echo "compdef _axiom-ssh axiom-ssh" >>~/.zshrc 
-#    echo "compdef _axiom-ssh axiom-select" >>~/.zshrc
-#    echo "compdef _axiom-ssh axiom-backup" >>~/.zshrc 
-#    echo "compdef _axiom-ssh axiom-vpn" >>~/.zshrc 
-#    echo "compdef _axiom-restore axiom-restore" >>~/.zshrc 
-#    echo "compdef _axiom-deploy axiom-deploy" >>~/.zshrc 
     source ${HOME}/.zshrc
     SHELL=$(which zsh)
    break
    ;;
 esac
 done
+fi
 
 #install gee
-if ! [ -x "$(command -v gee)" ]; then
-echo "gee (https://github.com/hahwul/gee) not found in path"
-geebinary=$HOME/go/bin/gee
-if test -f "$geebinary"; then
-    echo "located gee binary in $HOME/go/bin/gee"
-else 
-echo "installing gee https://github.com/hahwul/gee"
+
+echo "Updating gee https://github.com/hahwul/gee"
 GO111MODULE=on go get -v github.com/hahwul/gee
-fi
-fi
+
 
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
@@ -253,5 +253,4 @@ echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
 cd
-echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}" 
-
+echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"

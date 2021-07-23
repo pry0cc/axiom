@@ -195,80 +195,54 @@ add_extra_args() {
     echo $new_command
 }
 
-
 ###########################################################################################################
 # divide the the target list by how many instances are selected (axiom-select). Equally distribute the total target list across the fleet.
 # If gee is present, use it over bash. gee is an incredibly useful tool for distribution https://github.com/hahwul/gee <3 hahwul
 #
 split_file() {
-    file="$1"
-    divisor="$2"
-    tmp="$3"
+file="$1"
+divisor="$2"
+tmp="$3"
 
+# if gee is NOT-installed, use bash
+if ! [ -x "$(command -v gee)" ]; then
     lines="$(wc -l "$file" | awk '{ print $1 }')"
     lines_per_file=$(expr $lines / $divisor)
-
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
-    perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
+ 
+# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+if [[ "$shuffle" != "false" ]]; then
+perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
+else
+cp "$file" "$tmp/split/targets"
+fi
+cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
 
-    cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
-    # Rename "xaa" etc  to 1 2 3 4 5
-    i=1
-    for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
-    do
+# Rename "xaa" etc  to 1 2 3 4 5
+i=1
+for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
+do
         instance="$(echo $instances | awk "{ print \$$i }")"
         i=$((i+1))
 
         mv "$tmp/split/$f" "$tmp/input/$instance"
     done
-
     total=$i
+
+else
+
+# if gee is installed make sure its up to date, use gee to split the file. 
+GO111MODULE=on go get -v github.com/hahwul/gee >/dev/null 2>&1
+escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
+# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+if [[ "$shuffle" != "false" ]]; then
+perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+else
+cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+fi
+    total=$(ls $tmp/input | wc -l)
+fi
 }
-
-# issue with gee https://github.com/hahwul/gee/issues/29
-#split_file() {
-#file="$1"
-#divisor="$2"
-#tmp="$3"
-
-# if gee is NOT-installed, use bash
-#if ! [ -x "$(command -v gee)" ]; then
-#    lines="$(wc -l "$file" | awk '{ print $1 }')"
-#    lines_per_file=$(expr $lines / $divisor)
-#    [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
- 
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
-#if [[ "$shuffle" != "false" ]]; then
-#perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
-#else
-#cp "$file" "$tmp/split/targets"
-#fi
-#cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
-
-# Rename "xaa" etc  to 1 2 3 4 5
-#i=1
-#for f in $(find "$tmp/split/" -type f | tr '/' ' ' | awk '{ print $NF }')
-#do
-#        instance="$(echo $instances | awk "{ print \$$i }")"
-#        i=$((i+1))
-
-#        mv "$tmp/split/$f" "$tmp/input/$instance"
-#    done
-#    total=$i
-
-#else
-
-# if gee is installed, use gee to split the file. 
-#escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
-#if [[ "$shuffle" != "false" ]]; then
-#perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-#else
-#cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-#fi
-#    total=$(ls $tmp/input | wc -l)
-#fi
-#}
 
 ###########################################################################################################
 # Merge the output in a certain way specified in the module or if the user specified -oX -oG or -oD it will overwrite the default (-o).
@@ -345,7 +319,6 @@ args=""
 pass=()
 keeplogs="true"
 shuffle="true"
-
 
 # Check if -m is in the command, if not, exit
 # TODO: Add check that module exists, if not, exit
@@ -677,8 +650,6 @@ scan_dir="/home/op/scan/$uid"
 ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no"
 interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
 
-
-
 ###########################################################################################################
 # If a one-shot module is used:
 # Prep all the axiom instances by making a unique scan directory 
@@ -719,7 +690,6 @@ if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
     sleep 3
     $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output' >> $tmp/logs/_target_ 2>&1"
-
 
 # Once all the SSH terminals exit, either by finishing its exection or if the session drops, download the results
 # TODO: Dont call axiom-scp just because SSH returns, instead periodically SSH into the instances and determine if the scan has finished and then download
