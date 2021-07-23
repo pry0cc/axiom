@@ -136,6 +136,7 @@ if [ $BASEOS == "Mac" ]; then
          source ~/.bash_profile
 fi
 
+if [ $BASEOS == "Linux" ]; then
 # Pick your shell
 echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
  PS3="Please select an option : "
@@ -181,6 +182,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    ;;
 esac
 done
+fi
 
 #install gee
 
