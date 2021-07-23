@@ -84,7 +84,7 @@ die() {
 
 tmpfiles() {
 # make tmp files to store data
-uid="execx+$(date +%s)"
+uid="orgalorg+$(date +%s)"
 tmp="$AXIOM_PATH/tmp/$uid"
 mkdir -p "$tmp/input"
 mkdir -p "$tmp/split"

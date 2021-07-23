@@ -245,8 +245,10 @@ query_instances_cache() {
 generate_sshconfig() {
 	boxes="$(az vm list-ip-addresses)"
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
-
+ServerAliveCountMax
 	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
+  echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+
     
 	for name in $(echo "$boxes" | jq -r '.[].virtualMachine.name')
 	do 

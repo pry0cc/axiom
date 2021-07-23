@@ -246,6 +246,8 @@ generate_sshconfig() {
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
 
 	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
+  echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+
 
 	for name in $(echo "$droplets" | jq -r '.[].name')
 	do 
