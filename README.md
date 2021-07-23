@@ -47,15 +47,13 @@ Our third provider for axiom! Please use [this link](https://www.linode.com/?r=2
 
 ## Installation - Easy Install
 
-You will also need to install the newest versions of all packages `sudo apt dist-upgrade` and curl, which is not installed by default on Ubuntu 20.04, if you get a "command not found" error, run `sudo apt update && sudo apt install curl`.
-<br>
-<br> Run the following curl command, as your standard user, not as root.
-
+You should use an OS that supports our [easy install](https://github.com/pry0cc/axiom#installation---easy-install). <br>
+For Linux systems you will also need to install the newest versions of all packages beforehand `sudo apt dist-upgrade`. <br>
 ```
 bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
 ```
 
-If you have any problems with this installer, please refer to [Installation](https://github.com/pry0cc/axiom/wiki/0-Installation).
+If you have any problems with this installer, or if using an unsupported OS please refer to [Installation](https://github.com/pry0cc/axiom/wiki/0-Installation).
 
 ## Demo
 In this demo (sped up out of respect for your time ;) ), we show how easy it is to initialize and ssh into a new instance.
