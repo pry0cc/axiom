@@ -16,6 +16,22 @@ linodeid=""
 dropletid=""
 vsiid=""
 
+function help() {
+	echo -e "${BWhite}Usage of axiom-backup${Color_Off}"
+	echo -e "Description: ${Blue} Create a cloud hosted backup of an axiom instance to deploy future axiom instances/fleets with.${Color_Off}"
+	echo -e "Example Usage: ${Blue}axiom-backup${Color_Off}"
+}
+
+for var in "$@"
+do   
+if [[ "$var" == "-h" ]] || [[ "$var" == "--help" ]];
+ then
+  help
+  exit 0
+fi
+done
+
+
 if [[ "$provider" == "linode" ]]; then
 tput setaf 4; echo "Enter the Linode ID to use for axiom-init/axiom-fleet"
 tput setaf 15;linode-cli linodes list
