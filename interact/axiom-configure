@@ -125,14 +125,8 @@ if [ $BASEOS == "Mac" ]; then
          brew install golang
          mkdir -p "${HOME}/go"
          export GOPATH=$HOME/go
-         export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
-         echo "export GOPATH=\$HOME/go" >>~/.zshrc
-         echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
          echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
          echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
- #        echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
-         source ${HOME}/.zshrc
-         SHELL=$(which zsh)
          echo -e "${Blue}Installing jq...${Color_Off}"
          brew install jq
          echo -e "${Blue}Installing Python3...${Color_Off}"
@@ -146,6 +140,8 @@ if [ $BASEOS == "Mac" ]; then
          brew tap hashicorp/tap
          brew install hashicorp/tap/packer
          brew upgrade hashicorp/tap/packer
+         source ${HOME}/.zshrc
+         SHELL=$(which zsh)
 fi
 
 if [ $BASEOS == "Linux" ]; then
@@ -255,4 +251,4 @@ echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
 cd
-echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}" 
+echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
