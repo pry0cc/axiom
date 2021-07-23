@@ -19,8 +19,34 @@ email=""
 # Packer::Azure CLI authentication will use the credential marked as isDefault
 use_azure_cli_auth="true"
 
+BASEOS="$(uname)"
+case $BASEOS in
+'Linux')
+    BASEOS='Linux'
+    ;;
+'FreeBSD')
+    BASEOS='FreeBSD'
+    alias ls='ls -G'
+    ;;
+'WindowsNT')
+    BASEOS='Windows'
+    ;;
+'Darwin')
+    BASEOS='Mac'
+    ;;
+'SunOS')
+    BASEOS='Solaris'
+    ;;
+'AIX') ;;
+*) ;;
+esac
+
 echo -e "${Blue}Installing azure az...${Color_Off}"
+if [ $BASEOS == "Mac" ]; then
+brew update && brew install azure-cli
+else
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+fi
 
 echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
 
