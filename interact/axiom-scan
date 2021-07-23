@@ -2,7 +2,6 @@
 
 ###########################################################################################################
 # Header
-
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
@@ -154,6 +153,7 @@ delete_logs() {
 #  that can be easily switched out in-line or from the module. Look at the nuclei module for an example of _wordlist_ being used in a "simple module" https://github.com/pry0cc/axiom/blob/master/modules/nuclei.json.
 #  Example command: axiom-scan mytargets.txt -m nuclei -w /home/op/my-nuclei-templates-on-remote-server/ -o myresults.txt. Although Nuclei doesnt have a -w
 #  in this case, we are treating Nuclei's -templates(-t) argument as a wordlist (-w). In essence we are overwriting the wordlist argument for all modules, in an attempt to normalize the '-w' for all modules.
+#
 apply_wordlist() {
     command="$1"
     wordlist="$2"
@@ -199,7 +199,7 @@ add_extra_args() {
 ###########################################################################################################
 # divide the the target list by how many instances are selected (axiom-select). Equally distribute the total target list across the fleet.
 # If gee is present, use it over bash. gee is an incredibly useful tool for distribution https://github.com/hahwul/gee <3 hahwul
-
+#
 split_file() {
     file="$1"
     divisor="$2"
