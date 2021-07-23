@@ -55,7 +55,7 @@ function parse_module() {
 
 ###########################################################################################################
 # Help Menu:
-# TODO: fix --quiet ( Slient all output expect results )
+# TODO: fix --quiet ( Slient all output except results )
 # add --rm-duplicates ( remove duplicates from target list, sort -u equivalent  )
 # add --dont-split ( Uploads full target list to every instance )
 # add option to supply different SSH key 
