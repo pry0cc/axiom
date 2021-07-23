@@ -138,10 +138,9 @@ if [ $BASEOS == "Mac" ]; then
          echo -e "${Blue}Installing gowitness...${Color_Off}"
          sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64 && sudo chmod +x /usr/bin/gowitness 
          echo -e "${Blue}Installing packer...${Color_Off}"
-         mkdir -p $(go env GOPATH)/src/github.com/hashicorp && cd $_
-         sudo rm -r packer/ ; git clone https://github.com/hashicorp/packer.git     
-         cd packer
-         make dev
+         brew tap hashicorp/tap
+         brew install hashicorp/tap/packer
+         brew upgrade hashicorp/tap/packer
 fi
 
 if [ $BASEOS == "Linux" ]; then
