@@ -116,6 +116,11 @@ if [ $BASEOS == "Mac" ]; then
          echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
          echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
   fi
+         echo -e 'Setting permissions'
+         sudo chown -R $(whoami) /usr/local/Homebrew 
+         sudo chown -R $(whoami) /usr/local/var/homebrew
+         sudo chown -R $(whoami) /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
+         chmod u+w /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
          echo -e "${Blue}Installing go...${Color_Off}"
          brew install golang
          mkdir -p "${HOME}/go"
@@ -125,7 +130,7 @@ if [ $BASEOS == "Mac" ]; then
          echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
          echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
          echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
-         echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
+ #        echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
          source ${HOME}/.zshrc
          SHELL=$(which zsh)
          echo -e "${Blue}Installing jq...${Color_Off}"
@@ -136,7 +141,7 @@ if [ $BASEOS == "Mac" ]; then
          git clone https://github.com/codingo/Interlace.git /tmp/interlace  
          cd /tmp/interlace && sudo python3 setup.py install 
          echo -e "${Blue}Installing gowitness...${Color_Off}"
-         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64 && sudo chmod +x /usr/bin/gowitness 
+         wget -O /usr/local/bin/ https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64
          echo -e "${Blue}Installing packer...${Color_Off}"
          brew tap hashicorp/tap
          brew install hashicorp/tap/packer
@@ -251,4 +256,3 @@ cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
 cd
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}" 
-
