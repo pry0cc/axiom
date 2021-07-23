@@ -85,7 +85,7 @@ We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for y
 | Kali       |    Yes    | Yes           | Kali 2020.4   |
 | Debian     |    Yes    | Yes           | Debian 10     |
 | Windows    |    Yes    | Yes           | WSL w/ Ubuntu |
-| MacOS      |    Yes    | No            | MacOS 10.15   |
+| MacOS      |    Yes    | Yes           | MacOS 11.4    |
 | Arch Linux |    Yes    | No            | Yes           |
 
 
