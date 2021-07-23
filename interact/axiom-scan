@@ -55,7 +55,14 @@ function parse_module() {
 }
 
 ###########################################################################################################
-# Help Menu: TODO: * fix --quiet * add option to supply different SSH key * exit if the module doesnt exist 
+# Help Menu:
+# TODO: fix --quiet ( Slient all output expect results )
+# add --rm-duplicates ( remove duplicates from target list, sort -u equivalent  )
+# add --dont-split ( Uploads full target list to every instance )
+# add option to supply different SSH key 
+# exit if the module doesnt exist 
+# 
+
 function help() {
         echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
         echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
@@ -339,6 +346,10 @@ pass=()
 keeplogs="true"
 shuffle="true"
 
+
+# Check if -m is in the command, if not, exit
+# TODO: Add check that module exists, if not, exit
+#
 if [[ "$*" != *-m* ]]
 then
   echo -e "\033[0;31m No module for axiom-scan defined. Pass one with -m."
@@ -346,6 +357,8 @@ then
 	exit 1
 fi
 
+# Parse command line arguments 
+#
 i=0
 for arg in "$@"
 do
@@ -498,22 +511,30 @@ do
     fi
 done
 
-# echo banner
+# Display axiom banner and authors 
+#
 echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfXyBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICYgQDB4dGF2aWFuCg==" | base64 -d
 echo -e  "${Color_Off}"
 
+# Exit if the first command like argument isnt a target list
+#
 if [[ ! -f $input ]]; then
 	echo -e "${BRed}Input file does not exist, please specify one as the first argument... ${Color_Off}"
 	help
 	exit 1
 fi
 
+# Debug Flag
+#
 if [[ "$debug" == "true" ]]; then
     set -xv
     silent=""
 fi
 
+# Normalize extension for ffuf and gowitness
+# This might not be requried anymore
+#
 if [[ "$module" =~ "ffuf" ]]; then
     ext="csv"
 fi
@@ -522,6 +543,8 @@ if [[ "$module" == "gowitness" ]]; then
     ext=""
 fi
 
+# Spinup Flag
+#
 if [[ "$spinup" -gt 0 ]]; then
     echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
     "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
@@ -529,10 +552,14 @@ if [[ "$spinup" -gt 0 ]]; then
     sleep 60
 fi
 
+# SSH Cache Flag
+#
 if [[ "$cache" == "false" ]]; then
     generate_sshconfig
 fi
 
+# Create temporary directories and set tmp path to be used for logs
+#
 uid="$module+$(date +%s)"
 tmp="$AXIOM_PATH/tmp/$uid"
 mkdir -p "$tmp/input"
@@ -540,20 +567,25 @@ mkdir -p "$tmp/split"
 mkdir -p "$tmp/output"
 mkdir -p "$tmp/logs"
 
+# Not sure why we cat and then cp the selected.conf to different file names
+# Make a copy of the current SSH config and use it for axiom-scan
+#
 cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
 cp "$AXIOM_PATH/selected.conf" "$tmp/selected.conf"
 cp "$sshconfig" "$tmp/sshconfig" 
-
 sshconfig="$tmp/sshconfig"
 
+# Variables to display about the scan
 input_file="$1"
 total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 lines="$(wc -l "$input_file" | awk '{ print $1 }')"
 
+# Prevents Interlace hangups from hijacking your terminal  
 stty -echoctl
 trap clean_up SIGINT SIGTERM
 
-# Fleet
+# Fleet flag
+#
 if [[ "$fleet" == "" ]]; then
     instances=$(cat "$tmp/hosts")
 else
@@ -568,7 +600,7 @@ fi
 
 ###########################################################################################################
 # Figure out what wordlist to use - default, the module default or the user specified wordlist
-
+#
 module_default_wordlist="$(parse_module "$module" | jq -r '.wordlist?')"
 
 if [[ "$module_default_wordlist" != "" ]]; then
@@ -602,15 +634,21 @@ fi
 
 ###########################################################################################################
 
-# The command to execute on the remote host
+# Parse the default extention from the module
+#
 if [[ "$ext" == "default" ]]; then
     ext="$(parse_module "$module" | jq -r '.ext')"
 fi
 
+# If a wordlist is specified add it to the command
+# Combine commands in the module with the arguments passed from the command line into final command
+#
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
 command="$(apply_wordlist "$command" "$wordlist")"
 command="$(add_extra_args "$command" "$args")"
 
+# Parse default or user specified threads in one-shot modules
+#
 default_threads="$(parse_module "$module" | jq -r '.threads?')"
 if [[ "$default_threads" != "" ]]; then
     threads="$default_threads"
@@ -619,52 +657,81 @@ fi
 if [[ "$user_specified_threads" != "" ]]; then
     threads="$user_specified_threads"
 fi
+
 # Print the command header
 thread_str=""
 
+# If the final command contains the sting _target_, display stats about one-shot modules
+#
 if [[ "$command" =~ "_target_" ]]; then
     thread_str="${BWhite}Threads:${Color_Off} [ ${Red}$threads${Color_Off} ] | "
 fi
 
+# Display some stats prior to scanning
+#
 echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $total_instances [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
 echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | $thread_str${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
 
 # Destination directory on the instances and the command used to SSH to them
+# Add default SSH commands
+# Add default interlace command 
 scan_dir="/home/op/scan/$uid"
 ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no"
 interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
 
+
+
+###########################################################################################################
+# If a one-shot module is used:
+# Prep all the axiom instances by making a unique scan directory 
+# Store Interlace command to execute in a file and upload it to remote instances with axiom-scp
 echo -n -e "${Blue}Building file structure...${Color_Off}"
-# For single shot commands - like nikto, ffuf, or nmap with a single target
 if [[ "$command" =~ "_target_" ]]; then
     $interlace_cmd --no-bar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
     echo "$command" > "$tmp/command"
-#    echo "Uploading Commands..."
     $interlace_cmd --no-bar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
 else
-    # Prep the host by making the scan directory 
+
+###########################################################################################################
+# If a Simple Module is used:
+# Prep all the axiom instances by making a unique scan directory with SSH exec
     $interlace_cmd -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
 fi
 echo -n -e "[ ${Green}OK${Color_Off} ]\n"
 
-# Split up in the input file
+# Call target list split function
+# 
 split_file "$input_file" "$total_instances" "$tmp"
 
+# use axiom-scp to upload each input file to a remote instance
+#
 echo -e "${Blue}Uploading input files...${Color_Off}"
 $interlace_cmd -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _target_:$scan_dir/input --cache -F=$sshconfig >/dev/null 2>&1; touch $tmp/logs/_target_" | grep -v "Gen" 
 
+# Dont tail if interactive is false
+#
 if [[ "$interactive" != "true" ]]; then
     tail -q -f $tmp/logs/* &
     tailPID=$!
 fi
 
+# Execute one shot scan by SSH-ing into each instance and running Interlace command on every remote instance
+#
 if [[ "$command" =~ "_target_" ]]; then
-    # Is single shot mode 
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
     sleep 3
     $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output' >> $tmp/logs/_target_ 2>&1"
+
+
+# Once all the SSH terminals exit, either by finishing its exection or if the session drops, download the results
+# TODO: Dont call axiom-scp just because SSH returns, instead periodically SSH into the instances and determine if the scan has finished and then download
+# https://github.com/pry0cc/axiom/issues/398#issuecomment-884558443
     $interlace_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1"
 else
+
+# Simple module exection and download results
+# TODO: Dont call axiom-scp just because SSH returns, instead periodically SSH into the instances and determine if the scan has finished and then download
+# https://github.com/pry0cc/axiom/issues/398#issuecomment-884558443
     if [[ "$interactive" == "true" ]]; then
         $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command'"
     else
@@ -673,8 +740,12 @@ else
     $interlace_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
 
+# After downloading all the results merge the output 
+#
 merge_output
 
+# Deprovision axiom instances after scan completes if --rm-when-done is in the command
+#
 if [[ "$rm_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/selected.conf");
     do
@@ -687,12 +758,19 @@ end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
+# If delete logs is set to true, execute delete_logs function. 
+#
 if [[ "$keeplogs" == "false" ]]; then
 delete_logs
 fi 
 
+# Move downloaded raw results to log file
+#
 mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
 
+# Display exit stats about the scan such as log directory 
+# Normalize terminal
+#
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
