@@ -6,7 +6,7 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 
 function help() {
 	echo -e "${BWhite}Usage of axiom-sync${Color_Off}"
-        echo -e "Description: ${Blue}Make a copy of an instances home directoy and sync to your local filesystem.${Color_Off}"
+  echo -e "Description: ${Blue}Make a copy of an instances home directoy and sync to your local filesystem.${Color_Off}"
 	echo -e "Example Usage: ${Blue}axiom-sync instance01${Color_Off}"
 	echo -e "  <instance> string"
 	echo -e "    Instance name you wish to backup"
