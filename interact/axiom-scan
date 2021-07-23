@@ -517,7 +517,7 @@ echo -e -n "${BWhite}"
 echo "ICAgICAgICAgICAgICBfCiAgX19fXyBfXyAgX18oXylfX18gIF9fX18gX19fICAgICAgICBfX19fX19fX19fX19fXyBfX19fXwogLyBfXyBgLyB8L18vIC8gX18gXC8gX18gYF9fIFxfX19fX18vIF9fXy8gX19fLyBfXyBgLyBfXyBcCi8gL18vIC8+ICA8LyAvIC9fLyAvIC8gLyAvIC8gL19fX19fKF9fICApIC9fXy8gL18vIC8gLyAvIC8KXF9fLF8vXy98Xy9fL1xfX19fL18vIC9fLyAvXy8gICAgIC9fX19fL1xfX18vXF9fLF8vXy8gL18vCgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAcHJ5MGNjCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICYgQDB4dGF2aWFuCg==" | base64 -d
 echo -e  "${Color_Off}"
 
-# Exit if the first command like argument isnt a target list
+# Exit if the first command line argument doesnt not contain a target list
 #
 if [[ ! -f $input ]]; then
 	echo -e "${BRed}Input file does not exist, please specify one as the first argument... ${Color_Off}"
@@ -632,8 +632,6 @@ if [[ -f "$local_wordlist" ]]; then
     echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
 fi
 
-###########################################################################################################
-
 # Parse the default extention from the module
 #
 if [[ "$ext" == "default" ]]; then
@@ -684,7 +682,7 @@ interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instan
 ###########################################################################################################
 # If a one-shot module is used:
 # Prep all the axiom instances by making a unique scan directory 
-# Store Interlace command to execute in a file and upload it to remote instances with axiom-scp
+# Store Interlace command in a file and upload it to remote instances with axiom-scp
 echo -n -e "${Blue}Building file structure...${Color_Off}"
 if [[ "$command" =~ "_target_" ]]; then
     $interlace_cmd --no-bar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
@@ -699,7 +697,7 @@ else
 fi
 echo -n -e "[ ${Green}OK${Color_Off} ]\n"
 
-# Call target list split function
+# split target list
 # 
 split_file "$input_file" "$total_instances" "$tmp"
 
@@ -715,7 +713,7 @@ if [[ "$interactive" != "true" ]]; then
     tailPID=$!
 fi
 
-# Execute one shot scan by SSH-ing into each instance and running Interlace command on every remote instance
+# Start the one shot scan by SSH-ing into each instance and running the Interlace command on every remote instance
 #
 if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
