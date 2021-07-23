@@ -12,6 +12,28 @@ provider=""
 size=""
 email=""
 
+BASEOS="$(uname)"
+case $BASEOS in
+'Linux')
+    BASEOS='Linux'
+    ;;
+'FreeBSD')
+    BASEOS='FreeBSD'
+    alias ls='ls -G'
+    ;;
+'WindowsNT')
+    BASEOS='Windows'
+    ;;
+'Darwin')
+    BASEOS='Mac'
+    ;;
+'SunOS')
+    BASEOS='Solaris'
+    ;;
+'AIX') ;;
+*) ;;
+esac
+
 echo -e "${Blue}Installing doctl...${Color_Off}"
 if [ $BASEOS == "Mac" ]; then
 brew install doctl
