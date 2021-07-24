@@ -3,49 +3,52 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+instance=""
 
+# help menu
 function help() {
 	echo -e "${BWhite}Usage of axiom-sync${Color_Off}"
   echo -e "Description: ${Blue}Make a copy of an instances home directoy and sync to your local filesystem.${Color_Off}"
-	echo -e "Example Usage: ${Blue}axiom-sync instance01${Color_Off}"
+	echo -e "Example Usage: ${Blue}axiom-sync instance01 instance02${Color_Off}"
 	echo -e "  <instance> string"
 	echo -e "    Instance name you wish to backup"
 	echo -e "  --help (optional)"
 	echo -e "    Displays this menu"
 }
 
-instance="" 
-
-for var in "$@"
-do
-
-if [ -z "$1" ]  || [ "$1" == "--now" ]
- then
-  instance="$(instance_menu)"
- else
-  instance="$1"
-fi
-   
-if [[ "$var" == "-h" ]] || [[ "$var" == "--help" ]];
- then
-  help
-  exit 0
-fi
-done
-
+# take one arugment and downloads the home dir of the instance supplied
+function sync() {
 generate_sshconfig
-
 box_path="$AXIOM_PATH/boxes/$1"
-
 if [ ! -d "$box_path" ]
-then
-    "$AXIOM_PATH"/interact/axiom-boxes new "$1"
+ then
+  "$AXIOM_PATH"/interact/axiom-boxes new "$1"
 fi
 
 echo -e "${BWhite}Syncing $instance to local file system... ${Color_Off}"
-echo -n -e "${Blue}" 
-
+echo -n -e "${Blue}"
 rsync -avzr -e "ssh -F $AXIOM_PATH/.sshconfig" --progress --include-from="$AXIOM_PATH"/boxes/backup-files.txt "$instance":~/ "$AXIOM_PATH"/boxes/"$instance"/
+echo -n -e "${Color_Off}"
+echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}"
+}
 
-echo -n -e "${Color_Off}" 
-echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}" 
+# if no arguments are specified print help menu
+if [ "$1" == "" ]; then
+ help
+ exit
+fi
+
+# if arguments --help or -h are specified print help 
+if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]]; then
+ help
+ exit
+fi
+
+# iterate over the instance supplied and download the home dir recursively
+if [[ ! -z "$1" ]]; then
+for var in "$@"
+do
+ instance=$var
+ sync $1
+done  
+fi
