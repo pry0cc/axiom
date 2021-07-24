@@ -303,7 +303,7 @@ merge_output() {
 wordlist=""
 module=""
 ext="default"
-default_wordlist="/home/op/lists/seclists/Discovery/Web-Content/common.txt"
+default_wordlist="/home/op/nuclei-templates/"
 local_wordlist=""
 user_specified_wordlist=""
 cache="false"
