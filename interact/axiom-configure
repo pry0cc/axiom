@@ -67,7 +67,7 @@ if [ $BASEOS == "Linux" ]; then
         sudo pacman -S fzf packer jq doctl mmv
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync fzf -y 
+        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq 
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -80,7 +80,7 @@ if [ $BASEOS == "Linux" ]; then
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf update && sudo dnf -y mmv install bc fzf git rubypick python3-pip curl net-tools unzip fzf util-linux
+		    sudo dnf update && sudo dnf -y mmv install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
 		    echo -e "${Blue}Installing jq...${Color_Off}"
 		    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
 		    echo -e "${Blue}Installing packer...${Color_Off}"
@@ -92,7 +92,7 @@ if [ $BASEOS == "Linux" ]; then
 
   elif [ $OS == "UbuntuWSL" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc fzf rsync
+        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -127,8 +127,6 @@ if [ $BASEOS == "Mac" ]; then
          brew install golang
          mkdir -p "${HOME}/go"
          export GOPATH=$HOME/go
-         echo -e "${Blue}Installing fzf...${Color_Off}"
-         brew install fzf
          echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
          echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
          echo -e "${Blue}Installing jq...${Color_Off}"
