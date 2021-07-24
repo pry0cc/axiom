@@ -117,8 +117,8 @@ clean_up() {
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache -F=$sshconfig  >/dev/null 2>&1"
 	fi
     merge_output
-    echo -e "${Blue}Killing remote processes${Color_Off}"
-    axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1
+    echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
+    axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1 &
     mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
     if [[ "$keeplogs" != "true" ]]; then
      delete_logs
