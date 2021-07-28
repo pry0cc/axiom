@@ -107,15 +107,8 @@ fi
 
 
 if [ $BASEOS == "Mac" ]; then
-         whereis brew
-  if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
-         echo -e "${Blue}Installing brew...${Color_Off}"
+         echo -e "${Blue}Installing Brew...${Color_Off}"
          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-         echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
-         echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
-         echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
-  fi
          echo -e 'Setting permissions'
          sudo chown -R $(whoami) /usr/local/Homebrew 
          sudo chown -R $(whoami) /usr/local/var/homebrew
@@ -123,6 +116,8 @@ if [ $BASEOS == "Mac" ]; then
          sudo chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions
          chmod u+w /usr/local/share/zsh /usr/local/share/zsh/site-functions
          chmod u+w /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
+         echo -e "${Blue}Installing wget...${Color_Off}"
+         brew install wget
          echo -e "${Blue}Installing go...${Color_Off}"
          brew install golang
          mkdir -p "${HOME}/go"
