@@ -117,9 +117,9 @@ clean_up() {
 		interlace --silent -tL $tmp/hosts -c "axiom-scp _target_:/home/op/scan/$uid/output $tmp/output/_target_.$ext --cache -F=$sshconfig  >/dev/null 2>&1"
 	fi
     merge_output
-    echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
-    axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $tmp/selected.conf | tr '\n' " " )" >/dev/null 2>&1 &
     mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+    echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
+    axiom-orgalorg -C "sudo lsof /home/op/scan/${uid}/  | tail -n +2 | tr -s ' ' | cut -d ' ' -f 2 | xargs sudo kill" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1 &
     if [[ "$keeplogs" != "true" ]]; then
      delete_logs
     fi 
@@ -139,14 +139,18 @@ clean_up() {
 #  axiom can take up a lot of space with logs. When --rm-logs option is present, after the scan is finished or canceled, axiom-orgalorg will delete the remote logs.
 #  To avoid undesirable scan results after merging, we keep the original un-merged scan result as well as the final merged copy. Everything else pertaining to the scan deleted.
 delete_logs() {
-    echo -e "${Blue}Deleting remote logs${Color_Off}"
-    axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1
-    echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output ${Color_Off}"
-    start=$(pwd)
-    cd "$AXIOM_PATH/logs/$uid/" ; ls | grep -v output | xargs rm -r >/dev/null 2>&1
-    cd "$start"
+ echo -e "${Blue}Deleting remote logs in a backgroud job${Color_Off}"
+ axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1 &
+  if [ -d "$AXIOM_PATH/logs/$uid/" ] 
+   then
+   echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
+   start=$(pwd)
+   cd "$AXIOM_PATH/logs/$uid/" ; ls | grep -v output | xargs rm -r >/dev/null 2>&1
+   cd "$start"
+  else
+    echo "Error: log folder does not exist."
+fi
 }
-
 
 ###########################################################################################################
 #  Providing wordlists in modules can be done with _wordlist_, usually something like -w _wordlist_ is provided in the module. Think of this like a placeholder for wordlists
@@ -726,15 +730,15 @@ end=$(date +%s)
 runtime=$((end-begin))
 time=$(formatSeconds $runtime)
 
-# If delete logs is set to true, execute delete_logs function. 
-#
-if [[ "$keeplogs" == "false" ]]; then
-delete_logs
-fi 
-
 # Move downloaded raw results to log file
 #
 mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+
+# If delete logs is set to true, execute delete_logs function.
+#
+if [[ "$keeplogs" == "false" ]]; then
+delete_logs
+fi
 
 # Display exit stats about the scan such as log directory 
 # Normalize terminal
