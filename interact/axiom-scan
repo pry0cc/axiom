@@ -324,16 +324,6 @@ pass=()
 keeplogs="true"
 shuffle="true"
 
-# Check if -m is in the command, if not, exit
-# TODO: Add check that module exists, if not, exit
-#
-if [[ "$*" != *-m* ]]
-then
-  echo -e "\033[0;31m No module for axiom-scan defined. Pass one with -m."
-	help
-	exit 1
-fi
-
 # Parse command line arguments 
 #
 i=0
@@ -498,6 +488,16 @@ echo -e  "${Color_Off}"
 #
 if [[ ! -f $input ]]; then
 	echo -e "${BRed}Input file does not exist, please specify one as the first argument... ${Color_Off}"
+	help
+	exit 1
+fi
+
+# Check if -m is in the command, if not, exit
+# TODO: Add check that module exists, if not, exit
+#
+if [[ "$*" != *-m* ]]
+then
+  echo -e "\033[0;31m No module for axiom-scan defined. Pass one with -m."
 	help
 	exit 1
 fi
