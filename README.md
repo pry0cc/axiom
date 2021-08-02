@@ -148,4 +148,4 @@ The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you
 - [x]  zdns
 - [x]  zmap
 
-And many more! Do you want to add a package to axiom? [Let me know!](https://github.com/pry0cc/axiom/issues)
+And many more! Do you want to add a package to axiom? [Read the wiki!](https://github.com/pry0cc/axiom/wiki/Adding-Simple-Modules)
