@@ -47,7 +47,7 @@ Our third provider for axiom! Please use [this link](https://www.linode.com/?r=2
 
 ## Installation - Easy Install
 
-You should use an OS that supports our [easy install](https://github.com/pry0cc/axiom#installation---easy-install). <br>
+You should use an OS that supports our [easy install](https://github.com/pry0cc/axiom#operating-systems-supported). <br>
 For Linux systems you will also need to install the newest versions of all packages beforehand `sudo apt dist-upgrade`. <br>
 ```
 bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
