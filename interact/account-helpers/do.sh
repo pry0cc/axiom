@@ -117,5 +117,3 @@ fi
 echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
 echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
-$AXIOM_PATH/interact/axiom-provider do
-
