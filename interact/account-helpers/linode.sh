@@ -101,4 +101,3 @@ if [[ "$acc" == "y" ]]; then
   echo -e "${Green}Opened a ticket with Linode support! Please wait patiently for a few hours and when you get an increase run 'axiom-build'!${Color_Off}"
 	echo "View open tickets at: https://cloud.linode.com/support/tickets"
 fi
-$AXIOM_PATH/interact/axiom-provider linode
