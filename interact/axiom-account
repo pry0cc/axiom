@@ -23,7 +23,7 @@ then
 		rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
 		ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
 		provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
-
+    $AXIOM_PATH/interact/account-provider $provider
         if [[ "$provider" == "do" ]];
         then
             token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
