@@ -57,8 +57,8 @@ echo -e "${BGreen}Proxies connected and saved in ./proxychains.conf${Color_Off}"
 
 if [[ "$single_mode" == "true" ]]; then
     echo -e "${Blue}Building haproxy configuration...${Color_Off}"
-    echo -e "FROM haproxy:alpine\nEXPOSE 1337/tcp\nCOPY --chmod=644 haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg" > $tmp/Dockerfile
+    echo -e "FROM haproxy:alpine\nCOPY --chmod=644 haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg" > $tmp/Dockerfile
     sudo docker build -t pry0cc/haproxy $tmp
     echo -e "${BGreen}[*]${Green} Started SOCKS5 Listener on '${Blue}0.0.0.0:1337${BGreen}'... CTRL+C TO EXIT${BGreen}...${Color_Off}"
-    sudo docker run --rm -p 1337:1337 --name axiom-proxy pry0cc/haproxy
+    sudo docker run --rm --network=host --name axiom-proxy pry0cc/haproxy
 fi
