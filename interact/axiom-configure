@@ -50,6 +50,12 @@ case $BASEOS in
 *) ;;
 esac
 
+if test "$(command -v doas)"; then
+	RAISE_PRIV_CMD='doas'
+else
+	RAISE_PRIV_CMD='sudo'
+fi
+
 if [ $BASEOS == "Linux" ]; then
     if $(uname -a | grep -qi "Microsoft"); then
         OS="UbuntuWSL"
@@ -64,44 +70,44 @@ if [ $BASEOS == "Linux" ]; then
 
     if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
         echo -e "${Blue}Congrats, you run arch..."
-        sudo pacman -S fzf packer jq doctl mmv
+        eval $RAISE_PRIV_CMD pacman -S fzf packer jq doctl mmv
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
+        eval $RAISE_PRIV_CMD apt-get update && eval $RAISE_PRIV_CMD apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq 
+        eval $RAISE_PRIV_CMD wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && eval $RAISE_PRIV_CMD chmod +x /usr/bin/jq 
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && eval $RAISE_PRIV_CMD mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
-        cd /tmp/interlace && sudo python3 setup.py install 
+        cd /tmp/interlace && eval $RAISE_PRIV_CMD python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
+        eval $RAISE_PRIV_CMD wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && eval $RAISE_PRIV_CMD chmod +x /usr/bin/gowitness 
 
 	elif [ $OS == "Fedora" ]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf update && sudo dnf -y mmv install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
+		    eval $RAISE_PRIV_CMD dnf update && eval $RAISE_PRIV_CMD dnf -y mmv install bc fzf git rubypick python3-pip curl net-tools unzip util-linux
 		    echo -e "${Blue}Installing jq...${Color_Off}"
-		    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+		    eval $RAISE_PRIV_CMD wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && eval $RAISE_PRIV_CMD chmod +x /usr/bin/jq
 		    echo -e "${Blue}Installing packer...${Color_Off}"
-		    wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+		    wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && eval $RAISE_PRIV_CMD mv packer /usr/bin/ && rm /tmp/packer.zip
 		    echo -e "${Blue}Installing doctl...${Color_Off}"
-		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && eval $RAISE_PRIV_CMD mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
+        eval $RAISE_PRIV_CMD wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && eval $RAISE_PRIV_CMD chmod +x /usr/bin/gowitness 
 
   elif [ $OS == "UbuntuWSL" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync
+        eval $RAISE_PRIV_CMD apt-get update && eval $RAISE_PRIV_CMD apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync
         echo -e "${Blue}Installing jq...${Color_Off}"
-        sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        eval $RAISE_PRIV_CMD wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && eval $RAISE_PRIV_CMD chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && eval $RAISE_PRIV_CMD mv packer /usr/bin/ && rm /tmp/packer.zip
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace 
-        cd /tmp/interlace && sudo python3 setup.py install 
+        cd /tmp/interlace && eval $RAISE_PRIV_CMD python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
+        eval $RAISE_PRIV_CMD wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && eval $RAISE_PRIV_CMD chmod +x /usr/bin/gowitness 
 	fi
 fi
 
@@ -110,10 +116,10 @@ if [ $BASEOS == "Mac" ]; then
          echo -e "${Blue}Installing Brew...${Color_Off}"
          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
          echo -e 'Setting permissions'
-         sudo chown -R $(whoami) /usr/local/Homebrew 
-         sudo chown -R $(whoami) /usr/local/var/homebrew
-         sudo chown -R $(whoami) /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
-         sudo chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions
+         eval $RAISE_PRIV_CMD chown -R $(whoami) /usr/local/Homebrew 
+         eval $RAISE_PRIV_CMD chown -R $(whoami) /usr/local/var/homebrew
+         eval $RAISE_PRIV_CMD chown -R $(whoami) /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
+         eval $RAISE_PRIV_CMD chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions
          chmod u+w /usr/local/share/zsh /usr/local/share/zsh/site-functions
          chmod u+w /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
          echo -e "${Blue}Installing wget...${Color_Off}"
@@ -130,7 +136,7 @@ if [ $BASEOS == "Mac" ]; then
          brew install python3
          echo -e "${Blue}Installing Interlace...${Color_Off}"
          git clone https://github.com/codingo/Interlace.git /tmp/interlace  
-         cd /tmp/interlace && sudo python3 setup.py install 
+         cd /tmp/interlace && eval $RAISE_PRIV_CMD python3 setup.py install 
          echo -e "${Blue}Installing gowitness...${Color_Off}"
          wget -O /usr/local/bin/ https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64
          echo -e "${Blue}Installing packer...${Color_Off}"
@@ -151,7 +157,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    bash)
     echo -e "${Blue}Installing Golang${Color_Off}"
     wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+    eval $RAISE_PRIV_CMD tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
     rm go1.16.3.linux-amd64.tar.gz
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
@@ -167,11 +173,11 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
   break
    ;;
   zsh)
-    sudo apt install zsh
+    eval $RAISE_PRIV_CMD apt install zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     echo -e "${Blue}Installing Golang${Color_Off}"
     wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+    eval $RAISE_PRIV_CMD tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
     rm go1.16.3.linux-amd64.tar.gz
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
