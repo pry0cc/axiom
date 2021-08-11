@@ -19,8 +19,14 @@ read acc
 
 if [[ "$acc" == "n" ]]; then
     echo -e "${Blue}Launching browser with signup page...${Color_Off}"
+    if [ $BASEOS == "Mac" ]; then
+    open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
+    else
+    sudo apt install xdg-utils -y
     xdg-open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
+    fi
 fi
+
 echo -e "${Green}Installing linode-cli\n ${Color_Off}"	
 sudo pip3 install linode-cli --upgrade
 #linode-cli 
