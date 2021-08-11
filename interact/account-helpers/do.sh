@@ -47,7 +47,12 @@ read acc
 
 if [[ "$acc" == "n" ]]; then
     echo -e "${Blue}Launching browser with signup page...${Color_Off}"
+    if [ $BASEOS == "Mac" ]; then
+    open "https://m.do.co/c/bd80643300bd"
+    else
+    sudo apt install xdg-utils -y
     xdg-open "https://m.do.co/c/bd80643300bd"
+    fi
 fi
 	
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
