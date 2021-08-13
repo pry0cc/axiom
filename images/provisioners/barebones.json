@@ -14,7 +14,7 @@
         "echo 'Running dist-uprade'",
         "sudo apt update",
         "DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew dist-upgrade -qq",
-        "echo 'Installing ufw fail2ban net-tools'",
+        "echo 'Installing ufw fail2ban net-tools zsh'",
         "sudo apt install fail2ban ufw net-tools zsh zsh-syntax-highlighting zsh-autosuggestions -y",
         "ufw allow 22",
         "ufw allow 2266",
