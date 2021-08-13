@@ -21,7 +21,7 @@
         "ufw --force enable",
         "echo 'Creating OP user'",
         "useradd -G sudo -s /usr/bin/zsh -m op",
-        "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists /home/op/bin /home/op/.config/ /home/op/work/ /home/op/.config/amass",
+        "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists /home/op/bin /home/op/.config/ /home/op/.cache /home/op/work/ /home/op/.config/amass",
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
         "rm -rf /etc/update-motd.d/*",
