@@ -85,8 +85,8 @@ do
 
     cmd="$1"
     rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
-
-    full="ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
+    sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+    full="ssh -i "~/.ssh/$sshkey" -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
     echo "$full" >> $cmds_file
 	
     i=$((i+1))
