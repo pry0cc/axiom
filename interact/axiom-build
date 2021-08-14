@@ -99,6 +99,22 @@ $AXIOM_PATH/interact/axiom-provider "$provider"
 
 # ###########################################################################################################
 # Check if authorized SSH keys are added to axiom's configs before building
+
+if [ -f ~/.ssh/id_rsa.pub ] ; then
+ echo -e "${Blue}Adding id_rsa.pub key Packer Builder${Color_Off}"
+ cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys 
+elif [ -f ~/.ssh/id_ed25519.pub ] ; then
+ echo -e "${Blue}Adding id_ed25519.pub key Packer Builder${Color_Off}"
+ cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys 
+elif [ -f ~/.ssh/axiomssh.pub ] ; then
+ echo -e "${Blue}Adding axiomssh key Packer Builder${Color_Off}" 
+ cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys 
+else
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiomssh.pub and adding it to Packer Builder${Color_Off}"
+ ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiomssh -q -N ""
+ cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys
+fi
+
 if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
 then
 	echo -e "${BRed}You have no authorized keys file at $AXIOM_PATH/configs/authorized_keys"
