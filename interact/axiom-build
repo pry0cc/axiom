@@ -101,7 +101,7 @@ $AXIOM_PATH/interact/axiom-provider "$provider"
 # Check if authorized SSH keys are added to axiom's configs before building
 
 
-# Check for SSH keys are present and add it to account.json,
+# Check if SSH keys are present and add it to account.json,
 # If no SSH key found generate axiomssh key and add to account.json.
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 if [ -f ~/.ssh/id_rsa.pub ] ; then
