@@ -167,7 +167,8 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
   break
    ;;
   zsh)
-    sudo apt install zsh
+    sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
+    wget https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     echo -e "${Blue}Installing Golang${Color_Off}"
     wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
@@ -208,38 +209,32 @@ mkdir -p "${HOME}/.axiom/tmp/"
 echo -e "${Blue}Configuring your cloud account...${Color_Off}"
 $AXIOM_PATH/interact/axiom-account-setup
 
-if [ -f ~/.ssh/id_rsa.pub ] || [ -f ~/.ssh/id_ed25519.pub ]; then
-    echo -e "${Blue}Detected SSH public key, would you like me to install this for your axiom setup? y/n ${Color_Off}"
-    read ans
-    if [ $ans == "y" ]; then
-        if [ -f ~/.ssh/id_rsa.pub ]; then
-            cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
-        elif [ -f ~/.ssh/id_ed25519.pub ]; then
-            cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
-        fi
-    else    
-        echo -e "${Blue}Would you like to generate a fresh pair? y/n ${Color_Off}"
-        read ans
-        if [ $ans == "y" ]; then
-            ssh-keygen
-            cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
-        
-        else
-            echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
-            exit 0
-        fi
 
-    fi
+# Check if SSH keys are present and add them to account.json, 
+# If no SSH key found generate axiomssh key and add to account.json.
+
+account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+if [ -f ~/.ssh/id_rsa.pub ] ; then
+
+ echo -e "${Blue}Adding id_rsa.pub key Packer Builder${Color_Off}" 
+ jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys            
+
+elif [ -f ~/.ssh/id_ed25519.pub ] ; then
+ echo -e "${Blue}Adding id_ed25519.pub key Packer Builder${Color_Off}" 
+ jq '.sshkey="'id_ed25519'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
+
+elif [ -f ~/.ssh/axiomssh.pub ] ; then
+ echo -e "${Blue}Adding axiomssh key Packer Builder${Color_Off}"
+ jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys           
+
 else
-    echo -e "${Blue}No SSH public key detected, would you like to generate a fresh pair? y/n ${Color_Off}"
-    read ans
-    if [ $ans == "y" ]; then
-        ssh-keygen
-        cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
-    else
-            echo -e "${Blue}Need to provide SSH public key. Exiting...  ${Color_Off}"
-            exit 0
-    fi
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiomssh.pub and adding it to Packer Builder${Color_Off}"
+ ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiomssh -q -N ""
+ jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys
 fi
 
 export PATH="$PATH:$HOME/.axiom/interact"

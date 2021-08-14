@@ -1,11 +1,9 @@
 #!/bin/bash
-
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 rm -r "$HOME/.ssh/sockets" > /dev/null 2>&1
 mkdir -p "$HOME/.axiom/tmp"
-
 function help() {
         echo -e "${BWhite}Usage of axiom-exec${Color_Off}"
         echo -e "Example Usage: ${Blue}axiom-exec 'id' 'my-fleet*' --cache${Color_Off}"
@@ -86,7 +84,12 @@ do
     cmd="$1"
     rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
 
-    full="ssh -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
+    sshkey=$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey | select( . != null )') 
+     if [ -z "$sshkey" ]
+    then
+      sshkey="id_rsa"
+    fi
+    full="ssh -i "~/.ssh/$sshkey" -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
     echo "$full" >> $cmds_file
 	
     i=$((i+1))
