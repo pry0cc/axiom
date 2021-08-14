@@ -117,10 +117,10 @@ elif [ -f ~/.ssh/axiomssh.pub ] ; then
  jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
  cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys
 else
- echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiomssh.pub and adding it to Packer Builder${Color_Off}"
- ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiomssh -q -N ""
- jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/id_rsa.pub and adding it to Packer Builder${Color_Off}"
+ ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
+ jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
 fi
 
 
