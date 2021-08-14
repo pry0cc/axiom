@@ -210,7 +210,7 @@ echo -e "${Blue}Configuring your cloud account...${Color_Off}"
 $AXIOM_PATH/interact/axiom-account-setup
 
 
-# Check for SSH keys are present and add it to account.json, 
+# Check if SSH keys are present and add them to account.json, 
 # If no SSH key found generate axiomssh key and add to account.json.
 
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
