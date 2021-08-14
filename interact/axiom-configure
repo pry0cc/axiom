@@ -66,7 +66,7 @@ if [ $BASEOS == "Linux" ]; then
         echo -e "${Blue}Congrats, you run arch..."
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         # Stated dependencies in the Github-wiki
-        sudo pacman -Syu git ruby curl jq packer doctl rsync --noconfirm
+        sudo pacman -Syu git ruby curl jq packer rsync --noconfirm
         # Other dependencies
         sudo pacman -Syu go python-pip net-tools unzip libxslt bc --noconfirm
         echo -e "${Blue}Installing Interlace...${Color_Off}"

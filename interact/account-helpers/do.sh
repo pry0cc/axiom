@@ -34,11 +34,22 @@ case $BASEOS in
 *) ;;
 esac
 
+
 echo -e "${Blue}Installing doctl...${Color_Off}"
 if [ $BASEOS == "Mac" ]; then
 brew install doctl
-else
-wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+elif [ $BASEOS == "Linux" ]; then
+   if ! command -v lsb_release &> /dev/null; then
+      echo "lsb_release could not be found, unable to determine your distribution"
+      echo "If you are using Arch, please get lsb_release from AUR"
+      exit 1
+   fi
+   OS=$(lsb_release -i | awk '{ print $3 }')
+   if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+      sudo pacman -Syu doctl --noconfirm
+   else
+      wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+   fi
 fi
 
 echo -e "${BGreen}Sign up for an account using this link for 100\$ free credit: https://m.do.co/c/bd80643300bd\nObtain a personal access token from: https://cloud.digitalocean.com/account/api/tokens${Color_Off}"
