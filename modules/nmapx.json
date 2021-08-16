@@ -1,16 +1,16 @@
 [
 	{
-		"command":"sudo nmap -v _target_ -oG _output_/_target_.txt",
+		"command":"sudo nmap -v _target_ -oG _output_/_cleantarget_.txt",
 		"ext":"txt",
         "threads":15
 	},
 	{
-		"command":"sudo nmap -v _target_ -oX _output_/_target_.xml",
+		"command":"sudo nmap -v _target_ -oX _output_/_cleantarget_.xml",
 		"ext":"xml",
         "threads":15
 	},
     {
-		"command":"sudo nmap -v _target_ -oA _output_/_target_",
+		"command":"sudo nmap -v _target_ -oA _output_/_cleantarget_",
 		"ext":"dir",
         "threads":15
     }
