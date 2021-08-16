@@ -84,7 +84,6 @@ export FILES_SMALL="/home/op/lists/seclists/Discovery/Web-Content/raft-small-fil
 
 alias ls=" ls --color -sh"
 alias wclone="wget -H -p -k"
-alias vim="nvim"
 alias nmap="grc nmap"
 
 # added by pipsi (https://github.com/mitsuhiko/pipsi)
