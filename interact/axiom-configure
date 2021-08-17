@@ -64,7 +64,21 @@ if [ $BASEOS == "Linux" ]; then
 
     if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
         echo -e "${Blue}Congrats, you run arch..."
-        sudo pacman -S fzf packer jq doctl mmv
+        echo -e "${Blue}Installing other repo deps...${Color_Off}"
+        # Stated dependencies in the Github-wiki
+        sudo pacman -Syu git ruby curl jq packer rsync --noconfirm
+        # Other dependencies
+        sudo pacman -Syu go python-pip net-tools unzip libxslt bc --noconfirm
+        echo -e "${Blue}Installing Interlace...${Color_Off}"
+        git clone https://github.com/codingo/Interlace.git /tmp/interlace  
+        cd /tmp/interlace && sudo python3 setup.py install 
+        echo -e "${Blue}Installing gowitness...${Color_Off}"
+        # As the $GOPATH and $PATH are set when configuring the shell,
+        # a temporary variable will be used.
+        #
+        # Would probably suffice with running 'go'...
+        GOPATH_TEMP=$(eval which go)
+        eval GOPATH_TEMP get -u github.com/sensepost/gowitness@2.3.6
     elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 

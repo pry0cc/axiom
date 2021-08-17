@@ -43,8 +43,18 @@ if [[ "$acc" == "n" ]]; then
     echo -e "${Blue}Launching browser with signup page...${Color_Off}"
     if [ $BASEOS == "Mac" ]; then
     open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
-    else
-    sudo apt install xdg-utils -y
+    elif [ $BASEOS == "Linux" ]; then
+       if ! command -v lsb_release &> /dev/null; then
+          echo "lsb_release could not be found, unable to determine your distribution"
+          echo "If you are using Arch, please get lsb_release from AUR"
+          exit 1
+       fi
+       OS=$(lsb_release -i | awk '{ print $3 }')
+       if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+          sudo pacman -Syu xdg-utils --noconfirm
+       else
+          sudo apt install xdg-utils -y
+       fi
     xdg-open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
     fi
 fi
