@@ -36,15 +36,17 @@ esac
 
 
 echo -e "${Blue}Installing doctl...${Color_Off}"
-if [ $BASEOS == "Mac" ]; then
+if [[ $BASEOS == "Mac" ]]; then
 brew install doctl
-elif [ $BASEOS == "Linux" ]; then
+elif [[ $BASEOS == "Linux" ]]; then
+OS=$(lsb_release -i | awk '{ print $3 }')
    if ! command -v lsb_release &> /dev/null; then
             echo "ERROR: This install might not work"
             echo "lsb_release could not be found, unable to determine your distribution"
+            OS="unknown-Linux"
+            BASEOS="Linux"
    fi
-   OS=$(lsb_release -i | awk '{ print $3 }')
-   if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+   if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
       sudo pacman -Syu doctl --noconfirm
    else
       wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
