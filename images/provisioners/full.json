@@ -26,7 +26,7 @@
         "useradd -G sudo -s /usr/bin/zsh -m op",
         "mkdir -p /home/op/.ssh /home/op/c2 /home/op/recon/ /home/op/lists /home/op/go /home/op/bin /home/op/.config/ /home/op/.cache /home/op/work/ /home/op/.config/amass",
         "rm -rf /etc/update-motd.d/*",
-        "/bin/su -l op -c 'wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
+        "/bin/su -l op -c 'wget -q https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
         "chown -R op:users /home/op",
         "touch /home/op/.sudo_as_admin_successful",
         "touch /home/op/.cache/motd.legal-displayed",
