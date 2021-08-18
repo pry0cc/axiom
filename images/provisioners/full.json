@@ -183,7 +183,7 @@
         "cd /tmp && wget -q -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.1.0/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
 
         "echo 'Installing google-chrome'",
-        "apt --fix-broken install && wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
+        "git clone https://github.com/scheib/chromium-latest-linux.git && cd chromium-latest-linux && sh update-and-run.sh",
         
         "echo 'Installing gospider'",
         "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/jaeles-project/gospider'",
@@ -258,13 +258,13 @@
         "git clone https://github.com/lgandx/Responder.git /home/op/hashes/responder",
 
         "echo 'Installing RustScan'",
-        "wget -q -O /tmp/rustscan.deb https://github.com/brandonskerritt/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb && dpkg -i /tmp/rustscan.deb",
+        "wget -q -O /tmp/rustscan.deb https://github.com/brandonskerritt/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb && apt install /tmp/rustscan.deb -y",
 
         "echo 'Installing s3scanner'",
         "/bin/su -l op -c 'pip3 install s3scanner'",
 
         "echo 'Installing scrying'",
-        "wget -q -O /tmp/scrying.deb https://github.com/nccgroup/scrying/releases/download/v0.9.0-alpha.2/scrying_0.9.0-alpha.2_amd64.deb && dpkg -i /tmp/scrying.deb",
+        "wget -q -O /tmp/scrying.deb https://github.com/nccgroup/scrying/releases/download/v0.9.0-alpha.2/scrying_0.9.0-alpha.2_amd64.deb && apt install /tmp/scrying.deb -y",
 
         "echo 'Installing shuffledns'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/shuffledns/cmd/shuffledns'",
