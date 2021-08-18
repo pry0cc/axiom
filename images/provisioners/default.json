@@ -67,7 +67,7 @@
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
         "echo 'root:{{ user `op_random_password` }}' | chpasswd",
-        "/bin/su -l op -c 'wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
+        "/bin/su -l op -c 'wget -q https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
         "rm /etc/resolv.conf",
         "rm -rf /etc/update-motd.d/*",
         "mv /tmp/configs/sshd_config /etc/ssh/sshd_config",
