@@ -45,6 +45,7 @@
         "mv /tmp/configs/authorized_keys /home/op/.ssh/authorized_keys",
         "mv /tmp/configs/resolv.conf /etc/resolv.conf",
         "mv /tmp/configs/config.ini /home/op/.config/amass/config.ini",
+        "mv /tmp/configs/tmux-splash.sh /home/op/bin/tmux-splash.sh",
         "chown -R op:users /home/op",
         "chmod 644 /etc/resolv.conf",
         "chattr +i /etc/resolv.conf",
