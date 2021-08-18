@@ -53,6 +53,8 @@ OS=$(lsb_release -i | awk '{ print $3 }')
    fi
 fi
 
+function dosetup(){
+
 echo -e "${BGreen}Sign up for an account using this link for 100\$ free credit: https://m.do.co/c/bd80643300bd\nObtain a personal access token from: https://cloud.digitalocean.com/account/api/tokens${Color_Off}"
 echo -e -n "${Blue}Do you already have a DigitalOcean account? y/n ${Color_Off}"
 read acc 
@@ -134,3 +136,15 @@ fi
 echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
 echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
+
+}
+
+function login(){
+
+echo 'Validating DO API Key'
+validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .do_key)"
+doctl auth init -t $validatetoken || dosetup
+
+}
+
+login
