@@ -38,25 +38,26 @@ case $BASEOS in
 esac
 
 
-if [ $BASEOS == "Linux" ]; then
+if [[ $BASEOS == "Linux" ]]; then
  if $(uname -a | grep -qi "Microsoft"); then
   OS="UbuntuWSL"
  else
- if ! command -v lsb_release &> /dev/null; then
-  echo "lsb_release could not be found, unable to determine your distribution"
-  echo "If you are using Arch, please get lsb_release from AUR"
-  exit 1
+   OS=$(lsb_release -i | awk '{ print $3 }')
+   if ! command -v lsb_release &> /dev/null; then
+            echo "ERROR: This install might not work"
+            echo "lsb_release could not be found, unable to determine your distribution"
+            OS="unknown-Linux"
+            BASEOS="Linux"
  fi
-  OS=$(lsb_release -i | awk '{ print $3 }')
  fi
- if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+ if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
   echo "Needs Conversation"
-   elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
+   elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]]; then
      if ! [ -x "$(command -v ibmcloud)" ]; then
       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
       curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
      fi
-elif [ $OS == "Fedora" ]; then
+elif [[ $OS == "Fedora" ]]; then
   echo "Needs Conversation"
 	 elif [ $OS == "UbuntuWSL" ]; then
      if ! [ -x "$(command -v ibmcloud)" ]; then
@@ -66,7 +67,7 @@ elif [ $OS == "Fedora" ]; then
  fi
 fi
 
-if [ $BASEOS == "Mac" ]; then
+if [[ $BASEOS == "Mac" ]]; then
  whereis brew
   if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
    echo -e "${Blue}Installing brew...${Color_Off}"
