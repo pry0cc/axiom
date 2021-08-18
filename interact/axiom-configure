@@ -83,7 +83,7 @@ OS="Linux"
         eval GOPATH_TEMP get -u github.com/sensepost/gowitness@2.3.6
     elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "Linux" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
+        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq 
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -108,7 +108,7 @@ OS="Linux"
 
   elif [[ $OS == "UbuntuWSL" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
+        sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
