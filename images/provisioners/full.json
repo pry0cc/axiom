@@ -183,7 +183,7 @@
         "cd /tmp && wget -q -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.1.0/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
 
         "echo 'Installing google-chrome'",
-        "wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
+        "apt --fix-broken install && wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && dpkg -i /tmp/chrome.deb",
         
         "echo 'Installing gospider'",
         "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/jaeles-project/gospider'",
