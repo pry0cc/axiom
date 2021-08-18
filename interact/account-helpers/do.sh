@@ -40,9 +40,8 @@ if [ $BASEOS == "Mac" ]; then
 brew install doctl
 elif [ $BASEOS == "Linux" ]; then
    if ! command -v lsb_release &> /dev/null; then
-      echo "lsb_release could not be found, unable to determine your distribution"
-      echo "If you are using Arch, please get lsb_release from AUR"
-      exit 1
+            echo "ERROR: This install might not work"
+            echo "lsb_release could not be found, unable to determine your distribution"
    fi
    OS=$(lsb_release -i | awk '{ print $3 }')
    if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
