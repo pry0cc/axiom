@@ -280,7 +280,7 @@ provider="$(echo $config | jq -r '.provider')"
 mkdir  -p $HOME/.axiom/accounts/
 account=${provider}$(date +%s)
 echo $config > $HOME/.axiom/accounts/$account.json
-cat $HOME/.axiom/accounts/$account.json
+echo $config > $HOME/.axiom/axiom.json
 echo -e "${Blue}Cloud account configuration passed from command line...${Color_Off}"
 fi
 
