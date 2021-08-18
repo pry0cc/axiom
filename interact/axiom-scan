@@ -502,6 +502,28 @@ then
 	exit 1
 fi
 
+# Create temporary directories and set tmp path to be used for logs
+#
+uid="$module+$(date +%s)"
+tmp="$AXIOM_PATH/tmp/$uid"
+mkdir -p "$tmp/input"
+mkdir -p "$tmp/split"
+mkdir -p "$tmp/output"
+mkdir -p "$tmp/logs"
+
+# Not sure why we cat and then cp the selected.conf to different file names
+# Make a copy of the current SSH config and use it for axiom-scan
+#
+cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
+cp "$AXIOM_PATH/selected.conf" "$tmp/selected.conf"
+cp "$sshconfig" "$tmp/sshconfig" 
+sshconfig="$tmp/sshconfig"
+
+# Variables to display about the scan
+input_file="$1"
+total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
+lines="$(wc -l "$input_file" | awk '{ print $1 }')"
+
 # Check total instances does not equal zero
 #
 if [[ "$total_instances" -eq "0" ]]; then
@@ -541,23 +563,6 @@ fi
 if [[ "$cache" == "false" ]]; then
     generate_sshconfig
 fi
-
-# Create temporary directories and set tmp path to be used for logs
-#
-uid="$module+$(date +%s)"
-tmp="$AXIOM_PATH/tmp/$uid"
-mkdir -p "$tmp/input"
-mkdir -p "$tmp/split"
-mkdir -p "$tmp/output"
-mkdir -p "$tmp/logs"
-
-# Not sure why we cat and then cp the selected.conf to different file names
-# Make a copy of the current SSH config and use it for axiom-scan
-#
-cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
-cp "$AXIOM_PATH/selected.conf" "$tmp/selected.conf"
-cp "$sshconfig" "$tmp/sshconfig" 
-sshconfig="$tmp/sshconfig"
 
 # Variables to display about the scan
 input_file="$1"
