@@ -21,14 +21,12 @@
         "ufw allow 22",
         "ufw allow 2266",
         "ufw --force enable",
-
+     
         "echo 'Creating OP user'",
         "useradd -G sudo -s /usr/bin/zsh -m op",
         "mkdir -p /home/op/.ssh /home/op/c2 /home/op/recon/ /home/op/lists /home/op/go /home/op/bin /home/op/.config/ /home/op/.cache /home/op/work/ /home/op/.config/amass",
         "rm -rf /etc/update-motd.d/*",
         "/bin/su -l op -c 'wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
-        "systemctl disable systemd-resolved.service",
-        "systemctl stop systemd-resolved.service",
         "chown -R op:users /home/op",
         "touch /home/op/.sudo_as_admin_successful",
         "touch /home/op/.cache/motd.legal-displayed",
@@ -37,6 +35,8 @@
         "echo 'root:{{ user `op_random_password` }}' | chpasswd",
 
         "echo 'Moving Config files'", 
+        "systemctl disable systemd-resolved.service",
+        "systemctl stop systemd-resolved.service",
         "mv /tmp/configs/sudoers /etc/sudoers", 
         "mv /tmp/configs/bashrc /home/op/.bashrc",
         "mv /tmp/configs/zshrc /home/op/.zshrc",  
