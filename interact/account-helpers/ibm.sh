@@ -83,19 +83,13 @@ if [[ $BASEOS == "Mac" ]]; then
    fi
 fi
 
-
 # packer check
 if [[ ! -f "$HOME/.packer.d/plugins/packer-builder-ibmcloud" ]]; then
- echo -e "${Red}It seems that you don't have the packer plugin for ibm cloud?${Color_Off}"
- echo -n -e "${Blue}Would you like me to install it for you? (https://github.com/IBM/packer-plugin-ibmcloud/):\n y/n >> ${Color_Off}"
- read ans
-if [[ "$ans" == "y" ]]; then
+ echo -n -e "${Blue}Installing IBM Cloud Packer Builder (https://github.com/IBM/packer-plugin-ibmcloud/):\n y/n >> ${Color_Off}"
  os="$(uname -s | tr '[:upper:]' '[:lower:]')"
  mkdir -p ~/.packer.d/plugins/
  wget https://github.com/IBM/packer-plugin-ibmcloud/releases/download/v1.0.1/packer-builder-ibmcloud_1.0.1_linux_64-bit.tar.gz -O - | tar -xz -C ~/.packer.d/plugins/
 fi
-fi
-
 
 function getUsernameAPIkey {
 email=$(cat ~/.bluemix/config.json  | grep Owner | cut -d '"' -f 4)
@@ -186,6 +180,9 @@ echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
 }
 
+# Try to auth with token in account.json
+validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .ibm_cloud_api_key)"
+ibmcloud login --apikey $validatetoken
 
 # then prompt for auth choice if account is not authenticated or if 'build' is passed
 loggedin=$(ibmcloud account show --output json | wc -l)

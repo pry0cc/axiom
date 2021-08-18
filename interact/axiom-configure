@@ -1,7 +1,5 @@
 #!/bin/bash
-
 AXIOM_PATH="$HOME/.axiom"
-
 cat << EOF
 
  ▄▄▄      ▒██   ██▒ ██▓ ▒█████   ███▄ ▄███▓
@@ -20,6 +18,30 @@ Sponsored by SecurityTrails
 Sign up during bug bounty hunter month now!: https://securitytrails.com/bug-bounty-hunters-toolkit?referral_code=axiom
 
 EOF
+
+# Parse command line arguments 
+#
+i=0
+for arg in "$@"
+do
+    i=$((i+1))
+    if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+        set=false
+        if [[ "$i" == 1 ]]; then
+            input="$1"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--config" ]]; then
+            n=$((i+1))
+            config=$(echo ${!n})
+
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+fi
+done
 
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
 echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
@@ -245,12 +267,22 @@ else
     cd $AXIOM_PATH && git pull
 fi
 
+# Config Flag
+#
+if [ -z ${config+x} ]; then
 mkdir -p "${HOME}/.axiom/tmp/"
 "$AXIOM_PATH/interact/account-helpers/generate_amass.sh"
-
 echo -e "${Blue}Configuring your cloud account...${Color_Off}"
 $AXIOM_PATH/interact/axiom-account-setup
-
+else
+echo "Parsing account.json file passed from command line"
+provider="$(echo $config | jq -r '.provider')"
+mkdir  -p $HOME/.axiom/accounts/
+account=${provider}$(date +%s)
+echo $config > $HOME/.axiom/accounts/$account.json
+echo $config > $HOME/.axiom/axiom.json
+echo -e "${Blue}Cloud account configuration passed from command line...${Color_Off}"
+fi
 
 # Check if SSH keys are present and add them to account.json, 
 # If no SSH key found generate axiomssh key and add to account.json.
@@ -281,8 +313,12 @@ fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
+if [ -z ${config+x} ]; then
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
 cd
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+else
+$HOME/.axiom/interact/axiom-account $account
+fi
