@@ -66,7 +66,7 @@
         "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists /home/op/bin /home/op/.config/ /home/op/work/ /home/op/.config/amass",
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
-        "wget -q https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh",
+        "/bin/su -l op -c 'wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
         "rm /etc/resolv.conf",
         "rm -rf /etc/update-motd.d/*",
         "mv /tmp/configs/sshd_config /etc/ssh/sshd_config",
