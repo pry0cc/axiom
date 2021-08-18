@@ -33,6 +33,7 @@
         "touch /home/op/.cache/motd.legal-displayed",
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
+        "echo 'root:{{ user `op_random_password` }}' | chpasswd",
         "/bin/su -l op -c 'wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O - | sh'",
 
         "echo 'Moving Config files'", 
