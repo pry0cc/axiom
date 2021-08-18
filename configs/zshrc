@@ -109,4 +109,3 @@ axiom-implode() {
 }
 
 # enable GF auto-completion
-source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.zsh
