@@ -246,7 +246,7 @@
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
 
         "echo 'Installing proxychains-ng'",
-        "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make && make install && cd .. && sudo rm -r proxychains-ng",
+        "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",
 
         "echo 'Installing puredns'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/d3mondev/puredns/v2'",
