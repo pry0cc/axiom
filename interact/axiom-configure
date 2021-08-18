@@ -84,8 +84,11 @@ if [[ $BASEOS == "Linux" ]]; then
         GOPATH_TEMP=$(eval which go)
         eval GOPATH_TEMP get -u github.com/sensepost/gowitness@2.3.6
     elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]]; then
+       if ! command -v sudo &> /dev/null; then
+        apt update && apt-get install sudo -y -qq
+       fi
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo wget nano -y 
+        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq 
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -110,7 +113,7 @@ if [[ $BASEOS == "Linux" ]]; then
 
   elif [[ $OS == "UbuntuWSL" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo nano wget -y 
+        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo nano wget bsdmainutils -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
