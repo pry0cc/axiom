@@ -116,7 +116,6 @@
         "git clone https://github.com/projectdiscovery/nuclei-templates /home/op/recon/nuclei",
         "echo 'Installing Nuclei'",
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei'",
-        "wget -q -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
         "wget -q -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
         "wget -q -O /home/op/lists/permutations.txt https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw",
         "cd /home/op/.config/ && tar -xf /home/op/.config/nvim.tar.gz",
