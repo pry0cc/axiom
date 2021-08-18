@@ -159,9 +159,24 @@ if [[ $BASEOS == "Mac" ]]; then
 fi
 
 if [[ $BASEOS == "Linux" ]]; then
-
 if [[ $shell == "bash" ]]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
+    rm go1.16.3.linux-amd64.tar.gz
+    mkdir -p "${HOME}/go"
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
+    echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
+    source ${HOME}/.bashrc
+    SHELL=$(which bash)
+    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
+    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
+    source ~/.bashrc 
 else
+
 # Pick your shell
 echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
  PS3="Please select an option : "
@@ -209,7 +224,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
 esac
 done
 fi
-if
+fi
 
 #install gee
 
