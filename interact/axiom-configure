@@ -92,12 +92,12 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq 
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
+        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
+        sudo wget -q -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
 
 	elif [[ $OS == "Fedora" ]]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -117,12 +117,12 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         git clone https://github.com/codingo/Interlace.git /tmp/interlace 
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
+        sudo wget -q -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
 	fi
 fi
 
@@ -152,7 +152,7 @@ if [[ $BASEOS == "Mac" ]]; then
          git clone https://github.com/codingo/Interlace.git /tmp/interlace  
          cd /tmp/interlace && sudo python3 setup.py install 
          echo -e "${Blue}Installing gowitness...${Color_Off}"
-         wget -O /usr/local/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64
+         wget -q -O /usr/local/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64
          echo -e "${Blue}Installing packer...${Color_Off}"
          brew tap hashicorp/tap
          brew install hashicorp/tap/packer
@@ -164,7 +164,7 @@ fi
 if [[ $BASEOS == "Linux" ]]; then
 if [[ $shell == "bash" ]]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
     sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
     rm go1.16.3.linux-amd64.tar.gz
     mkdir -p "${HOME}/go"
@@ -188,7 +188,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    case $choice in
    bash)
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
     sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
     rm go1.16.3.linux-amd64.tar.gz
     mkdir -p "${HOME}/go"
@@ -206,10 +206,10 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    ;;
   zsh)
     sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
-    wget https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
+    wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
     sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
     rm go1.16.3.linux-amd64.tar.gz
     mkdir -p "${HOME}/go"
