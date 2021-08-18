@@ -24,6 +24,7 @@
         "mkdir -p /home/op/.ssh /home/op/c2 /home/op/lists /home/op/bin /home/op/.config/ /home/op/.cache /home/op/work/ /home/op/.config/amass",
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
+        "echo 'root:{{ user `op_random_password` }}' | chpasswd",
         "rm -rf /etc/update-motd.d/*",
         "echo 'Moving Config files'", 
         "mv /tmp/configs/sudoers /etc/sudoers", 
