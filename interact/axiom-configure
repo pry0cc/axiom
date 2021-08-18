@@ -50,19 +50,21 @@ case $BASEOS in
 *) ;;
 esac
 
-if [ $BASEOS == "Linux" ]; then
+if [[ $BASEOS == "Linux" ]]; then
     if $(uname -a | grep -qi "Microsoft"); then
         OS="UbuntuWSL"
     else
+        OS=$(lsb_release -i | awk '{ print $3 }')
         if ! command -v lsb_release &> /dev/null; then
             echo "lsb_release could not be found, unable to determine your distribution"
             echo "If you are using Arch, please get lsb_release from AUR"
-            exit 1
+OS="Linux"
         fi
-        OS=$(lsb_release -i | awk '{ print $3 }')
     fi
 
-    if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+
+
+    if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
         echo -e "${Blue}Congrats, you run arch..."
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         # Stated dependencies in the Github-wiki
@@ -79,7 +81,7 @@ if [ $BASEOS == "Linux" ]; then
         # Would probably suffice with running 'go'...
         GOPATH_TEMP=$(eval which go)
         eval GOPATH_TEMP get -u github.com/sensepost/gowitness@2.3.6
-    elif [ $OS == "Ubuntu" ] || [ $OS == "Debian" ] || [ $OS == "Linuxmint" ] || [ $OS == "Parrot" ] || [ $OS == "Kali" ]; then
+    elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "Linux" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
@@ -92,7 +94,7 @@ if [ $BASEOS == "Linux" ]; then
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
 
-	elif [ $OS == "Fedora" ]; then
+	elif [[ $OS == "Fedora" ]]; then
       	echo -e "${Blue}Installing other repo deps...${Color_Off}"
 		    sudo dnf update && sudo dnf -y install mmv bc fzf git rubypick python3-pip curl net-tools unzip util-linux
 		    echo -e "${Blue}Installing jq...${Color_Off}"
@@ -104,7 +106,7 @@ if [ $BASEOS == "Linux" ]; then
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
 
-  elif [ $OS == "UbuntuWSL" ]; then
+  elif [[ $OS == "UbuntuWSL" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
@@ -119,8 +121,7 @@ if [ $BASEOS == "Linux" ]; then
 	fi
 fi
 
-
-if [ $BASEOS == "Mac" ]; then
+if [[ $BASEOS == "Mac" ]]; then
          echo -e "${Blue}Installing Brew...${Color_Off}"
          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
          echo -e 'Setting permissions'
@@ -155,7 +156,7 @@ if [ $BASEOS == "Mac" ]; then
          SHELL=$(which zsh)
 fi
 
-if [ $BASEOS == "Linux" ]; then
+if [[ $BASEOS == "Linux" ]]; then
 # Pick your shell
 echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
  PS3="Please select an option : "
