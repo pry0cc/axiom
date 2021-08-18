@@ -44,12 +44,13 @@ if [[ "$acc" == "n" ]]; then
     if [ $BASEOS == "Mac" ]; then
     open "https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90"
     elif [ $BASEOS == "Linux" ]; then
-       if ! command -v lsb_release &> /dev/null; then
-          echo "lsb_release could not be found, unable to determine your distribution"
-          echo "If you are using Arch, please get lsb_release from AUR"
-          exit 1
-       fi
-       OS=$(lsb_release -i | awk '{ print $3 }')
+           OS=$(lsb_release -i | awk '{ print $3 }')
+   if ! command -v lsb_release &> /dev/null; then
+            echo "ERROR: This install might not work"
+            echo "lsb_release could not be found, unable to determine your distribution"
+            OS="unknown-Linux"
+            BASEOS="Linux"
+   fi
        if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
           sudo pacman -Syu xdg-utils --noconfirm
        else
