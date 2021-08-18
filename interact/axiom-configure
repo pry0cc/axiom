@@ -60,6 +60,7 @@ if [[ $BASEOS == "Linux" ]]; then
             echo "lsb_release could not be found, unable to determine your distribution"
             OS="Linux"
             BASEOS="Linux"
+            shell="bash"
         fi
     fi
 
@@ -158,6 +159,9 @@ if [[ $BASEOS == "Mac" ]]; then
 fi
 
 if [[ $BASEOS == "Linux" ]]; then
+
+if [[ $shell == "bash" ]]; then
+else
 # Pick your shell
 echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
  PS3="Please select an option : "
@@ -205,6 +209,7 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
 esac
 done
 fi
+if
 
 #install gee
 
