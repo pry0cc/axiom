@@ -2,7 +2,7 @@ export TERM="xterm-256color"
 export ZSH=/home/op/.oh-my-zsh
 
 ZSH_THEME="mrtazz"
-plugins=(dircycle github z autojump rails archlinux zsh-navigation-tools docker vagrant cp ruby)
+plugins=(dircycle github z rails archlinux zsh-navigation-tools docker vagrant cp ruby)
 
 source $ZSH/oh-my-zsh.sh
 source ~/.profile
@@ -88,7 +88,6 @@ alias nmap="grc nmap"
 
 # added by pipsi (https://github.com/mitsuhiko/pipsi)
 export PATH="/home/op/.local/bin:$PATH"
-source /home/op/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 dirs(){
         name=$(echo $1 | unfurl -u domains)
