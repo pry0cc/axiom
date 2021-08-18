@@ -186,6 +186,9 @@ echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
 }
 
+# Try to auth with token in account.json
+validatetoken="$(echo $AXIOM_PATH/account/$title | jq -r '.do')"
+ibmcloud login --apikey $validatetoken
 
 # then prompt for auth choice if account is not authenticated or if 'build' is passed
 loggedin=$(ibmcloud account show --output json | wc -l)
