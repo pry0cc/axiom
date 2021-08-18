@@ -34,11 +34,6 @@ case $BASEOS in
 *) ;;
 esac
 
-echo -e "${BGreen}Sign up for an account using this link for \$20 free credit: https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90\nObtain a personal access token from: https://cloud.linode.com/profile/tokens${Color_Off}"
-echo -e "${Yellow}Warning: You will need to ask Linode support to increase your max image size to 18GB for packer!${Color_off}"
-echo -e -n "${Blue}Do you already have a Linode account? y/n ${Color_Off}"
-read acc 
-
 if [[ "$acc" == "n" ]]; then
     echo -e "${Blue}Launching browser with signup page...${Color_Off}"
     if [ $BASEOS == "Mac" ]; then
@@ -60,9 +55,12 @@ if [[ "$acc" == "n" ]]; then
     fi
 fi
 
-echo -e "${Green}Installing linode-cli\n ${Color_Off}"	
-sudo pip3 install linode-cli --upgrade
-#linode-cli 
+function setuplinode(){
+echo -e "${BGreen}Sign up for an account using this link for \$20 free credit: https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90\nObtain a personal access token from: https://cloud.linode.com/profile/tokens${Color_Off}"
+echo -e "${Yellow}Warning: You will need to ask Linode support to increase your max image size to 18GB for packer!${Color_off}"
+echo -e -n "${Blue}Do you already have a Linode account? y/n ${Color_Off}"
+read acc 
+
 echo -e -n "${Green}Please enter your token (required): \n>> ${Color_Off}"
 read token
 while [[ "$token" == "" ]]; do
@@ -84,7 +82,6 @@ read region
         size="g6-standard-1"
 fi
 
-
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
 
@@ -103,6 +100,7 @@ if [[ "$ans" == "Y" ]]; then
 fi
 
 data="$(echo "{\"do_key\":\"$token\",\"region\":\"$region\",\"provider\":\"linode\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\"}")"
+
 
 echo -e "${BGreen}Profile settings below: ${Color_Off}"
 echo $data | jq
@@ -140,3 +138,21 @@ if [[ "$acc" == "y" ]]; then
   echo -e "${Green}Opened a ticket with Linode support! Please wait patiently for a few hours and when you get an increase run 'axiom-build'!${Color_Off}"
 	echo "View open tickets at: https://cloud.linode.com/support/tickets"
 fi
+}
+
+function login(){
+
+echo -e "${Green}Installing linode-cli\n ${Color_Off}"
+sudo pip3 install linode-cli --upgrade
+echo 'Validating Linode API Key'
+validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .do_key)"
+loggedin=$(curl -s -H "Authorization: Bearer $validatetoken" https://api.linode.com/v4/account | grep Invalid  | wc -l)
+if [ "$loggedin" -eq "0" ] || [ "$1" == "build" ]; then
+exit
+else
+setuplinode
+fi
+
+}
+
+login
