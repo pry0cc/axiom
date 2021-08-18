@@ -64,8 +64,6 @@ if [[ $BASEOS == "Linux" ]]; then
         fi
     fi
 
-
-
     if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
         echo -e "${Blue}Congrats, you run arch..."
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -85,7 +83,12 @@ if [[ $BASEOS == "Linux" ]]; then
         eval GOPATH_TEMP get -u github.com/sensepost/gowitness@2.3.6
     elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]]; then
        if ! command -v sudo &> /dev/null; then
-        apt update && apt-get install sudo -y -qq
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update && apt-get install sudo curl jq tzdata -y -qq
+        ip=$(curl -s https://ifconfig.me/)
+        ln -fs /usr/share/zoneinfo/$(curl ipinfo.io/$ip | jq -r .timezone) /etc/localtime
+        dpkg-reconfigure --frontend noninteractive tzdata
+        
        fi
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
         DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils -y 
