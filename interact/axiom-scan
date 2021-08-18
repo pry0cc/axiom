@@ -502,6 +502,13 @@ then
 	exit 1
 fi
 
+# Check total instances does not equal zero
+#
+if [[ "$total_instances" -eq "0" ]]; then
+   echo "error with number of instances, exiting";
+   exit;
+fi
+
 # Debug Flag
 #
 if [[ "$debug" == "true" ]]; then
