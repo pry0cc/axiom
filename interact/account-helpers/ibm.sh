@@ -181,7 +181,7 @@ $AXIOM_PATH/interact/axiom-account $title
 }
 
 # Try to auth with token in account.json
-validatetoken="$(echo $AXIOM_PATH/account/$title | jq -r '.do')"
+validatetoken="$(echo $AXIOM_PATH/account/$title | jq -r '.ibm_cloud_api_key')"
 ibmcloud login --apikey $validatetoken
 
 # then prompt for auth choice if account is not authenticated or if 'build' is passed
