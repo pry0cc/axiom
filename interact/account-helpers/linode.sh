@@ -41,8 +41,6 @@ if [[ "$acc" == "n" ]]; then
     elif [ $BASEOS == "Linux" ]; then
            OS=$(lsb_release -i | awk '{ print $3 }')
    if ! command -v lsb_release &> /dev/null; then
-            echo "ERROR: This install might not work"
-            echo "lsb_release could not be found, unable to determine your distribution"
             OS="unknown-Linux"
             BASEOS="Linux"
    fi
