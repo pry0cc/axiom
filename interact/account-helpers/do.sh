@@ -137,12 +137,4 @@ $AXIOM_PATH/interact/axiom-account $title
 
 }
 
-function login(){
-
-echo 'Validating DO API Key'
-validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .do_key)"
-doctl auth init -t $validatetoken || dosetup
-
-}
-
-login
+dosetup
