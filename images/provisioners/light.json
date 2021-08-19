@@ -14,6 +14,8 @@
         {
             "type":"shell",
             "inline": [
+                "echo 'Waiting for cloud-init to finish, this can take a few minutes please be patient...'",
+                "/usr/bin/cloud-init status --wait",
                 "fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
                 "add-apt-repository -y ppa:longsleep/golang-backports",
                 "apt-get update -qq",
