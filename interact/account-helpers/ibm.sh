@@ -178,13 +178,6 @@ echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
 }
 
-# Try to auth with token in account.json
-validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .ibm_cloud_api_key)"
-ibmcloud login --apikey $validatetoken
-
-# then prompt for auth choice if account is not authenticated or if 'build' is passed
-loggedin=$(ibmcloud account show --output json | wc -l)
-if [ "$loggedin" -eq "0" ] || [ "$1" == "build" ]; then
 prompt="Choose how to authenticate to IBM Cloud:"
 PS3=$prompt
 types=("SSO" "Username & Password" "API Keys")
@@ -214,4 +207,3 @@ types=("SSO" "Username & Password" "API Keys")
    *) echo "invalid option $REPLY";;
  esac
 done
-fi
