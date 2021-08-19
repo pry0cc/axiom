@@ -27,7 +27,7 @@ then
         if [[ "$provider" == "do" ]];
         then
             token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
-            doctl auth init -t "$token" | grep -vi "using token"
+            doctl auth init -t "$token" || bootstrap
         fi
 
         if [[ "$provider" == "linode" ]]; 
