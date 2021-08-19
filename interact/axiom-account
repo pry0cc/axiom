@@ -27,7 +27,7 @@ then
         if [[ "$provider" == "do" ]];
         then
             token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
-            doctl auth init -t "$token" | grep -vi "using token"
+            doctl auth init -t "$token" || bootstrap
         fi
 
         if [[ "$provider" == "linode" ]]; 
@@ -37,12 +37,16 @@ then
             region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
             mkdir -p "$HOME/.config"
             echo -e "[DEFAULT]\ndefault-user = axiom\n\n[axiom]\ntoken = $token\nregion = $region\ntype = $size\nimage = linode/alpine3.10" > "$HOME/.config/linode-cli"
-            bootstrap
+            unauthed=$(curl -s -H "Authorization: Bearer $token" https://api.linode.com/v4/account | grep Invalid  | wc -l | tr -d ' ')
+            if [[ "$unauthed" == "1" ]]; then
+             bootstrap
+            fi
         fi
 
         if [[ "$provider" == "ibm" ]]; 
         then
-            bootstrap
+           token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
+           ibmcloud login --apikey $token || bootstrap
         fi
 
 		echo -e "${Green}Selected $1 successfully${Color_Off}"

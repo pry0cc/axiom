@@ -138,19 +138,5 @@ if [[ "$acc" == "y" ]]; then
 fi
 }
 
-function login(){
-
-echo -e "${Green}Installing linode-cli\n ${Color_Off}"
-sudo pip3 install linode-cli --upgrade
-echo 'Validating Linode API Key'
-validatetoken="$(cat $AXIOM_PATH/axiom.json | jq -r .do_key)"
-loggedin=$(curl -s -H "Authorization: Bearer $validatetoken" https://api.linode.com/v4/account | grep Invalid  | wc -l)
-if [ "$loggedin" -eq "0" ] || [ "$1" == "build" ]; then
-exit
-else
 setuplinode
-fi
 
-}
-
-login
