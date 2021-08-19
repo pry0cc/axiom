@@ -39,6 +39,7 @@ then
             echo -e "[DEFAULT]\ndefault-user = axiom\n\n[axiom]\ntoken = $token\nregion = $region\ntype = $size\nimage = linode/alpine3.10" > "$HOME/.config/linode-cli"
             unauthed=$(curl -s -H "Authorization: Bearer $token" https://api.linode.com/v4/account | grep Invalid  | wc -l | tr -d ' ')
             if [[ "$unauthed" == "1" ]]; then
+             echo -e "Not authenticated to linode-cli"
              bootstrap
             fi
         fi
@@ -47,6 +48,11 @@ then
         then
            token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
            ibmcloud login --apikey $token || bootstrap
+        fi
+
+        if [[ "$provider" == "azure" ]]; 
+        then
+           az ad signed-in-user show || bootstrap
         fi
 
 		echo -e "${Green}Selected $1 successfully${Color_Off}"
