@@ -45,7 +45,7 @@ then
 
         if [[ "$provider" == "ibm" ]]; 
         then
-           token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+           token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
            ibmcloud login --apikey $token || bootstrap
         fi
 
