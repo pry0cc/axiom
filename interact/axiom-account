@@ -24,11 +24,25 @@ then
 		ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
 		provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
     $AXIOM_PATH/interact/axiom-provider $provider
-        if [[ "$provider" == "do" ]];
-        then
-            token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
-            doctl auth init -t "$token" || bootstrap
-        fi
+        if [[ "$provider" == "do" ]]; then
+        echo -e "${Blue}Installing doctl...${Color_Off}"
+ if [[ $BASEOS == "Mac" ]]; then
+  brew install doctl
+ elif [[ $BASEOS == "Linux" ]]; then
+  OS=$(lsb_release -i | awk '{ print $3 }')
+  if ! command -v lsb_release &> /dev/null; then
+   OS="unknown-Linux"
+   BASEOS="Linux"
+  fi 
+ if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
+  sudo pacman -Syu doctl --noconfirm
+   else
+  wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+  fi
+ fi
+ token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+ doctl auth init -t "$token" || bootstrap
+fi
 
         if [[ "$provider" == "linode" ]]; 
         then
