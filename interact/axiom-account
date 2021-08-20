@@ -32,6 +32,9 @@ then
 
         if [[ "$provider" == "linode" ]]; 
         then
+            
+            echo -e "${Green}Updating linode-cli\n ${Color_Off}"	
+            sudo pip3 install linode-cli --upgrade
             token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
             size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
             region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
