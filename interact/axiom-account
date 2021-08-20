@@ -3,6 +3,29 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 
+BASEOS="$(uname)"
+case $BASEOS in
+'Linux')
+    BASEOS='Linux'
+    ;;
+'FreeBSD')
+    BASEOS='FreeBSD'
+    alias ls='ls -G'
+    ;;
+'WindowsNT')
+    BASEOS='Windows'
+    ;;
+'Darwin')
+    BASEOS='Mac'
+    ;;
+'SunOS')
+    BASEOS='Solaris'
+    ;;
+'AIX') ;;
+*) ;;
+esac
+
+
 accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
 current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 
