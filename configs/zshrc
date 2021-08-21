@@ -53,63 +53,71 @@ function dirs() {
 }
 
 function ctf-tools() {
-    docker run --rm -it zardus/ctf-tools "$@"
+    sudo docker run --rm -it zardus/ctf-tools "$@"
 }
 
 function dockershell() {
-    docker run --rm -i -t --entrypoint=/bin/bash "$@"
+    sudo docker run --rm -i -t --entrypoint=/bin/bash "$@"
 }
 
 function dockershellsh() {
-    docker run --rm -i -t --entrypoint=/bin/sh "$@"
+    sudo docker run --rm -i -t --entrypoint=/bin/sh "$@"
 }
 
 function dockershellhere() {
     dirname=${PWD##*/}
-    docker run --rm -it --entrypoint=/bin/bash -v `pwd`:/${dirname} -w /${dirname} "$@"
+    sudo docker run --rm -it --entrypoint=/bin/bash -v `pwd`:/${dirname} -w /${dirname} "$@"
 }
 
 function dockershellshhere() {
-    docker run --rm -it --entrypoint=/bin/sh -v `pwd`:/${dirname} -w /${dirname} "$@"
+    sudo docker run --rm -it --entrypoint=/bin/sh -v `pwd`:/${dirname} -w /${dirname} "$@"
 }
 
 function dockerwindowshellhere() {
     dirname=${PWD##*/}
-    docker -c 2019-box run --rm -it -v "C:${PWD}:C:/source" -w "C:/source" "$@"
+    sudo docker -c 2019-box run --rm -it -v "C:${PWD}:C:/source" -w "C:/source" "$@"
 }
 
 function impacket() {
-    docker run --rm -it rflathers/impacket "$@"
+    sudo docker run --rm -it rflathers/impacket "$@"
+}
+
+function intrigue-ident() {
+    sudo docker run -t intrigueio/intrigue-ident -u "$@"
 }
 
 function smbservehere() {
     local sharename
     [[ -z $1 ]] && sharename="SHARE" || sharename=$1
-    docker run --rm -it -p 445:445 -v "${PWD}:/tmp/serve" rflathers/impacket smbserver.py -smb2support $sharename /tmp/serve
+    sudo docker run --rm -it -p 445:445 -v "${PWD}:/tmp/serve" rflathers/impacket smbserver.py -smb2support $sharename /tmp/serve
 }
 
 function nginxhere() {
-    docker run --rm -it -p 80:80 -p 443:443 -v "${PWD}:/srv/data" rflathers/nginxserve
+    sudo docker run --rm -it -p 80:80 -p 443:443 -v "${PWD}:/srv/data" rflathers/nginxserve
 }
 
 function webdavhere() {
-    docker run --rm -it -p 80:80 -v "${PWD}:/srv/data/share" rflathers/webdav
+    sudo docker run --rm -it -p 80:80 -v "${PWD}:/srv/data/share" rflathers/webdav
 }
 
 function metasploit() {
-    docker run --rm -it  --network=host metasploitframework/metasploit-framework ./msfconsole "$@"
+    sudo docker run --rm -it  --network=host metasploitframework/metasploit-framework ./msfconsole "$@"
 }
 
 function msfvenomhere() {
-    docker run --rm -it -v "${HOME}/.msf4:/home/msf/.msf4" -v "${PWD}:/data" metasploitframework/metasploit-framework ./msfvenom "$@"
-}
-
-function reqdump() {
-    docker run --rm -it -p 80:3000 rflathers/reqdump
+    sudo docker run --rm -it -v "${HOME}/.msf4:/home/msf/.msf4" -v "${PWD}:/data" metasploitframework/metasploit-framework ./msfvenom "$@"
 }
 
 function postfiledumphere() {
-    docker run --rm -it -p80:3000 -v "${PWD}:/data" rflathers/postfiledump
+    sudo docker run --rm -it -p80:3000 -v "${PWD}:/data" rflathers/postfiledump
+}
+
+function reqdump() {
+    sudo docker run --rm -it -p 80:3000 rflathers/reqdump
+}
+
+function sn0int() { 
+    sudo docker run --rm --init -it -v "/home/op/.sn0int/.cache:/cache" -v "/home/op/.sn0int/.data:/data" kpcyrd/sn0int
 }
 
 function do-axiom-ls() {
