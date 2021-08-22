@@ -111,6 +111,7 @@ function help() {
 #  When CONTROL+C is pressed during a scan, perform exit housekeeping. Allow us to download and merge the available results after canceling
 clean_up() { 
     echo -e "${Green}CTRL+C Interrupt, cleaning up and downloading output..${Color_Off}."
+    $interlace_cmd -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ finished || echo _target_ scan still running but downloading partial results'"
 	if [[ "$command" =~ "_target_" ]]; then
         interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp _target_:/home/op/scan/$uid/output/ $tmp/output/ --cache -F=$sshconfig >> /dev/null"
 	else
