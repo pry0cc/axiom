@@ -10,7 +10,7 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 # Variable Declarations
 region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
-provisioner=""
+provisioner="$1"
 start_time=$(date +%s)
 op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d '\n' | tr -d /)
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
