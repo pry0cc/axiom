@@ -43,11 +43,17 @@ do
 fi
 done
 
+if [ -z ${config+x} ]; then
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
 echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
 read
 echo -e "${Blue}INSTALLING AXIOM...${Color_Off}"
 sleep 1
+else
+echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+echo -e "${Green}Detected account.json passed from command line...${Color_Off}"
+echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
+fi
 
 echo -e "${BWhite}Installing deps! Please wait :) ${Color_Off}"
 BASEOS="$(uname)"
