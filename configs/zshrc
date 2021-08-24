@@ -56,6 +56,10 @@ function ctf-tools() {
     sudo docker run --rm -it zardus/ctf-tools "$@"
 }
 
+function ciphey() {
+    sudo docker run -it --rm remnux/ciphey "$@"
+}
+
 function dockershell() {
     sudo docker run --rm -i -t --entrypoint=/bin/bash "$@"
 }
