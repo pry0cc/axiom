@@ -1,0 +1,4 @@
+[{
+	"command":"xvfb-run scrying -f input --output-dir output",
+	"ext":""
+}]
