@@ -25,7 +25,7 @@ alias ps="grc ps"
 
 
 ZSH_THEME="mrtazz"
-plugins=(doctl encode64 vi-mode dircycle github z autojump rails zsh-navigation-tools docker docker-compose vagrant cp ruby nmap common-aliases)
+plugins=(doctl encode64 vi-mode dircycle github z rails zsh-navigation-tools docker docker-compose vagrant cp ruby nmap common-aliases)
 
 source $ZSH/oh-my-zsh.sh
 source ~/.profile
