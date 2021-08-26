@@ -113,11 +113,14 @@
         "echo 'Installing Arjun'",
         "cd /tmp && git clone https://github.com/s0md3v/Arjun && cd Arjun && sudo python3 setup.py install && cd",
 
-        "echo 'Installing chaos-client'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/projectdiscovery/chaos-client/cmd/chaos'",
-        
         "echo 'Installing cf-check'",
         "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/dwisiswant0/cf-check'",
+
+        "echo 'Installing chaos-client'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/projectdiscovery/chaos-client/cmd/chaos'",
+
+        "echo 'Installing CrackMapExec'",
+        "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme", 
 
         "echo 'Installing commix'",
         "git clone https://github.com/commixproject/commix.git /home/op/recon/commix",
