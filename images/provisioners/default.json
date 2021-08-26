@@ -119,9 +119,6 @@
         "echo 'Installing chaos-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/projectdiscovery/chaos-client/cmd/chaos'",
 
-        "echo 'Installing CrackMapExec'",
-        "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme", 
-
         "echo 'Installing commix'",
         "git clone https://github.com/commixproject/commix.git /home/op/recon/commix",
 
@@ -130,6 +127,9 @@
 
         "echo Installing Corsy",
         "/bin/su -l op -c 'git clone https://github.com/s0md3v/Corsy.git /home/op/recon/Corsy && cd /home/op/recon/Corsy && pip3 install -r requirements.txt && cd'",
+
+        "echo 'Installing CrackMapExec'",
+        "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme", 
 
         "echo 'Installing crlfuzz'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/dwisiswant0/crlfuzz/cmd/crlfuzz'",
