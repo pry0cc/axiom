@@ -78,6 +78,9 @@
     
         "echo 'Installing Wordlists'",
 
+        "echo 'Installing cent'",
+        "git clone https://github.com/xm1k3/cent.git /home/op/lists/cent",
+        
         "echo 'Installing leaky-paths'",
         "git clone https://github.com/ayoubfathi/leaky-paths.git /home/op/lists/leaky-paths",
        
