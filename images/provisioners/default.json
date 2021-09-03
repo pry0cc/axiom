@@ -159,7 +159,7 @@
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/dnsx/cmd/dnsx'",
    
         "echo 'Installing ERLPopper'",
-        "git clone https://github.com/maikthulhu/ERLPopper.git /home/op/ERLPopper",
+        "git clone https://github.com/maikthulhu/ERLPopper.git /home/op/recon/ERLPopper",
 
         "echo 'Installing feroxbuster'",
         "/bin/su -l root -c 'curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/master/install-nix.sh | bash && mv feroxbuster /usr/bin/'",
