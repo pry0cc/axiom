@@ -1,0 +1,4 @@
+[{
+	"command":"python3 /home/op/ERLPopper/erl_brute_by_seed_interval.py input --processes 64 --output output --quiet",
+	"ext":"txt"
+}]
