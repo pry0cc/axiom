@@ -115,7 +115,7 @@ while [[ "$ibm_cloud_api_key" == "" ]]; do
 	echo -e -n "${Green}Please enter your IBM Cloud API key (required): \n>> ${Color_Off}"
 	read ibm_cloud_api_key
 done
-ibmcloud login --apikey=$ibm_cloud_api_key
+ibmcloud login --apikey=$ibm_cloud_api_key --no-region
 getUsernameAPIkey
 }
 
@@ -186,14 +186,14 @@ types=("SSO" "Username & Password" "API Keys")
    case $opt in
    "SSO")
      echo "Attempting to authenticate with SSO!"
-     ibmcloud login --sso
+     ibmcloud login --no-region --sso
      getUsernameAPIkey
      specs
      setprofile
      break
      ;;
   "Username & Password")
-     ibmcloud login
+     ibmcloud login --no-region
      specs
      setprofile
      break

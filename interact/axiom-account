@@ -87,7 +87,7 @@ fi
         if [[ "$provider" == "ibm" ]]; 
         then
            token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
-           ibmcloud login --apikey $token || bootstrap
+           ibmcloud login --apikey $token --no-region || bootstrap
         fi
 
         if [[ "$provider" == "azure" ]]; 
