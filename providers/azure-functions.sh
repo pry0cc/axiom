@@ -290,12 +290,16 @@ list_domains_json() {
 
 	echo "Needs conversion"
     #doctl compute domain list -o json
+	#needs testing @staticbunny
+	#az network dns zone list -o json
 }
 
 # List domains
 list_domains() {
 	echo "Needs conversion"
 	#doctl compute domain list
+	#needs testing @staticbunny
+	#az network dns zone list
 }
 
 list_subdomains() {
@@ -303,6 +307,7 @@ list_subdomains() {
 
 	echo "Needs conversion"
     #doctl compute domain records list $domain -o json | jq '.[]'
+	#az network dns record-set list -g axiom -z $domain
 }
 # get JSON data for snapshots
 
@@ -312,6 +317,7 @@ delete_record() {
 
 	echo "Needs conversion"
     #doctl compute domain records delete $domain $id
+	#az network dns zone delete --name $domain --resource-group axiom
 }
 
 delete_record_force() {
@@ -328,6 +334,77 @@ add_dns_record() {
 
     echo "Needs conversion"
 	#doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
-}
+	#
+	#az network dns zone create --name $domain --resource-group axiom
+	#az network dns record-set a add-record -g axiom -z $domain -n $subdomain -a $ip
 
+}
+storage_account_create (){
+resourceGroupName="axiom"
+storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
+
+if [ ! -f $storageAccountName ]; then
+    echo "Storage Account Found: $storageAccountName"
+else
+    echo "Storage Account not found, creating Storage Account."
+    az storage account create  --name axiomstorageaccount$RANDOM  --resource-group axiom --location eastus --sku Standard_RAGRS --kind StorageV2 --tags "axiom"=True
+fi
+}
+file_share_create (){
+storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
+fileShareName=$(az storage share-rm list --storage-account $storageAccountName --resource-group axiom --query '[].{Name:name}' -o tsv | axiom)
+
+if [ ! -f $fileShareName ]; then
+    echo "FileShare Found: $fileShareName"
+else
+    echo "FileShare not found, creating FileShare."
+    az storage share-rm create --resource-group axiom --storage-account $storageAccountName --name axiom --tags "axiom"=True
+fi
+}
+cred_file_create() {
+credentialRoot="~/.axiom/config"
+storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
+fileShareName=$(az storage share-rm list --storage-account $storageAccountName --resource-group axiom --query '[].{Name:name}' -o tsv | axiom)
+storageAccountKey=$(az storage account keys list --resource-group $resourceGroupName  --account-name $storageAccountName --query "[0].value" | tr -d '"')
+smbCredentialFile="$credentialRoot/$storageAccountName.cred"
+if [ ! -f $smbCredentialFile ]; then
+    echo "username=$storageAccountName" | sudo tee $smbCredentialFile > /dev/null
+    echo "password=$storageAccountKey" | sudo tee -a $smbCredentialFile > /dev/null
+    sudo chmod 600 $smbCredentialFile
+else 
+    echo "The credential file $smbCredentialFile already exists, and was not modified."
+fi
+}
+connect_fileshare(){
+location=$1
+hosts=$2
+credentialRoot="~/.axiom/config"
+storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
+fileShareName=$(az storage share-rm list --storage-account $storageAccountName --resource-group axiom --query '[].{Name:name}' -o tsv | axiom)
+storageAccountKey=$(az storage account keys list --resource-group $resourceGroupName  --account-name $storageAccountName --query "[0].value" | tr -d '"')
+smbCredentialFile="$credentialRoot/$storageAccountName.cred"
+httpEndpoint=$(az storage account show --resource-group $resourceGroupName --name $storageAccountName --query "primaryEndpoints.file" | tr -d '"')
+smbPath=$(echo $httpEndpoint | cut -c7-$(expr length $httpEndpoint))$fileShareName
+storage_account_create
+file_share_create
+cred_file_create
+echo "Copying files to instance(s)"
+#scp $smbCredentialFile "/home/op/.$storageAccountName.cred"
+mntPath=/home/op/cloudstorage
+
+if [ $location == "local" ]
+	then
+		mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+	elif [ "$location" == "fleet" ]
+	then
+		./interact/axiom-exec "$hosts" mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+	elif [ "$location" == "all" ]
+	then
+		mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+		$AXIOM_PATH/interact/axiom-exec "$hosts" mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+	fi
+done
+
+
+}
 
