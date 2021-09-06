@@ -512,6 +512,15 @@ mkdir -p "$tmp/split"
 mkdir -p "$tmp/output"
 mkdir -p "$tmp/logs"
 
+# Spinup Flag
+#
+if [[ "$spinup" -gt 0 ]]; then
+    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
+    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
+    echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
+    sleep 60
+fi
+
 # Not sure why we cat and then cp the selected.conf to different file names
 # Make a copy of the current SSH config and use it for axiom-scan
 #
@@ -548,15 +557,6 @@ fi
 
 if [[ "$module" == "gowitness" ]]; then
     ext=""
-fi
-
-# Spinup Flag
-#
-if [[ "$spinup" -gt 0 ]]; then
-    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
-    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
-    echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
-    sleep 60
 fi
 
 # SSH Cache Flag
