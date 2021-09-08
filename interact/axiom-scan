@@ -209,6 +209,14 @@ file="$1"
 divisor="$2"
 tmp="$3"
 
+# deduplication of input
+dedup="$tmp/split/deduplicated"
+sort -u $file > $dedup
+#now the duplicated file is the new input file
+file=$dedup
+lines="$(wc -l "$file" | awk '{ print $1 }')"
+echo -e "${Blue}Input after deduplication $lines ${Color_Off}"
+
 # if gee is NOT-installed, use bash
 if ! [ -x "$(command -v gee)" ]; then
     lines="$(wc -l "$file" | awk '{ print $1 }')"
