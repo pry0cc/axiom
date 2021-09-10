@@ -347,7 +347,7 @@ if [ ! -f $storageAccountName ]; then
     echo "Storage Account Found: $storageAccountName"
 else
     echo "Storage Account not found, creating Storage Account."
-    az storage account create  --name axiomstorageaccount$RANDOM  --resource-group axiom --location eastus --sku Standard_RAGRS --kind StorageV2 --metadata axiom=true
+    az storage account create  --name axiomstorageaccount$RANDOM  --resource-group axiom --location eastus --sku Standard_RAGRS --kind StorageV2
 fi
 }
 function file_share_create (){
@@ -358,7 +358,7 @@ if [ ! -f $fileShareName ]; then
     echo "FileShare Found: $fileShareName"
 else
     echo "FileShare not found, creating FileShare."
-    az storage share-rm create --resource-group axiom --storage-account $storageAccountName --name axiom --metadata axiom=true
+    az storage share-rm create --resource-group axiom --storage-account $storageAccountName --name axiom
 fi
 }
 function cred_file_create() {
