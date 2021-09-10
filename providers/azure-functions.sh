@@ -361,6 +361,7 @@ else
     az storage share-rm create --resource-group axiom --storage-account $storageAccountName --name axiom
 fi
 }
+#not currently used but can be used for re-mounting after reboot or adding blobfuse support
 function cred_file_create() {
 credentialRoot="~/.axiom/config"
 storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
@@ -377,11 +378,10 @@ fi
 }
 function connect_fileshare(){
 location=$1
-credentialRoot="~/.axiom/config"
 storage_account_create
 file_share_create
 #cred_file_create
-#echo "Copying files to instance(s)"
+#credentialRoot="~/.axiom/config"
 #scp $smbCredentialFile "/home/op/.$storageAccountName.cred"
 mntPath=/home/op/cloudstorage
 storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
@@ -393,21 +393,21 @@ smbPath=$(echo $httpEndpoint | cut -c7-$(expr length $httpEndpoint))$fileShareNa
 if [ $location == "local" ]
 	then
   echo "Connecting drive locally"
-		mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+		mkdir -p $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino,uid=1001,forceuid
 	elif [ "$location" == "fleet" ]
 	then
   echo "Connecting drive on fleet"
-		../interact/axiom-execb "mkdir $mntPath" && ../interact/axiom-execb "sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino"
+		$AXIOM_PATH/interact/axiom-execb "mkdir -p $mntPath" && $AXIOM_PATH/interact/axiom-execb "sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino,uid=1001,forceuid"
 	elif [ "$location" == "all" ]
 	then
     echo "Connecting drive locally"
-    mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+    mkdir -p $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino,uid=1001,forceuid
     echo "Connecting drive on fleet"	
-    ../interact/axiom-execb mkdir $mntPath && ../interact/axiom-execb sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino
+    $AXIOM_PATH/interact/axiom-execb mkdir $mntPath && $AXIOM_PATH/interact/axiom-execb sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino,uid=1001,forceuid
   elif [ "$location" == "manual" ]
 	then
     echo "Run the following command:"
-    echo "mkdir $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino"
+    echo "mkdir -p $mntPath && sudo mount -t cifs $smbPath $mntPath -o username=$storageAccountName,password=$storageAccountKey,dir_mode=0777,serverino,uid=1001,forceuid"
 fi
 }
 
