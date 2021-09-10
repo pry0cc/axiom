@@ -378,19 +378,18 @@ fi
 function connect_fileshare(){
 location=$1
 credentialRoot="~/.axiom/config"
-storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
-fileShareName=$(az storage share-rm list --storage-account $storageAccountName --resource-group axiom --query '[].{Name:name}' -o tsv | grep axiom)
-storageAccountKey=$(az storage account keys list --resource-group axiom  --account-name $storageAccountName --query "[0].value" | tr -d '"')
-smbCredentialFile="$credentialRoot/$storageAccountName.cred"
-httpEndpoint=$(az storage account show --resource-group axiom --name $storageAccountName --query "primaryEndpoints.file" | tr -d '"')
-smbPath=$(echo $httpEndpoint | cut -c7-$(expr length $httpEndpoint))$fileShareName
 storage_account_create
 file_share_create
 #cred_file_create
 #echo "Copying files to instance(s)"
 #scp $smbCredentialFile "/home/op/.$storageAccountName.cred"
 mntPath=/home/op/cloudstorage
-
+storageAccountName=$(az storage account list --query '[].{Name:name}' -o tsv | grep axiomstorageaccount)
+fileShareName=$(az storage share-rm list --storage-account $storageAccountName --resource-group axiom --query '[].{Name:name}' -o tsv | grep axiom)
+storageAccountKey=$(az storage account keys list --resource-group axiom  --account-name $storageAccountName --query "[0].value" | tr -d '"')
+smbCredentialFile="$credentialRoot/$storageAccountName.cred"
+httpEndpoint=$(az storage account show --resource-group axiom --name $storageAccountName --query "primaryEndpoints.file" | tr -d '"')
+smbPath=$(echo $httpEndpoint | cut -c7-$(expr length $httpEndpoint))$fileShareName
 if [ $location == "local" ]
 	then
   echo "Connecting drive locally"
