@@ -1,0 +1,44 @@
+#!/bin/bash
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+rm -r "$HOME/.ssh/sockets" > /dev/null 2>&1
+mkdir -p "$HOME/.axiom/tmp"
+function help() {
+        echo -e "${BWhite}axiom-drive: Creates and mounts remote file share${Color_Off}"
+        echo -e "Example Usage: ${Blue}axiom-drive --local ${Color_Off}"
+        echo -e "  --local  (Only attach drive to local controller)"
+        echo -e "  --fleet  (Only attach drive to remote fleet hosts)"
+        echo -e "  --all    (Attach drive to local controller and all remote hosts)"
+        echo -e "  --manual (Print out command with token for manually connecting drive)"
+
+} 
+#Note: This is a new feature and hasn't been tested rigorously, please submit any issues or enhancement requests https://github.com/pry0cc/axiom/issues @staticbunny
+#To do: Add option for custom file share with login/pass - @staticbunny
+#To do: Add option for blobfuse - @staticbunny
+#To do: Add more options for working with drives such as list drives, list/upload/download files, etc
+if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]]; then
+help
+exit
+fi
+
+selected=$(cat $AXIOM_PATH/selected.conf)
+command="$1"
+
+for var in "$@"
+do
+  if [ "$var" == "--local" ]
+  then
+  connect_fileshare local
+	elif [ "$var" == "--fleet" ]
+	then
+		connect_fileshare fleet
+	elif [ "$var" == "--all" ]
+	then
+		connect_fileshare all
+  elif [ "$var" == "--manual" ]
+	then
+		connect_fileshare manual
+	fi
+done
+
