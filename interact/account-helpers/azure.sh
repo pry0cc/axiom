@@ -53,7 +53,7 @@ OS=$(lsb_release -i | awk '{ print $3 }')
    if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
       curl -L https://aka.ms/InstallAzureCli | bash
    else
-      curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash || sudo apt install azure-cli -y
    fi
 fi
 
