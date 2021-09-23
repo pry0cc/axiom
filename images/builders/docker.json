@@ -1,0 +1,10 @@
+{
+	"builders": [{
+		"type": "docker",
+		"image": "ubuntu:20.04",
+		"commit": "true",
+		"pull": "true"
+
+
+	}]
+}
