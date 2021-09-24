@@ -85,10 +85,10 @@ We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for y
 | OS         | Supported | Easy Install  | Tested        | 
 |------------|-----------|---------------|---------------|
 | Ubuntu     |    Yes    | Yes           | Ubuntu 20.04  |
-| Kali       |    Yes    | Yes           | Kali 2020.4   |
+| Kali       |    Yes    | Yes           | Kali 2021.3   |
 | Debian     |    Yes    | Yes           | Debian 10     |
 | Windows    |    Yes    | Yes           | WSL w/ Ubuntu |
-| MacOS      |    Yes    | Yes           | MacOS 11.4    |
+| MacOS      |    Yes    | Yes           | MacOS 11.6    |
 | Arch Linux |    Yes    | No            | Yes           |
 
 
