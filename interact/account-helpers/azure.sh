@@ -46,7 +46,9 @@ if [ $BASEOS == "Mac" ]; then
 brew update && brew install azure-cli
 fi
 
+
 if [ $BASEOS == "Linux" ] ; then
+
 OS=$(lsb_release -i | awk '{ print $3 }')
    if ! command -v lsb_release &> /dev/null; then
             OS="unknown-Linux"
@@ -64,7 +66,7 @@ sudo apt-get update
 sudo apt-get install azure-cli -y -qq
 fi
 
-if [ $OS == "Arch" ] || [ $OS == "ManjaroLinux" ]; then
+if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
 curl -L https://aka.ms/InstallAzureCli | bash
 fi
 
