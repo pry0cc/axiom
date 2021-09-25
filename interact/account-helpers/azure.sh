@@ -39,7 +39,9 @@ case $BASEOS in
     ;;
 'AIX') ;;
 *) ;;
-esacecho -e "${Blue}Installing azure az...${Color_Off}"
+esac
+
+echo -e "${Blue}Installing azure az...${Color_Off}"
 if [ $BASEOS == "Mac" ]; then
 brew update && brew install azure-cli
 fi
