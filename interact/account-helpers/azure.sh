@@ -58,7 +58,19 @@ sudo apt-get update
 sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg -y -qq
 AZ_REPO=$(lsb_release -cs)
 if [ $AZ_REPO == "kali-rolling" ]; then
-AZ_REPO=buster
+check_version=$(cat /proc/version | awk '{ print $6 $7 }' | tr -d '()' | cut -d . -f 1)
+case $check_version in                                
+  Debian10)
+    AZ_REPO="buster"
+    ;;
+  Debian11)
+    AZ_REPO="bullseye"
+    ;;
+  Debian12)
+    AZ_REPO="bookworm"
+    ;;
+  *)
+esac 
 fi
 curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
