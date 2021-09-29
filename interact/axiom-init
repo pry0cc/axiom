@@ -15,7 +15,7 @@ function help() {
 	echo -e "  <name> string (optional)"
 	echo -e "    Name of the instance, supplied as a positional first argument"
 	echo -e "  --deploy=<profile>"
-	echo -e "    Deploy a profile after initialization (e.g masscan, nmap, gowitness, ffuf)"
+	echo -e "    Deploy a profile after initialization (e.g desktop, openvpn, bbrf, wireguard)"
 	echo -e "  --restore=<backup>"
 	echo -e "    Initialize with a previous backup"
   echo -e "  --shell (optional)"
