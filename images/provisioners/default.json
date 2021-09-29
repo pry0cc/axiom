@@ -56,7 +56,7 @@
         "chmod +x /etc/update-motd.d/00-header",
 
         "echo 'Installing Go'",
-        "wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz && rm go1.16.3.linux-amd64.tar.gz",
+        "wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz",
         "export GOPATH=/home/op/go",
 
         "echo 'Installing Docker'",
@@ -99,13 +99,13 @@
         "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
 
         "echo 'Installing anew'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/anew'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/anew@latest'",
         
         "echo 'Installing anti-burl'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/hacks/anti-burl'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/anti-burl@latest'",
 
         "echo 'Installing assetfinder'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/assetfinder'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/assetfinder@latest'",
 
         "echo 'Installing Amass'",
         "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
@@ -117,31 +117,31 @@
         "cd /tmp && git clone https://github.com/s0md3v/Arjun && cd Arjun && sudo python3 setup.py install && cd",
 
         "echo 'Installing cf-check'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/dwisiswant0/cf-check'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/dwisiswant0/cf-check@latest'",
 
         "echo 'Installing chaos-client'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/projectdiscovery/chaos-client/cmd/chaos'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest'",
 
         "echo 'Installing commix'",
         "git clone https://github.com/commixproject/commix.git /home/op/recon/commix",
 
         "echo 'Installing concurl'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/hacks/concurl'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/concurl@latest'",
 
-        "echo Installing Corsy",
+        "echo 'Installing Corsy'",
         "/bin/su -l op -c 'git clone https://github.com/s0md3v/Corsy.git /home/op/recon/Corsy && cd /home/op/recon/Corsy && pip3 install -r requirements.txt && cd'",
 
         "echo 'Installing CrackMapExec'",
         "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme", 
 
         "echo 'Installing crlfuzz'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/dwisiswant0/crlfuzz/cmd/crlfuzz'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/dwisiswant0/crlfuzz/cmd/crlfuzz@latest'",
 
         "echo 'Installing dalfox'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -u github.com/hahwul/dalfox/v2'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/hahwul/dalfox/v2@latest'",
 
         "echo 'Installing dirdar'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/m4dm0e/dirdar'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/m4dm0e/dirdar@latest'",
 
         "echo 'Installing DNSCewl'",
         "wget -q -O /tmp/DNSCewl https://github.com/codingo/DNSCewl/raw/master/DNScewl && mv /tmp/DNSCewl /usr/bin/DNSCewl && chmod +x /usr/bin/DNSCewl",
@@ -152,11 +152,11 @@
         "echo 'Installing dnsrecon'",
         "/bin/su -l op -c 'git clone https://github.com/darkoperator/dnsrecon.git /home/op/recon/dnsrecon && cd /home/op/recon/dnsrecon && pip3 install -r requirements.txt && cd'",
 
-        "echo Installing dnsvalidator",
+        "echo 'Installing dnsvalidator'",
         "git clone https://github.com/vortexau/dnsvalidator.git /home/op/recon/dnsvalidator && cd /home/op/recon/dnsvalidator/ && sudo python3 setup.py install",
 
         "echo 'Installing dnsx'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/dnsx/cmd/dnsx'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
    
         "echo 'Installing ERLPopper'",
         "git clone https://github.com/maikthulhu/ERLPopper.git /home/op/recon/ERLPopper",
@@ -165,31 +165,31 @@
         "/bin/su -l root -c 'curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/master/install-nix.sh | bash && mv feroxbuster /usr/bin/'",
         
         "echo 'Installing fff'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/fff'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/fff@latest'",
 
         "echo 'Installing ffuf'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/ffuf/ffuf'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/ffuf/ffuf@latest'",
 
         "echo 'Installing findomain-linux'",
         "wget -q -O /tmp/findomain https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-linux && mv /tmp/findomain /usr/bin/findomain && chmod +x /usr/bin/findomain",
 
         "echo 'Installing gau'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -u github.com/lc/gau'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/lc/gau@latest'",
 
         "echo 'Installing gauplus'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -u -v github.com/bp0lr/gauplus'",  
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/bp0lr/gauplus@latest'",  
         
         "echo 'Installing getJS'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/003random/getJS'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/003random/getJS@latest'",
 
         "echo 'Installing gf'",
-        "/bin/su -l op -c 'GO111MODULE=off /usr/local/go/bin/go get -u github.com/tomnomnom/gf'",
+        "/bin/su -l op -c 'GO111MODULE=off /usr/local/go/bin/go install github.com/tomnomnom/gf@latest'",
         
         "echo 'Installing Gf-Patterns'",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
 
         "echo 'Installing github-endpoints'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/gwen001/github-endpoints'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/gwen001/github-endpoints@latest'",
 
         "echo 'Installing gobuster'",
         "cd /tmp && wget -q -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.1.0/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
@@ -198,37 +198,37 @@
         "wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && sudo apt install -y /tmp/chrome.deb -qq && apt --fix-broken install -qq",         
 
         "echo 'Installing gospider'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/jaeles-project/gospider'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/jaeles-project/gospider@latest'",
 
         "echo 'Installing gowitness'",
         "sudo wget -q -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness",
 
         "echo 'Installing gron'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/gron'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/gron@latest'",
 
         "echo 'Installing Gxss'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/KathanP19/Gxss'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/KathanP19/Gxss@latest'",
 
         "echo 'Installing hakrawler'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/hakluke/hakrawler'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/hakluke/hakrawler@latest'",
 
         "echo 'Installing httprobe'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/httprobe@master'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/httprobe@latest'",
 
         "echo 'Installing httpx'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/httpx/cmd/httpx'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/httpx/cmd/httpx@latest'",
 
         "echo 'Installing interactsh-client'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/interactsh/cmd/interactsh-client'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest'",
 
         "echo 'Installing jaeles'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/jaeles-project/jaeles && /home/op/go/bin/jaeles config init'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest && /home/op/go/bin/jaeles config init'",
 
         "echo 'Installing kiterunner'",
         "/bin/su -l root -c 'wget -q https://github.com/assetnote/kiterunner/releases/download/v1.0.2/kiterunner_1.0.2_linux_amd64.tar.gz ; tar -zxvf kiterunner_1.0.2_linux_amd64.tar.gz ; rm kiterunner_1.0.2_linux_amd64.tar.gz ; mv kr /usr/bin/'",
 
         "echo 'Installing kxss'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/hacks/kxss'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/kxss@latest'",
 
         "echo 'Installing LinkFinder'",
         "/bin/su -l op -c 'git clone https://github.com/GerbenJavado/LinkFinder /home/op/recon/LinkFinder && cd /home/op/recon/LinkFinder && pip3 install -r requirements.txt && sudo python3 setup.py install && cd'",
@@ -240,16 +240,16 @@
         "git clone https://github.com/blechschmidt/massdns.git /tmp/massdns; cd /tmp/massdns; make -s; sudo mv bin/massdns /usr/bin/massdns",
 
         "echo 'Installing meg'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/meg'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/meg@latest'",
 
         "echo 'Installing naabu'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/naabu/v2/cmd/naabu'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest'",
 
         "echo 'Installing nmap'",
         "apt-get install nmap -y -qq",
         
         "echo 'Installing nuclei'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest'",
 
         "echo 'Installing OpenRedireX'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX'",
@@ -261,10 +261,10 @@
         "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",
 
         "echo 'Installing puredns'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get github.com/d3mondev/puredns/v2'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/d3mondev/puredns/v2@latest'",
 
         "echo 'Installing qsreplace'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/qsreplace'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/qsreplace@latest'",
 
         "echo 'Installing responder'",
         "git clone https://github.com/lgandx/Responder.git /home/op/hashes/responder",
@@ -279,7 +279,7 @@
         "wget -q -O /tmp/scrying.deb https://github.com/nccgroup/scrying/releases/download/v0.9.0-alpha.2/scrying_0.9.0-alpha.2_amd64.deb && apt install /tmp/scrying.deb -y -qq && apt install xvfb -y -qq",
 
         "echo 'Installing shuffledns'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/shuffledns/cmd/shuffledns'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/shuffledns/cmd/shuffledns@latest'",
 
         "echo 'Installing sn0int'",
         "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list && apt-get update -qq && apt-get install sn0int -y -qq",
@@ -288,13 +288,13 @@
         "git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git /home/op/recon/sqlmap-dev",
 
         "echo 'Installing subjack'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/haccer/subjack/'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/haccer/subjack@latest'",
 
         "echo 'Installing subfinder'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest'",
 
         "echo 'Installing subjs'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go get -u -v github.com/lc/subjs'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/lc/subjs@latest'",
 
         "echo 'Installing testssl'",
         "git clone --depth 1 https://github.com/drwetter/testssl.sh.git /home/op/recon/testssl.sh",
@@ -311,7 +311,7 @@
         "cd /tmp && git clone https://github.com/EnableSecurity/wafw00f && cd wafw00f && sudo python3 setup.py install",
 
         "echo 'Installing waybackurls'",
-        "/bin/su -l op -c '/usr/local/go/bin/go get -u github.com/tomnomnom/waybackurls'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/waybackurls@latest'",
 
         "echo 'Installing webscreenshot'",
         "/bin/su -l op -c 'pip3 install webscreenshot'",

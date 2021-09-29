@@ -7,7 +7,6 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 begin=$(date +%s)
-rm -r $HOME/.ssh/sockets > /dev/null 2>&1
 start="$(pwd)"
 BASEOS="$(uname)"
 
@@ -129,7 +128,7 @@ clean_up() {
     time=$(formatSeconds $runtime)
     echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
     echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
-    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\"}"  >> $AXIOM_PATH/stats.log
     kill -9 $tailPID
     stty sane
     tput init
@@ -215,9 +214,9 @@ if ! [ -x "$(command -v gee)" ]; then
     lines_per_file=$(expr $lines / $divisor)
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
  
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+# randomize the target list. To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
 if [[ "$shuffle" != "false" ]]; then
-perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
+    shuf "$file" > "$tmp/split/targets"
 else
 cp "$file" "$tmp/split/targets"
 fi
@@ -239,11 +238,11 @@ else
 # if gee is installed make sure its up to date, use gee to split the file. 
 GO111MODULE=on go get -v github.com/hahwul/gee >/dev/null 2>&1
 escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+# randomize the target list. To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
 if [[ "$shuffle" != "false" ]]; then
-perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+    shuf "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 else
-cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+    cat "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 fi
     total=$(ls $tmp/input | wc -l)
 fi
@@ -305,6 +304,7 @@ merge_output() {
 
 ###########################################################################################################
 # Declare defaut variables
+starttime=$(date +"%F-TIME-%T")
 wordlist=""
 module=""
 ext="default"
@@ -512,6 +512,15 @@ mkdir -p "$tmp/split"
 mkdir -p "$tmp/output"
 mkdir -p "$tmp/logs"
 
+# Spinup Flag
+#
+if [[ "$spinup" -gt 0 ]]; then
+    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
+    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
+    echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
+    sleep 60
+fi
+
 # Not sure why we cat and then cp the selected.conf to different file names
 # Make a copy of the current SSH config and use it for axiom-scan
 #
@@ -548,15 +557,6 @@ fi
 
 if [[ "$module" == "gowitness" ]]; then
     ext=""
-fi
-
-# Spinup Flag
-#
-if [[ "$spinup" -gt 0 ]]; then
-    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
-    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
-    echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
-    sleep 60
 fi
 
 # SSH Cache Flag
@@ -762,7 +762,7 @@ fi
 #
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
-echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"time\":\"$time\"}" >> $AXIOM_PATH/stats.log
+echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\"}"  >> $AXIOM_PATH/stats.log
 kill -9 $tailPID
 stty sane
 tput init

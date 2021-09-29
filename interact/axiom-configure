@@ -180,6 +180,8 @@ if [[ $BASEOS == "Mac" ]]; then
          echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
          echo -e "${Blue}Installing jq...${Color_Off}"
          brew install jq
+         echo -e "${Blue}Installing coreutils...${Color_Off}"
+         brew install coreutils
          echo -e "${Blue}Installing Python3...${Color_Off}"
          brew install python3
          echo -e "${Blue}Installing Interlace...${Color_Off}"
