@@ -10,7 +10,7 @@
 "mkdir -p /home/op/.vnc/",
 "curl -sL https://raw.githubusercontent.com/pry0cc/axiom/master/configs/xstartup > /home/op/.vnc/xstartup",
 "sudo chmod +x /home/op/.vnc/xstartup",
-"echo $(cat /dev/urandom| base64 | head -c 8 | tr -d '+=-' | tr -d '\n' | tr -d /) | tee /home/op/vncpass | vncpasswd -f | sudo tee /home/op/.vnc/passwd > /dev/null",
+"echo $(cat /dev/urandom| base64 | tr -d '+=-' | tr -d '\n' | tr -d / | head -c 8) | tee /home/op/vncpass | vncpasswd -f | sudo tee /home/op/.vnc/passwd > /dev/null",
 "sudo chown -R op:op /home/op/.vnc",
 "chmod 0600 /home/op/.vnc/passwd",
 "sudo killall Xtightvnc > /dev/null",
