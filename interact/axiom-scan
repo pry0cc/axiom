@@ -9,6 +9,12 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 begin=$(date +%s)
 start="$(pwd)"
 BASEOS="$(uname)"
+case $BASEOS in
+'Darwin')
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+*) ;;
+esac
 
 ###########################################################################################################
 # Functions
