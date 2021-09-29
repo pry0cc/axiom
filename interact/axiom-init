@@ -17,7 +17,19 @@ function help() {
 	echo -e "  --deploy=<profile>"
 	echo -e "    Deploy a profile after initialization (e.g masscan, nmap, gowitness, ffuf)"
 	echo -e "  --restore=<backup>"
-	echo -e "    Output to default output (whatever that is for the module)"
+	echo -e "    Initialize with a previous backup"
+  echo -e "  --shell (optional)"
+  echo -e "    Connect to instance after initialization"
+  echo -e "  --uregion=<region>"                                                          
+  echo -e "    User specified region to use (default is to use region in ~/.axiom/account/account.json)"
+  echo -e "  --size=<vm size>"                                                           
+  echo -e "    VM size to use  (default is to use size in ~/.axiom/account/account.json)"
+  echo -e "  --image=<image id>"
+  echo -e "    Manually set the image id (default is to use image id in ~/.axiom/account/account.json)"
+  echo -e "  --domain=<example.com>"
+  echo -e "    Manually specify the domain to use (default is specified by cloud provider)"
+  echo -e "  --no-select (optional)"
+  echo -e "    Dont select instance after initialization (default is to select instance)"
 	echo -e "  --help"
 	echo -e "    Display this help menu"
 }
@@ -258,4 +270,3 @@ fi
 #fi
 
 $AXIOM_PATH/interact/header.sh
-
