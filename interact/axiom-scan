@@ -214,9 +214,9 @@ if ! [ -x "$(command -v gee)" ]; then
     lines_per_file=$(expr $lines / $divisor)
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
  
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+# randomize the target list. To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
 if [[ "$shuffle" != "false" ]]; then
-perl -MList::Util -e 'print List::Util::shuffle <>' "$file" > "$tmp/split/targets"
+    shuf "$file" > "$tmp/split/targets"
 else
 cp "$file" "$tmp/split/targets"
 fi
@@ -238,11 +238,11 @@ else
 # if gee is installed make sure its up to date, use gee to split the file. 
 GO111MODULE=on go get -v github.com/hahwul/gee >/dev/null 2>&1
 escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# randomize the target list the best way I know how, with Perl! To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+# randomize the target list. To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
 if [[ "$shuffle" != "false" ]]; then
-perl -MList::Util -e 'print List::Util::shuffle <>' "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+    shuf "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 else
-cat "$file" | gee -distribute $(cat $tmp/selected.conf  | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
+    cat "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 fi
     total=$(ls $tmp/input | wc -l)
 fi
