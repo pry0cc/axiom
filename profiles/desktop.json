@@ -1,0 +1,25 @@
+{
+"name":"desktop",
+"description":"Ubuntu Desktop VNC over SSH",
+"install": [
+"/usr/bin/cloud-init status --wait",
+"sudo apt-get update -qq && sudo apt-get upgrade -y -qq && sudo apt --fix-broken install -qq",
+"sudo DEBIAN_FRONTEND=noninteractive apt-get install xfce4 xfce4-goodies ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal -y -qq",
+"sudo apt --fix-broken install -qq",
+"sudo apt install tightvncserver -y -qq",
+"mkdir -p /home/op/.vnc/",
+"curl -sL https://raw.githubusercontent.com/pry0cc/axiom/master/configs/xstartup > /home/op/.vnc/xstartup",
+"sudo chmod +x /home/op/.vnc/xstartup",
+"echo $(cat /dev/urandom| base64 | head -c 8 | tr -d '+=-' | tr -d '\n' | tr -d /) | tee /home/op/vncpass | vncpasswd -f | sudo tee /home/op/.vnc/passwd > /dev/null",
+"sudo chown -R op:op /home/op/.vnc",
+"chmod 0600 /home/op/.vnc/passwd",
+"sudo killall Xtightvnc > /dev/null",
+"vncserver -localhost -geometry 1024x768",
+"echo ''",
+"echo 'Password for VNC is:' $(cat /home/op/vncpass)"
+    ],
+    "uninstall":[
+        "sudo apt-get purge xfce4 xfce4-goodies ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal -y"
+    ],
+    "notes":"Password for VNC is in the output above. To port forward VNC run: axiom-ssh testy01 -L 5901:localhost:5901"
+}
