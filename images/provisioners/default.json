@@ -161,6 +161,9 @@
         "echo 'Installing ERLPopper'",
         "git clone https://github.com/maikthulhu/ERLPopper.git /home/op/recon/ERLPopper",
 
+        "echo 'Installing exclude-cdn'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/Cgboal/exclude-cdn@latest'",
+
         "echo 'Installing feroxbuster'",
         "/bin/su -l root -c 'curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/master/install-nix.sh | bash && mv feroxbuster /usr/bin/'",
         
