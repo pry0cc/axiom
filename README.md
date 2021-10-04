@@ -85,7 +85,7 @@ Or buy me a coffee to keep me powered :)
 <a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" ></a>
 
 ## Sponsored By SecurityTrails!
-<img src="https://securitytrails.com/images/logo.png" width="300">
+<img src="https://securitytrails.com/images/logo.png">
 We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for your free account <a href="https://securitytrails.com/app/signup?utm_source=axiom">here!</a>
 
 ---
