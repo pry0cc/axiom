@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="screenshots/logov2.png" alt="axio m" width="530px"></a>
+  <img src="screenshots/axiom_banner.png" alt="axiom"></a>
   <br>
 </h1>
 
@@ -10,7 +10,7 @@
 
 
 <p align="center">
-<a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="https://github.com/projectdiscovery/nuclei/raw/367d12700e252ec7066c79b1b97a6427544d931c/static/read-the-docs-button.png" height="42px"/></a>
+<a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="screenshots/Referrals/axiom_docs.png"/></a>
 </p>
 
 **Axiom is a dynamic infrastructure framework** to efficiently work with multi-cloud environments, build and deploy repeatable infrastructure focussed on offensive and defensive security. 
@@ -41,10 +41,20 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd) 
 
 <p align="center">
-<a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/credit.png" height="42px"/></a></p>
+<a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/digitalocean_referral.png"/></a></p>
   
 ## Linode $20 Free Credit
 Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for $20 free credit on Linode :) 
+<p align="center">
+<a href="https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/linode_referral.png"/></a></p>
+
+## Azure $100 Free Credit
+<p align="center">
+<a href="https://www.azure.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/azure_referral.png" screenshots/Referrals/azure_referral.png/></a></p>
+
+## IBM Cloud $100 Free Credit
+<p align="center">
+<a href="https://cloud.ibm.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/ibm_cloud_referral.png" screenshots/Referrals/azure_referral.png/></a></p>
 
 ## Installation - Docker
 ```
