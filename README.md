@@ -36,8 +36,7 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 -   [Scan Modules](https://github.com/pry0cc/axiom/wiki/Scans#example-axiom-scan-modules)
 -   [Contributors](#contributors)
 
-## $100 Free Credit
-
+## Digital Ocean $100 Free Credit
 The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd) 
 
 <p align="center">
@@ -83,7 +82,7 @@ If you like Axiom and it saves you time, money or just brings you happy feelings
 
 Or buy me a coffee to keep me powered :)
 
-<a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" style="height: 5px !important;width: 25px !important;" ></a>
+<a href="https://www.buymeacoffee.com/pry0cc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" ></a>
 
 ## Sponsored By SecurityTrails!
 <img src="https://securitytrails.com/images/logo.png" width="300">
@@ -109,8 +108,10 @@ We've had some really fantastic additions to axiom, great feedback through issue
 
 A list of all contributors can be found [here](https://github.com/pry0cc/axiom/graphs/contributors), thank you all!
 
-## Logo
-The logo was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you for making axiom look sleek as hell! Really beats my homegrown logo :)
+## Art
+The [original logo](https://github.com/pry0cc/axiom/commit/9ab2cc30910cc39e1e9db325877530b4f3716e38) was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you for making axiom look sleek as hell! Really beats my homegrown logo :)
+
+The awesome referral banners were inspired by [fleex](https://github.com/FleexSecurity/fleex) and were made by the one and only [xm1k3](https://github.com/xm1k3)!
 
 # Packages To Date
 
