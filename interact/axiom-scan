@@ -78,6 +78,8 @@ function help() {
         echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
         echo -e "  --dont-shuffle (optional)"
         echo -e "    Do not randomize input file before uploading (default is to randomize)"
+        echo -e "  --dont-split (optional)"
+        echo -e "    Do not split input file, upload entire input file to every instance (default is to split)"
         echo -e "  -wL /path/to/local"
         echo -e "    Wordlist Local to use to scan with (must be a path to a local wordlist)"
         echo -e "  -w /path/to/wordlist/on/instance"
@@ -88,8 +90,8 @@ function help() {
         echo -e "    Output in XML/HTML, supported in (nmap & masscan)"
         echo -e "  -oG string"
         echo -e "    Output to greppable output (will merge and sort unique)"
-        echo -e "  -oD string"
-        echo -e "    Output to a directory"
+        echo -e "  -oD/-oA string"
+        echo -e "    Output results to directory"
         echo -e "  -F string (optional)"
         echo -e "    Custom SSH configuration file to launch fleet from"
         echo -e "  --fleet string (optional)"
@@ -134,7 +136,7 @@ clean_up() {
     time=$(formatSeconds $runtime)
     echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
     echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
-    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\"}"  >> $AXIOM_PATH/stats.log
+    echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"command\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\",\"status\":\"canceled\"}"  >> $AXIOM_PATH/stats.log
     kill -9 $tailPID
     stty sane
     tput init
@@ -259,7 +261,9 @@ fi
 # If only supplying -o as an output argument via the command line, the output format will default to the first extension mentioned in the module.
 merge_output() {
     if [[ "$anew" != "true" ]];  then
-        rm -rf "$outfile"
+     if [ -f "$outfile" ] ; then
+      rm -rf "$outfile"
+     fi
     fi
     if [[ "$ext" == "txt" ]]; then
         echo "Mode set to txt.. Sorting unique."
@@ -286,7 +290,9 @@ merge_output() {
             echo "Mode set to directory... Merging directories..."
             mkdir $tmp/merge
             find $tmp/output -type f -print0 | xargs -0 -I{} cp --backup=t {} $tmp/merge
-            rm -rf "$outfile"
+            if [ -f "$outfile" ] ; then
+             rm -rf "$outfile"
+            fi
             mv $tmp/merge "$outfile"
         if [[ "$module" == "gowitness" ]]; then
             echo "Downloading gowitness databases..."
@@ -301,8 +307,11 @@ merge_output() {
             find . -name "*.txt" | xargs cat | sort -u > $outfile/final_naabu.txt
             echo "Merging Nmap XML output..."
             "$AXIOM_PATH/interact/merge-xml.py" -d "$outfile" -o "$outfile/final_nmap.xml" >> /dev/null
+           if [ -f "$outfile" ] ; then
             rm -rf $outfile/naabu*
             rm -rf $outfile/nmap*
+           fi
+
             echo -e "${Green}Done: '${Blue}Merging both naabu ouput and nmap${Color_Off}'"
         fi
     fi
@@ -330,6 +339,7 @@ args=""
 pass=()
 keeplogs="true"
 shuffle="true"
+split="true"
 
 # Parse command line arguments 
 #
@@ -417,7 +427,7 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "-oD" ]]; then
+        if [[ "$arg" == "-oD" ]] || [[ "$arg" == "-oA" ]]; then
             n=$((i+1))
             ext="dir"
             outfile=$(echo ${!n})
@@ -475,6 +485,11 @@ do
         fi
         if [[ "$arg" == "--dont-shuffle" ]]; then
             shuffle="false"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--dont-split" ]]; then
+            split="false"
             set=true
             pass+=($i)
         fi
@@ -691,9 +706,13 @@ else
 fi
 echo -n -e "[ ${Green}OK${Color_Off} ]\n"
 
-# split target list
+# split target list or copy target list
 # 
-split_file "$input_file" "$total_instances" "$tmp"
+if [[ "$split" == "true" ]]; then
+    split_file "$input_file" "$total_instances" "$tmp"
+    else
+    for i in $(echo $instances); do cp "$input_file" $tmp/input/$i ; done 
+fi
 
 # use axiom-scp to upload each input file to a remote instance
 #
@@ -768,7 +787,7 @@ fi
 #
 echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines targets ]${Color_Off}"
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
-echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"commmand\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\"}"  >> $AXIOM_PATH/stats.log
+echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"command\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\",\"status\":\"completed\"}"  >> $AXIOM_PATH/stats.log
 kill -9 $tailPID
 stty sane
 tput init
