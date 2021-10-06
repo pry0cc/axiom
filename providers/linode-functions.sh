@@ -260,6 +260,8 @@ generate_sshconfig() {
   
 	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
   echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+  echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
 
 	for name in $(echo "$droplets" | jq -r '.[].label')
 	do 
