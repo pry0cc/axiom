@@ -255,7 +255,7 @@
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest'",
 
         "echo 'Installing OpenRedireX'",
-        "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX'",
+        "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX && pip3 install aiohttp -q' ",
 
         "echo 'Installing ParamSpider'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
