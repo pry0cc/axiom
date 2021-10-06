@@ -100,7 +100,7 @@ if [[ $BASEOS == "Linux" ]]; then
         # Other dependencies
         sudo pacman -Syu go python-pip net-tools unzip libxslt bc --noconfirm
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -f /tmp/interlace  
+        rm -fr /tmp/interlace  
         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -126,7 +126,7 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing packer...${Color_Off}"
         wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -f /tmp/interlace 
+        rm -fr /tmp/interlace 
         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -152,7 +152,7 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing packer...${Color_Off}"
         wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -f /tmp/interlace  
+        rm -fr /tmp/interlace  
         git clone https://github.com/codingo/Interlace.git /tmp/interlace 
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -185,7 +185,7 @@ if [[ $BASEOS == "Mac" ]]; then
          echo -e "${Blue}Installing Python3...${Color_Off}"
          brew install python3
          echo -e "${Blue}Installing Interlace...${Color_Off}"
-         rm -f /tmp/interlace  
+         rm -fr /tmp/interlace  
          git clone https://github.com/codingo/Interlace.git /tmp/interlace  
          cd /tmp/interlace && sudo python3 setup.py install 
          echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -200,10 +200,10 @@ fi
 
 if [[ $BASEOS == "Linux" ]]; then
 if [[ $shell == "bash" ]]; then
+    if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-    rm go1.16.3.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
@@ -225,9 +225,10 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
    case $choice in
    bash)
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-    rm go1.16.3.linux-amd64.tar.gz
+    if ! [ -x "$(command -v go)" ]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
@@ -246,9 +247,10 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-    rm go1.16.3.linux-amd64.tar.gz
+    if ! [ -x "$(command -v go)" ]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
@@ -269,8 +271,7 @@ fi
 #install gee
 
 echo "Updating gee https://github.com/hahwul/gee"
-GO111MODULE=on go get -v github.com/hahwul/gee
-
+GO111MODULE=on go install github.com/hahwul/gee@latest
 
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
@@ -300,27 +301,16 @@ fi
 # If no SSH key found generate axiomssh key and add to account.json.
 
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
-if [ -f ~/.ssh/id_rsa.pub ] ; then
-
- echo -e "${Blue}Adding id_rsa.pub key Packer Builder${Color_Off}" 
- jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys            
-
-elif [ -f ~/.ssh/id_ed25519.pub ] ; then
- echo -e "${Blue}Adding id_ed25519.pub key Packer Builder${Color_Off}" 
- jq '.sshkey="'id_ed25519'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
-
-elif [ -f ~/.ssh/axiomssh.pub ] ; then
- echo -e "${Blue}Adding axiomssh key Packer Builder${Color_Off}"
- jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys           
+if [ -f ~/.ssh/axiom_rsa ] ; then
+ echo -e "${Blue}Adding axiom_rsa key Packer Builder${Color_Off}"
+ jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys           
 
 else
- echo -e "${Blue}Creating axiom SSH key in ~/.ssh/id_rsa.pub and adding it to Packer Builder${Color_Off}"
- ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
- jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub and adding it to Packer Builder${Color_Off}"
+ ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
+ jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys
 fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
