@@ -98,14 +98,11 @@ $AXIOM_PATH/interact/axiom-provider "$provider"
 "$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
 
 # ###########################################################################################################
-# Check if authorized SSH keys are added to axiom's configs before building
-
-
-# Check if SSH keys are present and add it to account.json,
-# If no SSH key found generate axiomssh key and add to account.json.
-account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
-# Check if SSH keys are present and add them to account.json,
-# If no SSH key found generate axiomssh key and add to account.json.
+# Add SSH Key in account.json to $AXIOM_PATH/configs/authorized_keys
+# If SSH key in account.json doesnt exists, create axiom_rsa SSH key and add that to $AXIOM_PATH/configs/authorized_keys
+#
+# TIPS: if you want to swap out the SSH key axiom uses, just edit the account.json.
+# For example: change key:value pair "sshkey": "id_rsa" to "sshkey": "aixom_rsa" and rerun axiom-build.
 
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
@@ -120,7 +117,6 @@ else
  jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
  cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys
 fi
-
 
 if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
 then
