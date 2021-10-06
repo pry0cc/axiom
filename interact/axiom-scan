@@ -62,7 +62,6 @@ function parse_module() {
 # Help Menu:
 # TODO: fix --quiet ( Slient all output except results )
 # add --rm-duplicates ( remove duplicates from target list, sort -u equivalent  )
-# add --dont-split ( Uploads full target list to every instance )
 # add option to supply different SSH key 
 # exit if the module doesnt exist 
 # 
@@ -79,9 +78,11 @@ function help() {
         echo -e "  --dont-shuffle (optional)"
         echo -e "    Do not randomize input file before uploading (default is to randomize)"
         echo -e "  --dont-split (optional)"
-        echo -e "    Do not split input file, upload entire input file to every instance (default is to split)"
+        echo -e "    Do not split input file, upload entire input file to every instance (default is to split the target list)"
         echo -e "  -wL /path/to/local"
         echo -e "    Wordlist Local to use to scan with (must be a path to a local wordlist)"
+        echo -e "  -wD/--distribute-wordlist (optional, depends on -wL)"
+        echo -e "    When using -wL, split and upload local wordlist (default is to not split the wordlist)"
         echo -e "  -w /path/to/wordlist/on/instance"
         echo -e "    Wordlist to use to scan with (must be a path to a remote wordlist)"
         echo -e "  -o string"
@@ -222,7 +223,7 @@ if ! [ -x "$(command -v gee)" ]; then
     lines_per_file=$(expr $lines / $divisor)
     [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
  
-# randomize the target list. To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+# randomize the target list. To disable randomization, use the --dont-shuffle option 
 if [[ "$shuffle" != "false" ]]; then
     shuf "$file" > "$tmp/split/targets"
 else
@@ -246,7 +247,7 @@ else
 # if gee is installed make sure its up to date, use gee to split the file. 
 GO111MODULE=on go get -v github.com/hahwul/gee >/dev/null 2>&1
 escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# randomize the target list. To disable randomization, use the --dont-shuffle option TODO: Make --dont-sort option
+# randomize the target list. To disable randomization, use the --dont-shuffle option.
 if [[ "$shuffle" != "false" ]]; then
     shuf "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
 else
@@ -340,6 +341,7 @@ pass=()
 keeplogs="true"
 shuffle="true"
 split="true"
+distribute_wordlist="false"
 
 # Parse command line arguments 
 #
@@ -420,12 +422,10 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "-wD" ]]; then
-            n=$((i+1))
-            distribute_wordlist=$(echo ${!n})
+        if [[ "$arg" == "--distribute-wordlist" ]] || [[ "$arg" == "-wD" ]]; then
+            distribute_wordlist="true"
             set=true
             pass+=($i)
-            pass+=($n)
         fi
         if [[ "$arg" == "-oD" ]] || [[ "$arg" == "-oA" ]]; then
             n=$((i+1))
@@ -609,6 +609,13 @@ if [[ "$module" == "masscan" ]]; then
     interactive="true"
 fi
 
+# Destination directory on the instances and the command used to SSH to them
+# Add default SSH commands
+# Add default interlace command
+scan_dir="/home/op/scan/$uid"
+ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no"
+interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
+
 ###########################################################################################################
 # Figure out what wordlist to use - default, the module default or the user specified wordlist
 #
@@ -637,10 +644,28 @@ if [[ "$local_wordlist" != "" ]]; then
     fi
 fi
 
+###########################################################################################################
+# If -wL (wordlist-local) is present in the command line, upload a user provider wordlist to use.
+# If -wD or --distribute-wordlist is present in the command line, split and upload the user provided wordlist.
+
 if [[ -f "$local_wordlist" ]]; then
-    echo -e "${Green}Uploading custom local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
+if [[ "$distribute_wordlist" == "false" ]]; then
+    echo -e "${Green}Uploading local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
     interlace --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
     echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
+else
+    echo -e "${Green}Splitting and uploading local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
+    mkdir -p $tmp/distribute_wordlist/split
+    mkdir -p $tmp/distribute_wordlist/input
+    # hack to stop overwriting $lines and $tmp
+    lines1=$lines && tmp1=$tmp
+    split_file "$local_wordlist" "$total_instances" $tmp/distribute_wordlist
+    # hack to stop overwriting $lines and $tmp
+    lines=$lines1 && tmp=$tmp1
+    $interlace_cmd -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" | grep -v "Gen"
+    echo -e "${Green}Distributed wordlist successfully!${Color_Off}"
+
+fi
 fi
 
 # Parse the default extention from the module
@@ -680,13 +705,6 @@ fi
 #
 echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module $args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Instances:${Color_Off} $total_instances [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
 echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | $thread_str${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
-
-# Destination directory on the instances and the command used to SSH to them
-# Add default SSH commands
-# Add default interlace command 
-scan_dir="/home/op/scan/$uid"
-ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no"
-interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
 
 ###########################################################################################################
 # If a one-shot module is used:
@@ -731,7 +749,7 @@ fi
 if [[ "$command" =~ "_target_" ]]; then
     echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
     sleep 3
-    $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output ; touch _target_' >> $tmp/logs/_target_ 2>&1"
+    $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output && touch _target_' >> $tmp/logs/_target_ 2>&1"
     $interlace_cmd -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results'"
 
 # Once all the SSH terminals exit, either by finishing its exection or if the session drops, download the results
@@ -744,11 +762,11 @@ else
 # TODO: Dont call axiom-scp just because SSH returns, instead periodically SSH into the instances and determine if the scan has finished and then download
 # https://github.com/pry0cc/axiom/issues/398#issuecomment-884558443
     if [[ "$interactive" == "true" ]]; then
-        $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command; touch _target_'"
+        $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command && touch _target_'"
     $interlace_cmd -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results'"
 
     else
-        $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command;touch _target_' >> $tmp/logs/_target_ 2>&1"
+        $interlace_cmd -c "$ssh_command _target_ 'cd $scan_dir; $command && touch _target_' >> $tmp/logs/_target_ 2>&1"
         $interlace_cmd -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results'"
     fi
     $interlace_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
@@ -789,5 +807,6 @@ echo -e "${Blue}Module [ $module $args ] | Time: [ $time ] | Input: [ $lines tar
 echo -e "${BGreen}Output saved to '${Blue}$outfile${BGreen}'! Local logs saved to '${Blue}$AXIOM_PATH/logs/$uid${BGreen}'! ${BGreen}Remote logs saved to '${Blue}/home/op/scan/$uid${BGreen}'!"
 echo "{\"module\":\"$module\",\"args\":\"$args\",\"targets\":\"$lines\",\"results\":\"$res\",\"seconds\":\"$runtime\",\"instances\":\"$total_instances\",\"command\":\"$command\",\"scanuid\":\"$uid\",\"time\":\"$time\",\"start-time\":\"$starttime\",\"status\":\"completed\"}"  >> $AXIOM_PATH/stats.log
 kill -9 $tailPID
+wait $tailPID 2>/dev/null
 stty sane
 tput init
