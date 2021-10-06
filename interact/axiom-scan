@@ -657,6 +657,7 @@ else
     echo -e "${Green}Splitting and uploading local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
     mkdir -p $tmp/distribute_wordlist/split
     mkdir -p $tmp/distribute_wordlist/input
+    cp "$tmp/selected.conf" "$tmp/distribute_wordlist/selected.conf"
     # hack to stop overwriting $lines and $tmp
     lines1=$lines && tmp1=$tmp
     split_file "$local_wordlist" "$total_instances" $tmp/distribute_wordlist
