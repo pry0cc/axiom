@@ -102,7 +102,7 @@ $AXIOM_PATH/interact/axiom-provider "$provider"
 # If SSH key in account.json doesnt exists, create axiom_rsa SSH key and add that to $AXIOM_PATH/configs/authorized_keys
 #
 # TIPS: if you want to swap out the SSH key axiom uses, just edit the account.json.
-# For example: change key:value pair "sshkey": "id_rsa" to "sshkey": "aixom_rsa" and rerun axiom-build.
+# For example: change key:value pair "sshkey": "id_rsa" to "sshkey": "axiom_rsa" and rerun axiom-build.
 
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
