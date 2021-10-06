@@ -108,7 +108,7 @@ A list of all contributors can be found [here](https://github.com/pry0cc/axiom/g
 ## Art
 The [original logo](https://github.com/pry0cc/axiom/commit/9ab2cc30910cc39e1e9db325877530b4f3716e38) was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you for making axiom look sleek as hell! Really beats my homegrown logo :)
 
-The awesome referral banners were inspired by [fleex](https://github.com/FleexSecurity/fleex) and were made by the one and only [xm1k3](https://github.com/xm1k3)!
+The awesome referral banners were inspired by [fleex](https://github.com/FleexSecurity/fleex) and were made by the one and only [xm1k3](https://twitter.com/xm1k3_)!
 
 # Packages To Date
 
