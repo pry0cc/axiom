@@ -104,23 +104,21 @@ $AXIOM_PATH/interact/axiom-provider "$provider"
 # Check if SSH keys are present and add it to account.json,
 # If no SSH key found generate axiomssh key and add to account.json.
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
-if [ -f ~/.ssh/id_rsa.pub ] ; then
- echo -e "${Blue}Adding id_rsa.pub key Packer Builder${Color_Off}"
- jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
-elif [ -f ~/.ssh/id_ed25519.pub ] ; then
- echo -e "${Blue}Adding id_ed25519.pub key Packer Builder${Color_Off}"
- jq '.sshkey="'id_ed25519'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
-elif [ -f ~/.ssh/axiomssh.pub ] ; then
- echo -e "${Blue}Adding axiomssh key Packer Builder${Color_Off}"
- jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys
+# Check if SSH keys are present and add them to account.json,
+# If no SSH key found generate axiomssh key and add to account.json.
+
+account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+
+if [ -f ~/.ssh/$sshkey ] ; then
+ echo -e "${Blue}Adding $sshkey key Packer Builder${Color_Off}"
+ cat ~/.ssh/$sshkey.pub >$AXIOM_PATH/configs/authorized_keys
+
 else
- echo -e "${Blue}Creating axiom SSH key in ~/.ssh/id_rsa.pub and adding it to Packer Builder${Color_Off}"
- ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
- jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub and adding it to Packer Builder${Color_Off}"
+ ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
+ jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys
 fi
 
 
