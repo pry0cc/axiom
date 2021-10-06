@@ -100,7 +100,7 @@ if [[ $BASEOS == "Linux" ]]; then
         # Other dependencies
         sudo pacman -Syu go python-pip net-tools unzip libxslt bc --noconfirm
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -fr /tmp/interlace  
+        sudo rm -fr /tmp/interlace  
         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -126,7 +126,7 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing packer...${Color_Off}"
         wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -fr /tmp/interlace 
+        sudo rm -fr /tmp/interlace 
         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -152,7 +152,7 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing packer...${Color_Off}"
         wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -fr /tmp/interlace  
+        sudo rm -fr /tmp/interlace  
         git clone https://github.com/codingo/Interlace.git /tmp/interlace 
         cd /tmp/interlace && sudo python3 setup.py install 
         echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -185,7 +185,7 @@ if [[ $BASEOS == "Mac" ]]; then
          echo -e "${Blue}Installing Python3...${Color_Off}"
          brew install python3
          echo -e "${Blue}Installing Interlace...${Color_Off}"
-         rm -fr /tmp/interlace  
+         sudo rm -fr /tmp/interlace  
          git clone https://github.com/codingo/Interlace.git /tmp/interlace  
          cd /tmp/interlace && sudo python3 setup.py install 
          echo -e "${Blue}Installing gowitness...${Color_Off}"
@@ -302,7 +302,7 @@ fi
 
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 if [ -f ~/.ssh/axiom_rsa ] ; then
- echo -e "${Blue}Adding axiom_rsa key Packer Builder${Color_Off}"
+ echo -e "${Blue}Adding axiom_rsa key to Packer Builder${Color_Off}"
  jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
  cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys           
 
