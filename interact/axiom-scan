@@ -284,7 +284,7 @@ merge_output() {
     elif [[ "$ext" == "csv" ]]; then
         echo "Mode set to CSV, merging..."
         touch "$tmp/output/place"
-        header="$(find $tmp/output/ -type f -exec cat {} \; | head -n 1)"
+        header="$(find $tmp/output/ -type f -exec cat {} \; | tail -n +1 | head -1)"
         echo "$header" > "$outfile"
         find $tmp/output/ -type f -exec cat {} \; | grep -v "$header" | sort -u -V >> "$outfile"
     elif [[ "$ext" == "" ]] || [[ "$ext" == "dir" ]];  then
