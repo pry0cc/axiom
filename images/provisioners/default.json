@@ -323,7 +323,6 @@
         "gem install wpscan",
 
         "/bin/su -l op -c '/usr/local/go/bin/go  clean -modcache'",
-        "/bin/su -l root -c 'rm -r /home/op/go/src/'",
         "/bin/su -l op -c 'wget -q -O gf-completion.zsh https://raw.githubusercontent.com/tomnomnom/gf/master/gf-completion.zsh && cat gf-completion.zsh >> /home/op/.zshrc && rm gf-completion.zsh && cd'",
         "/bin/su -l root -c 'apt-get clean'",
         "echo \"The password for user op is: {{ user `op_random_password` }}\"",
