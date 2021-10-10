@@ -515,13 +515,21 @@ if [[ ! -f $input ]]; then
 fi
 
 # Check if -m is in the command, if not, exit
-# TODO: Add check that module exists, if not, exit
 #
 if [[ "$*" != *-m* ]]
 then
   echo -e "\033[0;31m No module for axiom-scan defined. Pass one with -m."
 	help
 	exit 1
+fi
+
+# Exit if module doesnt exist
+#
+if [ ! -f $AXIOM_PATH/modules/$module.json ]; then
+ echo -e "\033[0;31mERROR: Axiom module not found."
+ echo -e "Ensure module exists in $AXIOM_PATH/modules/$module.json"
+ echo -e "To print all available modules run axiom-scan --list"
+ exit 1
 fi
 
 # Create temporary directories and set tmp path to be used for logs
