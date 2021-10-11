@@ -246,12 +246,11 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
     wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    echo -e "${Blue}Installing Golang${Color_Off}"
     if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
+    mkdir -p "${HOME}/go"
     wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
     fi
-    mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
     echo "export GOPATH=\$HOME/go" >>~/.zshrc
