@@ -14,8 +14,12 @@ i=0
 
 function help() {
         echo -e "${Red}Usage of axiom-scp copying files between fleets${Color_Off}"
-        echo -e "Example Usage: ${Blue}axiom-scp 'myfleet*':/home/op/myfile.txt '~/local/folder/\$name.txt'${Color_Off}"
-        echo -e "    Copy a remote file from all instances in myfleet to local folder."
+       	echo -e "--cache (optional)"
+	      echo -e "    Do not regenerate SSH config"
+        echo -e "-F (string)"
+        echo -e "    Path of custom SSH config file to use"
+        echo -e "Example Usage: ${Blue}axiom-scp 'myfleet*':/home/op/myfile.txt '~/local/folder/\$name.txt' --cache${Color_Off}"
+        echo -e "    Copy a remote file from all instances in myfleet to local folder. Do no generate SSH config"
         echo -e "    \$name must be wrapped single quotes. \$name is a required literal string and gets interpolated from the instance name."
         echo -e "Example Usage: ${Blue}axiom-scp myfleet05:/home/op/myfile-from-myfleet05.txt '~/local/folder/myfile-from-myfleet05.txt' ${Color_Off}"
         echo -e "    Copy a remote file from one instance 'myfleet05' to a local file"
