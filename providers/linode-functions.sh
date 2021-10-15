@@ -132,6 +132,10 @@ snapshots() {
 	linode-cli images list --json
 }
 
+get_snapshots() {
+        linode-cli images list 
+}
+
 delete_record() {
     domain="$1"
     id="$2"
@@ -147,14 +151,12 @@ delete_record_force() {
 	echo "Needs conversion"
     #doctl compute domain records delete $domain $id -f
 }
+
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"
-
-	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.label==\"$name\") | .id")
-	
-	linode-cli images delete "$snapshot_id" 
+  image_id=$(get_image_id "$name")	
+	linode-cli images delete "$image_id" 
 }
 
 add_dns_record() {
@@ -344,5 +346,3 @@ conf_check() {
 		generate_sshconfig	
 	fi
 }
-
-

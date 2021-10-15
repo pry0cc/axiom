@@ -122,6 +122,12 @@ snapshots() {
 	doctl compute snapshot list -o json
 }
 
+
+get_snapshots()
+{
+	doctl compute snapshot list
+}
+
 delete_record() {
     domain="$1"
     id="$2"
@@ -138,11 +144,8 @@ delete_record_force() {
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"
-
-	snapshot_data=$(snapshots)
-	snapshot_id=$(echo $snapshot_data | jq -r ".[] | select(.name==\"$snapshot\") | .id")
-	
-	doctl compute snapshot delete "$snapshot_id" -f
+	image_id=$(get_image_id "$name")
+	doctl compute snapshot delete "$image_id" -f
 }
 
 add_dns_record() {
@@ -326,5 +329,3 @@ conf_check() {
 		generate_sshconfig	
 	fi
 }
-
-

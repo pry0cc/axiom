@@ -147,10 +147,14 @@ instance_sizes() {
 snapshots() {
 	az image list
 }
+
+get_snapshots() {
+	az image list --output table 
+}
+
 # Delete a snapshot by its name
 delete_snapshot() {
-	name="$1"
-	
+	name="$1"	
 	az image delete --name "$name" --resource-group axiom
 }
 
