@@ -8,6 +8,21 @@ instances() {
 	ibmcloud  sl vs list --output json
 }
 
+poweron() {
+instance_name="$1"
+ibmcloud sl vs power-on $(instance_id $instance_name)
+}
+
+poweroff() {
+instance_name="$1"
+ibmcloud sl vs power-off $(instance_id $instance_name)
+}
+
+reboot(){
+instance_name="$1"
+ibmcloud sl vs reboot $(instance_id $instance_name)
+}
+
 get_image_id() {
 	query="$1"
 	images=$(ibmcloud sl image list --private --output json)
@@ -335,4 +350,3 @@ conf_check() {
 		generate_sshconfig	
 	fi
 }
-
