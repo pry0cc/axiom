@@ -17,14 +17,18 @@ get_image_id() {
 	echo $id
 }
 
-snapshots() {
-	ibmcloud sl image list --output json --private
+get_snapshots() {
+	ibmcloud sl image list --private
 }
 
 delete_snapshot() {
-	id="$(snapshots | jq -r ".[] | select(.name==\"$1\") | .id")"
+ name=$1
+ image_id=$(get_image_id "$name")	
+ ibmcloud sl image delete "$image_id"
+}
 
-	 ibmcloud sl image delete "$id"
+snapshots() {
+	ibmcloud sl image list --output json --private
 }
 
 instance_ip_cache() {
