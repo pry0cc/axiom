@@ -149,7 +149,7 @@ snapshots() {
 }
 
 get_snapshots() {
-	az image list
+	az image list --output table 
 }
 
 # Delete a snapshot by its name
