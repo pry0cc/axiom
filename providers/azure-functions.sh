@@ -247,7 +247,7 @@ query_instances_cache() {
 
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
-	boxes="$(az vm list-ip-addresses)"
+	boxes="$(az vm list-ip-addresses --resource-group axiom)"
 	echo -n "" > $AXIOM_PATH/.sshconfig.new
 	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
   echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
