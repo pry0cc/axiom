@@ -4,6 +4,21 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
+poweron() {
+instance_name="$1"
+doctl compute droplet-action power-on $(instance_id $instance_name)
+}
+
+poweroff() {
+instance_name="$1"
+doctl compute droplet-action power-off $(instance_id $instance_name)
+}
+
+reboot(){
+instance_name="$1"
+doctl compute droplet-action reboot $(instance_id $instance_name)
+}
+
 # takes no arguments, outputs JSON object with instances
 instances() {
 	doctl compute droplet list -o json

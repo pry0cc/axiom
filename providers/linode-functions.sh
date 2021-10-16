@@ -21,6 +21,21 @@ instance_ip() {
 	instances | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]"
 }
 
+poweron() {
+instance_name="$1"
+linode-cli linodes boot $(instance_id $instance_name)
+}
+
+poweroff() {
+instance_name="$1"
+linode-cli linodes shutdown $(instance_id $instance_name)
+}
+
+reboot(){
+instance_name="$1"
+linode-cli linodes reboot $(instance_id $instance_name)
+}
+
 instance_ip_cache() {
 	name="$1"
     config="$2"

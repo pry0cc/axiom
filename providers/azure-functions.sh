@@ -4,6 +4,22 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
+
+poweron() {
+instance_name="$1"
+az vm start -g axiom -n $(instance_id $instance_name)
+}
+
+poweroff() {
+instance_name="$1"
+az vm stop -g axiom --name $(instance_id $instance_name)
+}
+
+reboot(){
+instance_name="$1"
+az vm restart -g axiom -n $(instance_id $instance_name)
+}
+
 # takes no arguments, outputs JSON object with instances
 instances() {
 	az vm list-ip-addresses
@@ -335,5 +351,3 @@ add_dns_record() {
     echo "Needs conversion"
 	#doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
 }
-
-
