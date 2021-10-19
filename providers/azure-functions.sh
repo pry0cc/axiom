@@ -113,7 +113,7 @@ selected_instance() {
 get_image_id() {
 	query="$1"
 	images=$(az image list)
-	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
+	name=$(echo $images | jq -r ".[].name" | grep -wx "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 	echo $id
 }
