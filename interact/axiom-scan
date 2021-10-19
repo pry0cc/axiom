@@ -567,6 +567,11 @@ if [[ "$total_instances" -eq "0" ]]; then
    echo "error with number of instances, exiting";
    exit;
 fi
+# Check is input file is empty
+if [[ "$lines" -eq "0" ]]; then
+   echo "error input file is empty, exiting";
+   exit;
+fi
 
 # Debug Flag
 #
