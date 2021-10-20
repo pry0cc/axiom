@@ -107,11 +107,19 @@ $AXIOM_PATH/interact/axiom-provider "$provider"
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 
+# If custom SSH key is found in "$AXIOM_PATH/axiom.json", add it to Packer builder
 if [ -f ~/.ssh/$sshkey ] ; then
- echo -e "${Blue}Adding $sshkey key Packer Builder${Color_Off}"
+ echo -e "${Blue}Adding $sshkey SSH key to Packer Builder${Color_Off}"
  cat ~/.ssh/$sshkey.pub >$AXIOM_PATH/configs/authorized_keys
 
-else
+# If axiom_rsa key is already created but not in "$AXIOM_PATH/axiom.json", add it to $AXIOM_PATH/axiom.json" and Packer builder
+elif [ -f ~/.ssh/axiom_rsa ] ; then
+ echo -e "${Blue}Adding axiom_rsa SSH key to Packer Builder${Color_Off}"
+ cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+ jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+
+# If axiom_rsa is not created, create it and then add it to "$AXIOM_PATH/axiom.json" and Packer builder
+else 
  echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub and adding it to Packer Builder${Color_Off}"
  ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
  jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
