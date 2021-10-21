@@ -804,7 +804,7 @@ if [[ "$rm_when_done" == "true" ]]; then
 fi
 # shutdown axiom instances after scan completes if --shutdown-when-done is in the command
 #
-if [[ "$shut_when_done" == "true" ]]; then
+if [[ "$shutdown_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/selected.conf");
     do
         "$AXIOM_PATH/interact/axiom-power off" "$instance" 
