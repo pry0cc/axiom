@@ -387,6 +387,11 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--shutdown-when-done" ]]; then
+            shutdown_when_done="true"
+            set=true
+            pass+=($i)
+        fi
 
         if [[ "$arg" == "--list" ]]; then
             list_modules
@@ -794,6 +799,15 @@ if [[ "$rm_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/selected.conf");
     do
         "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
+        sleep 0.4
+    done
+fi
+# shutdown axiom instances after scan completes if --shutdown-when-done is in the command
+#
+if [[ "$shut_when_done" == "true" ]]; then
+    for instance in $(cat "$tmp/selected.conf");
+    do
+        "$AXIOM_PATH/interact/axiom-opwer off" "$instance" 
         sleep 0.4
     done
 fi
