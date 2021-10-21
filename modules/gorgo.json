@@ -1,4 +1,4 @@
 [{
-	"command":"/home/op/bin/gorgo.py -i input -o output",
+	"command":"python3 /home/op/recon/gorgo/gorgo.py -iL input -o output",
 	"ext":"txt"
 }]
