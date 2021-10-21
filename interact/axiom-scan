@@ -807,7 +807,7 @@ fi
 if [[ "$shut_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/selected.conf");
     do
-        "$AXIOM_PATH/interact/axiom-opwer off" "$instance" 
+        "$AXIOM_PATH/interact/axiom-power off" "$instance" 
         sleep 0.4
     done
 fi
