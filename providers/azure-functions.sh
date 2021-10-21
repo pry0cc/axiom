@@ -7,17 +7,17 @@ LOG="$AXIOM_PATH/log.txt"
 
 poweron() {
 instance_name="$1"
-az vm start -g axiom -n $(instance_id $instance_name)
+az vm start -g AXIOM -name $instance_name
 }
 
 poweroff() {
 instance_name="$1"
-az vm stop -g axiom --name $(instance_id $instance_name)
+az vm stop -g AXIOM --name  $instance_name
 }
 
 reboot(){
 instance_name="$1"
-az vm restart -g axiom -n $(instance_id $instance_name)
+az vm restart -g AXIOM --name $instance_name
 }
 
 # takes no arguments, outputs JSON object with instances
@@ -80,10 +80,10 @@ create_instance() {
 
 instance_pretty() {
 	data=$(instances)
-	extra_data=$(az vm list)
+	extra_data=$(az vm list -d)
 
 	(i=0
-	echo '"Instance","IP","Size","Region","$M"'
+	echo '"Instance","IP","Size","Region","Status","$M"'
 
 	for instance in $(echo $data | jq -c '.[].virtualMachine');
 	do
@@ -91,14 +91,15 @@ instance_pretty() {
 		name=$(echo $instance | jq -r '.name')
 		size=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .hardwareProfile.vmSize")
 		region=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .location")
+                power=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .powerState")
 		price_monthly=$(cat $AXIOM_PATH/pricing/azure.json | jq -r ".[].costs[] | select(.id==\"$size\") | .firstParty[].meters[].amount")
 		i=$(echo "$i+$price_monthly" | bc -l)
 
-		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".price_monthly=\"$price_monthly\"")
-		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region,.price_monthly] | @csv'
+		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".powerState=\"$power\""| jq ".price_monthly=\"$price_monthly\"")
+		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region, .powerState, .price_monthly] | @csv'
 	done
 
-	echo "\"_\",\"_\",\"_\",\"Total\",\"\$$i\"") | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	echo "\"_\",\"_\",\"_\",\"_\",\"Total\",\"\$$i\"") | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 
 	i=0
 	#for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done

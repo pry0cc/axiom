@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
@@ -5,7 +6,8 @@ LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
 instances() {
-	ibmcloud  sl vs list --output json
+ibmcloud sl vs list --column datacenter --column domain --column hostname --column id --column cpu --column memory --column public_ip --column private_ip --column power_state --column created_by --column action --output json
+	#ibmcloud  sl vs list --output json
 }
 
 poweron() {
@@ -295,8 +297,8 @@ instance_pretty() {
 	data=$(instances)
 	i=0
 	for f in $(echo $data | jq -r '.[].hostname'); do new=$(expr $i +  5); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
-	# doctl: (echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,Primary Ip,Backend Ip,Data Center,Memory,CPU,Status,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.recurringFee] | @csv' && echo "_,_,_,_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	# doctl: (echo "Instance,IP,Data Center,Memory,CPU,Status,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 		
 	#(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
