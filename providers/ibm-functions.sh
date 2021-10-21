@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
@@ -5,7 +6,8 @@ LOG="$AXIOM_PATH/log.txt"
 
 # takes no arguments, outputs JSON object with instances
 instances() {
-	ibmcloud  sl vs list --output json
+ibmcloud sl vs list --column datacenter --column domain --column hostname --column id --column cpu --column memory --column public_ip --column private_ip --column power_state --column created_by --column action --output json
+	#ibmcloud  sl vs list --output json
 }
 
 poweron() {
@@ -26,7 +28,7 @@ ibmcloud sl vs reboot $(instance_id $instance_name)
 get_image_id() {
 	query="$1"
 	images=$(ibmcloud sl image list --private --output json)
-	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
+	name=$(echo $images | jq -r ".[].name" | grep -wx "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 
 	echo $id
@@ -294,11 +296,8 @@ create_instance() {
 instance_pretty() {
 	data=$(instances)
 	i=0
-	for f in $(echo $data | jq -r '.[].hostname'); do new=$(expr $i +  5); i=$new; done
-	(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .datacenter.name, .maxMemory, 5] | @csv' && echo "_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
-	# doctl: (echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
-		
-	#(echo "Instance,IP,Region,Memory,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .size.price_monthly] | @csv' && echo "_,_,To    tal,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+        total=$(echo $data | jq -r '.[].billingItem.recurringFee  | select( . != null )' | awk '{sum+=$0} END{print sum}')
+	(echo "Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.recurringFee] | @csv' && echo "_,_,_,_,_,_,Total,\$$total") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 # Function used for splitting $src across $instances and rename the split files.
 lsplit() {

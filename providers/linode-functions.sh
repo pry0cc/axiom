@@ -1,5 +1,4 @@
 #!/bin/bash
-
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
@@ -68,12 +67,12 @@ instance_pretty() {
   linodes=$(echo $data|jq -r '.[]|.id'|wc -l )
   #default size from config file
   type="$(jq -r .default_size "$AXIOM_PATH/axiom.json")"
-  #monthly price of linode type
+  #monthly price of linode type 
   price=$(linode-cli linodes type-view $type --json|jq -r '.[].price.monthly')
   totalPrice=$(( $price * $linodes))
-  header="Instance,IP,Region,Memory,\$/M"
-  totals="_,_,_,Total,\$$totalPrice"
-  fields=".[] | [.label,.ipv4[0],.region,.specs.memory, \"$price\"]| @csv"
+  header="Instance,IP,Region,Memory,Status,\$/M"
+  totals="_,_,_,_,Total,\$$totalPrice"
+  fields=".[] | [.label,.ipv4[0],.region,.specs.memory,.status, \"$price\"]| @csv"
   #printing part
   (echo "$header" && echo $data|jq -r "$fields" && echo "$totals") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }

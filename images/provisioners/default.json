@@ -200,6 +200,9 @@
         "echo 'Installing google-chrome'",
         "wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && sudo apt install -y /tmp/chrome.deb -qq && apt --fix-broken install -qq",         
 
+        "echo 'Installing gorgo'",
+        "/bin/su -l op -c 'git clone https://github.com/pry0cc/gorgo.git /home/op/recon/gorgo && pip3 install -r /home/op/recon/gorgo/requirements.txt'", 
+
         "echo 'Installing gospider'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/jaeles-project/gospider@latest'",
 
@@ -241,6 +244,9 @@
 
         "echo 'Installing massdns'",
         "git clone https://github.com/blechschmidt/massdns.git /tmp/massdns; cd /tmp/massdns; make -s; sudo mv bin/massdns /usr/bin/massdns",
+        
+        "echo 'Installing medusa'",
+        "apt install medusa -y -qq",
 
         "echo 'Installing meg'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/meg@latest'",

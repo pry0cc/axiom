@@ -20,7 +20,7 @@ current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep 
 
 function usage() {
   cat << EOF
-  Usage: axiom-power on rez01
+  Usage: axiom-power on 'rez\*'
   Examples:
   on                             Power on instance by instance name
   off                           Power off instance by instance name 
@@ -104,15 +104,16 @@ fi
 #
 if [[ "$off" == "true" ]]; then
 echo -e "Powering off instance: $instance"
-poweroff $instance
+for i in $(query_instances "$@" | sort -u | tr ' ' '\n'); do poweroff $i; done
 fi
 
 if [[ "$on" == "true" ]]; then
 echo -e "Powering on instance: $instance"
-poweron $instance
+for i in $(query_instances "$@" | sort -u | tr ' ' '\n'); do poweron $i; done
 fi
 
 if [[ "$reboot" == "true" ]]; then
 echo -e "Rebooting instance: $instance"
-reboot $instance
+for i in $(query_instances "$@" | sort -u | tr ' ' '\n'); do reboot $i; done 
+#reboot $instance
 fi
