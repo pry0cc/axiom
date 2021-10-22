@@ -3,7 +3,6 @@
 "name":"ivre",
 "description":"Install IVRE github.com/ivre/ivre",
 "install": [
-"sudo sh -c id",
 "sudo apt -y --no-install-recommends install mongodb python3-pymongo python3-crypto python3-bottle apache2 libapache2-mod-wsgi-py3",
 "wget  https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz",
 "sudo mkdir -p /var/www/html/dokuwiki",
@@ -43,7 +42,7 @@
 "sudo ivre ipdata --download"
     ],
     "uninstall":[
-        "sudo apt-get purge xfce4 xfce4-goodies ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal -y"
+        "sudo apt-get purge mongodb -y"
     ],
     "notes":"Install Complete. You should be able to safely ingore errors above. If you run into issue SSH into the instance and run apt-get install dokuwiki"
 }
