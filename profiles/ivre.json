@@ -59,7 +59,7 @@
 "sudo ivre ipdata --download",
 "sudo /usr/sbin/nginx &",
 "echo ''",
-"echo 'Testing database by conducting NMAP scan against: scanme.nmap.org"
+"echo 'Testing database by conducting NMAP scan against: scanme.nmap.org",
 "nmap scanme.nmap.org -A -T4 -oX scanme",
 "echo 'Importing scan result'",
 "ivre scan2db scanme",
