@@ -1,8 +1,8 @@
 {
 "name":"ivre",
-"/usr/bin/cloud-init status --wait",  
 "description":"Install IVRE Framework (https://github.com/ivre/ivre) Client, Database and Web Dashboard",
 "install": [
+"/usr/bin/cloud-init status --wait",  
 "sudo apt-get -q update",
 "sudo apt-get -qy --no-install-recommends install python3-pymongo mongodb python3-crypto python3-bottle libapache2-mod-wsgi-py3 python3-cryptography python3-setuptools python3-bottle python3-openssl ca-certificates git -y",
 "git clone https://github.com/ivre/ivre",
