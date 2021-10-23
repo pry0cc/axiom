@@ -31,7 +31,6 @@
 "/usr/bin/mongod -f /etc/mongod.conf",
 "sudo apt-get -qy --no-install-recommends install nginx spawn-fcgi php-fpm php-gd fcgiwrap uwsgi-plugin-python3",
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/nginx-default-site | sudo tee /etc/nginx/sites-available/default",
-"sudo echo '\ndaemon off;' | sudo tee -a /etc/nginx/nginx.conf",
 "sudo mkdir /var/run/uwsgi",
 "wget http://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz",
 "tar -zxf dokuwiki-stable.tgz",
@@ -62,5 +61,5 @@
     "uninstall":[
         ""
     ],
-    "notes":"Install Complete. The webdashbaord is publicly accessible on port 80, you might want to restrict access with ufw"
+    "notes":"Install Complete. The web dashbaord is publicly reachable on port 80 for testing. Make sure you can reach the dashboard then SSH into the server and restrict access to port 80 with ufw"
 }
