@@ -1,14 +1,14 @@
 
 {
 "name":"ivre",
-"description":"Install IVRE Framework Client, Database and Web Dashbaord",
+"description":"Install IVRE Framework (https://github.com/ivre/ivre) Client, Database and Web Dashboard",
 "install": [
 "sudo apt-get -q update",
-"sudo apt-get -qy --no-install-recommends install python3-pymongo python3-cryptography python3-setuptools python3-bottle python3-openssl ca-certificates -y",
-"sudo apt-get -qy --no-install-recommends install git",
+"sudo apt-get -qy --no-install-recommends install python3-pymongo mongodb python3-crypto python3-bottle libapache2-mod-wsgi-py3 python3-cryptography python3-setuptools python3-bottle python3-openssl ca-certificates git -y",
 "git clone https://github.com/ivre/ivre",
 "cd ivre/ && python3 setup.py build && sudo python3 setup.py install && cd /home/op/",
-"sudo apt-get -qy --no-install-recommends install rsync screen ipython3 openssl tesseract-ocr libfreetype6 libfontconfig1 fonts-dejavu imagemagick ffmpeg s3270 patch bash-completion bzip2 python3-pil nfdump",
+"sudo apt-get -qy --no-install-recommends install rsync screen ipython3 openssl tesseract-ocr libfreetype6 libfontconfig1 fonts-dejavu imagemagick ffmpeg s3270 patch bash-completion bzip2 python3-pil nfdump python3-pymongo  python3-crypto python3-bottle apache2 libapache2-mod-wsgi-py3 ",
+"sudo service apache2 stop",
 "wget https://nmap.org/dist/nmap-7.92.tgz -O nmap.tar.gz",
 "sudo apt-get -qy --no-install-recommends install build-essential libssl-dev flex bison",
 "tar zxf nmap.tar.gz  && cd nmap-7.92",
@@ -24,11 +24,6 @@
 "cd /home/op/nmap-7.92/ && sudo ./nmap --script-update",
 "sudo nmap --script-update",
 "sudo apt-get -qy --no-install-recommends install gnupg wget ca-certificates",
-"wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add - ",
-"sudo echo \"deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main\" | sudo tee -a /etc/apt/sources.list.d/mongodb-org-4.4.list",
-"sudo ln -s /bin/true /usr/bin/systemctl",
-"sudo apt-get -q update && sudo apt-get -qy --no-install-recommends install mongodb-org",
-"/usr/bin/mongod -f /etc/mongod.conf",
 "sudo apt-get -qy --no-install-recommends install nginx spawn-fcgi php-fpm php-gd fcgiwrap uwsgi-plugin-python3",
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/nginx-default-site | sudo tee /etc/nginx/sites-available/default",
 "sudo mkdir /var/run/uwsgi",
@@ -56,6 +51,12 @@
 "sudo uwsgi --plugin /usr/lib/uwsgi/plugins/python3_plugin.so  --daemonize /var/log/nginx/uwsgi.log  --socket /var/run/uwsgi/sock   --processes 4 --threads 2  --mount /cgi=/home/op/ivre/web/wsgi/app.wsgi --manage-script-name",
 "sudo service nginx stop",
 "sudo ufw allow 80",
+"yes | ivre ipinfo --init",
+"yes | ivre scancli --init",
+"yes | ivre view --init",
+"yes | ivre flowcli --init",
+"yes | sudo ivre runscansagentdb --init",
+"sudo ivre ipdata --download",
 "sudo /usr/sbin/nginx &"
     ],
     "uninstall":[
