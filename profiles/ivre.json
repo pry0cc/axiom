@@ -14,7 +14,7 @@
 "tar zxf nmap.tar.gz  && cd nmap-7.92",
 "sudo ./configure --without-ndiff --without-zenmap --without-nping  --without-ncat --without-nmap-update    --with-libpcap=included && sudo make && sudo make install && cd /home/op",
 "sudo apt-get -qy --no-install-recommends install gnupg wget",
-"echo 'deb http://download.opensuse.org/repositories/security:/zeek/Debian_11/ /' | sudo tee -e /etc/apt/sources.list.d/zeek.list",
+"echo 'deb http://download.opensuse.org/repositories/security:/zeek/Debian_11/ /' | sudo tee -a /etc/apt/sources.list.d/zeek.list",
 "wget -qO - https://download.opensuse.org/repositories/security:zeek/Debian_11/Release.key | sudo apt-key add - ",
 "sudo apt-get -q update && sudo apt-get -qy --no-install-recommends install zeek",
 "wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 && tar jxf phantomjs-1.9.8-linux-x86_64.tar.bz2 phantomjs-1.9.8-linux-x86_64/bin/phantomjs",
@@ -51,13 +51,16 @@
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/doku-conf-users.auth.php | sudo tee -a /var/www/dokuwiki/conf/users.auth.php",
 "sudo chown -Rh www-data:www-data /var/www/dokuwiki/data /var/www/dokuwiki/conf /var/www/dokuwiki/lib/plugins",
 "sudo chown -Rh op:www-data /var/www/dokuwiki/data /var/www/dokuwiki/conf /var/www/dokuwiki/lib/plugins",
-"sudo service php7.4-fpm start",
-"sudo ln -s /var/run/php/php7.4-fpm.sock /etc/init.d/php-fpm",
-"sudo service fcgiwrap start",
-"sudo uwsgi --plugin /usr/lib/uwsgi/plugins/python3_plugin.so  --daemonize /var/log/nginx/uwsgi.log  --socket /var/run/uwsgi/sock   --processes 4 --threads 2  --mount /cgi=/home/op/ivre/web/wsgi/app.wsgi --manage-script-name"
+"sudo service php7.4-fpm restart",
+"sudo ln -s /var/run/php/php?*-fpm.sock /var/run/php/php-fpm.sock",
+"sudo service fcgiwrap restart",
+"sudo uwsgi --plugin /usr/lib/uwsgi/plugins/python3_plugin.so  --daemonize /var/log/nginx/uwsgi.log  --socket /var/run/uwsgi/sock   --processes 4 --threads 2  --mount /cgi=/home/op/ivre/web/wsgi/app.wsgi --manage-script-name",
+"sudo service nginx stop",
+"sudo ufw allow 80",
+"sudo /usr/sbin/nginx &"
     ],
     "uninstall":[
         ""
     ],
-    "notes":"Install Complete. The webdashbaord is hosted publicly on port 80, you might need to allow it through ufw firewall"
+    "notes":"Install Complete. The webdashbaord is publicly accessible on port 80, you might want to restrict access with ufw"
 }
