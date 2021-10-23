@@ -57,7 +57,16 @@
 "yes | ivre flowcli --init",
 "yes | sudo ivre runscansagentdb --init",
 "sudo ivre ipdata --download",
-"sudo /usr/sbin/nginx &"
+"sudo /usr/sbin/nginx &",
+"echo ''",
+"echo 'Testing database by conducting NMAP scan against: scanme.nmap.org"
+"nmap scanme.nmap.org -A -T4 -oX scanme",
+"echo 'Importing scan result'",
+"ivre scan2db scanme",
+"ivre db2view nmap",
+"echo ''",
+"echo 'The IVRE / DRUNK Dynamic Recon of UNKnown networks dashboard is exposed to the public internet at the following IP:'",
+"dig @ns1-1.akamaitech.net ANY whoami.akamai.net +short | sed 's/^/http:\\/\\//'"
     ],
     "uninstall":[
         ""
