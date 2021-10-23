@@ -1,5 +1,6 @@
 {
 "name":"ivre",
+"/usr/bin/cloud-init status --wait",  
 "description":"Install IVRE Framework (https://github.com/ivre/ivre) Client, Database and Web Dashboard",
 "install": [
 "sudo apt-get -q update",
@@ -57,6 +58,7 @@
 "yes | sudo ivre runscansagentdb --init",
 "sudo ivre ipdata --download",
 "sudo /usr/sbin/nginx &",
+"echo ''",  
 "echo 'Testing database by conducting NMAP scan against: scanme.nmap.org'",
 "nmap scanme.nmap.org -A -T4 -oX scanme",
 "echo 'Importing scan result'",
