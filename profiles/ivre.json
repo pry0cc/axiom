@@ -51,12 +51,13 @@
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/doku-conf-users.auth.php | sudo tee -a /var/www/dokuwiki/conf/users.auth.php",
 "sudo chown -Rh www-data:www-data /var/www/dokuwiki/data /var/www/dokuwiki/conf /var/www/dokuwiki/lib/plugins",
 "sudo chown -Rh op:www-data /var/www/dokuwiki/data /var/www/dokuwiki/conf /var/www/dokuwiki/lib/plugins",
+"sudo service php-fpm start",
 "sudo ln -s /var/run/php/php7.4-fpm.sock /etc/init.d/php-fpm",
 "sudo service fcgiwrap start",
 "sudo uwsgi --plugin /usr/lib/uwsgi/plugins/python3_plugin.so  --daemonize /var/log/nginx/uwsgi.log  --socket /var/run/uwsgi/sock   --processes 4 --threads 2  --mount /cgi=/home/op/ivre/web/wsgi/app.wsgi --manage-script-name"
     ],
     "uninstall":[
-        "sudo apt-get purge xfce4 xfce4-goodies ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal -y"
+        ""
     ],
-    "notes":"Install Complete. You should be able to safely ingore errors above. If you run into issue SSH into the instance and run apt-get install dokuwiki"
+    "notes":"Install Complete."
 }
