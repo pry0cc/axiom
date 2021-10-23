@@ -66,7 +66,7 @@ instance_pretty() {
 
 	i=0
 	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
-	(echo "Instance,IP,Region,Memory,Status,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[1].ip_address, .region.slug, .size_slug, .status, .size.price_monthly] | @csv' && echo "_,_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	(echo "Instance,Public,Backend,Region,Memory,Status,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[].ip_address, .region.slug, .size_slug, .status, .size.price_monthly] | @csv' && echo "_,_,_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 # identifies the selected instance/s
