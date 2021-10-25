@@ -2,6 +2,7 @@
 "name":"ivre",
 "description":"Install IVRE Framework (https://github.com/ivre/ivre) Client, Database and Web Dashboard",
 "install": [
+"echo 'Waiting for cloud-init to finish, this can take a few minutes please be patient...'",
 "/usr/bin/cloud-init status --wait",  
 "sudo apt-get -q update",
 "sudo apt-get -qy --no-install-recommends install python3-pymongo mongodb python3-crypto python3-bottle libapache2-mod-wsgi-py3 python3-cryptography python3-setuptools python3-bottle python3-openssl ca-certificates git -y",
@@ -34,11 +35,11 @@
 "sudo patch /var/www/dokuwiki/inc/html.php /usr/local/share/ivre/dokuwiki/backlinks.patch",
 "sudo ln -s /usr/local/share/ivre/dokuwiki/doc /var/www/dokuwiki/data/pages/doc",
 "sudo ln -s /usr/local/share/ivre/dokuwiki/media/logo.png /var/www/dokuwiki/data/media/wiki/logo.png",
-"sudo mkdir var/www/dokuwiki/data/media/doc",
+"sudo mkdir /var/www/dokuwiki/data/media/doc",
 "sudo ln -s /usr/local/share/doc/ivre/screenshots /var/www/dokuwiki/data/media/doc/",
 "sudo ln -s /usr/local/share/ivre/dokuwiki/media/doc /var/www/dokuwiki/data/media/wiki/doc",
 "sudo echo 'WEB_GET_NOTEPAD_PAGES = (\"localdokuwiki\", (\"/var/www/dokuwiki/data/pages\",))' | sudo tee -a /etc/ivre.conf",
-"sudo rm var/www/dokuwiki/install.php",
+"sudo rm /var/www/dokuwiki/install.php",
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/doku-conf-local.php | sudo tee -a /var/www/dokuwiki/conf/local.php",
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/doku-conf-plugins.local.php | sudo tee -a /var/www/dokuwiki/conf/plugins.local.php",
 "curl https://raw.githubusercontent.com/ivre/ivre/master/docker/web/doku-conf-acl.auth.php | sudo tee -a /var/www/dokuwiki/conf/acl.auth.php",
@@ -50,7 +51,6 @@
 "sudo service fcgiwrap restart",
 "sudo uwsgi --plugin /usr/lib/uwsgi/plugins/python3_plugin.so  --daemonize /var/log/nginx/uwsgi.log  --socket /var/run/uwsgi/sock   --processes 4 --threads 2  --mount /cgi=/home/op/ivre/web/wsgi/app.wsgi --manage-script-name",
 "sudo service nginx stop",
-"sudo ufw allow 80",
 "yes | ivre ipinfo --init",
 "yes | ivre scancli --init",
 "yes | ivre view --init",
@@ -59,17 +59,19 @@
 "sudo ivre ipdata --download",
 "sudo /usr/sbin/nginx &",
 "echo ''",  
-"echo 'Testing database by conducting NMAP scan against: scanme.nmap.org'",
-"nmap scanme.nmap.org -A -T4 -oX scanme",
+"echo 'Testing database by conducting NMAP scan against: 45.33.32.156 (scanme.nmap.org)'",
+"cd /home/op/",
+"echo 45.33.32.156 | tee /home/op/scanme.nmap.org",
+"sudo ivre runscans -f  /home/op/scanme.nmap.org --output=XMLFork",
 "echo 'Importing scan result'",
-"ivre scan2db scanme",
+"ivre scan2db -r /home/op/scans/",
 "ivre db2view nmap",
 "echo ''",
-"echo 'The IVRE / DRUNK Dynamic Recon of UNKnown networks dashboard is exposed to the public internet at the following IP:'",
+"echo 'The IVRE / DRUNK Dynamic Recon of UNKnown networks dashboard is exposed on port 80, you might need to allow it past ufw (sudo ufw allow 80):'",
 "dig @ns1-1.akamaitech.net ANY whoami.akamai.net +short | sed 's/^/http:/'"
     ],
     "uninstall":[
         ""
     ],
-    "notes":"Install Complete. The web dashbaord is publicly reachable on port 80 for testing. Make sure you can reach the dashboard then SSH into the server and restrict access to port 80 with ufw"
+    "notes":"Install Complete"
 }
