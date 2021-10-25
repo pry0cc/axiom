@@ -254,7 +254,7 @@ if [ "$quiet" != "true" ]; then
 	echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
 fi
 
-axiom-exec "touch /tmp/.connected /home/op/.$(echo $name | tr -d "'")" "$name" -q >> /dev/null 2>&1
+axiom-exec "touch /tmp/.connected && echo $(echo $name | tr -d "'") | tee /home/op/.name" "$name" -q >> /dev/null 2>&1
 
 if [ "$restore" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
