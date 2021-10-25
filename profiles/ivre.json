@@ -11,7 +11,7 @@
 "sudo service mongodb stop",
 "cd ivre/ && python3 setup.py build && sudo python3 setup.py install && cd /home/op/",
 "sudo mkdir -m 1777 /home/op/ivre/var_{lib,log}_mongodb",
-"docker run -d --name ivredb -p 27017:27017 --hostname ivredb --volume /home/op/ivre/var_lib_mongodb:/var/lib/mongodb  --volume /home/op/ivre/var_lib_mongod/var_log_mongodb:/var/log/mongodb ivre/db",
+"docker run -d --name ivredb -p 127.0.0.1:27017:27017 --hostname ivredb --volume /home/op/ivre/var_lib_mongodb:/var/lib/mongodb  --volume /home/op/ivre/var_lib_mongod/var_log_mongodb:/var/log/mongodb ivre/db",
 "sudo apt-get -qy --no-install-recommends install rsync screen ipython3 openssl tesseract-ocr libfreetype6 libfontconfig1 fonts-dejavu imagemagick ffmpeg s3270 patch bash-completion bzip2 python3-pil nfdump python3-pymongo  python3-crypto python3-bottle apache2 libapache2-mod-wsgi-py3 ",
 "wget https://nmap.org/dist/nmap-7.92.tgz -O nmap.tar.gz",
 "sudo apt-get -qy --no-install-recommends install build-essential libssl-dev flex bison",
