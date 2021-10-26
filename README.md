@@ -35,6 +35,7 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
     -   [Easy Install](#easy-install)
     -   [Manual Install](https://github.com/pry0cc/axiom/wiki/0-Installation#Manual)
 -   [Scan Modules](https://github.com/pry0cc/axiom/wiki/Scans#example-axiom-scan-modules)
+-   [Installed Packages](#tools-to-date)
 -   [Contributors](#contributors)
 
 # Credit
@@ -107,7 +108,7 @@ We've had some really fantastic additions to axiom, great feedback through issue
 A list of all contributors can be found [here](https://github.com/pry0cc/axiom/graphs/contributors), thank you all!
 
 # Art
-The [original logo](https://github.com/pry0cc/axiom/commit/9ab2cc30910cc39e1e9db325877530b4f3716e38) was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you for making axiom look sleek as hell! Really beats my homegrown logo :)
+The [original logo](https://github.com/pry0cc/axiom/blob/master/screenshots/axiom-logo.png) was made by our amazing [s0md3v](https://twitter.com/s0md3v)! Thank you for making axiom look sleek as hell! Really beats my homegrown logo :)
 
 The awesome referral banners were inspired by [fleex](https://github.com/FleexSecurity/fleex) and were made by the one and only [xm1k3](https://twitter.com/xm1k3_)!
 
@@ -244,7 +245,7 @@ The awesome referral banners were inspired by [fleex](https://github.com/FleexSe
 - [x]  zsh-autosuggestions
 - [x]  zsh-syntax-highlighting
 
-And many more! Do you want to add a package to axiom? [Read the wiki!](https://github.com/pry0cc/axiom/wiki/Adding-Simple-Modules)
-<p align="center">
 <a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="screenshots/Referrals/axiom_docs.png"/></a>
+Do you want to add a package to axiom? [Read the wiki!](https://github.com/pry0cc/axiom/wiki/Adding-Simple-Modules)
+<p align="center">
 </p>
