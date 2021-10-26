@@ -34,6 +34,9 @@ case $BASEOS in
 *) ;;
 esac
 
+echo -e "${Green}Updating linode-cli\n ${Color_Off}"	
+pip3 install linode-cli --upgrade
+
 if [[ "$acc" == "n" ]]; then
     echo -e "${Blue}Launching browser with signup page...${Color_Off}"
     if [ $BASEOS == "Mac" ]; then
