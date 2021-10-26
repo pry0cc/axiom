@@ -40,20 +40,40 @@ then
 path="$AXIOM_PATH/accounts/$1.json"
 if [[ -f "$path" ]]
 then
-	echo -e "${BWhite}Selecting $1...${Color_Off}"
-	rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
-	ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
-	provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
-  $AXIOM_PATH/interact/axiom-provider $provider   
+echo -e "${BWhite}Selecting $1...${Color_Off}"
+rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
+ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
+provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
+$AXIOM_PATH/interact/axiom-provider $provider
 
+# Update doctl and check for valid token. If token isnt valid, kick off account bootstrap
+#
 if [[ "$provider" == "do" ]]; then
-echo -e "${Blue}doctl..${Color_Off}"
- token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
- doctl auth init -t "$token" || bootstrap
+ echo -e "${Blue}Updating doctl...${Color_Off}"
+if [[ $BASEOS == "Mac" ]]; then
+ brew install doctl
+elif [[ $BASEOS == "Linux" ]]; then
+ OS=$(lsb_release -i | awk '{ print $3 }')
+if ! command -v lsb_release &> /dev/null; then
+ OS="unknown-Linux"
+ BASEOS="Linux"
+fi 
+if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
+ sudo pacman -Syu doctl --noconfirm
+else
+ wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.65.0/doctl-1.65.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+fi
+fi 
+token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+doctl auth init -t "$token" || bootstrap
 fi
 
+# Update Linode-cli and check for valid token. If token isnt valid, kick off account bootstrap
+#
 if [[ "$provider" == "linode" ]]; 
 then
+echo -e "${Green}Updating linode-cli\n ${Color_Off}"	
+pip3 install linode-cli --upgrade
 token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
 size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
 region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
@@ -66,12 +86,20 @@ bootstrap
 fi
 fi
 
+# If IBM token isnt valid, kick off account bootstrap
+# TODO: Update ibmcloud cli 
+#
 if [[ "$provider" == "ibm" ]]; 
 then
 token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
 ibmcloud login --apikey $token --no-region || bootstrap
 fi
 
+# If Azure cli isnt logged in, kick off bootstrap
+# TODO: Make sure az is up to date
+# TODO: This likely doesnt play well with multiple account accounts
+# TODO: grep account creds from account.json and authenticate with those 
+#
 if [[ "$provider" == "azure" ]]; 
 then
 az ad signed-in-user show || bootstrap
