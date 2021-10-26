@@ -101,6 +101,8 @@ function help() {
       	echo -e "    Delete selected instances when scan is complete."
         echo -e "  --rm-logs (optional)"
         echo -e "    Delete remote and local logs when finished (default keeps all logs)"
+        echo -e "  --shutdown-when-done (optional)"
+        echo -e "    Shutdown selected instances when scan is complete."
         echo -e "  --debug (optional)"
         echo -e "    Enable debug mode (VERY VERBOSE!)"
         echo -e "  --quiet"
@@ -384,6 +386,11 @@ do
         fi
         if [[ "$arg" == "--rm-when-done" ]]; then
             rm_when_done="true"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--shutdown-when-done" ]] || [[ "$arg" == "--poweroff-when-done" ]] || [[ "$arg" == "--shutdown" ]]; then
+            shutdown_when_done="true"
             set=true
             pass+=($i)
         fi
@@ -787,6 +794,16 @@ fi
 # After downloading all the results merge the output 
 #
 merge_output
+
+# shutdown axiom instances after scan completes if --shutdown-when-done is in the command
+#
+if [[ "$shutdown_when_done" == "true" ]]; then
+    for instance in $(cat "$tmp/selected.conf");
+    do
+        "$AXIOM_PATH/interact/axiom-power" off "$instance" 
+        sleep 0.4
+    done
+fi
 
 # Deprovision axiom instances after scan completes if --rm-when-done is in the command
 #
