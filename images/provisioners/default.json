@@ -255,7 +255,13 @@
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest'",
 
         "echo 'Installing nmap'",
-        "apt-get install nmap -y -qq",
+        "sudo apt-get -qy --no-install-recommends install build-essential libssl-dev flex bison",
+        "/bin/su -l op -c 'wget https://nmap.org/dist/nmap-7.92.tgz -O /home/op/recon/nmap.tar.gz && cd /home/op/recon/ && tar zxf nmap.tar.gz --transform s/nmap-7.92/nmap/ && rm nmap.tar.gz && cd /home/op/recon/nmap/ && sudo ./configure --without-ndiff --without-zenmap --without-nping  --without-ncat --without-nmap-update --with-libpcap=included && sudo make && sudo make install'",
+
+        "echo 'Installing nmap extra scripts by ivre'",
+        "git clone --depth 1  https://github.com/ivre/ivre.git /home/op/recon/nmap_scripts && cd /home/op/recon/nmap_scripts && git filter-branch --prune-empty --subdirectory-filter  nmap_scripts HEAD",
+        "sudo cp /home/op/recon/nmap_scripts/* /usr/local/share/nmap/scripts && sudo nmap --script-update",
+        "sudo cp /home/op/recon/nmap_scripts/* /home/op/recon/nmap/scripts/ && cd /home/op/recon/nmap && sudo ./nmap --script-update",
         
         "echo 'Installing nuclei'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest'",
@@ -265,6 +271,9 @@
 
         "echo 'Installing ParamSpider'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
+
+        "echo 'Installing phantomjs'",
+        "wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 && tar jxf phantomjs-1.9.8-linux-x86_64.tar.bz2 phantomjs-1.9.8-linux-x86_64/bin/phantomjs && sudo rm phantomjs-1.9.8-linux-x86_64.tar.bz2 && sudo mv phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/",
 
         "echo 'Installing proxychains-ng'",
         "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",
