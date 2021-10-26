@@ -17,7 +17,7 @@
 
 Axiom works by pre-installing your tools of choice onto a 'base image', and then using that image to deploy fresh instances. From there, you can connect and instantly gain access to many tools useful for both bug hunters and pentesters. With the power of immutable infrastructure, most of which is done for you, you can just spin up 15 boxes, perform a distributed nmap/ffuf/screenshotting scan, and then shut them down.  
 
-Because you can create many disposable instances very easily, axiom allows you to distribute scans of many different tools including amass aquatone arjun assetfinder cf-check cngo commix corsy crlfuzz crobat ctfr dalfox dirdar dnscewl dnsgen dnsrecon dnsx erlpopper exclude-cdn exec feroxbuster fff ffuf ffuz findomain gau gauplus github-endpoints github-subdomains gobuster gorgo gospider gowitness gxss hakrawler http2smugl httprobe httpx jaeles kiterunner linkfinder masscan massdns meg naabu nmap nmapx nuclei openredirex paramspider puredns rustscan s3scanner scrying shuffledns soxy sqlmap subfinder subjs testssl tlscout unimap wafw00f waybackurls webscreenshot whois & wpscan. Once installed and setup, you can distribute a scan of a large set of targets across 100-150 instances within minutes and get results extremely quickly. This is called [axiom-scan](https://github.com/pry0cc/axiom/wiki/Scans).
+Because you can create many disposable instances very easily, axiom allows you to distribute scans of many different tools including amass arjun aiodnsbrute anti-burl aquatone assetfinder corsy crackmapexec cf-check cngo commix concurl crlfuzz crobat dnscewl dalfox dirdar dnsgen dnsrecon dnsvalidator dnsx erlpopper exclude-cdn feroxbuster fff ffuf ffuz findomain gxss gau gauplus getJS github-endpoints github-subdomains gobuster gorgo gospider gowitness gxss hakrawler http2smugl httprobe httpx jaeles kiterunner kxss linkfinder masscan massdns medusa meg naabu nmap nuclei openredirex paramspider puredns rustscan responder s3scanner scrying shuffledns sn0int sqlmap subfinder subjack subjs testssl thc-hydra tlscout unimap wafw00f waybackurls webscreenshot whois & wpscan. Once installed and setup, you can distribute a scan of a large set of targets across 100-150 instances within minutes and get results extremely quickly. This is called [axiom-scan](https://github.com/pry0cc/axiom/wiki/Scans).
 
 Axiom supports several cloud providers, eventually, axiom should be completely cloud agnostic allowing unified control of a wide variety of different cloud environments with ease. Currently, DigitalOcean, IBM Cloud, Linode and Azure are officially supported providers. Google Compute is partially implemented and AWS is on the roadmap. If you would like prioritization of a feature or provider implementation, please contact me @pry0cc on Twitter and we can discuss :)
 
@@ -111,66 +111,68 @@ The [original logo](https://github.com/pry0cc/axiom/commit/9ab2cc30910cc39e1e9db
 
 The awesome referral banners were inspired by [fleex](https://github.com/FleexSecurity/fleex) and were made by the one and only [xm1k3](https://twitter.com/xm1k3_)!
 
-# Tools to Date
+# Packages to Date
 
 - [x]  Amass
 - [x]  Arjun
-- [x]  Corsy
-- [x]  CrackMapExec
-- [x]  DNSCewl
-- [x]  Docker
-- [x]  ERLPopper
-- [x]  Gf-Patterns
-- [x]  Go
-- [x]  Gxss
-- [x]  Interlace
-- [x]  LinkFinder
-- [x]  OpenRedireX
-- [x]  ParamSpider
-- [x]  RustScan
-- [x]  SecLists
-- [x]  Tools
-- [x]  Wordlists
 - [x]  aiodnsbrute
 - [x]  anew
 - [x]  anti-burl
 - [x]  aquatone
 - [x]  assetfinder
+- [x]  Corsy
+- [x]  CrackMapExec
 - [x]  cent
 - [x]  cf-check
 - [x]  chaos-client
+- [x]  cngo
 - [x]  commix
 - [x]  concurl
 - [x]  crlfuzz
+- [x]  crobat
+- [x]  ctfr
+- [x]  DNSCewl
+- [x]  Docker
 - [x]  dalfox
 - [x]  dirdar
+- [x]  dnscewl
 - [x]  dnsgen
 - [x]  dnsrecon
 - [x]  dnsvalidator
 - [x]  dnsx
+- [x]  ERLPopper
 - [x]  exclude-cdn
 - [x]  feroxbuster
 - [x]  fff
 - [x]  ffuf
-- [x]  findomain-linux
+- [x]  ffuz
+- [x]  findomain
+- [x]  Gf-Patterns
+- [x]  Go
+- [x]  Gxss
 - [x]  gau
 - [x]  gauplus
 - [x]  getJS
 - [x]  gf
 - [x]  github-endpoints
+- [x]  github-subdomains
 - [x]  gobuster
 - [x]  google-chrome
 - [x]  gorgo
 - [x]  gospider
 - [x]  gowitness
 - [x]  gron
+- [x]  gxss
 - [x]  hakrawler
+- [x]  http2smugl
 - [x]  httprobe
 - [x]  httpx
+- [x]  Interlace
 - [x]  interactsh-client
 - [x]  jaeles
 - [x]  kiterunner
 - [x]  kxss
+- [x]  LinkFinder
 - [x]  leaky-paths
 - [x]  masscan
 - [x]  massdns
@@ -179,28 +181,33 @@ The awesome referral banners were inspired by [fleex](https://github.com/FleexSe
 - [x]  naabu
 - [x]  nmap
 - [x]  nuclei
-- [x]  permutations
+- [x]  OpenRedireX
+- [x]  ParamSpider
 - [x]  phantomjs
 - [x]  proxychains-ng
 - [x]  puredns
 - [x]  qsreplace
-- [x]  resolvers
+- [x]  RustScan
 - [x]  responder
+- [x]  SecLists
 - [x]  s3scanner
 - [x]  scrying
 - [x]  shuffledns
 - [x]  sn0int
+- [x]  soxy
 - [x]  sqlmap
 - [x]  subfinder
 - [x]  subjack
 - [x]  subjs
 - [x]  testssl
 - [x]  thc-hydra
+- [x]  tlscout
 - [x]  ufw
 - [x]  unimap
 - [x]  wafw00f
 - [x]  waybackurls
 - [x]  webscreenshot
+- [x]  whois
 - [x]  wpscan
 
 And many more! Do you want to add a package to axiom? [Read the wiki!](https://github.com/pry0cc/axiom/wiki/Adding-Simple-Modules)
