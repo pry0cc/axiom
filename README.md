@@ -210,7 +210,7 @@ The awesome referral banners were inspired by [fleex](https://github.com/FleexSe
 - [x]  whois
 - [x]  wpscan
 
-# Packages Installed with apt-get
+# Packages Installed via apt-get
 > for [default](https://github.com/pry0cc/axiom/blob/master/images/provisioners/default.json) provisioner
 - [x]  bison
 - [x]  build-essential
