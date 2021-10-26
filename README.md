@@ -111,8 +111,8 @@ The [original logo](https://github.com/pry0cc/axiom/commit/9ab2cc30910cc39e1e9db
 
 The awesome referral banners were inspired by [fleex](https://github.com/FleexSecurity/fleex) and were made by the one and only [xm1k3](https://twitter.com/xm1k3_)!
 
-# Packages to Date
-
+# Tools to Date
+> for [default](https://github.com/pry0cc/axiom/blob/master/images/provisioners/default.json) provisioner
 - [x]  Amass
 - [x]  Arjun
 - [x]  aiodnsbrute
@@ -209,6 +209,40 @@ The awesome referral banners were inspired by [fleex](https://github.com/FleexSe
 - [x]  webscreenshot
 - [x]  whois
 - [x]  wpscan
+
+# Packages Installed with apt-get
+> for [default](https://github.com/pry0cc/axiom/blob/master/images/provisioners/default.json) provisioner
+- [x]  bison
+- [x]  build-essential
+- [x]  fail2ban
+- [x]  firebird-dev
+- [x]  flex
+- [x]  git
+- [x]  grc
+- [x]  jq
+- [x]  libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb
+- [x]  libgcrypt20-dev
+- [x]  libgpg-error-dev
+- [x]  libgtk2.0-dev
+- [x]  libidn11-dev
+- [x]  libmemcached-dev
+- [x]  libmysqlclient-dev
+- [x]  libpcap-dev
+- [x]  libpcre3-dev
+- [x]  libpq-dev
+- [x]  libssh-dev
+- [x]  libssl-dev
+- [x]  libsvn-dev
+- [x]  net-tools
+- [x]  p7zip
+- [x]  python3-pip
+- [x]  ruby-dev
+- [x]  rubygems
+- [x]  ufw
+- [x]  unzip
+- [x]  zsh
+- [x]  zsh-autosuggestions
+- [x]  zsh-syntax-highlighting
 
 And many more! Do you want to add a package to axiom? [Read the wiki!](https://github.com/pry0cc/axiom/wiki/Adding-Simple-Modules)
 <p align="center">
