@@ -111,7 +111,7 @@ if [[ "$off" == "true" ]]; then
     fi
     for i in $(echo $instances); 
         do 
-            echo -e "${Yellow}Powering off instance: $i{Color_Off}"
+            echo -e "${Yellow}Powering off instance: $i${Color_Off}"
             poweroff $i; 
         done
 fi
