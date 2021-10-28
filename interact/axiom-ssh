@@ -125,12 +125,12 @@ do
             pass+=($i)
         fi
         if [[ "$arg" == "--debug" ]]; then
-            debug="true"
+            debug=true
             set=true
             pass+=($i)
         fi
         if [[ "$arg" == "--cache" ]]; then
-            debug="true"
+            cache=true
             set=true
             pass+=($i)
         fi
@@ -140,9 +140,16 @@ do
     fi
 done
 
+# Debug flag
+#
+if [ $debug == true ]
+then
+set -xv
+fi
+
 # Display Help Menu
 #
-if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]] || [[ "$@" == "help" ]]; then
+if [[ "$*" == "--help" ]] || [[ "$*" == "-h" ]] || [[ "$*" == "" ]] || [[ "$*" == "help" ]]; then
 usage
 exit
 fi
@@ -153,7 +160,7 @@ if [ -z ${tmux_session:+x} ]; then
 tmux_session="main"
 fi
 
-# toggle SSH config generation and update account.json with toggle value. 
+# SSH generate toggle and store toggle in account.json
 #
 if [[ "$toggle" == "public" ]] || [[ "$toggle" == "Public" ]] || [[ "$toggle" == "PUBLIC" || $toggle == "" ]]; then
 jq '.generate_sshconfig="public"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
