@@ -153,7 +153,7 @@ if [ -z ${tmux_session:+x} ]; then
 tmux_session="main"
 fi
 
-# SSH generate toggle
+# toggle SSH config generation and update account.json with toggle value. 
 #
 if [[ "$toggle" == "public" ]] || [[ "$toggle" == "Public" ]] || [[ "$toggle" == "PUBLIC" || $toggle == "" ]]; then
 jq '.generate_sshconfig="public"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
