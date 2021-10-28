@@ -47,7 +47,7 @@ connected=false
 cache=false
 just_generate=false
 args="-F $ssh_config"
-
+toggle=false
 ###########################################################################################################
 # Help Menu:
 # 
@@ -156,7 +156,7 @@ fi
 
 # SSH generate toggle
 #
-if [[ "$toggle" == "public" ]] || [[ "$toggle" == "Public" ]] || [[ "$toggle" == "PUBLIC" ]]; then
+if [[ "$toggle" == "public" ]] || [[ "$toggle" == "Public" ]] || [[ "$toggle" == "PUBLIC" || $toggle == "" ]]; then
 jq '.generate_sshconfig="public"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 fi
 
@@ -167,6 +167,7 @@ fi
 if [[ "$toggle" == "cache" ]] || [[ "$toggle" == "Cache" ]] || [[ "$toggle" == "CACHE" ]]; then
 jq '.generate_sshconfig="cache"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
 fi
+
 
 # If cache isnt selected generate SSH config
 #
