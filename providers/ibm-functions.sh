@@ -1,4 +1,4 @@
-
+ 
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
@@ -261,23 +261,41 @@ quick_ip() {
 	echo $ip
 }
 
-# take no arguments, generate a SSH config from the current Digitalocean layout
+# Parse generate_sshconfig file in account.json and generate the SSH config specifed
+#
 generate_sshconfig() {
+	accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+	current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 	droplets="$(instances)"
-	echo -n "" > $AXIOM_PATH/.sshconfig.new
-  
+	echo -n "" > $AXIOM_PATH/.sshconfig.new 
 	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
-  echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
-  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-  echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
+	echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+	sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
+	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
 
-	for name in $(echo "$droplets" | jq -r '.[].hostname')
+  if [[ "$generate_sshconfig" == "private" ]]; then
+  for name in $(echo "$droplets" | jq -r '.[].hostname')
+  do 
+  ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryBackendIpAddress")
+  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+  done
+  mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+
+	elif [[ "$generate_sshconfig" == "cache" ]]; then
+	echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
+	echo -e "axiom will never attempt to regenerate the SSH config. To change edit $HOME/.axiom/account/$current.json"
+	
+  # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
+  #
+	else 
+  for name in $(echo "$droplets" | jq -r '.[].hostname')
 	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryIpAddress")
-		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-
+	ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryIpAddress")
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+fi
 }
 
 # create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)
