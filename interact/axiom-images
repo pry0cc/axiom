@@ -58,7 +58,7 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "use" ]]; then
+        if [[ "$arg" == "use" ]] || [[ "$arg" == "set" ]] ; then
             n=$((i+1))
             use=true
             snapshot=$(echo ${!n})
@@ -79,7 +79,7 @@ do
             set=true
             pass+=($i)
         fi
-        if [[ "$arg" == "get" ]] || [[ "$arg" == "set" ]] ; then
+        if [[ "$arg" == "get" ]] ; then
             get="true"
             set=true
             pass+=($i)
