@@ -275,6 +275,8 @@ generate_sshconfig() {
 	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
 
   if [[ "$generate_sshconfig" == "private" ]]; then
+  echo -e "Warning your SSH config generation toggle is set to 'Private' for account : $(echo $current)."
+  echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert run: axiom-ssh --just-generate"
   for name in $(echo "$droplets" | jq -r '.[].hostname')
   do 
   ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryBackendIpAddress")
@@ -284,7 +286,7 @@ generate_sshconfig() {
 
 	elif [[ "$generate_sshconfig" == "cache" ]]; then
 	echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
-	echo -e "axiom will never attempt to regenerate the SSH config. To change edit $HOME/.axiom/account/$current.json"
+	echo -e "axiom will never attempt to regenerate the SSH config. To revert run: axiom-ssh --just-generate"
 	
   # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
   #
