@@ -70,9 +70,9 @@ instance_pretty() {
   #monthly price of linode type 
   price=$(linode-cli linodes type-view $type --json|jq -r '.[].price.monthly')
   totalPrice=$(( $price * $linodes))
-  header="Instance,IP,Region,Memory,Status,\$/M"
+  header="Instance,Primary Ip, Backend Ip,Region,Memory,Status,\$/M"
   totals="_,_,_,_,Total,\$$totalPrice"
-  fields=".[] | [.label,.ipv4[0],.region,.specs.memory,.status, \"$price\"]| @csv"
+  fields=".[] | [.label,.ipv4[0],.ipv4[1],.region,.specs.memory,.status, \"$price\"]| @csv"
   #printing part
   (echo "$header" && echo $data|jq -r "$fields" && echo "$totals") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
@@ -269,30 +269,47 @@ query_instances_cache() {
 	echo -n $selected
 }
 
-# take no arguments, generate a SSH config from the current Digitalocean layout
-generate_sshconfig() {
-	droplets="$(instances)"
-	echo -n "" > $AXIOM_PATH/.sshconfig.new
-  
-	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
-  echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
-  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-  echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
 
+
+
+# Generate SSH config specfied in generate_sshconfig key:value in account.json
+#
+generate_sshconfig() {
+	accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+	current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+	droplets="$(instances)"
+	echo -n "" > $AXIOM_PATH/.sshconfig.new 
+	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
+	echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+	sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
+	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
+
+	if [[ "$generate_sshconfig" == "private" ]]; then
 	for name in $(echo "$droplets" | jq -r '.[].label')
-	do 
-		ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]")
-		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+	do
+	ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+	done
+
+
+  mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+
+	elif [[ "$generate_sshconfig" == "cache" ]]; then
+	echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
+	echo -e "axiom will never attempt to regenerate the SSH config. To change edit $HOME/.axiom/account/$current.json"
+	
+  # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
+  #
+	else 
+	for name in $(echo "$droplets" | jq -r '.[].label')
+	do
+	ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]")
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
 	done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
-	
-	if [ "$key" != "null" ]
-	then
-		gen_app_sshconfig
-	fi
+fi
 }
-
-# create an instance, name, image_id (the source), sizes_slug, or the size (e.g 1vcpu-1gb), region, boot_script (this is required for expiry)
 
 image_id() {
 	name="$1"
@@ -306,7 +323,7 @@ create_instance() {
 	region="$4"
 	boot_script="$5"
 	root_pass="$(jq -r .do_key "$AXIOM_PATH/axiom.json")"
-	linode-cli linodes create  --type "$size_slug" --region "$region" --image "$image_id" --label "$name" --root_pass "$root_pass" 2>&1 >> /dev/null
+	linode-cli linodes create  --type "$size_slug" --region "$region" --image "$image_id" --label "$name" --root_pass "$root_pass" --private_ip true 2>&1 >> /dev/null
 	sleep 260
 }
 
