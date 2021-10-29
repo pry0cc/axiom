@@ -273,6 +273,8 @@ generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig'
 
 if [[ "$generate_sshconfig" == "private" ]]; then
 
+ echo -e "Warning your SSH config generation toggle is set to 'Private' for account : $(echo $current)."
+ echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert run: axiom-ssh --just-generate"
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
  ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address")
