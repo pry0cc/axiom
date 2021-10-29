@@ -285,12 +285,15 @@ generate_sshconfig() {
 	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
 	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
 
-  if [[ "$generate_sshconfig" == "private" ]]; then
-        for name in $(echo "$droplets" | jq -r '.[].label')
-        do
-                ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
-                echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-        done
+ if [[ "$generate_sshconfig" == "private" ]]; then
+ echo -e "Warning your SSH config generation toggle is set to 'Private' for account : $(echo $current)."
+ echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert: axiom-ssh --just-generate"
+ 
+ for name in $(echo "$droplets" | jq -r '.[].label')
+ do
+ ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
+ echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+ done
 
 
   mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
