@@ -20,12 +20,13 @@ current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep 
 
 function usage() {
   cat << EOF
-  Examples: axiom-images ls && axiom-images rm axiom-barebones-1634682130 && axiom-images use axiom-default-1634682131
-  Usage:
-  ls                                 List snapshots created
-  use               Use snapshot for axiom-init/axiom-fleet
-  rm                           Remove snapshot from account
-  help | --help | -h                   Print this help menu
+ Examples: axiom-images ls && axiom-images rm axiom-barebones-1634682130 && axiom-images use axiom-default-1634682131
+ Usage:
+ ls                                      List snapshots created
+ get                       Display info about the current image
+ use | set              Use snapshot for axiom-init/axiom-fleet
+ rm                                Remove snapshot from account
+ help | --help | -h                        Print this help menu
 EOF
 exit
 }
@@ -78,6 +79,11 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "get" ]] || [[ "$arg" == "set" ]] ; then
+            get="true"
+            set=true
+            pass+=($i)
+        fi
         if [[ "$arg" == "--debug" ]]; then
             debug="true"
             set=true
@@ -95,6 +101,14 @@ done
 if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]] || [[ "$@" == "help" ]]; then
 usage
 exit
+fi
+
+# Get the image in /.axiom/accout/account.json
+#
+if [[ "$get" == "true" ]]; then
+echo -e "${Green}Displaying Account Info from: $current${Color_Off}"
+cat $(echo $account_path)
+exit 1
 fi
 
 
