@@ -54,7 +54,10 @@ toggle=false
 # 
 function usage() {
         echo -e "${BWhite}Usage of axiom-ssh{Color_Off}"
-        echo -e "Example Usage: ${Blue}axiom-scan --just-generate private && axiom-ssh <instance>${Color_Off}"
+        echo -e "Example Usage: ${Blue}axiom-ssh --just-generate private && axiom-ssh <instance>${Color_Off}"
+        echo -e "${Blue}axiom-ssh jerry01 --tmux newsessiontmux --cache${Color_Off}"
+        echo -e "  <instance name> required string"
+        echo -e "    Instance name supplied as a positional first argument"
         echo -e "  --mosh/-m <instance name> (optional)"
         echo -e "    Connect with mosh"
         echo -e "  --just_generate <public, private, cache> (optional)"
