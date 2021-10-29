@@ -70,8 +70,8 @@ instance_pretty() {
   #monthly price of linode type 
   price=$(linode-cli linodes type-view $type --json|jq -r '.[].price.monthly')
   totalPrice=$(( $price * $linodes))
-  header="Instance,Primary Ip, Backend Ip,Region,Memory,Status,\$/M"
-  totals="_,_,_,_,Total,\$$totalPrice"
+  header="Instance,Primary Ip,Backend Ip,Region,Memory,Status,\$/M"
+  totals="_,_,_,_,_,Total,\$$totalPrice"
   fields=".[] | [.label,.ipv4[0],.ipv4[1],.region,.specs.memory,.status, \"$price\"]| @csv"
   #printing part
   (echo "$header" && echo $data|jq -r "$fields" && echo "$totals") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
@@ -285,12 +285,12 @@ generate_sshconfig() {
 	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
 	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
 
-	if [[ "$generate_sshconfig" == "private" ]]; then
-	for name in $(echo "$droplets" | jq -r '.[].label')
-	do
-	ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-	done
+  if [[ "$generate_sshconfig" == "private" ]]; then
+        for name in $(echo "$droplets" | jq -r '.[].label')
+        do
+                ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
+                echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+        done
 
 
   mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
@@ -302,11 +302,11 @@ generate_sshconfig() {
   # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
   #
 	else 
-	for name in $(echo "$droplets" | jq -r '.[].label')
-	do
-	ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
-	done
+        for name in $(echo "$droplets" | jq -r '.[].label')
+        do
+                ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]")
+                echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+        done
 	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
 fi
 }
