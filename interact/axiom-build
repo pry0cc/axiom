@@ -21,8 +21,8 @@ provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
 if [ -z "$provisioner" ]; then
     echo -e ""
     echo -e '\033[1mTime to pick your provisioner. Options: default, reconftw, barebones, custom\033[0m'
-    echo -e "${Yellow}Default: includes all tools installed and has been optimized for readability. Recommended for axiom-feet.${Color_Off}"
-    echo -e "${Green}ReconFTW: includes all tools in ReconFTW and works with all modules. Recommended for reconftw_axiom.sh.${Color_Off}"
+    echo -e "${Yellow}Default: is our latest iteration of axiom provisioners. It comes with all tools installed and has been optimized for readability. Recommended for axiom-fleet${Color_Off}"
+    echo -e "${Green}ReconFTW: includes all tools in ReconFTW and works with most modules. Recommended for ReconFTW.${Color_Off}"
     echo -e "${Yellow}Barebones: a decently secure base install, comes with Docker, Go-lang, Interlace and nmap installed. Recommended for templating.${Color_Off}"
     echo -e "${Green}Custom: custom Packer JSON you provide.${Color_Off}"
     echo -e -n "${Blue}Which axiom provisioner would you like to use: default, reconftw, barebones, custom? (option: press enter to select Default) \n>>${Color_Off}"
