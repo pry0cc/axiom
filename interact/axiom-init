@@ -255,6 +255,9 @@ create_instance "$name" "$image_id" "$size" "$region" &
 PID="$!"
 waitabit "$PID"
 sleep 20
+ip="$(instance_ip "$name")"
+ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
+echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 else
 
 ###########################################################################################################
