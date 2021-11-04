@@ -11,7 +11,7 @@ function help() {
     echo -e "  -i=int"
     echo -e "    How many instances you'd like to spin up"
     echo -e "  --regions"
-    echo -e "    Supply comma-separated regions to cycle through e.g. --regions=NYC1,NYC2,NYC3,AMS2,AMS3"
+    echo -e "    Supply comma-separated regions to cycle through e.g. --regions=nyc1,sgp1,lon1,nyc3,ams3,fra1,tor1,blr1,sfo3"
     echo -e "  --help"
     echo -e "    Display this help menu"
 }
@@ -19,11 +19,11 @@ function help() {
 gen_name=""
 provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 
-if [ -z $1 ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
+if [ -z "$1" ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
 then
     gen_name="${names[$RANDOM % ${#names[@]} ]}"
 else
-    if [ ! -z $1 ]
+    if [ ! -z "$1" ]
     then
         gen_name="$1"
     fi
@@ -82,15 +82,15 @@ fi
 
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
 total_spend_per_instance_rounded="0"
-slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
+slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
 price_hourly=0
 if [[ "$provider" == "do" ]]; then
 	sizes=$(instance_sizes)
-	instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-	price_hourly=$(echo $instance_data | jq .price_hourly)
+	instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
+	price_hourly=$(echo "$instance_data" | jq .price_hourly)
 elif [[ "$provider" == "azure" ]]; then
-	price_hourly=$(cat $AXIOM_PATH/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
+	price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
 fi
 
 #if [[ "$provider" == "do" ]] | [[ "$provider" == "azure" ]];
@@ -110,16 +110,8 @@ expiry=$(bc <<< "scale=2; $expiry - 8")
 time=320
 
 image_id=""
-image_name=""
-image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
-region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
-
-if [[ "$image" != "null" ]]
-then
-	image_name="$image-$region"
-else
-	image_name="axiom-$region"
-fi
+image_name="$(jq -r '.imageid' "$AXIOM_PATH"/axiom.json)"
+region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 
 # Basically repeat items, if the fleet is 20 hosts and they only supply 3 regions, loop over them until it reaches 20
 total_regions=$(echo "${region_array[@]}" |  tr ' ' '\n' | wc -l | awk '{ print $1 }')
@@ -164,10 +156,16 @@ do
    args=""
  
 	if [[ "$cycle_regions" != "false" ]]; then
-		args="--uregion=${regions_to_cycle[o]}"	
+		regionargs="${regions_to_cycle[o]}"	
 	fi
-	
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
+
+# make sure region is set
+#
+if [ -z ${regionargs:+x} ]; then
+regionargs="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+fi
+
+   "$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  $regionargs &
    sleep 0.6
    o=$((o+1))
 done

@@ -53,9 +53,20 @@ toggle=false
 # Help Menu:
 # 
 function usage() {
-        echo -e "${BWhite}Usage of axiom-ssh${Color_Off}"
-        echo -e "Example Usage: ${Blue}axiom-ssh --just-generate private && axiom-ssh <instance>${Color_Off}"
-        echo -e "${Blue}axiom-ssh jerry01 --tmux newsessiontmux --cache${Color_Off}"
+        echo -e "${BWhite}Description:"
+        echo -e "  axiom-ssh dynamically generates axiom's SSH config based on your cloud inventory." 
+        echo -e "  axiom-ssh allows you to connect to your axiom instances over their public or private network interface." 
+        echo -e "  axiom-ssh can drop you right into a freshly created tmux session on the remote instance, and can be used to"
+        echo -e "  attach to a preexisting tmux session." 
+        echo -e "  All additional SSH args are passed to SSH.${Color_Off}"
+        echo -e "${BWhite}Examples:${Color_Off}"
+        echo -e "  ${Blue}axiom-ssh testy01${Color_Off} # SSH into instance testy01"
+        echo -e "  ${Blue}axiom-ssh testy01 --tmux mysession1${Color_Off} # SSH into instance testy01 and spawn or attach to session named mysession1"
+        echo -e "  ${Blue}axiom-ssh --just-generate${Color_Off} # Always populate axiom's ssh config (located in ~/.axiom/.sshconfig) with public Ip details"
+        echo -e "  ${Blue}axiom-ssh --just-generate private${Color_Off} # Always populate axiom's ssh config (located in ~/.axiom/.sshconfig) with private Ip details"
+        echo -e "  ${Blue}axiom-ssh --just-generate cache${Color_Off} # Never regenerate axiom's ssh config" 
+        echo -e "  ${Blue}axiom-ssh testy01 -L 8080:127.0.0.1:8080 -D 4040 ${Color_Off} # Port-forward 8080 to local port 8080 and dynamically port foward port 4040 to testy01"
+        echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  <instance name> required string"
         echo -e "    Instance name supplied as a positional first argument"
         echo -e "  --mosh/-m <instance name> (optional)"

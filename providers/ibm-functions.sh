@@ -12,17 +12,35 @@ ibmcloud sl vs list --column datacenter --column domain --column hostname --colu
 
 poweron() {
 instance_name="$1"
+force="$2"
+if [ "$force" == "true" ]
+then
+ibmcloud sl vs power-on $(instance_id $instance_name) --force
+else
 ibmcloud sl vs power-on $(instance_id $instance_name)
+fi
 }
 
 poweroff() {
 instance_name="$1"
-ibmcloud sl vs power-off $(instance_id $instance_name)
+force="$2"
+if [ "$force" == "true" ]
+then
+ibmcloud sl vs power-off $(instance_id $instance_name) --force
+else
+ibmcloud sl vs power-off $(instance_id $instance_name) 
+fi
 }
 
 reboot(){
 instance_name="$1"
-ibmcloud sl vs reboot $(instance_id $instance_name)
+force="$2"
+if [ "$force" == "true" ]
+then
+ibmcloud sl vs reboot $(instance_id $instance_name) --force
+else
+ibmcloud sl vs reboot $(instance_id $instance_name) 
+fi
 }
 
 get_image_id() {
@@ -316,8 +334,8 @@ create_instance() {
 instance_pretty() {
 	data=$(instances)
 	i=0
-        total=$(echo $data | jq -r '.[].billingItem.recurringFee  | select( . != null )' | awk '{sum+=$0} END{print sum}')
-	(echo "Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,\$/M" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.recurringFee] | @csv' && echo "_,_,_,_,_,_,Total,\$$total") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+        total=$(echo $data | jq -r '.[].billingItem.hourlyRecurringFee  | select( . != null )' | awk '{sum+=$0} END{print sum}')
+	(echo "Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,Hours used,\$/H" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.hoursUsed, .billingItem.recurringFee] | @csv' && echo "_,_,_,_,_,_,_,Total,\$$total") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 # Function used for splitting $src across $instances and rename the split files.
 lsplit() {
