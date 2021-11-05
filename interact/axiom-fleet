@@ -1,34 +1,41 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+###################################################################
+# About	:
+#
+# axiom-fleet lets you spin up fleets of axiom instances in one or multiple regions.
+# You can specify the name of a fleet (fleet prefix) or have axiom choose for you.
+#
+# Examples: 
+#
+# axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
+# axiom-fleet javis -i 10${Color_Off} # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
+# axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances using round robbin region distribution"
+###################################################################
+
+###########################################################################################################
+# Header
+#
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
+begin=$(date +%s)
+start="$(pwd)"
+BASEOS="$(uname)"
+account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+case $BASEOS in
+'Darwin')
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+*) ;;
+esac
 
-function help() {
-    echo -e "${BWhite}Usage of axiom-fleet${Color_Off}"
-    echo -e "Example Usage: ${Blue}axiom-fleet -i=10${Color_Off}. In this case a random name will be selected for the new fleet"
-    echo -e "  ${Blue}axiom-fleet javis -i=10${Color_Off} This will create 10 instances named javis01 to javis10"
-    echo -e "  -i=int"
-    echo -e "    How many instances you'd like to spin up"
-    echo -e "  --regions"
-    echo -e "    Supply comma-separated regions to cycle through e.g. --regions=NYC1,NYC2,NYC3,AMS2,AMS3"
-    echo -e "  --help"
-    echo -e "    Display this help menu"
-}
-
-gen_name=""
-provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
-
-if [ -z $1 ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] 
-then
-    gen_name="${names[$RANDOM % ${#names[@]} ]}"
-else
-    if [ ! -z $1 ]
-    then
-        gen_name="$1"
-    fi
-fi
-
+###########################################################################################################
+# Declare defaut variables
+#
 spend=false
 hours=false
 amount=false
@@ -37,139 +44,149 @@ region=false
 image=false
 cycle_regions=false
 region_array=()
+gen_name=""
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
+image_name="$(jq -r '.imageid' "$AXIOM_PATH"/axiom.json)"
+region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+image_id=""
+instances=false
 
+###########################################################################################################
+# Help Menu
+# 
+function usage() {
+        echo -e "${BWhite}Description:"
+        echo -e "  Spin up fleets of axiom instances in one or multiple regions."
+        echo -e "  Specify the name of your fleet (fleet prefix) or have axiom choose for you."
+        echo -e "${BWhite}Examples:${Color_Off}"
+        echo -e "  ${Blue}axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
+        echo -e "  ${Blue}axiom-fleet javis -i 10${Color_Off} # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
+        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances using round robbin region distribution"
+        echo -e "${BWhite}Usage:${Color_Off}"
+        echo -e "  -i/--instances <integer>"
+        echo -e "    The number of instances to spin up"
+        echo -e "  -r/--regions <regions> (optional)"
+        echo -e "    Supply comma-separated regions to cycle through ( default get region from ~/.axiom/axiom.json)"
+        echo -e "  --help (optional)"
+        echo -e "    Display this help menu"
+}
 
-for var in "$@"
+###########################################################################################################
+# Parse command line arguments 
+#
+i=0
+for arg in "$@"
 do
-    if [[ "$var" =~ "-t" ]]
-    then
-        hours="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        #echo -e "${BWhite}Setting expiry to $hours hours${Color_Off}"
-    fi
-    if [[ "$var" == "-h" ]] || [[ "$var" == "--help" ]];
-    then
-        help
-        exit 0
-    fi
-    if [[ "$var" =~ "-i" ]]
-    then
-        amount="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        #echo -e "${BWhite}Setting number of instances to $amount...${Color_Off}"
-    fi
-    if [[ "$var" =~ "--regions=" ]]
-    then
-        cycle_regions="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        echo -e "${BWhite}Cycling through following regions:$cycle_regions...${Color_Off}"
-        IFS=',' read -r -a region_array <<< "$cycle_regions"
-    fi
-    if [[ "$var" =~ "--image=" ]]
-    then
-        image="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-        #echo -e "${BWhite}Setting number of instances to $amount...${Color_Off}"
+    i=$((i+1))
+    if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+        set=false
+        if [[ "$i" == 1 ]]; then
+            instance="$1"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "-i" ]] || [[ "$arg" == "--instances" ]]; then
+            n=$((i+1))
+            instances=true
+            amount=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--regions" ]] || [[ "$arg" == "-r" ]]; then
+            n=$((i+1))
+            cycle_regions=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--image" ]] ; then
+            n=$((i+1))
+            image=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
+            usage
+            exit
+            set=true
+            pass+=($i)
+        fi
+        if  [[ "$set" != "true" ]]; then
+            args="$args $arg"
+        fi
     fi
 done
 
-
-if [ "$hours" == "false" ]
-then
-    hours=1
+###########################################################################################################
+# Display Help Menu
+#
+if [[ "$*" == "--help" ]] || [[ "$*" == "-h" ]] ; then
+usage
+exit
 fi
 
-if [ "$amount" == "false" ]
-then
-	amount=3
+###########################################################################################################
+# If -i /--instances isnt used, default to three instances
+#
+if [[ "$amount" == "false" ]]; then
+ amount=3
 fi
 
+###########################################################################################################
+# Generate name TODO clean up
+#
+if [ -z "$1" ] || [[ $1 =~ "-i" ]] || [[ $1 =~ "-t" ]] ; then
+ gen_name="${names[$RANDOM % ${#names[@]} ]}"
+else
+ if [ ! -z "$1" ]; then
+  gen_name="$1"
+ fi
+fi
+
+###########################################################################################################
+# Initialize fleet
+#
+if [[ "$cycle_regions" == "false" ]]; then
+
+# Chance to cancel initialization of fleet
+#
 echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
+echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
+sleep 5
+
+image_id=$(get_image_id "$image_name")
+total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
+start=$((total))
+amount=$(($amount+$start))
+start=$((start+1))
 total_spend_per_instance_rounded="0"
-slug=$(cat $AXIOM_PATH/axiom.json | jq -r .default_size)  >/dev/null 2>&1
+slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
 price_hourly=0
 if [[ "$provider" == "do" ]]; then
 	sizes=$(instance_sizes)
-	instance_data=$(echo $sizes | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-	price_hourly=$(echo $instance_data | jq .price_hourly)
+	instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
+	price_hourly=$(echo "$instance_data" | jq .price_hourly)
 elif [[ "$provider" == "azure" ]]; then
-	price_hourly=$(cat $AXIOM_PATH/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
+	price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
 fi
-
-#if [[ "$provider" == "do" ]] | [[ "$provider" == "azure" ]];
-#then
-#	
-#	total=$(bc <<< "scale=2; $price_hourly * $hours * $amount")
-#	total_rounded=$(echo "scale=3; price=$total; scale=2; price/1 " | bc | sed 's/^\./0./')
-#	total_spend_per_instance=$(bc <<< "scale=2; $price_hourly * $hours")
-#	total_spend_per_instance_rounded=$(echo "scale=3; price=$total_spend_per_instance; scale=4; price/1 " | bc | sed 's/^\./0./')
-#	echo -e "${Green}Total estimated cost: \$$total_rounded${Color_Off}"
-#fi
-
-echo -e "${BWhite}INITIALIZING IN 3 SECONDS, CTRL+C to quit... ${Color_Off}"
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
 time=320
-
-image_id=""
-image_name=""
-image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
-region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
-
-if [[ "$image" != "null" ]]
-then
-	image_name="$image-$region"
-else
-	image_name="axiom-$region"
-fi
-
-# Basically repeat items, if the fleet is 20 hosts and they only supply 3 regions, loop over them until it reaches 20
-total_regions=$(echo "${region_array[@]}" |  tr ' ' '\n' | wc -l | awk '{ print $1 }')
-regions_to_cycle=()
-
-if [[ "$cycle_regions" != "false" ]]; then
-	
-	k=0
-	while [[ "$(echo ${regions_to_cycle[@]} | tr ' ' '\n' | wc -l | awk '{ print $1}')" -lt "$amount" ]]
-	do
-		regions_to_cycle+=("${region_array[k]}")
-		if [[ "$k" -lt "$total_regions" ]]; then
-			k=$((k+1))
-		else
-			k=0
-		fi
-	done
-fi
-
-# Remove  null items from array
-for i in "${!regions_to_cycle[@]}"; do
-  [ -n "${regions_to_cycle[$i]}" ] || unset "regions_to_cycle[$i]"
-done
-
-image_id=$(get_image_id "$image_name")
-total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
-
-start=$((total))
-#[[ "$total" -lt 1 ]] && start=$((start+1))
-
-amount=$(($amount+$start))
-
-start=$((start+1))
-
 echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
 do
-   time=$((time+6))
-   name="$gen_name$i"
-   echo -n -e "$name "
-   args=""
- 
-	if [[ "$cycle_regions" != "false" ]]; then
-		args="--uregion=${regions_to_cycle[o]}"	
-	fi
-	
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry --image_id="$image_id" $args --no-select &
-   sleep 0.6
-   o=$((o+1))
+ time=$((time+6))
+ name="$gen_name$i"
+ echo -n -e "$name "
+ args=""
+"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  $region &
+sleep 0.6
+o=$((o+1))
 done
 echo -n -e "${Color_Off} ]\n"
 
@@ -178,7 +195,90 @@ while [ $time -gt 0 ]; do
     sleep 1
     : $((time--))
 done
+fi
 
-$AXIOM_PATH/interact/axiom-select "$gen_name*"
+###########################################################################################################
+# Round Robin distribution logic here ( i.e. regions_to_cycle)
+#
+if [[ "$cycle_regions" != "false" ]]; then
+
+###########################################################################################################
+# Chance to cancel initialization of fleet
+#
+echo -e "${BWhite}Initializing new fleet '$gen_name' with $amount instances...${Color_Off}"
+echo -e "${BWhite}Cycling through following regions:$cycle_regions...${Color_Off}"
+echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
+sleep 5
+image_id=$(get_image_id "$image_name")
+total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
+start=$((total))
+amount=$(($amount+$start))
+start=$((start+1))
+total_spend_per_instance_rounded="0"
+slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
+
+price_hourly=0
+if [[ "$provider" == "do" ]]; then
+        sizes=$(instance_sizes)
+        instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
+        price_hourly=$(echo "$instance_data" | jq .price_hourly)
+elif [[ "$provider" == "azure" ]]; then
+        price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
+fi
+
+expiry=$(bc <<< "scale=2; $hours * 60")
+expiry=$(bc <<< "scale=2; $expiry - 8")
+time=320
+ IFS=',' read -r -a region_array <<< "$cycle_regions"
+
+# Basically repeat items, if the fleet is 20 hosts and they only supply 3 regions, loop over them until it reaches 20
+total_regions=$(echo "${region_array[@]}" |  tr ' ' '\n' | wc -l | awk '{ print $1 }')
+regions_to_cycle=()
+ k=0
+ while [[ "$(echo ${regions_to_cycle[@]} | tr ' ' '\n' | wc -l | awk '{ print $1}')" -lt "$amount" ]]
+ do
+  regions_to_cycle+=("${region_array[k]}")
+  if [[ "$k" -lt "$total_regions" ]]; then
+   k=$((k+1))
+  else
+   k=0
+  fi
+done
+
+# Remove  null items from array
+for i in "${!regions_to_cycle[@]}"; do
+  [ -n "${regions_to_cycle[$i]}" ] || unset "regions_to_cycle[$i]"
+done
+echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
+o=0
+for i in $(seq -f "%02g" $start $amount)
+do
+time=$((time+6))
+name="$gen_name$i"
+echo -n -e "$name "
+args=""
+ 
+regionargs="${regions_to_cycle[o]}"
+
+# make sure region is set
+#
+if [ -z ${regionargs:+x} ]; then
+regionargs="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+fi
+
+"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  $regionargs &
+sleep 0.6
+o=$((o+1))
+done
+echo -n -e "${Color_Off} ]\n"
+fi
+
+while [ $time -gt 0 ]; do
+ echo -ne ">> T-Minus $time to fleet $gen_name initialization...\033[0K\r"
+ sleep 1
+ : $((time--))
+done
+
+"$AXIOM_PATH"/interact/axiom-select "$gen_name*"
 
 echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}"

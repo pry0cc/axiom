@@ -37,6 +37,7 @@ on=false
 help=true
 off=false
 reboot=false
+force=false
 
 # Parse command line arguments 
 #
@@ -81,6 +82,11 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--force" ]] || [[ "$arg" == "-f" ]]; then
+            force=true
+            set=true
+            pass+=($i)
+        fi
         if [[ "$arg" == "--debug" ]]; then
             debug="true"
             set=true
@@ -112,7 +118,7 @@ if [[ "$off" == "true" ]]; then
     for i in $(echo $instances); 
         do 
             echo -e "${Yellow}Powering off instance: $i${Color_Off}"
-            poweroff $i; 
+            poweroff $i $force; 
         done
 fi
 
@@ -129,20 +135,23 @@ if [[ "$on" == "true" ]]; then
     for i in $(echo $instances); 
         do 
             echo -e "${Yellow}Powering on instance: $i${Color_Off}"
-            poweron $i; 
+            poweron $i $force; 
         done
 fi
 
 # Reboot Snapshots
 #
 if [[ "$reboot" == "true" ]]; then
-    if [[ ${#instances} == 0 ]];then
+    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+  
+  if [[ ${#instances} == 0 ]];then
         usage
         exit
     fi
+
     for i in $(echo $instances); 
         do 
             echo -e "${Yellow}Rebooting instance: $i${Color_Off}"
-            reboot $i; 
+            reboot $i $force; 
         done
 fi

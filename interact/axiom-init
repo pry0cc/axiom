@@ -1,82 +1,48 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+###########################################################################################################
+# Title	: axiom-init
+# About: Initialize axiom instances with differnet options, such as image, region, size and axiom deployment profile
+#
+# Examples: 
+#
+# axiom-init # provision instance with random name
+# axiom-init --deploy desktop # provision instance with random name, then deploy axiom profile 'desktop'
+# axiom-init testy01 # provision instance named testy01
+#
+# axiom-init testy01 --region nyc3 --image axiom-barebones-1635920849 --size s-1vcpu-2gb --deploy desktop --shell
+#
+###########################################################################################################
+
+###########################################################################################################
+# Header
+#
 AXIOM_PATH="$HOME/.axiom"
 DOCTL_CONFIG_PATH="$HOME/.config/doctl/config.yaml"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
-
+starttime=$(date +"%F-TIME-%T")
+start="$(pwd)"
 BASEOS="$(uname)"
 provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
+account_path=$(ls -la "$AXIOM_PATH"/axiom.json | rev | cut -d " " -f 1 | rev)
+accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+case $BASEOS in
+'Darwin')
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+*) ;;
+esac
 
-function help() {
-	echo -e "${BWhite}Usage of axiom-init${Color_Off}"
-	echo -e "Example Usage: ${Blue}axiom-init bigstok${Color_Off}"
-	echo -e "  <name> string (optional)"
-	echo -e "    Name of the instance, supplied as a positional first argument"
-	echo -e "  --deploy=<profile>"
-	echo -e "    Deploy a profile after initialization (e.g desktop, openvpn, bbrf, wireguard)"
-	echo -e "  --restore=<backup>"
-	echo -e "    Initialize with a previous backup"
-  echo -e "  --shell (optional)"
-  echo -e "    Connect to instance after initialization"
-  echo -e "  --uregion=<region>"                                                          
-  echo -e "    User specified region to use (default is to use region in ~/.axiom/account/account.json)"
-  echo -e "  --size=<vm size>"                                                           
-  echo -e "    VM size to use  (default is to use size in ~/.axiom/account/account.json)"
-  echo -e "  --image-id=<image id>"
-  echo -e "    Manually set the image id (default is to use image id in ~/.axiom/account/account.json)"
-  echo -e "  --image=<image name>"
-  echo -e "    Select image-id from image-name (default is to use image-name in ~/.axiom/account/account.json)"
-  echo -e "  --domain=<example.com>"
-  echo -e "    Manually specify the domain to use (default is specified by cloud provider)"
-  echo -e "  --no-select (optional)"
-  echo -e "    Dont select instance after initialization (default is to select instance)"
-	echo -e "  --help"
-	echo -e "    Display this help menu"
-}
-
-# function called by trap
-other_commands() {
-    tput setaf 1
-    printf "\rExiting..."
-    echo "Cleaning up created resources..."
-    kill -9  "$PID"
-    $AXIOM_PATH/interact/axiom-rm $gen_name -f
-	echo "Thank you for using axiom :) - @pry0cc"
-	exit
-}
-
-trap 'other_commands' SIGINT
-
-if [[ "$provider" == "do" ]]; then
-# Per doctl readme the config path differs on OSX: https://github.com/digitalocean/doctl#configuring-default-values
-if [ $BASEOS == "Darwin" ]; then DOCTL_CONFIG_PATH=~/"Library/Application Support/doctl/config.yaml"; fi
-
-if ! command -v doctl &> /dev/null
-then
-    echo -e "${BRed}Error: doctl could not be found. Please install it from the binary${No_Color}"
-    exit
-else
-	token_length=$(cat "$DOCTL_CONFIG_PATH"  | grep access-token | wc -c | awk '{ print $1 }')
-	if [[ "$token_length" -lt 32 ]];
-	then
-		echo -e "${Red}Warning: it looks like your doctl might not be configured with a token!${Color_Off}"
-	fi
-fi
-fi
-
-if ! command -v jq &> /dev/null
-then
-    echo -e "${BRed}Error: jq could not be found. Please install it.${No_Color}"
-    exit
-fi
-
+###########################################################################################################
+# Declare defaut variables
+#
 gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
-region="$(jq -r '.region' $AXIOM_PATH/axiom.json)"
-size="$(jq -r '.default_size' $AXIOM_PATH/axiom.json)"
-image="$(jq -r '.image' $AXIOM_PATH/axiom.json)"
-
+region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+size="$(jq -r '.default_size' "$AXIOM_PATH"/axiom.json)"
+image="$(jq -r '.imageid' "$AXIOM_PATH"/axiom.json)"
 box_name=""
 connect_shell=false
 restore=false
@@ -85,190 +51,279 @@ expire=false
 default_expiry=525600000
 quiet=false
 domain=false
-manual_image_id=false
-user_region=""
 no_select=false
 
-if [ -z "$1" ] || [[ $1 =~ "image" ]] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] || [[ $1 =~ "expire" ]] || [[ $1 =~ "quiet" ]] | [[ $1 =~ "domain" ]]; then
-	name="$gen_name"
-else
-	name="$1"
-fi
+###########################################################################################################
+# spinner functions
+# TODO https://github.com/pry0cc/axiom/issues/175
+#
+show_spinner() {
+        local -r pid="${1}"
+        # This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
+        local -r delay='0.48'
+        # I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
+        i=420
+        while ps a | awk '{print $1}' | grep -q "${pid}"; do
+                echo -ne "${BWhite}>> T-Minus $i to full initialization...${Color_Off}\r"
+                : $((i--))
+                sleep "$delay"
+        done
+        printf "    \b\b\b\b"
+}
+waitabit() {
+        local -r pid="${1}"
+        # This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
+        local -r delay='0.38'
+        # I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
+        i=420
+        while ps a | awk '{print $1}' | grep -q "${pid}"; do
+                : $((i--))
+                sleep "$delay"
+        done
+        printf "    \b\b\b\b"
+}
 
-for var in "$@"; do
-	if [ "$var" == "--shell" ]; then
-		connect_shell=true
-	fi
-	if [ "$var" == "--quiet" ]; then
-		quiet=true
-	fi
-	if [ "$var" == "--no-select" ]; then
-		no_select=true
-	fi
-	if [[ "$var" == "-h" ]] || [[ "$var" == "--help" ]];
-    then
-        help
-        exit 0
+###########################################################################################################
+# Help Menu:
+# 
+# axiom-init # provision instance with random name                                                                                                                                                          
+# axiom-init --deploy desktop # provision instance with random name, then deploy axiom profile 'desktop'                                                                                                    
+# axiom-init testy01 # provision instance named testy01                                                                                                                                                     
+#                                                                                                                                                                                                           
+# axiom-init testy01 --region nyc3 --image axiom-barebones-1635920849 --size s-1vcpu-2gb --deploy desktop --shell
+function usage() {
+        echo -e "${BWhite}Description:"
+        echo -e "  Initialize one axiom instance with differnet options, such as image, region, size and axiom deployment profile"
+        echo -e "${BWhite}Examples:${Color_Off}"
+        echo -e "  ${Blue}axiom-init${Color_Off} # provision instance with random name"
+        echo -e "  ${Blue}axiom-init --deploy desktop ${Color_Off}# provision instance with random name, then deploy axiom profile 'desktop'"
+        echo -e "  ${Blue}axiom-init testy01${Color_Off} # provision instance named testy01"
+        echo -e "  ${Blue}axiom-init stok01 --region nyc3 --image axiom-barebones-1635920849 --size s-1vcpu-2gb --deploy desktop --shell${Color_Off}"
+        echo -e "${BWhite}Usage:${Color_Off}"
+        echo -e "  <name> string (optional)"
+        echo -e "    Name of the instance, supplied as a positional first argument"
+        echo -e "  --image <image name>"
+        echo -e "    Manually set the image to use (default is imageid in ~/.axiom/axiom.json)"
+        echo -e "  --region <region>"
+        echo -e "    User specified region to use (default is region in ~/.axiom/axiom.json)"
+        echo -e "  --deploy <profile>"
+        echo -e "    Deploy a profile after initialization (e.g desktop, openvpn, bbrf, wireguard)"
+        echo -e "  --shell (optional)"
+        echo -e "    Connect to instance after initialization"
+        echo -e "  --size <vm size>"
+        echo -e "    VM size to use  (default is size in ~/.axiom/account/account.json)"
+        echo -e "  --no-select (optional)"
+        echo -e "    Dont select instance after initialization (default is to select instance)"
+        echo -e "  --domain <example.com>"
+        echo -e "    Manually specify the domain to use (default is specified by cloud provider)"
+        echo -e "  --restore <backup>"
+        echo -e "    Initialize with a previous backup"
+        echo -e "  --help"
+        echo -e "    Display this help menu"
+}
+
+###########################################################################################################
+# Parse command line arguments 
+#
+i=0
+for arg in "$@"
+do
+    i=$((i+1))
+    if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+        set=false
+        if [[ "$i" == 1 ]]; then
+            instance="$1"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--shell" ]]; then
+            shell=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--quiet" ]]; then
+            quiet=true          
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--no-select" ]]; then
+            no_select=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--restore" ]]; then
+            n=$((i+1))
+            restore=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--region" ]]; then
+            n=$((i+1))
+            region=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--deploy" ]]; then
+            n=$((i+1))
+            deploy=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--domain" ]]; then
+            n=$((i+1))
+            domain=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--size" ]] ; then
+            n=$((i+1))
+            size=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--image" ]]; then
+            n=$((i+1))
+            image=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
+            usage
+            exit
+            set=true
+            pass+=($i)
+        fi
+        if  [[ "$set" != "true" ]]; then
+            args="$args $arg"
+        fi
     fi
-	if [[ $var =~ "--restore" ]]; then
-		restore="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Using restore backup '$restore'${Color_Off}"
-	fi
-	if [[ $var =~ "--uregion" ]]; then
-		user_region="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		#echo -e "${BWhite}Using user region '$user_region'${Color_Off}"
-	fi
-	if [[ "$var" =~ "--deploy" ]]; then
-		deploy="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
-	fi
-	if [[ "$var" =~ "--domain=" ]]; then
-		domain="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		if [ "$quiet" != "true" ]; then
-			echo -e "${BWhite}Manually setting domain to '$domain'${Color_Off}"
-		fi
-	fi
-	if [[ "$var" =~ "--size" ]]; then
-		size="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		if [ "$quiet" != "true" ]; then
-			echo -e "${BWhite}Manually setting size to '$size'${Color_Off}"
-		fi
-	fi
-	if [[ "$var" =~ "--image=" ]]; then
-		image="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		if [ "$quiet" != "true" ]; then
-			echo -e "${BWhite}Setting image to '$image'${Color_Off}"
-		fi
-	fi
-	if [[ "$var" =~ "--image-id=" ]]; then
-		manual_image_id="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		if [ "$quiet" != "true" ]; then
-			echo -e "${BWhite}Setting image id to '$image'${Color_Off}"
-		fi
-	fi
-
-	if [[ "$var" =~ "--expire" ]]; then
-		expire="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-		default_expiry=${expire%\.*}
-		if [ "$quiet" != "true" ]; then
-			echo -e "${BWhite}Setting expiry to $expire minutes...(This is non-functional)${Color_Off}"
-		fi
-	fi
 done
 
-
-if [[ "$quiet" != "true" ]]; then
-	"$NOTIFY_CMD" "Axiom Info" "Initializing '$name'..."
-	echo -e "${BWhite}Initializing '$name'"
+###########################################################################################################
+# Display Help Menu
+#
+if [[ "$*" == "--help" ]] || [[ "$*" == "-h" ]] ||  [[ "$*" == "help" ]]; then
+usage
+exit
 fi
 
-
-image_name=""
-if [[ "$image" != "null" ]]
-then
-	image_name="$image-$region"
+###########################################################################################################
+# Set instance name
+# TODO: clean this up
+# TODO: If gen_name is already taken, rerun gen_name
+if [ -z "$1" ] || [[ $1 =~ "shell" ]] || [[ $1 =~ "restore" ]] || [[ $1 =~ "region" ]] || [[ $1 =~ "uregion=" ]] || [[ $1 =~ "deploy" ]] || [[ $1 =~ "size" ]] ||  [[ $1 =~ "quiet" ]] || [[ $1 =~ "domain" ]] || [[ $1 =~ "image" ]] || [[ $1 =~ "no-select" ]]; then
+        name="$gen_name"
 else
-  image_name="$(jq -r ".imageid" "$AXIOM_PATH/axiom.json")"
+        name="$1"
 fi
 
-image_id=""
-if  [[ "$manual_image_id" != "false" ]]
-then
-	image_id="$manual_image_id"
-else
-	image_id="$(get_image_id "$image_name")"
-fi
-
-show_spinner() {
-	local -r pid="${1}"
-	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.48'
-	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-	i=420
-	while ps a | awk '{print $1}' | grep -q "${pid}"; do
-		echo -ne "${BWhite}>> T-Minus $i to full initialization...${Color_Off}\r"
-		: $((i--))
-		sleep "$delay"
-	done
-	printf "    \b\b\b\b"
-}
-
-waitabit() {
-	local -r pid="${1}"
-	# This delay is very carefully selected, as it makes makes the spinup feelfaster!!!
-	local -r delay='0.38'
-	# I picked 230 because it's slightly too high, you'll feel happy abouta fast spin time ;_
-	i=420
-	while ps a | awk '{print $1}' | grep -q "${pid}"; do
-		: $((i--))
-		sleep "$delay"
-	done
-	printf "    \b\b\b\b"
-}
-
-mkdir -p "$AXIOM_PATH/tmp/"
-
+###########################################################################################################
+# Get image_id from $image ( default is from axiom.json )  
+#
+image_id="$(get_image_id "$image")"
 if [ -z "$image_id" ]; then
-	echo -e "${BRed}An image has not been found in this region. Do you need to run 'axiom-build'?${Color_Off}"
-	exit 1
+        echo -e "${BRed}An image has not been found in this region. Do you need to run 'axiom-build'?${Color_Off}"
+        exit 1
 fi
 
+###########################################################################################################
+# Function called by trap
+#
+other_commands() {
+    tput setaf 1
+    printf "\rExiting..."
+    echo "Cleaning up created resources..."
+    kill -9  "$PID"
+    "$AXIOM_PATH"/interact/axiom-rm "$gen_name" -f
+        echo "Thank you for using axiom :) - @pry0cc"
+        exit
+}
 
-if [[ "$user_region" == "" ]]; then
-	user_region="$region"
-fi
+trap 'other_commands' SIGINT
 
-create_instance "$name" "$image_id" "$size" "$user_region" &
+
+###########################################################################################################
+# quiet flag
+#
+if [ $quiet == "true" ]
+then
+create_instance "$name" "$image_id" "$size" "$region" &
 PID="$!"
-if [ "$quiet" != "true" ]; then
-	show_spinner "$PID"
+waitabit "$PID"
+sleep 20
+ip="$(instance_ip "$name")"
+ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
+echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 else
-	waitabit "$PID"
+
+###########################################################################################################
+# Create instance
+#
+echo -e "${BWhite}Initializing '$name' at '$region' with image '$image'"
+mkdir -p "$AXIOM_PATH/tmp/"
+create_instance "$name" "$image_id" "$size" "$region" &
+PID="$!"
+"$NOTIFY_CMD" "Axiom Info" "Initializing '$name'..."
+
+# echo deployment profile when needed
+if [ "$deploy" != false ]; then
+echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
 fi
 
-if [ "$quiet" != "true" ]; then
-	secs=$((20))
-	while [ $secs -gt 0 ]; do
-		echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
-		sleep 1
-		: $((secs--))
-	done
-else
-	sleep 20
-fi
+show_spinner "$PID"
+secs=$((20))
+while [ $secs -gt 0 ]; do
+ echo -ne "${BWhite}>> T-Minus $secs to full initialization...${Color_Off}\r"
+ sleep 1
+ : $((secs--))
+done
 
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
-
-
-if [[ "$no_select" != "true" ]]; then
-	echo "$name" > $AXIOM_PATH/selected.conf
-fi
-
-if [[ "$no_select" != "true" ]]; then
-	"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
-fi
+axiom-exec "touch /tmp/.connected && echo $(echo "$name" | tr -d "'") | tee /home/op/.name" "$name" -q >> /dev/null 2>&1
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
-
-if [ "$quiet" != "true" ]; then
-	echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
+echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
+"$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
 fi
 
-axiom-exec "touch /tmp/.connected && echo $(echo $name | tr -d "'") | tee /home/op/.name" "$name" -q >> /dev/null 2>&1
+###########################################################################################################
+# no_select flag
+#
+if [[ "$no_select" != "true" ]]; then
+echo "$name" > "$AXIOM_PATH"/selected.conf
+fi
 
+###########################################################################################################
+# restore flag
+#
 if [ "$restore" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
-	$AXIOM_PATH/interact/axiom-restore "$restore" "$name"
+	"$AXIOM_PATH"/interact/axiom-restore "$restore" "$name"
 fi
 
+###########################################################################################################
+# deploy flag
+#
 if [ "$deploy" != false ]; then
 	#echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
-	$AXIOM_PATH/interact/axiom-deploy "$deploy" "$name"
+	"$AXIOM_PATH"/interact/axiom-deploy "$deploy" "$name"
 fi
 
-#if [ "$domain" != false ]; then
-##	echo -e "${BWhite}Adding DNS record $name.$domain to -> $ip"
-#	$AXIOM_PATH/interact/axiom-dns add $name $domain $ip
-#fi
+###########################################################################################################
+# add axiom-init stats to stats.log
+#
+echo "{\"init\":\"$name\",\"ip\":\"$ip\",\"time\":\"$starttime\",\"region\":\"$region\",\"size\":\"$size\",\"image\":\"$image\",\"deploy\":\"$deploy\"}"  >> $AXIOM_PATH/stats.log
 
-$AXIOM_PATH/interact/header.sh
+###########################################################################################################
+# connect shell flag
+#
+if [[ $shell == "true" ]];
+then
+axiom-ssh $name --cache
+fi
