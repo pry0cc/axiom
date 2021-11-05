@@ -550,7 +550,7 @@ mkdir -p "$tmp/logs"
 #
 if [[ "$spinup" -gt 0 ]]; then
     echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
-    "$AXIOM_PATH/interact/axiom-fleet" -i="$spinup"
+    "$AXIOM_PATH/interact/axiom-fleet" -i "$spinup"
     echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
     sleep 60
 fi
