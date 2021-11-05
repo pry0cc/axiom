@@ -75,7 +75,7 @@ function usage() {
         echo -e "    Instance name supplied as a positional first argument"
         echo -e "  --mosh/-m <instance name> (optional)"
         echo -e "    Connect with mosh"
-        echo -e "  --just_generate <public, private, cache/lock> (optional)"
+        echo -e "  --just-generate <public, private, cache/lock> (optional)"
         echo -e "    Specify when to generate the SSH config file and what IPs to use. Options are public, private, cache/lock ( default is public )"
         echo -e "  --tmux <tmux session name to create/attach to> (optional)"
         echo -e "    Connect to your instance and start new tmux session or connect to one (default session name is 'main')"
