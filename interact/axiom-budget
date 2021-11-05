@@ -93,7 +93,7 @@ for i in $(seq -f "%02g" 1 $amount)
 do
    name="$gen_name$i"
    echo -e "${BWhite}Initializing $name for $hours hours... This instance will cost exactly \$$total_spend_per_instance"
-   $AXIOM_PATH/interact/axiom-init $name --quiet --size=$slug --expire=$expiry &
+   $AXIOM_PATH/interact/axiom-init $name --quiet --size $slug &
    sleep 0.3
 done
 
