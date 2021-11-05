@@ -8,9 +8,9 @@
 #
 # Examples: 
 #
-# axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
-# axiom-fleet javis -i 10${Color_Off} # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
-# axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances using round robbin region distribution"
+# axiom-fleet # Spin up three instances, let axiom decide on the fleet prefix"
+# axiom-fleet javis -i 10 # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
+# axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1 # Spin up 25 instances using round robbin region distribution"
 ###################################################################
 
 ###########################################################################################################
@@ -20,12 +20,7 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
-begin=$(date +%s)
-start="$(pwd)"
 BASEOS="$(uname)"
-account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
-accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
-current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 case $BASEOS in
 'Darwin')
     PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
@@ -60,13 +55,13 @@ function usage() {
         echo -e "  Specify the name of your fleet (fleet prefix) or have axiom choose for you."
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
-        echo -e "  ${Blue}axiom-fleet javis -i 10${Color_Off} # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
-        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances using round robbin region distribution"
+        echo -e "  ${Blue}axiom-fleet javis -i 10${Color_Off} # Spin up 10 instances with fleet prefix javis from javis01 to javis10"
+        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances using Round-robin region distribution"
         echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  -i/--instances <integer>"
         echo -e "    The number of instances to spin up"
         echo -e "  -r/--regions <regions> (optional)"
-        echo -e "    Supply comma-separated regions to cycle through ( default get region from ~/.axiom/axiom.json)"
+        echo -e "    Supply comma-separated regions to cycle through (default is region in ~/.axiom/axiom.json)"
         echo -e "  --help (optional)"
         echo -e "    Display this help menu"
 }
