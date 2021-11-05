@@ -92,6 +92,8 @@ waitabit() {
 #                                                                                                                                                                                                           
 # axiom-init testy01 --region nyc3 --image axiom-barebones-1635920849 --size s-1vcpu-2gb --deploy desktop --shell
 function usage() {
+        echo -e "${BWhite}Description:"
+        echo -e "  Initialize one axiom instance with differnet options, such as image, region, size and axiom deployment profile"
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-init${Color_Off} # provision instance with random name"
         echo -e "  ${Blue}axiom-init --deploy desktop ${Color_Off}# provision instance with random name, then deploy axiom profile 'desktop'"
