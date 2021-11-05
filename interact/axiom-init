@@ -158,7 +158,7 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "--region" ]]; then
+        if [[ "$arg" == "--region" ]] || [[ "$arg" == "-r" ]] ; then
             n=$((i+1))
             region=$(echo ${!n})
             set=true
@@ -247,7 +247,6 @@ other_commands() {
 
 trap 'other_commands' SIGINT
 
-
 ###########################################################################################################
 # quiet flag
 #
@@ -266,6 +265,8 @@ else
 # Create instance
 #
 echo -e "${BWhite}Initializing '$name' at '$region' with image '$image'"
+echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
+sleep 5
 mkdir -p "$AXIOM_PATH/tmp/"
 create_instance "$name" "$image_id" "$size" "$region" &
 PID="$!"
