@@ -106,7 +106,7 @@ function usage() {
         echo -e "  --shell (optional)"
         echo -e "    Connect to instance after initialization"
         echo -e "  --size <vm size>"
-        echo -e "    VM size to use  (default is size in ~/.axiom/account/account.json)"
+        echo -e "    VM size to use (default is size in ~/.axiom/axiom.json)"
         echo -e "  --no-select (optional)"
         echo -e "    Dont select instance after initialization (default is to select instance)"
         echo -e "  --domain <example.com>"
