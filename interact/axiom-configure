@@ -222,7 +222,7 @@ echo -e "${Blue}Would you like to use Bash, Zsh, or install Oh My Zsh?${Color_Of
   select choice in "${choices[@]}"; do
    case $choice in
    Bash)
-    echo -e "${Blue}Backing up $(echo $HOME/.bashrc) just in case.${Color_Off}"
+    echo -e "${Blue}Backing up $(echo $HOME/.bashrc) to $(echo $HOME/.bashrcbak) just in case.${Color_Off}"
     cp $HOME/.bashrc $HOME/.bashrcbak >> /dev/null 2>&1
     echo -e "${Blue}Installing Golang${Color_Off}"
     if ! [ -x "$(command -v go)" ]; then
@@ -243,7 +243,8 @@ echo -e "${Blue}Would you like to use Bash, Zsh, or install Oh My Zsh?${Color_Of
   break
    ;;
    Zsh)
-    echo -e "${Blue}Backing up $(echo $HOME/.zshrc) just in case.${Color_Off}"
+    sudo apt install zsh -y
+    echo -e "${Blue}Backing up $(echo $HOME/.zshrc) to $(echo $HOME/.zshrcbak) just in case.${Color_Off}"
     cp $HOME/.zshrc $HOME/.zshrcbak >> /dev/null 2>&1
     echo -e "${Blue}Installing Golang${Color_Off}"
     if ! [ -x "$(command -v go)" ]; then
@@ -263,7 +264,7 @@ echo -e "${Blue}Would you like to use Bash, Zsh, or install Oh My Zsh?${Color_Of
   break
    ;;
   'Oh My Zsh')
-    echo -e "${Blue}Backing up $(echo $HOME/.zshrc) just in case.${Color_Off}"
+    echo -e "${Blue}Backing up $(echo $HOME/.zshrc) to $(echo $HOME/.zshrcbak) just in case.${Color_Off}"
     cp $HOME/.zshrc $HOME/.zshrcbak >> /dev/null 2>&1 
     sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
     wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
