@@ -12,10 +12,10 @@ cat << EOF
   ░   ▒    ░    ░   ▒ ░░ ░ ░ ▒  ░      ░
       ░  ░ ░    ░   ░      ░ ░         ░
 
-The Dynamic Infrastructure Framework for Everybody - by @pry0cc & @0xtavian
+The Dynamic Infrastructure Framework for Everybody - @pry0cc & @0xtavian
 
-Sponsored by SecurityTrails
-Sign up during bug bounty hunter month now!: https://securitytrails.com/bug-bounty-hunters-toolkit?referral_code=axiom
+We are lucky enough to be sponsored by the awesome SecurityTrails! 
+Sign up for your free account here! https://securitytrails.com/app/account?utm_source=axiom
 
 EOF
 
@@ -77,7 +77,6 @@ case $BASEOS in
 'AIX') ;;
 *) ;;
 esac
-
 if [[ $BASEOS == "Linux" ]]; then
     if $(uname -a | grep -qi "Microsoft"); then
         OS="UbuntuWSL"
@@ -91,7 +90,6 @@ if [[ $BASEOS == "Linux" ]]; then
             shell="bash"
         fi
     fi
-
     if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
         echo -e "${Blue}Congrats, you run arch..."
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -218,12 +216,14 @@ if [[ $shell == "bash" ]]; then
 else
 
 # Pick your shell
-echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
+echo -e "${Blue}Would you like to use Bash, Zsh, or install Oh My Zsh?${Color_Off}"
  PS3="Please select an option : "
-  choices=("bash" "zsh")
+  choices=("Bash" "Zsh" 'Oh My Zsh')
   select choice in "${choices[@]}"; do
    case $choice in
-   bash)
+   Bash)
+    echo -e "${Blue}Backing up $(echo $HOME/.bashrc) just in case.${Color_Off}"
+    cp $HOME/.bashrc $HOME/.bashrcbak >> /dev/null 2>&1
     echo -e "${Blue}Installing Golang${Color_Off}"
     if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
@@ -242,7 +242,29 @@ echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
     source ~/.bashrc 
   break
    ;;
-  zsh)
+   Zsh)
+    echo -e "${Blue}Backing up $(echo $HOME/.zshrc) just in case.${Color_Off}"
+    cp $HOME/.zshrc $HOME/.zshrcbak >> /dev/null 2>&1
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    if ! [ -x "$(command -v go)" ]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
+    mkdir -p "${HOME}/go"
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
+    echo "export GOPATH=\$HOME/go" >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
+    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
+    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
+    source ${HOME}/.zshrc
+    SHELL=$(which zsh)
+  break
+   ;;
+  'Oh My Zsh')
+    echo -e "${Blue}Backing up $(echo $HOME/.zshrc) just in case.${Color_Off}"
+    cp $HOME/.zshrc $HOME/.zshrcbak >> /dev/null 2>&1 
     sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
     wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
