@@ -401,7 +401,7 @@ export PATH="$PATH:$HOME/.axiom/interact"
 if [[ $unattended == "true" ]] ; then
 echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
-if [ -z ${config+x} ];
+if [ -z ${config+x} ]; then
 $HOME/.axiom/interact/axiom-account $account
 fi
 exit 0
