@@ -116,6 +116,9 @@
         "echo 'Installing Arjun'",
         "cd /tmp && git clone https://github.com/s0md3v/Arjun && cd Arjun && sudo python3 setup.py install && cd",
 
+        "echo 'Installing axiom'",
+        "/bin/su -l op -c 'git clone https://github.com/pry0cc/axiom.git /home/op/.axiom && cd /home/op/.axiom/interact && ./axiom-configure --shell zsh --unattended'",
+
         "echo 'Installing cf-check'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/dwisiswant0/cf-check@latest'",
 
@@ -264,7 +267,7 @@
         "sudo cp /home/op/recon/nmap_scripts/* /home/op/recon/nmap/scripts/ && cd /home/op/recon/nmap && sudo ./nmap --script-update",
         
         "echo 'Installing nuclei'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest && /usr/local/go/bin/go /home/op/go/bin/nuclei'",
 
         "echo 'Installing OpenRedireX'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX && pip3 install aiohttp -q' ",
