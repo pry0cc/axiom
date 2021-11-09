@@ -149,7 +149,9 @@ if [ ! -z ${unattended:+x} ]; then
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
 echo -e "${Green}Detected unattended option passed from command line...${Color_Off}"
 echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
+if [ -z ${usershell:+x} ]; then
 usershell="omz"
+fi
 elif [ ! -z ${config+x} ]; then
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
 echo -e "${Green}Detected axiom.json option passed from command line...${Color_Off}"
