@@ -385,12 +385,12 @@ fi
 #
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 if [ -f ~/.ssh/axiom_rsa ] ; then
- echo -e "${Blue}Adding axiom_rsa key to Packer Builder${Color_Off}"
+ echo -e "${Blue}Adding axiom_rsa key to Packer builder${Color_Off}"
  jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
  cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys           
 
 else
- echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub and adding it to Packer Builder${Color_Off}"
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub${Color_Off}"
  ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
  jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
  cat ~/.ssh/axiom_rsa.pub >$AXIOM_PATH/configs/authorized_keys
@@ -401,11 +401,13 @@ export PATH="$PATH:$HOME/.axiom/interact"
 if [[ $unattended == "true" ]] ; then
 echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+if [ -z ${config+x} ];
 $HOME/.axiom/interact/axiom-account $account
+fi
 exit 0
 fi
 
-if [ -z ${config+x} ]; then
+if [ -z ${config:+x} ]; then
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
