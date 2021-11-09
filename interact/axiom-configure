@@ -407,7 +407,7 @@ fi
 exit 0
 fi
 
-if [ -z ${config:+x} ]; then
+if [ -z ${config+x} ]; then
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
 cd $AXIOM_PATH/
 $AXIOM_PATH/interact/axiom-build
