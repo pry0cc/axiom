@@ -260,17 +260,16 @@ else
 # Create instance
 #
 echo -e "${BWhite}Initializing '$name' at '$region' with image '$image'"
+# echo deployment profile when needed
+if [ "$deploy" != false ]; then
+echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
+fi
 echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
 sleep 5
 mkdir -p "$AXIOM_PATH/tmp/"
 create_instance "$name" "$image_id" "$size" "$region" &
 PID="$!"
 "$NOTIFY_CMD" "Axiom Info" "Initializing '$name'..."
-
-# echo deployment profile when needed
-if [ "$deploy" != false ]; then
-echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
-fi
 
 show_spinner "$PID"
 secs=$((20))
