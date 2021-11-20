@@ -103,7 +103,7 @@ function usage() {
         echo -e "  --unattended (optional)"
         echo -e "    Avoid any promots, defaults to Oh My Zsh unless --shell argument is also provided"
         echo -e "  --shell <Bash, Zsh, OMZ (Oh My Zsh)> (optional)"
-        echo -e "    Choose which shell to use"
+        echo -e "    Choose bash/zsh to add axiom to .bashrc/.zshrc. OMZ installs Oh My Zsh and overwrites .zshrc"
         echo -e "  --help"
         echo -e "    Display this help menu"
 }

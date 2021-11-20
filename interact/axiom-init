@@ -253,6 +253,7 @@ waitabit "$PID"
 sleep 20
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
+axiom-exec "touch /tmp/.connected && echo $(echo "$name" | tr -d "'") | tee /home/op/.name" "$name" -q >> /dev/null 2>&1
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 else
 
