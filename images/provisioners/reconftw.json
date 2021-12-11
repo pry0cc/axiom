@@ -120,6 +120,7 @@
         "/bin/su -l op -c 'GO111MODULE=on go get -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei'",
         "wget -O /home/op/lists/jhaddix-all.txt https://gist.githubusercontent.com/jhaddix/86a06c5dc309d08580a018c66354a056/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt",
         "wget -O /home/op/lists/permutations.txt https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw",
+        "wget -O /home/op/lists/fuzz_wordlist.txt https://raw.githubusercontent.com/six2dez/OneListForAll/main/onelistforallmicro.txt",
         "cd /home/op/recon/emailgen && bundle update --bundler",
         "cd /home/op/recon/emailgen && bundle install",
         "echo 'Setting up sn0int repository'",
