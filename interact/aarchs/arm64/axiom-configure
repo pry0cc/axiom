@@ -338,8 +338,9 @@ GO111MODULE=on go install github.com/hahwul/gee@latest
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
     git clone https://github.com/pry0cc/axiom $AXIOM_PATH
+    cp -r $AXIOM_PATH/interact/aarchs/arm64/* $AXIOM_PATH/interact
 else
-    cd $AXIOM_PATH && git pull
+    cd $AXIOM_PATH && git pull && cp -r $AXIOM_PATH/interact/aarchs/arm64/* $AXIOM_PATH/interact
 fi
 
 ###########################################################################################################
