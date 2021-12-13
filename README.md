@@ -60,12 +60,22 @@ Our third provider for axiom! Please use [this link](https://www.linode.com/?r=2
 docker exec -it $(docker run -d -it ubuntu) sh -c "apt update && apt install git -y && git clone https://github.com/pry0cc/axiom ~/.axiom/ && cd && .axiom/interact/axiom-configure"
 ```
 
+### For ARM Architecture
+```
+docker exec -it $(docker run -d -it ubuntu) sh -c "apt update && apt install git -y && git clone https://github.com/pry0cc/axiom ~/.axiom/ && cd && cp -r .axiom/interact/aarchs/arm64/* .axiom/interact && .axiom/interact/axiom-configure"
+```
+
 ## Easy Install
 
 You should use an OS that supports our [easy install](https://github.com/pry0cc/axiom#operating-systems-supported). <br>
 For Linux systems you will also need to install the newest versions of all packages beforehand `sudo apt dist-upgrade`. <br>
 ```
 bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/axiom-configure)
+```
+
+### For ARM Architecture
+```
+bash <(curl -s https://raw.githubusercontent.com/pry0cc/axiom/master/interact/aarchs/arm64/axiom-configure)
 ```
 
 If you have any problems with this installer, or if using an unsupported OS please refer to [Installation](https://github.com/pry0cc/axiom/wiki/0-Installation).
