@@ -336,11 +336,6 @@ done
 fi
 fi
 
-#install gee
-
-echo "Updating gee https://github.com/hahwul/gee"
-GO111MODULE=on go install github.com/hahwul/gee@latest
-
 if [ ! -d $AXIOM_PATH ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
     git clone https://github.com/pry0cc/axiom $AXIOM_PATH
