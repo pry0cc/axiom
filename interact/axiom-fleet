@@ -45,6 +45,7 @@ image_name="$(jq -r '.imageid' "$AXIOM_PATH"/axiom.json)"
 region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 image_id=""
 instances=false
+time=320
 
 ###########################################################################################################
 # Help Menu
@@ -153,6 +154,8 @@ sleep 5
 
 image_id=$(get_image_id "$image_name")
 total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
+total="${total#0}"
+start="${start#0}"
 start=$((total))
 amount=$(($amount+$start))
 start=$((start+1))
@@ -170,7 +173,6 @@ fi
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
-time=320
 echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
@@ -185,7 +187,7 @@ o=$((o+1))
 done
 echo -n -e "${Color_Off} ]\n"
 
-while [ $time -gt 0 ]; do
+while [[ $time -gt 0 ]]; do
     echo -ne ">> T-Minus $time to fleet $gen_name initialization...\033[0K\r"
     sleep 1
     : $((time--))
@@ -206,6 +208,8 @@ echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
 sleep 5
 image_id=$(get_image_id "$image_name")
 total=$(query_instances "$gen_name*" | tr " " "\n" | sed 's/[^0-9]*//g'| sort -nr | head -n1)
+total="${total#0}"
+start="${start#0}"
 start=$((total))
 amount=$(($amount+$start))
 start=$((start+1))
@@ -223,7 +227,6 @@ fi
 
 expiry=$(bc <<< "scale=2; $hours * 60")
 expiry=$(bc <<< "scale=2; $expiry - 8")
-time=320
  IFS=',' read -r -a region_array <<< "$cycle_regions"
 
 # Basically repeat items, if the fleet is 20 hosts and they only supply 3 regions, loop over them until it reaches 20
@@ -272,7 +275,7 @@ done
 echo -n -e "${Color_Off} ]\n"
 fi
 
-while [ $time -gt 0 ]; do
+while [[ $time -gt 0 ]]; do
  echo -ne ">> T-Minus $time to fleet $gen_name initialization...\033[0K\r"
  sleep 1
  : $((time--))
