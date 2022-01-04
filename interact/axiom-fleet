@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ###################################################################
-# About	:
+# About :
 #
 # axiom-fleet lets you spin up fleets of axiom instances in one or multiple regions.
 # You can specify the name of a fleet (fleet prefix) or have axiom choose for you.
@@ -55,7 +55,7 @@ function usage() {
         echo -e "  Specify the name of your fleet (fleet prefix) or have axiom choose for you."
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
-        echo -e "  ${Blue}axiom-fleet -i 10${Color_Off} # Spin up 10 instances with randon fleet prefix"
+        echo -e "  ${Blue}axiom-fleet -i 10${Color_Off} # Spin up 10 instances with random fleet prefix"
         echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances named jerry01 to jerry25 using Round-robin region distribution"
         echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  -i/--instances <integer>"
@@ -161,11 +161,11 @@ slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
 price_hourly=0
 if [[ "$provider" == "do" ]]; then
-	sizes=$(instance_sizes)
-	instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-	price_hourly=$(echo "$instance_data" | jq .price_hourly)
+        sizes=$(instance_sizes)
+        instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
+        price_hourly=$(echo "$instance_data" | jq .price_hourly)
 elif [[ "$provider" == "azure" ]]; then
-	price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
+        price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
 fi
 
 expiry=$(bc <<< "scale=2; $hours * 60")
@@ -179,7 +179,7 @@ do
  name="$gen_name$i"
  echo -n -e "$name "
  args=""
-"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  $region &
+"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  "$region" &
 sleep 0.6
 o=$((o+1))
 done
@@ -240,10 +240,13 @@ regions_to_cycle=()
   fi
 done
 
-# Remove  null items from array
+
+# Remove null element from array and reindex
+#
 for i in "${!regions_to_cycle[@]}"; do
-  [ -n "${regions_to_cycle[$i]}" ] || unset "regions_to_cycle[$i]"
+  [ -n "${regions_to_cycle[$i]}" ] || unset "regions_to_cycle[$i]" && regions_to_cycle=( "${regions_to_cycle[@]}" )
 done
+
 echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
@@ -252,16 +255,17 @@ time=$((time+6))
 name="$gen_name$i"
 echo -n -e "$name "
 args=""
- 
 regionargs="${regions_to_cycle[o]}"
 
-# make sure region is set
+# final check to make sure region is set
 #
 if [ -z ${regionargs:+x} ]; then
 regionargs="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 fi
 
-"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  $regionargs &
+# create instance
+#
+"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  "$regionargs" &
 sleep 0.6
 o=$((o+1))
 done
