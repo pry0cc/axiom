@@ -55,7 +55,7 @@ function usage() {
         echo -e "  Specify the name of your fleet (fleet prefix) or have axiom choose for you."
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
-        echo -e "  ${Blue}axiom-fleet -i 10${Color_Off} # Spin up 10 instances with randon fleet prefix"
+        echo -e "  ${Blue}axiom-fleet -i 10${Color_Off} # Spin up 10 instances with random fleet prefix"
         echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances named jerry01 to jerry25 using Round-robin region distribution"
         echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  -i/--instances <integer>"
@@ -241,12 +241,11 @@ regions_to_cycle=()
 done
 
 
-# Remove null element from arrary and reindex
+# Remove null element from array and reindex
 #
 for i in "${!regions_to_cycle[@]}"; do
   [ -n "${regions_to_cycle[$i]}" ] || unset "regions_to_cycle[$i]" && regions_to_cycle=( "${regions_to_cycle[@]}" )
 done
-region_array=( "${region_array[0]}" )
 
 echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
@@ -258,7 +257,7 @@ echo -n -e "$name "
 args=""
 regionargs="${regions_to_cycle[o]}"
 
-# make sure region set
+# final check to make sure region is set
 #
 if [ -z ${regionargs:+x} ]; then
 regionargs="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
@@ -273,7 +272,6 @@ done
 echo -n -e "${Color_Off} ]\n"
 fi
 
-
 while [ $time -gt 0 ]; do
  echo -ne ">> T-Minus $time to fleet $gen_name initialization...\033[0K\r"
  sleep 1
@@ -283,4 +281,3 @@ done
 "$AXIOM_PATH"/interact/axiom-select "$gen_name*"
 
 echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}"
-
