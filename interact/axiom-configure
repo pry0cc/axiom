@@ -265,7 +265,7 @@ if [[ $BASEOS == "Mac" ]]; then
          mkdir -p "${HOME}/go"
          export GOPATH=$HOME/go
          echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
-         echo "export PATH=\"\$PATH:\$HOME/.axiom/interact:\$HOME/.local/bin""" >>~/.zshrc
+         echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
          echo -e "${Blue}Installing jq...${Color_Off}"
          brew install jq
          echo -e "${Blue}Installing coreutils...${Color_Off}"
