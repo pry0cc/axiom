@@ -22,8 +22,8 @@ alias ping="grc ping"
 alias tail="grc tail"
 alias ps="grc ps"
 
-
-
+  
+zstyle ':omz:update' mode auto
 ZSH_THEME="mrtazz"
 plugins=(doctl encode64 vi-mode dircycle github z rails zsh-navigation-tools docker docker-compose vagrant cp ruby nmap common-aliases)
 
