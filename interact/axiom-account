@@ -30,7 +30,7 @@ current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep 
 
 function bootstrap() {
 account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh"  | grep -v "generate" | tr '/' ' ' | awk '{ print $NF }' | tr -d '.sh')
-account_str=$(echo $account_helpers | sed 's/ /, /g')
+account_str=$(echo "$account_helpers" | sed 's/ /, /g')
 provider_path="$AXIOM_PATH/interact/account-helpers/$provider.sh"
 bash "$provider_path" 
 }
@@ -42,9 +42,9 @@ if [[ -f "$path" ]]
 then
 echo -e "${BWhite}Selecting $1...${Color_Off}"
 rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
-ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
+ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"
 provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
-$AXIOM_PATH/interact/axiom-provider $provider
+"$AXIOM_PATH"/interact/axiom-provider "$provider"
 
 # Update doctl and check for valid token. If token isnt valid, kick off account bootstrap
 #
@@ -60,9 +60,10 @@ if ! command -v lsb_release &> /dev/null; then
 fi 
 if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
  sudo pacman -Syu doctl --noconfirm
-else
- wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.66.0/doctl-1.66.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
-fi 
+fi
+if [[ $OS == "Linux" ]] ; then
+ wget -q -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.66.0/doctl-1.66.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+fi
 token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
 doctl auth init -t "$token" || bootstrap
 fi
@@ -72,7 +73,7 @@ fi
 #
 if [[ "$provider" == "linode" ]]; 
 then
-echo -e "${Green}Updating linode-cli\n ${Color_Off}"	
+echo -e "${Green}Updating linode-cli\n ${Color_Off}"
 pip3 install linode-cli --upgrade
 token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
 size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
@@ -91,8 +92,9 @@ fi
 #
 if [[ "$provider" == "ibm" ]]; 
 then
+ibmcloud update -f
 token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
-ibmcloud login --apikey $token --no-region || bootstrap
+ibmcloud login --apikey "$token" --no-region || bootstrap
 fi
 
 # If Azure cli isnt logged in, kick off bootstrap
@@ -112,14 +114,14 @@ fi
 else
 echo -e "${BWhite}Available Accounts${Color_Off}"
 echo -n -e "${Blue}"
-	for account in $accounts
-	do
-		if [[ $account == $current ]]
-		then
-			echo "* $account"
-		else
-			echo "  $account"
-		fi
-	done
-	echo -n -e "${Color_Off}"
+        for account in $accounts
+        do
+                if [[ $account == $current ]]
+                then
+                        echo "* $account"
+                else
+                        echo "  $account"
+                fi
+        done
+        echo -n -e "${Color_Off}"
 fi
