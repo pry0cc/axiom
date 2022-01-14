@@ -226,7 +226,9 @@ if [[ $BASEOS == "Linux" ]]; then
         dpkg-reconfigure --frontend noninteractive tzdata
        fi
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils openssh-server jq -y 
+        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils openssh-server -y 
+        echo -e "${Blue}Installing jq...${Color_Off}"
+        sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
         wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
@@ -236,13 +238,13 @@ if [[ $BASEOS == "Linux" ]]; then
 
         elif [[ $OS == "Fedora" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-                    sudo dnf update && sudo dnf -y install mmv bc fzf git rubypick python3-pip curl net-tools unzip util-linux
-                    echo -e "${Blue}Installing jq...${Color_Off}"
-                    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
-                    echo -e "${Blue}Installing packer...${Color_Off}"
-                    wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
-                    echo -e "${Blue}Installing doctl...${Color_Off}"
-                    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+        sudo dnf update && sudo dnf -y install mmv bc fzf git rubypick python3-pip curl net-tools unzip util-linux
+        echo -e "${Blue}Installing jq...${Color_Off}"
+        sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        echo -e "${Blue}Installing packer...${Color_Off}"
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        echo -e "${Blue}Installing doctl...${Color_Off}"
+        wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
         echo -e "${Blue}Installing gowitness...${Color_Off}"
         sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
         fi
