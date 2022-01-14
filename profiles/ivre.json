@@ -44,7 +44,7 @@
 "echo ''",
 "echo 'The IVRE / DRUNK Dynamic Recon of UNKnown Network Install Complete'",
 "echo 'To start the dashbaord:'",
-"echo \"run axiom-exec 'docker run -d --name ivreweb --hostname ivreweb --link ivredb:ivredb --publish 80:80 ivre/web' '$(hostname)'\"",
+"echo \"run axiom-exec 'docker run -d --name ivreweb --hostname ivreweb --link ivredb:ivredb --publish 80:80 ivre/web' -i '$(hostname)'\"",
 "echo 'Then the dashboard will be publicly reachable at:'",
 "dig @ns1-1.akamaitech.net ANY whoami.akamai.net +short | sed 's/^/http:/'"
     ],

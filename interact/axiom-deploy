@@ -76,7 +76,7 @@ do
         if [[ "$count" -gt 1 ]]; then
             echo -e "${BWhite}Uploading profile to '$query'${Color_Off}${Blue}"
             axiom-scp "$script" "$query":"/tmp/$id.sh" --cache
-            axiom-exec "/tmp/$id.sh" "$query" --cache
+            axiom-exec "/tmp/$id.sh" -i "$query" --cache
             echo -e "${BGreen}Installation Successful!${Color_Off}"
             echo -e "${BWhite}Notes${Color_Off}${Blue}"
             jq -r ".notes" "$prof_path"

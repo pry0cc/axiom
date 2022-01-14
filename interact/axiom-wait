@@ -19,7 +19,7 @@ command="$1"
 exit=1
 while [[ "$exit" -gt 0 ]]
 do 
-	exit=$(axiom-exec "ps cax | pgrep "$command" | wc -l | awk '{ print \$1 }'" "$instance" -q)
+	exit=$(axiom-exec "ps cax | pgrep "$command" | wc -l | awk '{ print \$1 }'" -i "$instance" -q)
 
 	sleep $(expr $RANDOM % 20)
 done
