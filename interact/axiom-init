@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ###########################################################################################################
-# Title	: axiom-init
+# Title : axiom-init
 # About: Initialize axiom instances with differnet options, such as image, region, size and axiom deployment profile
 #
 # Examples: 
@@ -253,7 +253,7 @@ waitabit "$PID"
 sleep 20
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
-axiom-exec "touch /tmp/.connected && echo $(echo "$name" | tr -d "'") | tee /home/op/.name" "$name" -q >> /dev/null 2>&1
+axiom-exec "touch /tmp/.connected && echo $(echo "$name" | tr -d "'") | tee /home/op/.name" -i "$name" -q >> /dev/null 2>&1
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 else
 
@@ -282,7 +282,7 @@ done
 
 ip="$(instance_ip "$name")"
 ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
-axiom-exec "touch /tmp/.connected && echo $(echo "$name" | tr -d "'") | tee /home/op/.name" "$name" -q >> /dev/null 2>&1
+axiom-exec "touch /tmp/.connected && echo $(echo "$name" | tr -d "'") | tee /home/op/.name" -i "$name" -q >> /dev/null 2>&1
 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 echo -e "${BWhite}To connect, run '${BGreen}axiom-ssh $name${Color_Off}'${BWhite} or '${BGreen}axiom-connect'${Color_Off}"
 "$NOTIFY_CMD" "Axiom Info" "$name successfully initialized at $ip!"
@@ -299,16 +299,14 @@ fi
 # restore flag
 #
 if [ "$restore" != false ]; then
-	#echo -e "${BWhite}Waiting 65 seconds before restore...${Color_Off}"
-	"$AXIOM_PATH"/interact/axiom-restore "$restore" "$name"
+"$AXIOM_PATH"/interact/axiom-restore "$restore" "$name"
 fi
 
 ###########################################################################################################
 # deploy flag
 #
 if [ "$deploy" != false ]; then
-	#echo -e "${BWhite}Waiting 65 seconds before deploy... ${Color_Off}"
-	"$AXIOM_PATH"/interact/axiom-deploy "$deploy" "$name"
+"$AXIOM_PATH"/interact/axiom-deploy "$deploy" "$name"
 fi
 
 ###########################################################################################################

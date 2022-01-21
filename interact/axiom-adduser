@@ -13,5 +13,5 @@ $AXIOM_PATH/interact/axiom-ssh --just-generate
 
 for instance in $instances
 do
-	 $AXIOM_PATH/interact/axiom-exec "$command" "$instance" --cache 
+	 $AXIOM_PATH/interact/axiom-exec "$command" -i "$instance" --cache 
 done

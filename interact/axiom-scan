@@ -149,16 +149,17 @@ clean_up() {
 }
 
 ###########################################################################################################
-#  axiom can take up a lot of space with logs. When --rm-logs option is present, after the scan is finished or canceled, axiom-orgalorg will delete the remote logs.
+#  axiom can take up a lot of space with logs. When --rm-logs option is present, after the scan is finished or canceled, axiom-exec will delete the remote logs.
 #  To avoid undesirable scan results after merging, we keep the original un-merged scan result as well as the final merged copy. Everything else pertaining to the scan deleted.
 delete_logs() {
  echo -e "${Blue}Deleting remote logs in a backgroud job${Color_Off}"
- axiom-orgalorg -C "sudo rm -r /home/op/scan/${uid}/" -i "$(cat $AXIOM_PATH/logs/$uid/selected.conf | tr '\n' " " )" >/dev/null 2>&1 &
+ axiom-exec "sudo rm -r /home/op/scan/${uid}/" --fleet "$AXIOM_PATH/logs/$uid/selected.conf"  >/dev/null 2>&1 &
   if [ -d "$AXIOM_PATH/logs/$uid/" ] 
    then
    echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
    start=$(pwd)
-   cd "$AXIOM_PATH/logs/$uid/" ; ls | grep -v output | xargs rm -r >/dev/null 2>&1
+   cd "$AXIOM_PATH/logs/$uid/" || exit 
+   ls | grep -v output | xargs rm -r >/dev/null 2>&1
    cd "$start"
   else
     echo "Error: local log folder does not exist."
