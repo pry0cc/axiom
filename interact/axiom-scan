@@ -761,7 +761,11 @@ else
 ###########################################################################################################
 # If a Simple Module is used:
 # Prep all the axiom instances by making a unique scan directory with SSH exec
+# Store Interlace command in a file and upload it to remote instances with axiom-scp
     $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
+    echo "$command" > "$tmp/command"
+    $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
+
 fi
 echo -n -e "[ ${Green}OK${Color_Off} ]\n"
 
@@ -849,7 +853,7 @@ else
  sleep 3
  downloader &
  downloaderPID=$!
- $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; $command  > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
+ $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; bash -i command  > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
 
  remotetailPID=$!
