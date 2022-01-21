@@ -129,8 +129,8 @@ fi
 if [[ ! -f "$AXIOM_PATH/configs/authorized_keys" ]]
 then
 	echo -e "${BRed}You have no authorized keys file at $AXIOM_PATH/configs/authorized_keys"
-	echo -e  "Please run 'cat ~/.ssh/id_rsa.pub >> $AXIOM_PATH/configs/authorized_keys' and e-run axiom-build"
-	echo -e "You may need to generate a fresh SSH keypair...${Color_Off}"
+	echo -e  "Please make sure an SSH key exists in ~/.axiom/axiom.json or rerun axiom-configure."
+	echo -e "Then run axiom-build..${Color_Off}"
 	exit
 fi
 
@@ -153,7 +153,7 @@ cat "$account_path" | jq
 # ###########################################################################################################
 # Execute the Packer binary to build the final image
 counter=0
-echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nOcassionally this will fail, we  don't know why, but it should auto-restart.${Color_Off}"
+echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nIf this fails, verify the account is properly configured and/or try a different region.${Color_Off}"
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$snapshot_name" "$image_path";
 then
 	end_time=$(date +%s)
