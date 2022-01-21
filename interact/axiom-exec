@@ -283,10 +283,10 @@ trap clean_up SIGINT SIGTERM
 # Disable progress bar, reduce verbosity, only terminal output of the command is returned to terminal
 #
 if [[ "$nobar" == "false" ]]; then
- $interlace_cmd -c "$ssh_command _target_ '$commands'" 
+ $interlace_cmd -c "$ssh_command _target_ '$commands 1>&2'" 
  pid=$1
 else
- $interlace_cmd_nobar -c "$ssh_command _target_  '$commands'" | grep -v 'commands in total' | grep -v 'Repeat set to'
+ $interlace_cmd_nobar -c "$ssh_command _target_  '$commands 1>&2'" | grep -v 'commands in total' | grep -v 'Repeat set to'
  pid=$1
 fi
 
