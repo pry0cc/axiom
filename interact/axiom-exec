@@ -242,21 +242,30 @@ sshconfig="$tmp/sshconfig"
 total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 
 ###########################################################################################################
-# If --fleet isnt provided, default to selected.conf
+# If --fleet isnt provided or has null value, default to selected.conf
 #
 if [[ -z ${fleet:+x} ]]; then
  instances=$(cat "$tmp/hosts")
 else
+
+###########################################################################################################
+# If --fleet value is non-null and the value is a file, use selected from file
+#
  if [[ -f "$fleet" ]] ; then
   instances=$(cat "$fleet")
   echo "$instances" | tr ' ' '\n' > "$tmp/hosts"
   total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
- else
+ 
+###########################################################################################################
+# else it must the fleet name
+#
+else
   instances=$(query_instances_cache "$fleet*")
   echo "$instances" | tr ' ' '\n' > "$tmp/hosts"
   total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
  fi
 fi
+
 ###########################################################################################################
 # If --instance is provided, add it to total instances
 #
@@ -284,10 +293,10 @@ trap clean_up SIGINT SIGTERM
 #
 if [[ "$nobar" == "false" ]]; then
  $interlace_cmd -c "$ssh_command _target_ '$commands 1>&2'" 
- pid=$1
+ pid=$!
 else
  $interlace_cmd_nobar -c "$ssh_command _target_  '$commands 1>&2'" | grep -v 'commands in total' | grep -v 'Repeat set to'
- pid=$1
+ pid=$!
 fi
 
 ###########################################################################################################
