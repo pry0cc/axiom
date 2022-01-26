@@ -4,26 +4,26 @@
 # Title : axiom-exec
 #
 #Description:
-#  Evaluate shell one-liners or execute single commands on one or more instances in parallel                                                                                                                                                
-#  Expand local and remote environment variables respectively                                                                                                                                                                               
-#  Specify the fleet prefix, or let axiom use selected.conf by default (located in ~/.axiom/selected.conf)                                                                                                                                  
-#  Optionally execute command(s) in a detached tmux session on the remote instances (commands run in the background)                                                                                                                        
-#  Temporarily prevent axiom's SSH key regeneration and instead connect with a cached SSH config (default is ~/.axiom/.sshconfig)                                                                                                           
-#Examples:                                                                                                                                                                                                                                  
-#  axiom-exec id  # Execute command id across all instances currently selected.conf (located in ~/.axiom/selected.conf)
-#  axiom-exec 'sleep $(($RANDOM % 10)) && echo done' --instance testy01  # Evaluate complex one-liners on instance named tasty01
-#  axiom-exec ifconfig --fleet testy  # Execute ifconfig on testy fleet. Automatically select all instances in fleet testy.
-#  axiom-exec 'sleep 10' -q --cache --fleet OtherFleet --tmux MySession01  # Quietly execute command(s) inside a detacted tmux session on the remote instances with custom session name.
-#  axiom-exec whoami -q --cache --sshconfig ~/.axiom/log/exec/axiom-exec+1234567890/sshconfig --fleet oldfleet --tmux  # Specify the axiom SSH config to use (default is ~/.axiom/.sshconfig)
+#  Evaluate shell one-liners or execute single commands on one or more instances in parallel                                                                                                                      
+#  Expand local and remote environment variables respectively                                                                                                                                                     
+#  Specify the fleet prefix, or let axiom use selected.conf by default (located in ~/.axiom/selected.conf)                                                                                                        
+#  Optionally execute command(s) in a detached tmux session on the remote instances (commands run in the background)                                                                                              
+#  Temporarily prevent axiom's SSH key regeneration and instead connect with a cached SSH config (default is ~/.axiom/.sshconfig)                                                                                 
+#Examples:                                                                                                                                                                                                        
+#  axiom-exec id # Execute command id across all instances currently selected.conf (located in ~/.axiom/selected.conf)
+#  axiom-exec ifconfig --fleet testy # Execute ifconfig on testy fleet. Automatically select all instances in fleet testy
+#  axiom-exec sleep "$(($RANDOM % 10))" "&& id &&" echo $HOSTNAME --fleet stok # Evaluate complex one-liners on fleet stok
+#  axiom-exec 'sudo apt dist-upgrade -y' -q --cache --fleet OtherFleet --tmux MySession01 # Quietly execute command(s) inside a detacted tmux session on the remote instances with custom session name
+#  axiom-exec whoami -q --cache --sshconfig ~/.axiom/log/exec/axiom-exec+1234567890/sshconfig --fleet oldfleet --tmux # Specify the axiom SSH config to use (default is ~/.axiom/.sshconfig)
 #Usage:
 #  <commands> required string
-#    Command(s) to run on the remote axiom instances, multiple commands must be wrapped in single or double quotes.
+#    Command(s) to run on the remote axiom instances, multiple commands can be wrapped in single or double quotes, but not required
 #  -f/--fleet <fleet prefix>
-#    Fleet prefix to execute on (default is ~/.axiom/selected.conf). Automatic wildcard support.
+#    Fleet prefix to execute on (default is ~/.axiom/selected.conf). Automatic wildcard support
 #  -i/--instance <instance name>
-#    Single instance to execute on.
+#    Single instance to execute on
 #  --tmux <optional tmux session name>
-#    Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+$TIMESTAMP, or supply a custom tmux session name.
+#    Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+$TIMESTAMP, or supply a custom tmux session name
 #  --sshconfig <sshconfig_file> (optional string)
 #    Path to axiom's SSH config (default is ~/.axiom/.sshconfig)
 #  -q/--quiet
@@ -33,7 +33,7 @@
 #  --cache
 #    Temporarily do not generate SSH config and instead connect with cached SSH config
 #  --logs
-#    Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec$TIMESTAMP).
+#    Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec$TIMESTAMP)
 #  --help
 #    Display this help menu
 
@@ -90,19 +90,19 @@ function usage() {
         echo -e "  Temporarily prevent axiom's SSH key regeneration and instead connect with a cached SSH config (default is ~/.axiom/.sshconfig)" 
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-exec id ${Color_Off}# Execute command id across all instances currently selected.conf (located in ~/.axiom/selected.conf)"
-        echo -e "  ${Blue}axiom-exec 'sleep \$((\$RANDOM % 10)) && echo done' --instance testy01 ${Color_Off}# Evaluate complex one-liners on instance named tasty01"
-        echo -e "  ${Blue}axiom-exec ifconfig --fleet testy ${Color_Off}# Execute ifconfig on testy fleet. Automatically select all instances in fleet testy."
-        echo -e "  ${Blue}axiom-exec 'sleep 10' -q --cache --fleet OtherFleet --tmux MySession01 ${Color_Off}# Quietly execute command(s) inside a detacted tmux session on the remote instances with custom session name." 
+        echo -e "  ${Blue}axiom-exec ifconfig --fleet testy ${Color_Off}# Execute ifconfig on testy fleet, automatically select all instances in fleet testy"
+        echo -e "  ${Blue}"axiom-exec sleep '"$(($RANDOM '%' 10))"' '"&& id &&"' echo \$HOSTNAME --fleet stok "${Color_Off}# Evaluate complex one-liners on fleet stok" 
+        echo -e "  ${Blue}axiom-exec 'sudo apt dist-upgrade -y' -q --cache --fleet OtherFleet --tmux MySession01 ${Color_Off}# Quietly execute command(s) inside a detacted tmux session on the remote instances with custom session name" 
         echo -e "  ${Blue}axiom-exec whoami -q --cache --sshconfig ~/.axiom/log/exec/axiom-exec+1234567890/sshconfig --fleet oldfleet --tmux ${Color_Off}# Specify the axiom SSH config to use (default is ~/.axiom/.sshconfig)"
         echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  <commands> required string"
-        echo -e "    Command(s) to run on the remote axiom instances, multiple commands must be wrapped in single or double quotes."
+        echo -e "    Command(s) to run on the remote axiom instances, multiple commands can be wrapped in single or double quotes, but not required"
         echo -e "  -f/--fleet <fleet prefix>"
-        echo -e "    Fleet prefix to execute on (default is ~/.axiom/selected.conf). Automatic wildcard support."   
+        echo -e "    Fleet prefix to execute on (default is ~/.axiom/selected.conf). Automatic wildcard support"   
         echo -e "  -i/--instance <instance name>"
-        echo -e "    Single instance to execute on."
+        echo -e "    Single instance to execute on"
         echo -e "  --tmux <optional tmux session name>"
-        echo -e "    Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+\$TIMESTAMP, or supply a custom tmux session name."
+        echo -e "    Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+\$TIMESTAMP, or supply a custom tmux session name"
         echo -e "  --sshconfig <sshconfig_file> (optional string)"
         echo -e "    Path to axiom's SSH config (default is ~/.axiom/.sshconfig)"
         echo -e "  -q/--quiet"
@@ -112,7 +112,7 @@ function usage() {
         echo -e "  --cache"
         echo -e "    Temporarily do not generate SSH config and instead connect with cached SSH config"
         echo -e "  --logs"
-        echo -e "    Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec\$TIMESTAMP)."
+        echo -e "    Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec\$TIMESTAMP)"
         echo -e "  --help"
         echo -e "    Display this help menu"
 }
