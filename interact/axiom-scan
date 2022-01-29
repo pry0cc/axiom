@@ -733,9 +733,6 @@ if [[ "$user_specified_threads" != "" ]]; then
     threads="$user_specified_threads"
 fi
 
-# Print the command header
-thread_str=""
-
 # If the final command contains the sting _target_, display stats about one-shot modules
 #
 if [[ "$command" =~ "_target_" ]]; then
@@ -753,7 +750,7 @@ echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | $thread
 # Prep all the axiom instances by making a unique scan directory 
 # Store Interlace command in a file and upload it to remote instances with axiom-scp
 echo -n -e "${Blue}Building file structure...${Color_Off}"
-if [[ "$command" =~ "_target_" ]]; then
+if [[ "$command" =~ "_target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]; then
     $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
     echo "$command" > "$tmp/command"
     $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
@@ -762,7 +759,7 @@ else
 ###########################################################################################################
 # If a Simple Module is used:
 # Prep all the axiom instances by making a unique scan directory with SSH exec
-# Store Interlace command in a file and upload it to remote instances with axiom-scp
+# Store Bash command in a file and upload it to remote instances with axiom-scp
     $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
     echo "$command" > "$tmp/command"
     $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
@@ -792,7 +789,8 @@ fi
 
 ############################################################
 # This function is spanwed in the background and periodically probes all instances to see if their part of the scan has completed.
-# When the remote scan process has finished, it creates a file named $HOMENAME in the remote tmp dir the scan uses
+# When the remote scan process has finished, it creates a file named $HOSTNAME in the remote scan working directory. During the
+# scan if axiom see's the $HOSTNAME file, download the scan results
 #
 function downloader () {
 while true; do
@@ -840,25 +838,26 @@ if [[ "$command" =~ "_target_" ]]; then
  sleep 3
  downloader &
  downloaderPID=$!
- $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
  remotetailPID=$!
  echo $remotetailPID > $tmp/status/remotetailPID
+ $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; interlace --silent -threads $threads -tL input -cL command -o output > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  wait $remotetailPID  >> /dev/null 2>&1
  $interlace_cmd_nobar -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results'"
  $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1"
 
+# Start the simple scan SSH-ing into each instance and running the Bash command on every remote instance
+#
 else
  touch $tmp/status/completed/hosts
  touch $tmp/status/completed/status
  sleep 3
  downloader &
  downloaderPID=$!
- $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; bash -i command  > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
-
  remotetailPID=$!
  echo $remotetailPID > $tmp/status/remotetailPID
+ $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; bash -i command  > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  wait $remotetailPID  >> /dev/null 2>&1
  $interlace_cmd_nobar -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results'"
  $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
