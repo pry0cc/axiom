@@ -36,7 +36,7 @@ function bash_shell(){
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
     echo "export GOPATH=\$HOME/go" >> "${HOME}"/.bashrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH:\$HOME/.local/bin" >> "${HOME}"/.bashrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin" >> "${HOME}"/.bashrc
     source "${HOME}"/.bashrc
     SHELL=$(which bash)
     echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
@@ -57,7 +57,7 @@ function zsh_shell(){
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
     echo "export GOPATH=\$HOME/go" >>~/.zshrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH:\$HOME/.local/bin"  >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin"  >>~/.zshrc
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc  
     echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
@@ -79,8 +79,8 @@ function omz_shell(){
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
     echo "export GOPATH=\$HOME/go" >>~/.zshrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH:\$HOME/.local/bin"  >>~/.zshrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin"  >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH" >>~/.zshrc
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc  
     echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc   
