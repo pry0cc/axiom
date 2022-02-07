@@ -69,10 +69,11 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
+  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 
 	#location="$(az account list-locations | jq -r ".[] | select(.name==\"$region\") | .displayName")"
 	location="$region"
-	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op >/dev/null 2>&1 
+	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub  >/dev/null 2>&1 
 
 	az vm open-port --resource-group axiom --name "$name" --port 0-65535 >/dev/null 2>&1 
 	sleep 10
