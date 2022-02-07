@@ -35,10 +35,12 @@
         "touch /home/op/.cache/motd.legal-displayed",
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
+        "echo 'ubuntu:{{ user `op_random_password` }}' | chpasswd",
         "echo 'root:{{ user `op_random_password` }}' | chpasswd",
 
         "echo 'Moving Config files'",
         "mv /tmp/configs/sudoers /etc/sudoers",
+        "pkexec chown root:root /etc/sudoers /etc/sudoers.d -R",
         "mv /tmp/configs/bashrc /home/op/.bashrc",
         "mv /tmp/configs/zshrc /home/op/.zshrc",
         "mv /tmp/configs/sshd_config /etc/ssh/sshd_config",
@@ -46,9 +48,8 @@
         "mv /tmp/configs/authorized_keys /home/op/.ssh/authorized_keys",
         "mv /tmp/configs/config.ini /home/op/.config/amass/config.ini",
         "mv /tmp/configs/tmux-splash.sh /home/op/bin/tmux-splash.sh",
+        "/bin/su -l op -c 'sudo chmod 600 /home/op/.ssh/authorized_keys'",
         "chown -R op:users /home/op",
-        "chmod 644 /etc/resolv.conf",
-        "chattr +i /etc/resolv.conf",
         "sudo service sshd restart",
         "chmod +x /etc/update-motd.d/00-header",
 
