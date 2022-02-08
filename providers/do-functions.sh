@@ -310,8 +310,18 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
-
-	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" 2>&1 >>/dev/null 
+  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+  
+  if [[ $(doctl compute ssh-key list | wc -l) == 1 ]]; then
+    keyid=$(doctl compute ssh-key import "$HOST" \
+      --public-key-file "$HOME"/.ssh/"$sshkey".pub \
+      --format ID \
+      --no-header)
+  else
+    keyid=$(doctl compute ssh-key list | tail -n1 | awk '{print $1}')
+  fi
+  
+  doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1  
 	sleep 10
 }
 
