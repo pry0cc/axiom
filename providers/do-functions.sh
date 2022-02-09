@@ -305,14 +305,16 @@ fi
 }
 
 create_instance() {
-	name="$1"
-	image_id="$2"
-	size_slug="$3"
-	region="$4"
-	boot_script="$5"
+  name="$1"
+  image_id="$2"
+  size_slug="$3"
+  region="$4"
+  boot_script="$5"
+  dokey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.do_key')"
+  keyid=$(curl -s -X GET "https://api.digitalocean.com/v2/account/keys" -H "Authorization: Bearer $dokey" | jq '.ssh_keys[] | .id')
 
-	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" 2>&1 >>/dev/null 
-	sleep 10
+  doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
+  sleep 10
 }
 
 # Function used for splitting $src across $instances and rename the split files.
