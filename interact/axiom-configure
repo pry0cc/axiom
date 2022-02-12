@@ -69,7 +69,6 @@ function omz_shell(){
     echo -e "${Blue}Backing up $(echo "$HOME"/.zshrc) to $(echo "$HOME"/.zshrcbak) just in case.${Color_Off}"
     cp "$HOME"/.zshrc "$HOME"/.zshrcbak >> /dev/null 2>&1
     sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
-    wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
