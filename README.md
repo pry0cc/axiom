@@ -44,9 +44,9 @@ The original and best supported provider for Axiom is Digital Ocean! If you're s
 <p align="center">
 <a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/digitalocean_referral.png"/></a></p>
   
-Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for $20 free credit on Linode :) 
+Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for ~$20~ $100 free credit on Linode :) 
 <p align="center">
-<a href="https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/linode_referral.png"/></a></p>
+<a href="https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90" target="_blank"> <img src="https://github.com/pry0cc/axiom/blob/3e8dca3d58a02dc71778492a1fe077e769f93edd/screenshots/Referrals/Linode-referral.png"/></a></p>
 
 <p align="center">
 <a href="https://www.azure.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/azure_referral.png" screenshots/Referrals/azure_referral.png/></a></p>
