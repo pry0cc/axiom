@@ -311,7 +311,7 @@ create_instance() {
 	region="$4"
 	boot_script="$5"
   sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-  sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/axiom_rsa.pub | awk '{print $2}' | cut -d : -f 2-)"
+  sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/$sshkey.pub | awk '{print $2}' | cut -d : -f 2-)"
   keyid=$(doctl compute ssh-key import $sshkey \
     --public-key-file ~/.ssh/$sshkey.pub \
     --format ID \
