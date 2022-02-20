@@ -58,7 +58,6 @@ function parse_module() {
 
 ###########################################################################################################
 # Help Menu:
-# TODO: fix --quiet ( Slient all output except results )
 # add --rm-duplicates ( remove duplicates from target list, sort -u equivalent  )
 # add option to supply different SSH key 
 # exit if the module doesnt exist 
@@ -106,7 +105,7 @@ function help() {
         echo -e "  --debug (optional)"
         echo -e "    Enable debug mode (VERY VERBOSE!)"
         echo -e "  --quiet"
-	      echo -e "    Enable quiet mode (placeholder: does not work)"
+	      echo -e "    Enable quiet mode"
         echo -e "  --cache"
 	      echo -e "    Do not regenerate SSH config"
       	echo -e "  --help (optional)"
@@ -345,6 +344,7 @@ keeplogs="true"
 shuffle="true"
 split="true"
 distribute_wordlist="false"
+quiet="false"
 
 # Parse command line arguments 
 #
@@ -387,6 +387,11 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--quiet" ]]; then
+            quiet="true"
+            set=true
+            pass+=($i)
+        fi        
         if [[ "$arg" == "--rm-when-done" ]]; then
             rm_when_done="true"
             set=true
@@ -782,7 +787,7 @@ $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _tar
 
 # Dont tail if interactive is false
 # 
-if [[ "$interactive" != "true" ]]; then
+if [[ "$quiet" == "false" ]]; then
     tail -q -f $tmp/logs/* &
     tailPID=$!
 fi
@@ -795,8 +800,8 @@ fi
 function downloader () {
 while true; do
 sleep 30
-interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances" | grep -v 'commands in total' | grep -v 'Repeat set to'
-$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1" | grep -v 'commands in total' | grep -v 'Repeat set to'
+interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances" 
+$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1" 
 ls $tmp/status/inprogress/ | anew -q $tmp/status/completed/hosts 
 cat $tmp/status/completed/hosts | sort -u | wc -l | tee $tmp/status/downloader_instances  >/dev/null 2>&1
 cat $tmp/status/completed/hosts | sort -u | tee $tmp/status/downloader_hosts  >/dev/null 2>&1
@@ -806,9 +811,9 @@ if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
 fi
 downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_hosts -threads $(cat $tmp/status/downloader_instances)" 
 if [[ "$command" =~ "_target_" ]]; then
-$downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" | grep -v 'commands in total' | grep -v 'Repeat set to'
+$downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
 else
-$downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1" | grep -v 'commands in total' | grep -v 'Repeat set to'
+$downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
 
 mv $tmp/status/completed/hosts $tmp/status/completed/hosts.tmp
