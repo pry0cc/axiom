@@ -266,20 +266,21 @@ query_instances_cache() {
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
 	boxes="$(az vm list-ip-addresses --resource-group axiom)"
-	echo -n "" > $AXIOM_PATH/.sshconfig.new
-	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
-  echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+        sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
+	echo -n "" > "$sshnew"
+	echo -e "\tServerAliveInterval 60\n" >> $sshnew
+  echo -e "\tServerAliveCountMax 60\n" >> $sshnew
   sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-  echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
+  echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $sshnew
 
     
 	for name in $(echo "$boxes" | jq -r '.[].virtualMachine.name')
 	do 
 		ip=$(echo "$boxes" | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
-		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
 
 	done
-	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	mv $sshnew $AXIOM_PATH/.sshconfig
 	
 	if [ "$key" != "null" ]
 	then

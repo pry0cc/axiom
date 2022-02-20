@@ -567,6 +567,12 @@ if [[ "$spinup" -gt 0 ]]; then
     sleep 60
 fi
 
+# SSH Cache Flag
+#
+if [[ "$cache" == "false" ]]; then
+    generate_sshconfig
+fi
+
 # Not sure why we cat and then cp the selected.conf to different file names
 # Make a copy of the current SSH config and use it for axiom-scan
 #
@@ -620,12 +626,6 @@ fi
 
 if [[ "$module" == "gowitness" ]]; then
     ext=""
-fi
-
-# SSH Cache Flag
-#
-if [[ "$cache" == "false" ]]; then
-    generate_sshconfig
 fi
 
 # Variables to display about the scan
