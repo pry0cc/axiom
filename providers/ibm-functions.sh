@@ -285,11 +285,12 @@ generate_sshconfig() {
 	accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
 	current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 	droplets="$(instances)"
-	echo -n "" > $AXIOM_PATH/.sshconfig.new 
-	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
-	echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+        sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
+	echo -n "" > $sshnew 
+	echo -e "\tServerAliveInterval 60\n" >> $sshnew 
+	echo -e "\tServerAliveCountMax 60\n" >> $sshnew 
 	sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $AXIOM_PATH/.sshconfig.new
+	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $sshnew 
 	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
 
   if [[ "$generate_sshconfig" == "private" ]]; then
@@ -298,9 +299,9 @@ generate_sshconfig() {
   for name in $(echo "$droplets" | jq -r '.[].hostname')
   do 
   ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryBackendIpAddress")
-  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew 
   done
-  mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+  mv $sshnew  $AXIOM_PATH/.sshconfig
 
 	elif [[ "$generate_sshconfig" == "cache" ]]; then
 	echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
@@ -312,9 +313,9 @@ generate_sshconfig() {
   for name in $(echo "$droplets" | jq -r '.[].hostname')
 	do 
 	ip=$(echo "$droplets" | jq -r ".[] | select(.hostname==\"$name\") | .primaryIpAddress")
-	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew 
 	done
-	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	mv $sshnew  $AXIOM_PATH/.sshconfig
 fi
 }
 
