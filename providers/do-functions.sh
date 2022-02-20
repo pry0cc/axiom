@@ -310,9 +310,17 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
-
-	doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" 2>&1 >>/dev/null 
-	sleep 10
+  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+  sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/axiom_rsa.pub | awk '{print $2}' | cut -d : -f 2-)"
+  keyid=$(doctl compute ssh-key import $sshkey \
+    --public-key-file ~/.ssh/$sshkey.pub \
+    --format ID \
+    --no-header 2>/dev/null) ||
+  keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
+  
+  doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
+  
+  sleep 10
 }
 
 # Function used for splitting $src across $instances and rename the split files.
