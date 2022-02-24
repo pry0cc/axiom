@@ -120,7 +120,6 @@ function help(){
 #  When CONTROL+C is pressed during a scan, perform exit housekeeping. Allow us to download and merge the available results after canceling
 #
 clean_up() { 
-
     kill -0 $remotetailPID 2>  /dev/null && kill -9 $remotetailPID  &> /dev/null
     kill -0 $tailPID 2>  /dev/null && kill -9 $tailPID  &> /dev/null
     kill -0 $downloaderPID 2>  /dev/null && kill -9 $downloaderPID  &> /dev/null
@@ -969,7 +968,6 @@ echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | $
 echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}] ${BGreen}|"
 echo -e "${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
 rm -r $socket_tmp >/dev/null 2>&1
-
 kill -0 $remotetailPID 2>  /dev/null && kill -9 $remotetailPID  &> /dev/null
 kill -0 $tailPID 2>  /dev/null && kill -9 $tailPID  &> /dev/null
 kill -0 $downloaderPID 2>  /dev/null && kill -9 $downloaderPID  &> /dev/null
