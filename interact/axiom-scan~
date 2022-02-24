@@ -64,6 +64,7 @@ function parse_module() {
 # Help Menu:
 # add --rm-duplicates ( remove duplicates from target list, sort -u equivalent  )
 # add option to supply different SSH key 
+# exit if the module doesnt exist 
 # 
 function help(){
         echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
@@ -140,11 +141,14 @@ clean_up() {
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
-    echo -e "${Blue}Appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
-    echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":\"$command\",\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
-    echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}args ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
-    echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}] ${BGreen}|"
-    echo -e "${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
+
+echo -e "${Blue}Appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":\"$command\",\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}args ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
+echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}] ${BGreen}|"
+echo -e "${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
+
+
     rm -r $socket_tmp >/dev/null 2>&1
     stty sane
     tput init
@@ -873,7 +877,7 @@ go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
 fi
 
 ###########################################################################################################
-#  Start the One Shot Module scan by SSH-ing into each instance and running the Interlace command on every remote instance
+#  Start the one shot scan by SSH-ing into each instance and running the Interlace command on every remote instance
 #
 if [[ "$command" =~ "_target_" ]]; then
  echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
@@ -891,7 +895,7 @@ if [[ "$command" =~ "_target_" ]]; then
  $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1"
 
 ###########################################################################################################
-#  Start the Simple Module scan SSH-ing into each instance and running the Bash command on every remote instance
+#  Start the simple scan SSH-ing into each instance and running the Bash command on every remote instance
 #
 else
  touch $tmp/status/completed/hosts
@@ -973,3 +977,6 @@ wait $tailPID 2>/dev/null
 wait $downloaderPID 2>/dev/null
 stty sane
 tput init
+
+
+ 
