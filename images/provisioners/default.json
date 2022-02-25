@@ -123,6 +123,9 @@
         "echo 'Installing chaos-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest'",
 
+        "echo 'Installing cero'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/glebarez/cero@latest'",
+
         "echo 'Installing commix'",
         "git clone https://github.com/commixproject/commix.git /home/op/recon/commix",
 
