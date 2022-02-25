@@ -752,11 +752,11 @@ fi
 
 ###########################################################################################################
 #  If a wordlist is specified add it to the command
-#  Combine commands in the module with the arguments passed from the command line into final command
+#  If command line args are supplied, combine commands in the module with the arguments passed from the command line into final command
 #
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
 command="$(apply_wordlist "$command" "$wordlist")"
-command="$(add_extra_args "$command" "$args")"
+[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
 
 ###########################################################################################################
 #  Parse default or user specified threads in one-shot modules
