@@ -962,11 +962,11 @@ fi
 #  Display exit stats about the scan such as log directory 
 #  Normalize terminal
 #
-echo -e "${Blue}Appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+echo -e "${BGreen}Appending axiom-scan runtime statistics to${Color_Off}${Blue} : $AXIOM_PATH/stats.log${Color_Off}"
 echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":\"$command\",\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
-echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}args ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
-echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}] ${BGreen}|"
-echo -e "${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
+echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}args ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen} |"
+echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
+echo -e "${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
 rm -r $socket_tmp >/dev/null 2>&1
 kill -0 $remotetailPID 2>  /dev/null && kill -9 $remotetailPID  &> /dev/null
 kill -0 $tailPID 2>  /dev/null && kill -9 $tailPID  &> /dev/null
