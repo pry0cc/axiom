@@ -1,8 +1,12 @@
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
+if [ -f "$AXIOM_PATH/interact/includes/vars.sh" ] ; then
 source "$AXIOM_PATH/interact/includes/vars.sh"
+fi
+if [ -f "$AXIOM_PATH/interact/includes/functions.sh" ] ; then
 source "$AXIOM_PATH/interact/includes/functions.sh"
+fi
 
 INCLUDE_PATH="$AXIOM_PATH/providers/"
 SRC_FUNCTIONS="$AXIOM_PATH/interact/includes/functions.sh"
@@ -24,7 +28,10 @@ then
 	then
 		echo -e "${BWhite}Setting axiom provider to '$choice'${Color_Off}"
 		"$AXIOM_PATH/interact/generate_packer" "$choice" "$provisioner" > /dev/null 2>&1
+
+                if [ -f "$SRC_FUNCTIONS" ] ; then
 		rm "$SRC_FUNCTIONS"
+                fi
 		ln -s "$CHOICE_FUNCTIONS" "$SRC_FUNCTIONS"
 		echo -e "${BGreen}Provider set successfully${Color_Off}"
 	fi
