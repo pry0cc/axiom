@@ -324,9 +324,6 @@ else
     cd "$AXIOM_PATH" && git pull
 fi
 
-echo -e "${Blue}Installing gowitness...${Color_Off}"
-go get -u github.com/sensepost/gowitness
-
 ###########################################################################################################
 # unattended setup flag logic 
 #
