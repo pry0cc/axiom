@@ -1,0 +1,4 @@
+[{
+	"command":"docker run --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/cero < input | tee output",
+	"ext":"txt"
+}]

@@ -307,6 +307,10 @@ merge_output() {
             fi
             mv $tmp/merge "$outfile"
         if [[ "$module" == "gowitness" ]]; then
+            if ! [ -x "$(command -v gowitness)" ]; then
+            echo -e "${Blue}Installing gowitness...${Color_Off}"
+            go get -u github.com/sensepost/gowitness
+            fi
             echo "Downloading gowitness databases..."
             mkdir -p "$tmp/dbs/"
             $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache -F=$sshconfig>> /dev/null"

@@ -74,22 +74,25 @@
         "/bin/su -l root -c 'echo \"net.ipv4.ip_local_port_range = 1024 65535\" | sudo tee -a /etc/sysctl.conf'",
         "/bin/su -l root -c 'echo \"1024 65535\" | sudo tee -a /proc/sys/net/ipv4/ip_local_port_range'",
 
-        "echo 'Installing Wordlists'",
+        "echo 'Downloading Wordlists'",
 
-        "echo 'Installing cent'",
+        "echo 'Downloading cent'",
         "git clone https://github.com/xm1k3/cent.git /home/op/lists/cent",
 
-        "echo 'Installing leaky-paths'",
+        "echo 'Downloading leaky-paths'",
         "git clone https://github.com/ayoubfathi/leaky-paths.git /home/op/lists/leaky-paths",
 
-        "echo 'Installing permutations'",
+        "echo 'Downloading axiom-dockerfiles'",
+        "git clone https://github.com/0xtavian/pentesting-dockerfiles.git /home/op/lists/axiom-dockerfiles",
+
+        "echo 'Downloading permutations'",
         "wget -q -O /home/op/lists/permutations.txt https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw",
 
-        "echo 'Installing SecLists'",
-        "git clone https://github.com/danielmiessler/SecLists.git /home/op/lists/seclists",
-
-        "echo 'Installing resolvers'",
+        "echo 'Downloading resolvers'",
         "wget -q -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
+
+        "echo 'Downloading SecLists'",
+        "git clone https://github.com/danielmiessler/SecLists.git /home/op/lists/seclists",
 
         "echo 'Installing Tools'",
 
@@ -117,6 +120,9 @@
         "echo 'Installing axiom'",
         "/bin/su -l op -c 'git clone https://github.com/pry0cc/axiom.git /home/op/.axiom && cd /home/op/.axiom/interact && ./axiom-configure --shell zsh --unattended'",
 
+        "echo 'Installing cero'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cero/Dockerfile -t axiom/cero'",
+        
         "echo 'Installing cf-check'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/dwisiswant0/cf-check@latest'",
 

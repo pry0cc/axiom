@@ -26,7 +26,9 @@ case $BASEOS in
 esac
 
 accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+if [ -f ~/.axiom/axiom.json ] ; then
 current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+fi
 
 function bootstrap() {
 account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh"  | grep -v "generate" | tr '/' ' ' | awk '{ print $NF }' | tr -d '.sh')
