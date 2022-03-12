@@ -78,19 +78,21 @@ function help(){
         echo -e "    Do not randomize input file before uploading (default is to randomize)"
         echo -e "  --dont-split (optional)"
         echo -e "    Do not split input file, upload entire input file to every instance (default is to split the target list)"
-        echo -e "  -wL /path/to/local"
+        echo -e "  -wL <path to local wordlist>"
         echo -e "    Local wordlist to upload and use with axiom-scan (must be a path to a local wordlist)"
         echo -e "  -wD/--distribute-wordlist (optional, depends on -wL)"
         echo -e "    When using -wL, split and upload local wordlist (default is to not split the wordlist)"
-        echo -e "  -w /path/to/wordlist/on/instance"
+        echo -e "  -w <path to remote wordlist>"
         echo -e "    Wordlist to use for axiom-scan (must be a path to a remote wordlist)"
-        echo -e "  -o string"
+        echo -e "  --nuclei-templates <path to local folder>"
+        echo -e "    Local folder to use as an axiom-scan wordlist"
+        echo -e "  -o <output file string>"
         echo -e "    Output as default, whatever the first extension in the module is"
-        echo -e "  -oX string"
+        echo -e "  -oX <output file string>"
         echo -e "    Output in XML/HTML, supported in (nmap & masscan)"
-        echo -e "  -oG string"
+        echo -e "  -oG <output file string>"
         echo -e "    Output to greppable output (will merge and sort unique)"
-        echo -e "  -oD/-oA string"
+        echo -e "  -oD/-oA <output file string>"
         echo -e "    Output results to directory"
         echo -e "  -F string (optional)"
         echo -e "    Custom SSH configuration file to launch fleet from"
@@ -143,9 +145,10 @@ clean_up() {
     time=$(formatSeconds $runtime)
     echo -e "${Blue}Appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
     echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
-    echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}args ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
-    echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}] ${BGreen}|"
-    echo -e "${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
+    echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances: ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets: ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results: ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} |"
+    echo -e "${BGreen}runtime: ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date: ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id: ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
+    echo -e "${BGreen}output: ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log: ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote: ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen} |"
+    echo -e "${BGreen}command: ${Color_Off}[${Blue} $command ${Color_Off}]${BGreen} | ${BGreen}ext: ${Color_Off}[${Blue} "$ext" ${Color_Off}]${BGreen} | ${BGreen}threads: ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen}"
     rm -r $socket_tmp >/dev/null 2>&1
     stty sane
     tput init
@@ -358,6 +361,7 @@ shuffle="true"
 split="true"
 distribute_wordlist="false"
 quiet="false"
+nuclei_templates="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -416,7 +420,6 @@ do
             set=true
             pass+=($i)
         fi
-
         if [[ "$arg" == "--list" ]]; then
             list_modules
             exit
@@ -445,6 +448,13 @@ do
         if [[ "$arg" == "-wL" ]]; then
             n=$((i+1))
             local_wordlist=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--nuclei-templates" ]]; then
+            n=$((i+1))
+            nuclei_templates=$(echo ${!n})
             set=true
             pass+=($i)
             pass+=($n)
@@ -728,11 +738,11 @@ fi
 #
 if [[ -f "$local_wordlist" ]]; then
 if [[ "$distribute_wordlist" == "false" ]]; then
-    echo -e "${Green}Uploading local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
+echo -e "${BGreen}uploading local wordlist${Color_Off}${Blue} : $local_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
     interlace --no-bar --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
-    echo -e "${Green}Wordlist uploaded successfully!${Color_Off}"
+    echo -e "${Green}wordlist uploaded successfully!${Color_Off}"
 else
-    echo -e "${Green}Splitting and uploading local wordlist: $local_wordlist_filename to $destination_wordlist...${Color_Off}"
+    echo -e "${BGreen}splitting and uploading local wordlist${Color_Off}${Blue} : $local_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
     mkdir -p $tmp/distribute_wordlist/split
     mkdir -p $tmp/distribute_wordlist/input
     cp "$tmp/selected.conf" "$tmp/distribute_wordlist/selected.conf"
@@ -742,8 +752,22 @@ else
     # hack to stop overwriting $lines and $tmp
     lines=$lines1 && tmp=$tmp1
     $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" | grep -v "Gen"
-    echo -e "${Green}Distributed wordlist successfully!${Color_Off}"
+    echo -e "${Green}distributed wordlist successfully!${Color_Off}"
+fi
+fi
 
+###########################################################################################################
+#  If --nuclei-templates is present in the command line, upload a user provider folder to use.
+#
+if [[ "$nuclei_templates" != "false" ]]; then
+if [[ -d "$nuclei_templates" ]]; then
+        local_folder_filename="$(echo "$nuclei_templates" | tr '/' ' ' | awk '{ print $NF }')"
+        destination_folder="/home/op/lists/$local_folder_filename"
+        total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
+        wordlist="$destination_folder"
+        echo -e "${BGreen}uploading local folder ( nuclei-templates )${Color_Off}${Blue} : $nuclei_templates${Color_Off} to ${Blue}$destination_folder...${Color_Off}"
+        interlace --no-bar --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $nuclei_templates _target_:$destination_folder --cache -F=$sshconfig >> /dev/null"
+        echo -e "${Green}custom folder uploaded successfully!${Color_Off}"
 fi
 fi
 
@@ -763,7 +787,6 @@ command="$(parse_module "$module" "$ext" | jq -r '.command')"
 command="$(apply_wordlist "$command" "$wordlist")"
 [[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
 escapedcommand=$(cat "$AXIOM_PATH/modules/$module.json" | jq -r ".[].command" | jq -R -s '.')
-
 
 ###########################################################################################################
 #  Parse default or user specified threads in one-shot modules
@@ -787,16 +810,16 @@ fi
 ###########################################################################################################
 #  Display some stats prior to scanning
 #
-echo -e "${BWhite}Module:${Color_Off} [ ${Blue}$module${Color_Off} ] | ${BWhite}Extra Args:${Color_Off} [${Blue}$args${Color_Off} ] | ${BWhite}Input:${Color_Off} [ ${Blue}$lines targets${Color_Off} ] | ${BWhite}Scan uid:${Color_Off} [ ${Blue}$uid${Color_Off} ]"
-echo -e "${BWhite}Instances:${Color_Off} $total_instances [${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]"
-echo -e "${BWhite}Command:${Color_Off} [ ${Blue}$command${Color_Off} ] | $thread_str${BWhite}Ext${Color_Off}: [${Blue}$ext${Color_Off}]"
+echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}input: ${Color_Off}[${Blue} $lines lines ${Color_Off}]${BGreen} |"
+echo -e "${BGreen}instances: ${Blue} $total_instances  ${Color_Off}[${Blue} $(echo $instances | tr '\n' ' ')${Color_Off}]${BGreen} |"
+echo -e "${BGreen}command: ${Color_Off}[${Blue} $command ${Color_Off}]${BGreen} | ${BGreen}ext: ${Color_Off}[${Blue} "$ext" ${Color_Off}]${BGreen} | ${BGreen}threads: ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen}"
 
 ###########################################################################################################
 #  If a one-shot module is used:
 #  Prep all the axiom instances by making a unique scan directory 
 #  Store Interlace command in a file and upload it to remote instances with axiom-scp
 #
-echo -n -e "${Blue}Building file structure...${Color_Off}"
+echo -e "${BGreen}creating scan working directory at ${Color_Off}${Blue}: /home/op/scan/$uid/${Color_Off}"
 if [[ "$command" =~ "_target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]; then
     $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
     echo "$command" > "$tmp/command"
@@ -811,9 +834,7 @@ else
     $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
     echo "$command" > "$tmp/command"
     $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
-
 fi
-echo -n -e "[ ${Green}OK${Color_Off} ]\n"
 
 ###########################################################################################################
 #  split target list or copy target list
@@ -827,8 +848,9 @@ fi
 ###########################################################################################################
 #  use axiom-scp to upload each input file to a remote instance
 #
-echo -e "${Blue}Uploading input files...${Color_Off}"
+echo -e "${Blue}spliting and distributing input file...${Color_Off}"
 $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _target_:$scan_dir/input --cache -F=$sshconfig >/dev/null 2>&1; touch $tmp/logs/_target_" | grep -v "Gen" 
+echo -n -e "[ ${Green}OK${Color_Off} ]\n"
 
 ###########################################################################################################
 #  Dont tail if quiet is true
@@ -971,9 +993,10 @@ fi
 #
 echo -e "${BGreen}Appending axiom-scan runtime statistics to${Color_Off}${Blue} : $AXIOM_PATH/stats.log${Color_Off}"
 echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
-echo -e "${BGreen}module ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}args ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} | ${BGreen}threads ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen} |"
-echo -e "${BGreen}runtime ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
-echo -e "${BGreen}output ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen}"
+echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances: ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets: ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results: ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} |"
+echo -e "${BGreen}runtime: ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date: ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id: ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
+echo -e "${BGreen}output: ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log: ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote: ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen} |"
+echo -e "${BGreen}command: ${Color_Off}[${Blue} $command ${Color_Off}]${BGreen} | ${BGreen}ext: ${Color_Off}[${Blue} "$ext" ${Color_Off}]${BGreen} | ${BGreen}threads: ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen}"
 rm -r $socket_tmp >/dev/null 2>&1
 kill -0 $remotetailPID 2>  /dev/null && kill -9 $remotetailPID  &> /dev/null
 kill -0 $tailPID 2>  /dev/null && kill -9 $tailPID  &> /dev/null
