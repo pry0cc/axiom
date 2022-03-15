@@ -176,15 +176,19 @@ fi
 
 ###########################################################################################################
 #  Providing wordlists in modules can be done with _wordlist_, usually something like -w _wordlist_ is provided in the module. Think of this like a placeholder for wordlists
-#  that can be easily switched out in-line or from the module. Look at the nuclei module for an example of _wordlist_ being used in a "simple module" https://github.com/pry0cc/axiom/blob/master/modules/nuclei.json.
-#  Example command: axiom-scan mytargets.txt -m nuclei -w /home/op/my-nuclei-templates-on-remote-server/ -o myresults.txt. Although Nuclei doesnt have a -w
-#  in this case, we are treating Nuclei's -templates(-t) argument as a wordlist (-w). In essence we are overwriting the wordlist argument for all modules, in an attempt to normalize the '-w' for all modules.
 #
 apply_wordlist() {
     command="$1"
     wordlist="$2"
     wordlist_escaped="$(echo "$wordlist" | sed 's/\//\\\//g')"
     echo "$command" | sed "s/_wordlist_/$wordlist_escaped/g"
+}
+
+apply_config() {
+    command="$1"
+    config="$2"
+    config_escaped="$(echo "$config" | sed 's/\//\\\//g')"
+    echo "$command" | sed "s/_config_/$config_escaped/g"
 }
 
 ###########################################################################################################
@@ -312,7 +316,7 @@ merge_output() {
         if [[ "$module" == "gowitness" ]]; then
             if ! [ -x "$(command -v gowitness)" ]; then
             echo -e "${Blue}Installing gowitness...${Color_Off}"
-            go get -u github.com/sensepost/gowitness
+            go install github.com/sensepost/gowitness@latest
             fi
             echo "Downloading gowitness databases..."
             mkdir -p "$tmp/dbs/"
@@ -342,9 +346,8 @@ starttime=$(date)
 wordlist=""
 module=""
 ext="default"
-default_wordlist="/home/op/nuclei-templates/"
-local_wordlist=""
-user_specified_wordlist=""
+local_wordlist="false"
+user_specified_wordlist="false"
 cache="false"
 fleet=""
 threads=""
@@ -362,6 +365,8 @@ split="true"
 distribute_wordlist="false"
 quiet="false"
 nuclei_templates="false"
+user_specified_config="false"
+local_config="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -380,7 +385,6 @@ do
         if [[ "$arg" == "-m" ]]; then
             n=$((i+1))
             module=$(echo ${!n})
-
             set=true
             pass+=($i)
             pass+=($n)
@@ -438,7 +442,7 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "-w" ]]; then
+        if [[ "$arg" == "-w" ]] || [[ "$arg" == "-t" ]]; then
             n=$((i+1))
             user_specified_wordlist=$(echo ${!n})
             set=true
@@ -455,6 +459,20 @@ do
         if [[ "$arg" == "--nuclei-templates" ]]; then
             n=$((i+1))
             nuclei_templates=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--config" ]]; then
+            n=$((i+1))
+            user_specified_config=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--local-config" ]]; then
+            n=$((i+1))
+            local_config=$(echo ${!n})
             set=true
             pass+=($i)
             pass+=($n)
@@ -638,6 +656,18 @@ EOT
 input_file="$1"
 total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 lines="$(wc -l "$input_file" | awk '{ print $1 }')"
+total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
+
+###########################################################################################################
+#  Fleet flag
+#
+if [[ "$fleet" == "" ]]; then
+    instances=$(cat "$tmp/hosts")
+else
+    instances=$(query_instances_cache "$fleet*")
+    echo "$instances" | tr ' ' '\n' > "$tmp/hosts"
+    total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
+fi
 
 ###########################################################################################################
 #  Check total instances does not equal zero
@@ -682,17 +712,6 @@ stty -echoctl
 trap clean_up SIGINT SIGTERM
 
 ###########################################################################################################
-#  Fleet flag
-#
-if [[ "$fleet" == "" ]]; then
-    instances=$(cat "$tmp/hosts")
-else
-    instances=$(query_instances_cache "$fleet*")
-    echo "$instances" | tr ' ' '\n' > "$tmp/hosts"
-    total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
-fi
-
-###########################################################################################################
 #  Destination directory on the instances and the command used to SSH to them
 #  Add default SSH commands
 #  Add default interlace command
@@ -705,31 +724,63 @@ interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instan
 interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances"
 
 ###########################################################################################################
-#  Figure out what wordlist to use - default, the module default or the user specified wordlist
+#  Parse the default extention from the module
 #
-module_default_wordlist="$(parse_module "$module" | jq -r '.wordlist?')"
-
-if [[ "$module_default_wordlist" != "" ]]; then
-    default_wordlist="$module_default_wordlist"
+if [[ "$ext" == "default" ]]; then
+    ext="$(parse_module "$module" | jq -r '.ext')"
 fi
 
-if [[ "$user_specified_wordlist" != "" ]]; then
+###########################################################################################################
+#  Figure out what wordlist to use -
+#
+wordlist="$(parse_module "$module" "$ext" |  jq -r '.wordlist // empty')"
+if [[ "$user_specified_wordlist" != "false" ]]; then
     wordlist="$user_specified_wordlist"
-else
-    wordlist="$default_wordlist"
 fi
-
-destination_wordlist=""
-if [[ "$local_wordlist" != "" ]]; then
+if [[ "$local_wordlist" != "false" ]]; then
     if [[ -f "$local_wordlist" ]]; then
         local_wordlist_filename="$(echo "$local_wordlist" | tr '/' ' ' | awk '{ print $NF }')"
-        total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
-        destination_wordlist="/home/op/lists/$local_wordlist_filename"
+        destination_wordlist="/home/op/scan/$uid/$local_wordlist_filename"
         wordlist="$destination_wordlist"
     else
         echo -e "${Red}Error: file not found '$local_wordlist'...${Color_Off}"
         exit 1
     fi
+fi
+
+###########################################################################################################
+#  Figure out what config to use 
+#
+config_file="$(parse_module "$module" "$ext" |  jq -r '.config // empty')"
+if [[ "$user_specified_config" != "false" ]]; then
+    config_file="$user_specified_config"
+fi
+if [[ "$local_config" != "false" ]]; then
+    if [[ -f "$local_config" ]]; then
+        local_config_filename="$(echo "$local_config" | tr '/' ' ' | awk '{ print $NF }')"
+        destination_config="/home/op/scan/$uid/$local_config_filename"
+        config_file="$destination_config"
+    else
+        echo -e "${Red}Error: file not found '$local_config'...${Color_Off}"
+        exit 1
+    fi
+fi
+
+###########################################################################################################
+#  If a one-shot module is used:
+#  Prep all the axiom instances by making a unique scan directory 
+#
+echo -e "${BGreen}creating scan working directory at ${Color_Off}${Blue}: /home/op/scan/$uid/${Color_Off}"
+rawcommand="$(parse_module "$module" "$ext" | jq -r '.command')"
+if [[ "$rawcommand" =~ "_target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]; then
+    $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
+else
+
+###########################################################################################################
+#  If a Simple Module is used:
+#  Prep all the axiom instances by making a unique scan directory with SSH exec
+#
+    $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
 fi
 
 ###########################################################################################################
@@ -739,7 +790,7 @@ fi
 if [[ -f "$local_wordlist" ]]; then
 if [[ "$distribute_wordlist" == "false" ]]; then
 echo -e "${BGreen}uploading local wordlist${Color_Off}${Blue} : $local_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
-    interlace --no-bar --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
+    interlace --no-bar --silent -threads $total_instances -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
     echo -e "${Green}wordlist uploaded successfully!${Color_Off}"
 else
     echo -e "${BGreen}splitting and uploading local wordlist${Color_Off}${Blue} : $local_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
@@ -762,20 +813,27 @@ fi
 if [[ "$nuclei_templates" != "false" ]]; then
 if [[ -d "$nuclei_templates" ]]; then
         local_folder_filename="$(echo "$nuclei_templates" | tr '/' ' ' | awk '{ print $NF }')"
-        destination_folder="/home/op/lists/$local_folder_filename"
-        total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
+        destination_folder="/home/op/scan/$uid/$local_folder_filename"
         wordlist="$destination_folder"
         echo -e "${BGreen}uploading local folder ( nuclei-templates )${Color_Off}${Blue} : $nuclei_templates${Color_Off} to ${Blue}$destination_folder...${Color_Off}"
-        interlace --no-bar --silent -threads $total -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $nuclei_templates _target_:$destination_folder --cache -F=$sshconfig >> /dev/null"
+        interlace --no-bar --silent -threads $total_instances -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $nuclei_templates _target_:$destination_folder --cache -F=$sshconfig >> /dev/null"
         echo -e "${Green}custom folder uploaded successfully!${Color_Off}"
 fi
 fi
 
 ###########################################################################################################
-#  Parse the default extention from the module
+#  If --config-file is present in the command line, upload a user provided config file.
 #
-if [[ "$ext" == "default" ]]; then
-    ext="$(parse_module "$module" | jq -r '.ext')"
+
+if [[ "$local_config" != "false" ]]; then
+if [[ -f "$local_config" ]]; then
+    user_config_filename="$(echo "$local_config" | tr '/' ' ' | awk '{ print $NF }')"
+    destination_config="/home/op/scan/$uid/$user_config_filename"
+    config_file="$destination_config"
+    echo -e "${BGreen}uploading local config file${Color_Off}${Blue} : $local_config${Color_Off} to ${Blue}$destination_config...${Color_Off}"
+    interlace --no-bar --silent -threads $total_instances -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_config _target_:$destination_config --cache -F=$sshconfig >> /dev/null"
+    echo -e "${Green}local config uploaded successfully!${Color_Off}"
+fi
 fi
 
 ###########################################################################################################
@@ -784,9 +842,14 @@ fi
 #  Add escaped command value used for $HOME/.axiom/stats.log file
 #
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
+
 command="$(apply_wordlist "$command" "$wordlist")"
+if [[ "$command" =~ "_config_" ]]; then
+command="$(apply_config "$command" "$config_file")"
+fi
+
 [[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
-escapedcommand=$(cat "$AXIOM_PATH/modules/$module.json" | jq -r ".[].command" | jq -R -s '.')
+escapedcommand=$(echo $command | jq -R -s '.')
 
 ###########################################################################################################
 #  Parse default or user specified threads in one-shot modules
@@ -801,13 +864,6 @@ if [[ "$user_specified_threads" != "" ]]; then
 fi
 
 ###########################################################################################################
-#  If the final command contains the sting _target_, display stats about one-shot modules
-#
-if [[ "$command" =~ "_target_" ]]; then
-    thread_str="${BWhite}Threads:${Color_Off} [ ${Red}$threads${Color_Off} ] | "
-fi
-
-###########################################################################################################
 #  Display some stats prior to scanning
 #
 echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}input: ${Color_Off}[${Blue} $lines lines ${Color_Off}]${BGreen} |"
@@ -815,23 +871,17 @@ echo -e "${BGreen}instances: ${Blue} $total_instances  ${Color_Off}[${Blue} $(ec
 echo -e "${BGreen}command: ${Color_Off}[${Blue} $command ${Color_Off}]${BGreen} | ${BGreen}ext: ${Color_Off}[${Blue} "$ext" ${Color_Off}]${BGreen} | ${BGreen}threads: ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen}"
 
 ###########################################################################################################
-#  If a one-shot module is used:
-#  Prep all the axiom instances by making a unique scan directory 
+#  If a One shot Module is used:
 #  Store Interlace command in a file and upload it to remote instances with axiom-scp
 #
-echo -e "${BGreen}creating scan working directory at ${Color_Off}${Blue}: /home/op/scan/$uid/${Color_Off}"
 if [[ "$command" =~ "_target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]; then
-    $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
     echo "$command" > "$tmp/command"
     $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
 else
 
 ###########################################################################################################
 #  If a Simple Module is used:
-#  Prep all the axiom instances by making a unique scan directory with SSH exec
-#  Store Bash command in a file and upload it to remote instances with axiom-scp
-#
-    $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
+#  Store bash command in a file and upload it to remote instances with axiom-scp
     echo "$command" > "$tmp/command"
     $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
 fi
@@ -839,18 +889,19 @@ fi
 ###########################################################################################################
 #  split target list or copy target list
 # 
+
 if [[ "$split" == "true" ]]; then
+    echo -e "${Blue}spliting and distributing input file...${Color_Off}"
     split_file "$input_file" "$total_instances" "$tmp"
     else
+    echo -e "${Blue}copying input file to every instance...${Color_Off}"
     for i in $(echo $instances); do cp "$input_file" $tmp/input/$i ; done 
 fi
 
 ###########################################################################################################
 #  use axiom-scp to upload each input file to a remote instance
 #
-echo -e "${Blue}spliting and distributing input file...${Color_Off}"
-$interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _target_:$scan_dir/input --cache -F=$sshconfig >/dev/null 2>&1; touch $tmp/logs/_target_" | grep -v "Gen" 
-echo -n -e "[ ${Green}OK${Color_Off} ]\n"
+$interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _target_:$scan_dir/input --cache -F=$sshconfig >/dev/null 2>&1; touch $tmp/logs/_target_" && echo -n -e "[ ${Green}OK${Color_Off} ]\n" || echo -n -e "[ ${Green}FAIL${Color_Off} ]\n" 
 
 ###########################################################################################################
 #  Dont tail if quiet is true
