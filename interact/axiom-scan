@@ -69,7 +69,7 @@ function help(){
 cat << EOF  
 axiom-scan provides easy distribution of arbitrary binaries and scripts. 
 axiom-scan can split and upload user-provided input files (target lists), wordlists and configuration files to every instance.
-axiom-scan will execute the same command across all instance, which can be found in the module.
+axiom-scan will execute the same command across all instances, which can be found in the module.
 Each scan is run in a unique working directory and tmux session on the remote instances (fleet).
 
 Usage:
@@ -86,14 +86,14 @@ MODULE:
    --list                print all available modules
 
 WORDLIST:
-   -w string[]                       replace the string _wordlist_ in a module with a user provided wordlist (must be a path to a remote wordlist)
-   -wL string[]                      replace the string _wordlist_ in a module with a user provided local wordlist ( must be a path to a local wordlist)
-   --nuclei-templates string[]       replace the string _wordlist_ in a module with a user provided local folder
+   -w string[]                       replace the string _wordlist_ in a module with a user-provided wordlist (must be a path to a remote wordlist)
+   -wL string[]                      replace the string _wordlist_ in a module with a user-provided local wordlist ( must be a path to a local wordlist)
+   --nuclei-templates string[]       replace the string _wordlist_ in a module with a user-provided local folder
    -wD,--distribute-wordlist         requires -wL, when using -wL, split and upload local wordlist (default does not split the wordlist)
 
 CONFIGURATIONS:
-   --config string[]                 replace the string _config_ in a module with a user provided configuration file (must be a configuration file on the remote instances)
-   --local-config string[]           replace the string _config_ in a module with a user provided local configuration file to upload ( must be a local configuration file)
+   --config string[]                 replace the string _config_ in a module with a user-provided configuration file (must be a configuration file on the remote instances)
+   --local-config string[]           replace the string _config_ in a module with a user-provided local configuration file to upload ( must be a local configuration file)
 
 OUTPUT:
    -o string[]          output as default (the first ext mentioned in the module) 
