@@ -66,19 +66,25 @@ function parse_module() {
 # add option to supply different SSH key 
 # 
 function help(){
-cat << EOF  
-axiom-scan provides easy distribution of arbitrary binaries and scripts. 
+cat << EOF
+axiom-scan provides easy distribution of arbitrary binaries and scripts.
 axiom-scan splits and uploads user-provided input files (target lists), wordlists and configuration files to every instance.
 axiom-scan executes the same command across all instances, which can be found in the module.
-axiom-scan downloads and merges scan output in a variety of different ways, specified in the module (folder, merged text file, csv etc). 
+axiom-scan downloads and merges scan output in a variety of different ways, specified in the module (folder, merged text file, csv etc).
 individual scans are executed in the background, inside a unique tmux session and scan working directory on the remote instances
- 
+
 Usage:
-  axiom-scan [flags]
+   axiom-scan inputfile.txt -m ffuf -w /home/op/wordlist-on-remote-instance
+   axiom-scan inputfile.txt -m ffuf -wL /home/localuser/local-wordlist-to-upload
+   axiom-scan inputfile.txt -m ffuf -wD /home/localuser/local-wordlist-to-split-and-upload
+   axiom-scan inputfile.txt -m nuclei -w /home/op/nuclei-templates -o outputfile.txt
+   axiom-scan inputfile.txt -m nuclei --nuclei-templates /home/localuser/local-custom-nuclei-template-folder/ -anew outputfile.txt
+   axiom-scan inputfile.txt -m gowitness --spinup 10 -oD gowitness-screenshots
+   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan
 
 Flags:
 INPUT:
-   string[]              the first positional argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
+   string[]              required positional first argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
    --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
    --dont-shuffle        do not randomize input file before uploading (default is to randomize)
 
@@ -87,16 +93,17 @@ MODULE:
    --list                print all available modules
 
 WORDLIST:
-   -w string[]                       replace the string _wordlist_ in a module with a user-provided wordlist (must be a path to a remote wordlist)
-   -wL string[]                      replace the string _wordlist_ in a module with a user-provided local wordlist ( must be a path to a local wordlist)
-   --nuclei-templates string[]       replace the string _wordlist_ in a module with a user-provided local folder
-   -wD,--distribute-wordlist         requires -wL, when using -wL, split and upload local wordlist (default does not split the wordlist)
+   -w string[]                           replace _wordlist_ in module with user-provided wordlist (must be a path to a remote wordlist)
+   -wL string[]                          replace _wordlist_ in module with user-provided local wordlist ( must be a path to a local wordlist)
+   -wD,--distribute-wordlist string[]    replace _wordlist_ in module with user-provided local wordlist to split and upload (default does not split the wordlist)
+   --nuclei-templates string[]           replace _wordlist_ in module with user-provided local folder
 
 CONFIGURATIONS:
-   --config string[]                 replace the string _config_ in a module with a user-provided configuration file (must be a configuration file on the remote instances)
-   --local-config string[]           replace the string _config_ in a module with a user-provided local configuration file to upload ( must be a local configuration file)
+   --config string[]           replace _config_ in module with user-provided configuration file (must be a configuration file on the remote instances)
+   --local-config string[]     replace _config_ in module with user-provided local configuration file to upload ( must be a local configuration file)
 
 OUTPUT:
+
    -o string[]          output as default (the first ext mentioned in the module) 
    -oD string[]         output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
    -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
@@ -401,7 +408,6 @@ do
             pass+=($i)
             pass+=($n)
         fi
-
         if [[ "$arg" == "-oG" ]]; then
             n=$((i+1))
             ext="txt"
@@ -438,7 +444,6 @@ do
             pass+=($i)
             pass+=($n)
         fi 
-
         if [[ "$arg" == "-anew" ]] || [[ "$arg" == "--anew" ]] ; then
             n=$((i+1))
             anew="true"
@@ -523,9 +528,11 @@ do
             pass+=($n)
         fi
         if [[ "$arg" == "--distribute-wordlist" ]] || [[ "$arg" == "-wD" ]]; then
-            distribute_wordlist="true"
+            n=$((i+1))
+            distribute_wordlist=$(echo ${!n})
             set=true
             pass+=($i)
+            pass+=($n)
         fi
         if [[ "$arg" == "--spinup" ]]; then
             n=$((i+1))
@@ -763,10 +770,21 @@ if [[ "$local_wordlist" != "false" ]]; then
         destination_wordlist="/home/op/scan/$uid/$local_wordlist_filename"
         wordlist="$destination_wordlist"
     else
-        echo -e "${Red}Error: file not found '$local_wordlist'...${Color_Off}"
+        echo -e "${Red}Error: local wordlist file not found '$local_wordlist'...${Color_Off}"
         exit 1
     fi
 fi
+if [[ "$distribute_wordlist" != "false" ]]; then
+    if [[ -f "$distribute_wordlist" ]]; then
+        distribute_wordlist_filename="$(echo "$distribute_wordlist" | tr '/' ' ' | awk '{ print $NF }')"
+        destination_wordlist="/home/op/scan/$uid/$distribute_wordlist_filename"
+        wordlist="$destination_wordlist"
+    else
+        echo -e "${Red}Error: local wordlist to distribute file not found '$distribute_wordlist'...${Color_Off}"
+        exit 1
+    fi
+fi
+
 
 ###########################################################################################################
 #  Figure out what config to use 
@@ -781,7 +799,7 @@ if [[ "$local_config" != "false" ]]; then
         destination_config="/home/op/scan/$uid/$local_config_filename"
         config_file="$destination_config"
     else
-        echo -e "${Red}Error: file not found '$local_config'...${Color_Off}"
+        echo -e "${Red}Error: local config file not found '$local_config'...${Color_Off}"
         exit 1
     fi
 fi
@@ -805,26 +823,28 @@ fi
 
 ###########################################################################################################
 #  If -wL (wordlist-local) is present in the command line, upload a user provider wordlist to use.
-#  If -wD or --distribute-wordlist is present in the command line, split and upload the user provided wordlist.
 #
 if [[ -f "$local_wordlist" ]]; then
-if [[ "$distribute_wordlist" == "false" ]]; then
 echo -e "${BGreen}uploading local wordlist${Color_Off}${Blue} : $local_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
     interlace --no-bar --silent -threads $total_instances -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $local_wordlist  _target_:$destination_wordlist --cache -F=$sshconfig >> /dev/null"
     echo -e "${Green}wordlist uploaded successfully!${Color_Off}"
-else
-    echo -e "${BGreen}splitting and uploading local wordlist${Color_Off}${Blue} : $local_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
+fi
+
+###########################################################################################################
+#  If -wD or --distribute-wordlist is present in the command line, split and upload the user provided wordlist.
+#
+if [[ "$distribute_wordlist" != "false" ]]; then
+    echo -e "${BGreen}splitting and uploading local wordlist${Color_Off}${Blue} : $distribute_wordlist_filename${Color_Off} to ${Blue}$destination_wordlist...${Color_Off}"
     mkdir -p $tmp/distribute_wordlist/split
     mkdir -p $tmp/distribute_wordlist/input
     cp "$tmp/selected.conf" "$tmp/distribute_wordlist/selected.conf"
+    # hack to stop overwriting $lines and $tmp and $divisor
+    lines1=$lines && tmp1=$tmp && divisor1=$divisor
+    split_file "$distribute_wordlist_filename" "$total_instances" $tmp/distribute_wordlist
     # hack to stop overwriting $lines and $tmp
-    lines1=$lines && tmp1=$tmp
-    split_file "$local_wordlist" "$total_instances" $tmp/distribute_wordlist
-    # hack to stop overwriting $lines and $tmp
-    lines=$lines1 && tmp=$tmp1
+    lines=$lines1 && tmp=$tmp1 && divisor=$divisor1
     $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" | grep -v "Gen"
     echo -e "${Green}distributed wordlist successfully!${Color_Off}"
-fi
 fi
 
 ###########################################################################################################
@@ -844,7 +864,6 @@ fi
 ###########################################################################################################
 #  If --config-file is present in the command line, upload a user provided config file.
 #
-
 if [[ "$local_config" != "false" ]]; then
 if [[ -f "$local_config" ]]; then
     user_config_filename="$(echo "$local_config" | tr '/' ' ' | awk '{ print $NF }')"
@@ -863,7 +882,10 @@ fi
 #
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
 
+if [[ "$command" =~ "_wordlist_" ]]; then
 command="$(apply_wordlist "$command" "$wordlist")"
+fi
+
 if [[ "$command" =~ "_config_" ]]; then
 command="$(apply_config "$command" "$config_file")"
 fi
