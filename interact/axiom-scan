@@ -66,56 +66,58 @@ function parse_module() {
 # add option to supply different SSH key 
 # 
 function help(){
-        echo -e "${BWhite}Usage of axiom-scan${Color_Off}"
-        echo -e "Example Usage: ${Blue}axiom-scan ips.txt -m nmap -T4 --top-ports 2000 -oX output.xml${Color_Off}"
-        echo -e "  --list (optional)"
-        echo -e "    List available modules"
-        echo -e "  <input> required string"
-        echo -e "    Input file, supplied as a positional first argument"
-        echo -e "  -m required string"
-        echo -e "    Module to use to scan (e.g masscan, nmap, gowitness, ffuf)"
-        echo -e "  --dont-shuffle (optional)"
-        echo -e "    Do not randomize input file before uploading (default is to randomize)"
-        echo -e "  --dont-split (optional)"
-        echo -e "    Do not split input file, upload entire input file to every instance (default is to split the target list)"
-        echo -e "  -wL <path to local wordlist>"
-        echo -e "    Local wordlist to upload and use with axiom-scan (must be a path to a local wordlist)"
-        echo -e "  -wD/--distribute-wordlist (optional, depends on -wL)"
-        echo -e "    When using -wL, split and upload local wordlist (default is to not split the wordlist)"
-        echo -e "  -w <path to remote wordlist>"
-        echo -e "    Wordlist to use for axiom-scan (must be a path to a remote wordlist)"
-        echo -e "  --nuclei-templates <path to local folder>"
-        echo -e "    Local folder to use as an axiom-scan wordlist"
-        echo -e "  -o <output file string>"
-        echo -e "    Output as default, whatever the first extension in the module is"
-        echo -e "  -oX <output file string>"
-        echo -e "    Output in XML/HTML, supported in (nmap & masscan)"
-        echo -e "  -oG <output file string>"
-        echo -e "    Output to greppable output (will merge and sort unique)"
-        echo -e "  -oD/-oA <output file string>"
-        echo -e "    Output results to directory"
-        echo -e "  -F string (optional)"
-        echo -e "    Custom SSH configuration file to launch fleet from"
-        echo -e "  --fleet string (optional)"
-        echo -e "    Fleet to use, will use axiom-select by default."
-        echo -e "  --spinup int (optional)"
-        echo -e "    How many instances to spin up"
-        echo -e "  --rm-when-done (optional)"
-        echo -e "    Delete selected instances when scan is complete."
-        echo -e "  --rm-logs (optional)"
-        echo -e "    Delete remote and local logs when finished (default keeps all logs)"
-        echo -e "  --shutdown-when-done (optional)"
-        echo -e "    Shutdown selected instances when scan is complete."
-        echo -e "  --debug (optional)"
-        echo -e "    Enable debug mode (VERY VERBOSE!)"
-        echo -e "  --quiet"
-        echo -e "    Enable quiet mode"
-        echo -e "  --cache"
-        echo -e "    Do not regenerate SSH config"
-        echo -e "  --help (optional)"
-        echo -e "    Display this help menu"
-        echo -e "  <additional args>"
-        echo -e "    If you want additional arguments supplied to your command, simply append them to the command!"
+cat << EOF  
+axiom-scan provides easy distribution of arbitrary binaries and scripts. 
+axiom-scan can split and upload user-provided input files (target lists), wordlists and configuration files to every instance.
+axiom-scan will execute the same command across all instance, which can be found in the module.
+Each scan is run in a unique working directory and tmux session on the remote instances (fleet).
+
+Usage:
+  axiom-scan [flags]
+
+Flags:
+INPUT:
+   string[]              the first positional argument must always be a input file, this can be a list of urls, ips, etc
+   --dont-split          do not split input file, upload entire input file to every instance (default is to split the target list)
+   --dont-shuffle        do not randomize input file before uploading (default is to randomize)
+
+MODULE:
+   -m string[]           the axiom-scan module to use with the scan
+   --list                print all available modules
+
+WORDLIST:
+   -w string[]                       replace the string _wordlist_ in a module with a user provided wordlist (must be a path to a remote wordlist)
+   -wL string[]                      replace the string _wordlist_ in a module with a user provided local wordlist ( must be a path to a local wordlist)
+   --nuclei-templates string[]       replace the string _wordlist_ in a module with a user provided local folder
+   -wD,--distribute-wordlist         requires -wL, when using -wL, split and upload local wordlist (default does not split the wordlist)
+
+CONFIGURATIONS:
+   --config string[]                 replace the string _config_ in a module with a user provided configuration file (must be a configuration file on the remote instances)
+   --local-config string[]           replace the string _config_ in a module with a user provided local configuration file to upload ( must be a local configuration file)
+
+OUTPUT:
+   -o string[]          output as default (the first ext mentioned in the module) 
+   -oD string[]         output as directory must also be supplied  in the module via "ext":"dir" or "ext":""
+   -oX string[]         output as XML/HTML (supported for nmap and masscan)
+   -oG string[]         output as greppable (merge and sort unique)
+   --quiet              do not display findings to terminal
+   --rm-logs            delete remote and local logs after scan completes
+
+FLEET:
+   --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf
+   --spinup int[]              number of instances to spin up prior to scanning (default uses instances in $HOME/.axiom/selected.conf)
+   --rm-when-done              delete the selected instances after the scan completes
+   --shutdown-when-done        shutdown the selected instance after the scan completes
+   -F string[]                 path to custom SSH config file (default is located at $HOME/.axiom/.sshconfig)
+   --cache                     do not regenerate SSH config prior to scan, instead use cached config (located at $HOME/.axiom/.sshconfig)
+
+DEBUG:
+   --debug              run with set -xv, warning: very verbose
+
+EXTRA ARGS:
+   string[]             supply additional arguments to be passed to the module
+EOF
+
 }
 
 ###########################################################################################################
