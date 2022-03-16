@@ -68,17 +68,18 @@ function parse_module() {
 function help(){
 cat << EOF  
 axiom-scan provides easy distribution of arbitrary binaries and scripts. 
-axiom-scan can split and upload user-provided input files (target lists), wordlists and configuration files to every instance.
-axiom-scan will execute the same command across all instances, which can be found in the module.
-Each scan is run in a unique working directory and tmux session on the remote instances (fleet).
-
+axiom-scan splits and uploads user-provided input files (target lists), wordlists and configuration files to every instance.
+axiom-scan executes the same command across all instances, which can be found in the module.
+axiom-scan downloads and merges scan output in a variety of different ways, specified in the module (folder, merged text file, csv etc). 
+individual scans are executed in the background, inside a unique tmux session and scan working directory on the remote instances
+ 
 Usage:
   axiom-scan [flags]
 
 Flags:
 INPUT:
-   string[]              the first positional argument must always be a input file, this can be a list of urls, ips, etc
-   --dont-split          do not split input file, upload entire input file to every instance (default is to split the target list)
+   string[]              the first positional argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
+   --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
    --dont-shuffle        do not randomize input file before uploading (default is to randomize)
 
 MODULE:
@@ -97,14 +98,16 @@ CONFIGURATIONS:
 
 OUTPUT:
    -o string[]          output as default (the first ext mentioned in the module) 
-   -oD string[]         output as directory must also be supplied  in the module via "ext":"dir" or "ext":""
-   -oX string[]         output as XML/HTML (supported for nmap and masscan)
-   -oG string[]         output as greppable (merge and sort unique)
+   -oD string[]         output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
+   -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
+   -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
+   -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
+   -anew string[]       pipe the output to anew before creating the final output file
    --quiet              do not display findings to terminal
    --rm-logs            delete remote and local logs after scan completes
 
 FLEET:
-   --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf
+   --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf)
    --spinup int[]              number of instances to spin up prior to scanning (default uses instances in $HOME/.axiom/selected.conf)
    --rm-when-done              delete the selected instances after the scan completes
    --shutdown-when-done        shutdown the selected instance after the scan completes
@@ -391,9 +394,56 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "--anew" ]]; then
+        if [[ "$arg" == "-o" ]]; then
+            n=$((i+1))
+            outfile=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+
+        if [[ "$arg" == "-oG" ]]; then
+            n=$((i+1))
+            ext="txt"
+            outfile=$(echo ${!n})
+            echo "sorting and greping unique for: '$outfile'"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "-csv" ]] || [[ "$arg" == "--csv" ]]; then
+            n=$((i+1))
+            ext="csv"
+            outfile=$(echo ${!n})
+            echo "using csv as extention for: '$outfile'"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "-oX" ]]; then
+            n=$((i+1))
+            ext="xml"
+            outfile=$(echo ${!n})
+            echo "using xml as extention for: '$outfile'"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "-oD" ]] || [[ "$arg" == "-oA" ]]; then
+            n=$((i+1))
+            ext="dir"
+            outfile=$(echo ${!n})
+            echo "setting output directory to: '$outfile'"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi 
+
+        if [[ "$arg" == "-anew" ]] || [[ "$arg" == "--anew" ]] ; then
             n=$((i+1))
             anew="true"
+            outfile=$(echo ${!n})
+            echo "sending output file to anew when completed"
             set=true
             pass+=($i)
             pass+=($n)
@@ -429,13 +479,6 @@ do
         if [[ "$arg" == "--list" ]]; then
             list_modules
             exit
-        fi
-        if [[ "$arg" == "-o" ]]; then
-            n=$((i+1))
-            outfile=$(echo ${!n})
-            set=true
-            pass+=($i)
-            pass+=($n)
         fi
         if [[ "$arg" == "--threads" ]]; then
             n=$((i+1))
@@ -484,14 +527,6 @@ do
             set=true
             pass+=($i)
         fi
-        if [[ "$arg" == "-oD" ]] || [[ "$arg" == "-oA" ]]; then
-            n=$((i+1))
-            ext="dir"
-            outfile=$(echo ${!n})
-            set=true
-            pass+=($i)
-            pass+=($n)
-        fi 
         if [[ "$arg" == "--spinup" ]]; then
             n=$((i+1))
             spinup=$(echo ${!n})
@@ -499,26 +534,9 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "-oG" ]]; then
-            n=$((i+1))
-            ext="txt"
-            outfile=$(echo ${!n})
-            set=true
-            pass+=($i)
-            pass+=($n)
-        fi
         if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]]; then
             n=$((i+1))
             fleet=$(echo ${!n})
-            set=true
-            pass+=($i)
-            pass+=($n)
-        fi
-        if [[ "$arg" == "-oX" ]]; then
-            n=$((i+1))
-            ext="xml"
-            outfile=$(echo ${!n})
-            echo "Setting outfile to: '$outfile'"
             set=true
             pass+=($i)
             pass+=($n)
