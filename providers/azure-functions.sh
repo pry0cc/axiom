@@ -7,12 +7,12 @@ LOG="$AXIOM_PATH/log.txt"
 
 poweron() {
 instance_name="$1"
-az vm start -g AXIOM -name $instance_name
+az vm start -g AXIOM --name $instance_name
 }
 
 poweroff() {
 instance_name="$1"
-az vm stop -g AXIOM --name  $instance_name
+az vm stop -g AXIOM --name $instance_name
 }
 
 reboot(){
