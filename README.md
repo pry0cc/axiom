@@ -56,7 +56,9 @@ Our third provider for axiom! Please use [this link](https://www.linode.com/?r=2
 
 # Installation
 ## Docker
-`docker exec -it $(docker run -d -it --platform linux/amd64 ubuntu) sh -c "apt update && apt install git -y && git clone https://github.com/pry0cc/axiom ~/.axiom/ && cd && .axiom/interact/axiom-configure"`
+```
+docker exec -it $(docker run -d -it --platform linux/amd64 ubuntu) sh -c "apt update && apt install git -y && git clone https://github.com/pry0cc/axiom ~/.axiom/ && cd && .axiom/interact/axiom-configure"
+```
 
 ## Easy Install
 
