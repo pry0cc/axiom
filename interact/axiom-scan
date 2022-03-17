@@ -94,21 +94,22 @@ MODULE:
 
 WORDLIST:
    -w string[]                           replace _wordlist_ in module with user-provided wordlist (must be a path to a remote wordlist)
-   -wL string[]                          replace _wordlist_ in module with user-provided local wordlist ( must be a path to a local wordlist)
+   -wL string[]                          replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    -wD,--distribute-wordlist string[]    replace _wordlist_ in module with user-provided local wordlist to split and upload (default does not split the wordlist)
    --nuclei-templates string[]           replace _wordlist_ in module with user-provided local folder
 
 CONFIGURATIONS:
-   --config string[]           replace _config_ in module with user-provided configuration file (must be a configuration file on the remote instances)
-   --local-config string[]     replace _config_ in module with user-provided local configuration file to upload ( must be a local configuration file)
+   --config string[]                     replace _config_ in module with user-provided configuration file (must be a configuration file on the remote instances)
+   --local-config string[]               replace _config_ in module with user-provided local configuration file to upload (must be a local configuration file)
+   --distribute-config string[]          replace _config_ in module with random config file in local folder (must be a path to a local folder containing multiple configuration files)
+
 
 OUTPUT:
-
    -o string[]          output as default (the first ext mentioned in the module) 
    -oD string[]         output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
    -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
    -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
-   -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
+   -csv string[]       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    -anew string[]       pipe the output to anew before creating the final output file
    --quiet              do not display findings to terminal
    --rm-logs            delete remote and local logs after scan completes
@@ -286,6 +287,9 @@ fi
 fi
 }
 
+
+#split_folder(){
+#}
 ###########################################################################################################
 #  Merge the output in a certain way specified in the module or if the user specified -oX -oG or -oD it will overwrite the default (-o).
 #  If only supplying -o as an output argument via the command line, the output format will default to the first extension mentioned in the module.
@@ -379,6 +383,7 @@ quiet="false"
 nuclei_templates="false"
 user_specified_config="false"
 local_config="false"
+distribute_config="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -527,6 +532,14 @@ do
             pass+=($i)
             pass+=($n)
         fi
+        if [[ "$arg" == "--distribute-config" ]]; then
+            n=$((i+1))
+            distribute_config=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+
         if [[ "$arg" == "--distribute-wordlist" ]] || [[ "$arg" == "-wD" ]]; then
             n=$((i+1))
             distribute_wordlist=$(echo ${!n})
@@ -780,7 +793,7 @@ if [[ "$distribute_wordlist" != "false" ]]; then
         destination_wordlist="/home/op/scan/$uid/$distribute_wordlist_filename"
         wordlist="$destination_wordlist"
     else
-        echo -e "${Red}Error: local wordlist to distribute file not found '$distribute_wordlist'...${Color_Off}"
+        echo -e "${Red}Error: local wordlist to distribute not found '$distribute_wordlist'...${Color_Off}"
         exit 1
     fi
 fi
@@ -803,6 +816,17 @@ if [[ "$local_config" != "false" ]]; then
         exit 1
     fi
 fi
+if [[ "$distribute_config" != "false" ]]; then
+    if [[ -d "$distribute_config" ]]; then
+        distribute_config_filename="$(echo "$distribute_config" | tr '/' ' ' | awk '{ print $NF }')"
+        destination_config="/home/op/scan/$uid/$distribute_config_filename"
+        config_file="$destination_config"
+    else
+        echo -e "${Red}Error: local config folder to distribute not found '$distribute_config'...${Color_Off}"
+        exit 1
+    fi
+fi
+
 
 ###########################################################################################################
 #  If a one-shot module is used:
@@ -843,7 +867,7 @@ if [[ "$distribute_wordlist" != "false" ]]; then
     split_file "$distribute_wordlist_filename" "$total_instances" $tmp/distribute_wordlist
     # hack to stop overwriting $lines and $tmp
     lines=$lines1 && tmp=$tmp1 && divisor=$divisor1
-    $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" | grep -v "Gen"
+    $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" 
     echo -e "${Green}distributed wordlist successfully!${Color_Off}"
 fi
 
@@ -874,6 +898,29 @@ if [[ -f "$local_config" ]]; then
     echo -e "${Green}local config uploaded successfully!${Color_Off}"
 fi
 fi
+
+###########################################################################################################
+#  If --distribuate-config is present in the command line, split the folder of config files and upload each config to every instance
+#
+
+if [[ "$distribute_config" != "false" ]]; then
+if [[ -d "$distribute_config" ]]; then
+    distribute_config_filename="$(echo "$distribute_config" | tr '/' ' ' | awk '{ print $NF }')"
+    destination_config="/home/op/scan/$uid/$distribute_config_filename"
+    config_file="$destination_config"
+    mkdir -p $tmp/distribute_config/split
+    mkdir -p $tmp/distribute_config/input
+    cp "$tmp/selected.conf" "$tmp/distribute_config/selected.conf"
+    split_folder "$distribute_config_filename" "$total_instances" "$tmp/distribute_config"
+
+    $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_config/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" 
+
+    echo -e "${BGreen}distributing folder of local config files${Color_Off}${Blue} : $distribute_config${Color_Off} to ${Blue}$destination_config...${Color_Off}"
+    interlace --no-bar --silent -threads $total_instances -tL "$tmp/selected.conf" -c "$AXIOM_PATH/interact/axiom-scp $distribute_config _target_:$destination_config --cache -F=$sshconfig >> /dev/null"
+    echo -e "${Green}local config uploaded successfully!${Color_Off}"
+fi
+fi
+
 
 ###########################################################################################################
 #  If a wordlist is specified add it to the command
@@ -1098,3 +1145,4 @@ wait $tailPID 2>/dev/null
 wait $downloaderPID 2>/dev/null
 stty sane
 tput init
+
