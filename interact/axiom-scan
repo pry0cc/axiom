@@ -68,10 +68,10 @@ function parse_module() {
 function help(){
 cat << EOF
 axiom-scan provides easy distribution of arbitrary binaries and scripts.
-axiom-scan splits and uploads user-provided input files (target lists), wordlists and configuration files to every instance.
-axiom-scan executes the same command across all instances, which can be found in the module.
-axiom-scan downloads and merges scan output in a variety of different ways, specified in the module (folder, merged text file, csv etc).
-individual scans are executed in the background, inside a unique tmux session and scan working directory on the remote instances
+axiom-scan splits user-provided input files (target lists), wordlists and configuration files and uploads them to a unique scan working directory on the remote instance.
+axiom-scan combines user-provided command-line arguments with commands in the module to execute the final command on the remote instance.
+axiom-scan downloads and merges scan output in a variety of differnet formats, specified by the extention in the module (dir, txt, csv, xml).
+individual scanning operations are conducted inside a detacted tmux session (\$module+\$timestamp) with a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
 
 Usage:
    axiom-scan inputfile.txt -m ffuf -w /home/op/wordlist-on-remote-instance
@@ -104,7 +104,7 @@ CONFIGURATIONS:
 
 OUTPUT:
    -o string[]          output as default (the first ext mentioned in the module) 
-   -oD/-oA string[]         output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
+   -oD/-oA string[]     output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
    -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
    -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
    -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
@@ -657,8 +657,9 @@ fi
 #  cp the selected.conf to different file names ( one for Interlace, one for selected.conf)
 #  Make a copy of the current SSH config and use it for axiom-scan
 #
-cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
-cp "$AXIOM_PATH/selected.conf" "$tmp/selected.conf"
+needed_instances="$(wc -l "$input" | awk '{ print $1 }')"
+cat "$AXIOM_PATH/selected.conf" | head -n $needed_instances >> "$tmp/hosts"
+cp "$tmp/hosts" "$tmp/selected.conf"
 cp "$sshconfig" "$tmp/sshconfig" 
 sshconfig="$tmp/sshconfig"
 
