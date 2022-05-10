@@ -279,8 +279,8 @@ fi
 # Prepare the default SSH and interlace command and execute the user provided command in parallel
 #
 ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
-interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
-interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances"
+interlace_cmd="$(which interlace) -tL $tmp/hosts -threads $total_instances"
+interlace_cmd_nobar="$(which interlace) --no-bar -tL $tmp/hosts -threads $total_instances"
 
 ###########################################################################################################
 # Prevents Interlace hangups from hijacking your terminal  
