@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /home/op/go/bin/ipcdn -m not | tee output",
+	"ext":"txt"
+}]
