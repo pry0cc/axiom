@@ -124,7 +124,7 @@
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cero/Dockerfile -t axiom/cero'",
         
         "echo 'Installing cf-check'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/dwisiswant0/cf-check@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cf-check/Dockerfile -t axiom/cf-check'",
 
         "echo 'Installing chaos-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest'",
