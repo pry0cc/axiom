@@ -103,10 +103,10 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/anew@latest'",
 
         "echo 'Installing anti-burl'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/anti-burl@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/anti-burl/Dockerfile -t axiom/anti-burl'",
 
         "echo 'Installing assetfinder'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/assetfinder@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/assetfinder/Dockerfile -t axiom/assetfinder'",
 
         "echo 'Installing Amass'",
         "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
