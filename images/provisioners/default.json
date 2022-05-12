@@ -332,6 +332,9 @@
         "apt-get install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird-dev libmemcached-dev libgpg-error-dev libgcrypt20-dev -y -qq",
         "git clone https://github.com/vanhauser-thc/thc-hydra.git /home/op/recon/thc-hydra && cd /home/op/recon/thc-hydra && ./configure && make -s && make -s install && cd",
 
+        "echo 'Installing trufflehog'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/trufflehog/Dockerfile -t axiom/trufflehog'",
+        
         "echo 'Installing unimap'",
         "wget -q -O /tmp/unimap https://github.com/Edu4rdSHL/unimap/releases/download/0.5.1/unimap-linux && mv /tmp/unimap /usr/bin/unimap && chmod +x /usr/bin/unimap",
 
