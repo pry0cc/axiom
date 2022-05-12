@@ -236,6 +236,9 @@
 
         "echo 'Installing interactsh-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest'",
+        
+        "echo 'Installing ipcdn'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/ipcdn/Dockerfile -t axiom/ipcdn'",
 
         "echo 'Installing jaeles'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest && /home/op/go/bin/jaeles config init'",
