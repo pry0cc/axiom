@@ -25,10 +25,6 @@ source "$AXIOM_PATH/interact/includes/system-notification.sh"
 starttime=$(date +"%F-TIME-%T")
 start="$(pwd)"
 BASEOS="$(uname)"
-provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
-account_path=$(ls -la "$AXIOM_PATH"/axiom.json | rev | cut -d " " -f 1 | rev)
-accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
-current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 case $BASEOS in
 'Darwin')
     PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"

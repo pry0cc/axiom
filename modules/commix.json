@@ -1,4 +1,4 @@
 [{
-	"command":"python3 /home/op/recon/commix/commix.py --batch -m input --output-dir output",
-	"ext":""
+        "command":"docker run --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/commix --batch -m /data/input --output-dir /data/output",
+        "ext":"dir"
 }]
