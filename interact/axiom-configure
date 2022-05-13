@@ -308,11 +308,22 @@ done
 fi
 fi
 
+
+###########################################################################################################
+# Clone axiom repo
+#
 if [ ! -d "$AXIOM_PATH" ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
     git clone https://github.com/pry0cc/axiom "$AXIOM_PATH"
 else
     cd "$AXIOM_PATH" && git pull
+fi
+
+###########################################################################################################
+#  Install anew if not already installed
+#
+if ! [ -x "$(command -v anew)" ]; then
+go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
 fi
 
 ###########################################################################################################

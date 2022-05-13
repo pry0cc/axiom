@@ -1,4 +1,5 @@
+
 [{
-	"command":"cat input | /home/op/go/bin/assetfinder --subs-only | tee output",
+	"command":"docker run --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/assetfinder --subs-only < input | tee output",
 	"ext":"txt"
 }]

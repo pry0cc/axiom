@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | /home/op/go/bin/cf-check | tee output",
-	"ext":"txt"
+        "command":"cat input | docker run --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/cf-check | tee output",
+        "ext":"txt"
 }]

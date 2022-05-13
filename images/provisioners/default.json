@@ -83,7 +83,7 @@
         "git clone https://github.com/ayoubfathi/leaky-paths.git /home/op/lists/leaky-paths",
 
         "echo 'Downloading axiom-dockerfiles'",
-        "git clone https://github.com/0xtavian/pentesting-dockerfiles.git /home/op/lists/axiom-dockerfiles",
+        "git clone https://github.com/0xtavian/minimal-pentesting-dockerfiles.git /home/op/lists/axiom-dockerfiles",
 
         "echo 'Downloading permutations'",
         "wget -q -O /home/op/lists/permutations.txt https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw",
@@ -103,10 +103,10 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/anew@latest'",
 
         "echo 'Installing anti-burl'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/anti-burl@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/anti-burl/Dockerfile -t axiom/anti-burl'",
 
         "echo 'Installing assetfinder'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/assetfinder@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/assetfinder/Dockerfile -t axiom/assetfinder'",
 
         "echo 'Installing Amass'",
         "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
@@ -124,7 +124,7 @@
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cero/Dockerfile -t axiom/cero'",
         
         "echo 'Installing cf-check'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/dwisiswant0/cf-check@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cf-check/Dockerfile -t axiom/cf-check'",
 
         "echo 'Installing chaos-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest'",
@@ -208,7 +208,7 @@
         "wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && sudo apt install -y /tmp/chrome.deb -qq && apt --fix-broken install -qq",
 
         "echo 'Installing gorgo'",
-        "/bin/su -l op -c 'git clone https://github.com/pry0cc/gorgo.git /home/op/recon/gorgo && pip3 install -r /home/op/recon/gorgo/requirements.txt'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/gorgo/Dockerfile -t axiom/gorgo'",
 
         "echo 'Installing gospider'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/jaeles-project/gospider@latest'",
@@ -236,6 +236,9 @@
 
         "echo 'Installing interactsh-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest'",
+        
+        "echo 'Installing ipcdn'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/ipcdn/Dockerfile -t axiom/ipcdn'",
 
         "echo 'Installing jaeles'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest && /home/op/go/bin/jaeles config init'",
@@ -332,6 +335,9 @@
         "apt-get install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird-dev libmemcached-dev libgpg-error-dev libgcrypt20-dev -y -qq",
         "git clone https://github.com/vanhauser-thc/thc-hydra.git /home/op/recon/thc-hydra && cd /home/op/recon/thc-hydra && ./configure && make -s && make -s install && cd",
 
+        "echo 'Installing trufflehog'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/trufflehog/Dockerfile -t axiom/trufflehog'",
+        
         "echo 'Installing unimap'",
         "wget -q -O /tmp/unimap https://github.com/Edu4rdSHL/unimap/releases/download/0.5.1/unimap-linux && mv /tmp/unimap /usr/bin/unimap && chmod +x /usr/bin/unimap",
 
