@@ -123,9 +123,6 @@
         "echo 'Installing cero'",
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cero/Dockerfile -t axiom/cero'",
         
-        "echo 'Installing cf-check'",
-        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cf-check/Dockerfile -t axiom/cf-check'",
-
         "echo 'Installing chaos-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest'",
 
@@ -136,7 +133,7 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/concurl@latest'",
 
         "echo 'Installing Corsy'",
-        "/bin/su -l op -c 'git clone https://github.com/s0md3v/Corsy.git /home/op/recon/Corsy && cd /home/op/recon/Corsy && pip3 install -r requirements.txt && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/corsy/Dockerfile -t axiom/corsy'",
 
         "echo 'Installing CrackMapExec'",
         "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme",
@@ -153,11 +150,8 @@
         "echo 'Installing DNSCewl'",
         "wget -q -O /tmp/DNSCewl https://github.com/codingo/DNSCewl/raw/master/DNScewl && mv /tmp/DNSCewl /usr/bin/DNSCewl && chmod +x /usr/bin/DNSCewl",
 
-        "echo 'Installing dnsgen'",
-        "/bin/su -l op -c 'git clone https://github.com/ProjectAnte/dnsgen /home/op/recon/dnsgen && cd /home/op/recon/dnsgen && pip3 install -r requirements.txt && sudo python3 setup.py install && cd'",
-
         "echo 'Installing dnsrecon'",
-        "/bin/su -l op -c 'git clone https://github.com/darkoperator/dnsrecon.git /home/op/recon/dnsrecon && cd /home/op/recon/dnsrecon && pip3 install -r requirements.txt && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/dnsrecon/Dockerfile -t axiom/dnsrecon'",
 
         "echo 'Installing dnsvalidator'",
         "git clone https://github.com/vortexau/dnsvalidator.git /home/op/recon/dnsvalidator && cd /home/op/recon/dnsvalidator/ && sudo python3 setup.py install",
@@ -250,7 +244,7 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/kxss@latest'",
 
         "echo 'Installing LinkFinder'",
-        "/bin/su -l op -c 'git clone https://github.com/GerbenJavado/LinkFinder /home/op/recon/LinkFinder && cd /home/op/recon/LinkFinder && pip3 install -r requirements.txt && sudo python3 setup.py install && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/linkfinder/Dockerfile -t axiom/linkfinder'",
 
         "echo 'Installing masscan'",
         "apt install masscan -y -qq",
@@ -280,7 +274,7 @@
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest && /home/op/go/bin/nuclei'",
 
         "echo 'Installing OpenRedireX'",
-        "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX && pip3 install aiohttp -q' ",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/openredirex/Dockerfile -t axiom/openredirex'",
 
         "echo 'Installing ParamSpider'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
@@ -311,9 +305,6 @@
 
         "echo 'Installing shuffledns'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/shuffledns/cmd/shuffledns@latest'",
-
-        "echo 'Installing sn0int'",
-        "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list && apt-get update -qq && apt-get install sn0int -y -qq",
 
         "echo 'Installing sqlmap'",
         "git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git /home/op/recon/sqlmap-dev",
@@ -352,6 +343,9 @@
 
         "echo 'Installing wpscan'",
         "gem install wpscan",
+        
+        "echo 'Removing unneeded Docker images'",
+        "/bin/su -l op -c 'docker prune -f'",
 
         "/bin/su -l op -c '/usr/local/go/bin/go  clean -modcache'",
         "/bin/su -l op -c 'wget -q -O gf-completion.zsh https://raw.githubusercontent.com/tomnomnom/gf/master/gf-completion.zsh && cat gf-completion.zsh >> /home/op/.zshrc && rm gf-completion.zsh && cd'",
