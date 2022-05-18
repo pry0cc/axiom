@@ -345,7 +345,7 @@
         "gem install wpscan",
         
         "echo 'Removing unneeded Docker images'",
-        "/bin/su -l op -c 'docker prune -f'",
+        "/bin/su -l op -c 'docker image prune -f'",
 
         "/bin/su -l op -c '/usr/local/go/bin/go  clean -modcache'",
         "/bin/su -l op -c 'wget -q -O gf-completion.zsh https://raw.githubusercontent.com/tomnomnom/gf/master/gf-completion.zsh && cat gf-completion.zsh >> /home/op/.zshrc && rm gf-completion.zsh && cd'",
