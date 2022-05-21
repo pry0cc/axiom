@@ -105,7 +105,7 @@ CONFIGURATIONS:
 OPTIMIZATIONS:
    --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
    --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 5 seconds
-   --max-runtime DURATION[]    kill scan it if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
+   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
 
 OUTPUT:
    -o string[]          output as default (the first ext mentioned in the module) 
