@@ -70,6 +70,8 @@ use_tmux=false
 instance=false
 keep_logs=false
 quick_execution=false
+pre_flight=true
+preflight_timeout=5
 
 ###########################################################################################################
 # Help Menu:
@@ -99,16 +101,20 @@ function usage() {
         echo -e "    Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+\$TIMESTAMP, or supply a custom tmux session name"
         echo -e "  --sshconfig <sshconfig_file> (optional string)"
         echo -e "    Path to axiom's SSH config (default is ~/.axiom/.sshconfig)"
-        echo -e "  -q/--quiet"
+        echo -e "  -q/--quiet (optional)"
         echo -e "    Disable progress bar, and reduce verbosity"
-        echo -e "  --debug"
+        echo -e "  --debug (optional)"
         echo -e "    Enable debug mode (VERY VERBOSE!)"
-        echo -e "  --cache"
+        echo -e "  --cache (optional)"
         echo -e "    Temporarily do not generate SSH config and instead connect with cached SSH config"
-        echo -e "  --logs"
+        echo -e "  --logs (optional)"
         echo -e "    Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec\$TIMESTAMP)"
-        echo -e "  --quick"
+        echo -e "  --quick (optional)"
         echo -e "    A faster but less reliable execution"
+        echo -e "  --skip-preflight (optional)"
+        echo -e "    Do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)"
+        echo -e "  --preflight-timeout <int>"
+        echo -e "    Specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 5 seconds"
         echo -e "  --help"
         echo -e "    Display this help menu"
 }
@@ -181,6 +187,18 @@ do
             quick_execution=true
             set=true
             pass+=($i)
+        fi
+        if [[ "$arg" == "--skip-preflight" ]]; then
+            pre_flight=false
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--preflight-timeout" ]] ; then
+            n=$((i+1))
+            preflight_timeout=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
         fi
         if  [[ "$set" != "true" ]]; then
             args="$args $arg"
@@ -330,6 +348,16 @@ ssh_exit_command="ssh -F $sshconfig -O exit -o StrictHostKeyChecking=no"
 #
 stty -echoctl
 trap clean_up SIGINT SIGTERM
+
+###########################################################################################################
+# preflight check
+#
+if [[ $pre_flight == true ]]; then
+ssh_command_preflight="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o ConnectTimeout=$preflight_timeout"
+$interlace_cmd_silent -c "$ssh_command_preflight _target_ 'echo _target_' >> $tmp/hosts_preflight"
+cat "$tmp/hosts_preflight" | sort -u  > "$tmp/hosts"
+cp "$tmp/hosts_preflight" "$tmp/selected.conf"
+fi
 
 ###########################################################################################################
 #  store bash command in a file and upload it to remote instances with axiom-scp
