@@ -150,6 +150,14 @@ fi
 echo -e "${Green}Password for user op is stored in $account_path, for your records${Color_Off}"
 cat "$account_path" | jq
 
+
+# ##########################################################################################################
+# If builder is AWS - upload the keypair to all regions
+if [[ "$builder" == "aws" ]];	 then
+	AWS_REGIONS="$(aws ec2 describe-regions --query 'Regions[].RegionName' --output text)"
+	setopt shwordsplit;for each_region in ${AWS_REGIONS} ; do aws ec2 import-key-pair --key-name axiom --public-key-material fileb:///$HOME/.ssh/axiom_rsa.pub --region $each_region ; done
+fi
+
 # ###########################################################################################################
 # Execute the Packer binary to build the final image
 counter=0
