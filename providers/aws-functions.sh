@@ -26,7 +26,7 @@ instances() {
 
 instance_id() {
 	name="$1"
-	instances | jq ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .InstanceId"
+	instances | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .InstanceId"
 }
 
 # takes one argument, name of instance, returns raw IP address
@@ -83,14 +83,9 @@ get_image_id() {
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
-    force="$2"
-
-    if [ "$force" == "true" ]
-        then
-        doctl compute droplet delete -f "$name"
-    else
-        doctl compute droplet delete "$name"
-    fi
+    id="$(instance_id "$name")"
+    echo "$id"
+    aws ec2 terminate-instances --instance-ids "$id" 2>&1 >> /dev/null
 }
 
 # TBD 
@@ -209,7 +204,7 @@ query_instances() {
 
 	if [[ "$query" ]]
 	then
-		selected="$selected $(echo $droplets | jq -r '.[].name' | grep -w "$query")"
+		selected="$selected $(echo $droplets | jq -r '.Reservations[].Instances[].Tags?[]?.Value' | grep -w "$query")"
 	else
 		if [[ ! "$selected" ]]
 		then
@@ -278,7 +273,10 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  for name in $(echo "$droplets" | jq -r '.Reservations[].Instances[].Tags?[]?.Value')
  do
  ip=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .PublicIpAddress")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ status=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .State.Name")
+ if [[ "$status" == "running" ]]; then
+ 	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ fi
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 
@@ -292,7 +290,10 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  for name in $(echo "$droplets" | jq -r '.Reservations[].Instances[].Tags?[]?.Value')
  do
  ip=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .PublicIpAddress")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ status=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .State.Name")
+ if [[ "$status" == "running" ]]; then
+ 	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ fi
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 fi
