@@ -89,7 +89,7 @@
         "wget -q -O /home/op/lists/permutations.txt https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw",
 
         "echo 'Downloading resolvers'",
-        "wget -q -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",
+        "wget -q -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/trickest/resolvers/main/resolvers.txt",
 
         "echo 'Downloading SecLists'",
         "git clone https://github.com/danielmiessler/SecLists.git /home/op/lists/seclists",
