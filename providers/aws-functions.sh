@@ -191,7 +191,7 @@ query_instances() {
 		if [[ "$var" =~ "*" ]]
 		then
 			var=$(echo "$var" | sed 's/*/.*/g')
-			selected="$selected $(echo $droplets | jq -r '.Reservations[].Instances[].Tags?[]?.Value' | grep "$var")"
+			selected="$selected $(echo $droplets | jq -r '.Reservations[].Instances[] | select(.State.Name != "terminated") | .Tags?[]?.Value' | grep "$var")"
 		else
 			if [[ $query ]];
 			then
