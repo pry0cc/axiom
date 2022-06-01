@@ -5,7 +5,7 @@ source "$AXIOM_PATH/interact/includes/vars.sh"
 
 echo -e "${BWhite}Axiom Account Setup${Color_Off}"
 echo -e "${Blue}You can use this wizard to add new accounts, once made, use axiom-account to switch between profiles${Color_Off}"
-account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh"  | grep -v "generate" | tr '/' ' ' | awk '{ print $NF }' | sed 's/\.sh//g')
+account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh" | grep -v gcp | grep -v "generate" | tr '/' ' ' | awk '{ print $NF }' | sed 's/\.sh//g')
 account_str=$(echo $account_helpers | sed 's/ /, /g')
 echo -e -n "${Green}Please enter your provider ($account_str): \n>> ${Color_Off}"
 read provider
