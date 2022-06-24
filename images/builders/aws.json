@@ -4,7 +4,7 @@
             "access_key": "{{ user `aws_access_key` }}",
             "ami_name": "{{ user `snapshot_name` }}",
             "instance_type": "{{ user `default_size` }}",
-            "region": "ap-south-1",
+            "region": "{{ user `region` }}",
             "secret_key": "{{ user `aws_secret_access_key` }}",
 	    "launch_block_device_mappings": [
     		{
