@@ -225,6 +225,8 @@
         "echo 'Installing httprobe'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/httprobe@latest'",
 
+        "echo 'Installing tlsx'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest'",
         "echo 'Installing httpx'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/httpx/cmd/httpx@latest'",
 
