@@ -660,6 +660,7 @@ mkdir -p "$tmp/input"
 mkdir -p "$tmp/split"
 mkdir -p "$tmp/output"
 mkdir -p "$tmp/logs"
+mkdir -p "$tmp/status"
 mkdir -p "$completed"
 mkdir -p "$inprogress"
 
