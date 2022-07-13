@@ -106,6 +106,7 @@ OPTIMIZATIONS:
    --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
    --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 5 seconds
    --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
+   --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
 
 OUTPUT:
    -o string[]          output as default (the first ext mentioned in the module) 
@@ -368,7 +369,7 @@ cache="false"
 fleet=""
 threads=""
 interactive=""
-uid="$module+$(date +%s)"
+uid="$module+$(date +%s)$RANDOM"
 outfile="$start/scan+$(date +%s)"
 sshconfig="$AXIOM_PATH/.sshconfig"
 rm_when_done="false"
@@ -378,6 +379,7 @@ pass=()
 keeplogs="true"
 shuffle="true"
 split="true"
+disable_oneshot="false"
 distribute_wordlist="false"
 quiet="false"
 nuclei_templates="false"
@@ -490,6 +492,11 @@ do
             set=true
             pass+=($i)
         fi
+	if [[ "$arg" == "--disable-oneshot" ]]; then
+            disable_oneshot="true"
+            set=true
+    	    pass+=($i)
+	fi
         if [[ "$arg" == "--quiet" ]]; then
             quiet="true"
             set=true
@@ -851,7 +858,7 @@ fi
 #
 echo -e "${BGreen}creating scan working directory at ${Color_Off}${Blue}: /home/op/scan/$uid/${Color_Off}"
 rawcommand="$(parse_module "$module" "$ext" | jq -r '.command')"
-if [[ "$rawcommand" =~ "_target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]; then
+if ([[ "$rawcommand" =~ "_target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]) && [[ "$disable_oneshot" != "true" ]]; then
     $interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir/output'" >/dev/null 2>&1
 else
 
@@ -1039,7 +1046,7 @@ fi
 ###########################################################################################################
 #  Start the One Shot Module scan by SSH-ing into each instance and running the Interlace command on every remote instance
 #
-if [[ "$command" =~ "_target_" ]]; then
+if [[ "$command" =~ "_target_" ]] && [[ "$disable_oneshot" != "true" ]]; then
  echo -e "${BRed}[*]${Red} ENABLING ONESHOT MODE! STARTING $(($total_instances * $threads)) TOTAL THREADS. Using $threads threads per instance with $total_instances instances...${Color_Off}"
  touch $tmp/status/completed/hosts
  touch $tmp/status/completed/status
