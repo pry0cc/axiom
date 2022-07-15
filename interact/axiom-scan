@@ -787,6 +787,7 @@ interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -thread
 ###########################################################################################################
 # preflight check
 #
+function preflight_function(){
 if [[ $pre_flight == true ]]; then
 ssh_command_preflight="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o ConnectTimeout=$preflight_timeout"
 $interlace_cmd -c "$ssh_command_preflight _target_ 'echo _target_' >> $tmp/hosts_preflight"
@@ -797,6 +798,9 @@ lines="$(wc -l "$input_file" | awk '{ print $1 }')"
 total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
 instances=$(cat "$tmp/hosts")
 fi
+}
+
+preflight_function
 
 ###########################################################################################################
 #  Parse the default extention from the module
@@ -1004,7 +1008,7 @@ fi
 ###########################################################################################################
 #  This function is spanwed in the background and periodically probes all instances to see if their part of the scan has completed.
 #  When the remote scan process has finished, it creates a file named $HOSTNAME in the remote scan working directory. During the
-#  scan if axiom see's the $HOSTNAME file, download the scan results
+#  scan if axiom see's the $HOSTNAME file, download the scan results. Once all instances have completed, this function exits
 #
 function downloader () {
 while true; do
@@ -1017,12 +1021,26 @@ if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
  sleep 10
  downloader
 fi
+
 downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_hosts -threads $(cat $tmp/status/downloader_instances)" 
 if [[ "$command" =~ "_target_" ]]; then
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
 else
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
+
+###########################################################################################################
+#  Deprovision axiom instances after scan completes if --rm-when-done is in the command
+#
+if [[ "$rm_when_done" == "true" ]]; then
+    for instance in $(cat "$tmp/status/downloader_hosts");
+    do
+        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
+        sleep 0.4
+    done
+fi
+
+preflight_function
 
 mv $tmp/status/completed/hosts $tmp/status/completed/hosts.tmp
 cat $tmp/status/completed/hosts.tmp | sort -u >> $tmp/status/completed/hosts
@@ -1091,17 +1109,6 @@ if [[ "$shutdown_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/selected.conf");
     do
         "$AXIOM_PATH/interact/axiom-power" off "$instance" 
-        sleep 0.4
-    done
-fi
-
-###########################################################################################################
-#  Deprovision axiom instances after scan completes if --rm-when-done is in the command
-#
-if [[ "$rm_when_done" == "true" ]]; then
-    for instance in $(cat "$tmp/selected.conf");
-    do
-        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
         sleep 0.4
     done
 fi
