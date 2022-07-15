@@ -709,6 +709,7 @@ Host *
     ControlMaster auto 
     ControlPath $socket_tmp/%r@%h-%p  
     ControlPersist 600
+    ConnectTimeout 10
 EOT
 
 ###########################################################################################################
@@ -779,6 +780,7 @@ trap clean_up SIGINT SIGTERM
 #
 scan_dir="/home/op/scan/$uid"
 ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no"
+ssh_check_command="ssh -F $sshconfig -O check -o StrictHostKeyChecking=no"
 ssh_exit_command="ssh -F $sshconfig -O exit -o StrictHostKeyChecking=no"
 
 interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
@@ -789,7 +791,10 @@ interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -thread
 #
 function preflight_function(){
 if [[ $pre_flight == true ]]; then
+rm -f "$tmp/hosts_preflight"
 ssh_command_preflight="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o ConnectTimeout=$preflight_timeout"
+interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
+$interlace_cmd_nobar -c "$ssh_check_command _target_ " || $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
 $interlace_cmd -c "$ssh_command_preflight _target_ 'echo _target_' >> $tmp/hosts_preflight"
 cat "$tmp/hosts_preflight" | sort -u  > "$tmp/hosts"
 cp "$tmp/hosts_preflight" "$tmp/selected.conf"
@@ -797,6 +802,7 @@ total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 lines="$(wc -l "$input_file" | awk '{ print $1 }')"
 total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
 instances=$(cat "$tmp/hosts")
+interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances"
 fi
 }
 
@@ -1013,7 +1019,7 @@ fi
 function downloader () {
 while true; do
 sleep 30
-$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1" 
+$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1"
 ls $tmp/status/inprogress/ | anew -q $tmp/status/completed/hosts 
 cat $tmp/status/completed/hosts | sort -u | wc -l | tee $tmp/status/downloader_instances  >/dev/null 2>&1
 cat $tmp/status/completed/hosts | sort -u | tee $tmp/status/downloader_hosts  >/dev/null 2>&1

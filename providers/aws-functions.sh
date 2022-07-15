@@ -261,7 +261,6 @@ sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
 droplets="$(instances)"
 echo -n "" > $sshnew
 echo -e "\tServerAliveInterval 60\n" >> $sshnew
-echo -e "\tServerAliveCountMax 60\n" >> $sshnew
 sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $sshnew
 generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
