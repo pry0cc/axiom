@@ -1014,7 +1014,10 @@ fi
 ###########################################################################################################
 #  This function is spanwed in the background and periodically probes all instances to see if their part of the scan has completed.
 #  When the remote scan process has finished, it creates a file named $HOSTNAME in the remote scan working directory. During the
-#  scan if axiom see's the $HOSTNAME file, download the scan results. Once all instances have completed, this function exits
+#  scan, axiom checks for each $HOSTNAME file to know that part of the scan has completed.
+#  Once all instances have created their $HOSTNAME file, the results are downloaded and this function exits.
+#  Simple Modules results are downloaded once all instances have completed ( all $HOSTNAMES files need to be downloaded).
+#  One-shot Modules do not wait for the $HOSTNAME file prior to downloading. one-shot module results are downloaded every 40 seconds.
 #
 function downloader () {
 while true; do
