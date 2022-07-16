@@ -69,9 +69,9 @@ function help(){
 cat << EOF
 axiom-scan provides easy distribution of arbitrary binaries and scripts.
 axiom-scan splits user-provided input files (target lists), wordlists and configuration files and uploads them to a unique scan working directory on the remote instance.
-axiom-scan combines user-provided command-line arguments with commands in the module to execute the final command on the remote instance.
+axiom-scan combines user-provided command-line arguments with commands in the module and executes the final command on the remote instance.
 axiom-scan downloads and merges scan output in a variety of differnet formats, specified by the extention in the module (dir, txt, csv, xml).
-individual scanning operations are conducted inside a detacted tmux session (\$module+\$timestamp) with a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
+individual scanning operations are executed from a detacted tmux session (\$module+\$timestamp) inside a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
 
 Usage:
    axiom-scan inputfile.txt -m ffuf -w /home/op/wordlist-on-remote-instance
@@ -104,7 +104,7 @@ CONFIGURATIONS:
 
 OPTIMIZATIONS:
    --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
-   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 5 seconds
+   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 10 seconds
    --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
 
@@ -386,7 +386,7 @@ nuclei_templates="false"
 user_specified_config="false"
 local_config="false"
 pre_flight=true
-preflight_timeout=5
+preflight_timeout=10
 max_scan_runtime=0
 
 ###########################################################################################################
@@ -1045,8 +1045,10 @@ fi
 if [[ "$rm_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/status/downloader_hosts");
     do
+     if (( $(instance_ip_cache "$instance" | wc -l) > 0 )); then 
         "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
         sleep 5
+     fi
     done
 fi
 
