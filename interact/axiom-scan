@@ -1046,7 +1046,7 @@ if [[ "$rm_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/status/downloader_hosts");
     do
      if (( $(instance_ip_cache "$instance" | wc -l) > 0 )); then 
-        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
+        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f 2>/dev/null
         sleep 5
      fi
     done
