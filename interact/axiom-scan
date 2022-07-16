@@ -794,7 +794,7 @@ if [[ $pre_flight == true ]]; then
 rm -f "$tmp/hosts_preflight"
 ssh_command_preflight="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o ConnectTimeout=$preflight_timeout"
 interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
-$interlace_cmd_nobar -c "$ssh_check_command _target_ " || $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
+$interlace_cmd_nobar -c "$ssh_check_command _target_ 2> /dev/null && (timeout $preflight_timeout $ssh_command_preflight _target_ exit || $ssh_exit_command _target_ ) "  #>> /dev/null 2>&1
 $interlace_cmd -c "$ssh_command_preflight _target_ 'echo _target_' >> $tmp/hosts_preflight"
 cat "$tmp/hosts_preflight" | sort -u  > "$tmp/hosts"
 cp "$tmp/hosts_preflight" "$tmp/selected.conf"
@@ -1032,6 +1032,10 @@ downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_
 if [[ "$command" =~ "_target_" ]]; then
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
 else
+if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
+ sleep 10
+ downloader
+fi
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
 
@@ -1042,7 +1046,7 @@ if [[ "$rm_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/status/downloader_hosts");
     do
         "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
-        sleep 0.4
+        sleep 5
     done
 fi
 
