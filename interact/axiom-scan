@@ -69,9 +69,9 @@ function help(){
 cat << EOF
 axiom-scan provides easy distribution of arbitrary binaries and scripts.
 axiom-scan splits user-provided input files (target lists), wordlists and configuration files and uploads them to a unique scan working directory on the remote instance.
-axiom-scan combines user-provided command-line arguments with commands in the module to execute the final command on the remote instance.
+axiom-scan combines user-provided command-line arguments with commands in the module and executes the final command on the remote instance.
 axiom-scan downloads and merges scan output in a variety of differnet formats, specified by the extention in the module (dir, txt, csv, xml).
-individual scanning operations are conducted inside a detacted tmux session (\$module+\$timestamp) with a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
+individual scanning operations are executed from a detacted tmux session (\$module+\$timestamp) inside a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
 
 Usage:
    axiom-scan inputfile.txt -m ffuf -w /home/op/wordlist-on-remote-instance
@@ -104,7 +104,7 @@ CONFIGURATIONS:
 
 OPTIMIZATIONS:
    --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
-   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 5 seconds
+   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 10 seconds
    --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
 
@@ -386,7 +386,7 @@ nuclei_templates="false"
 user_specified_config="false"
 local_config="false"
 pre_flight=true
-preflight_timeout=5
+preflight_timeout=10
 max_scan_runtime=0
 
 ###########################################################################################################
@@ -709,6 +709,7 @@ Host *
     ControlMaster auto 
     ControlPath $socket_tmp/%r@%h-%p  
     ControlPersist 600
+    ConnectTimeout 10
 EOT
 
 ###########################################################################################################
@@ -779,6 +780,7 @@ trap clean_up SIGINT SIGTERM
 #
 scan_dir="/home/op/scan/$uid"
 ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no"
+ssh_check_command="ssh -F $sshconfig -O check -o StrictHostKeyChecking=no"
 ssh_exit_command="ssh -F $sshconfig -O exit -o StrictHostKeyChecking=no"
 
 interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
@@ -787,8 +789,12 @@ interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -thread
 ###########################################################################################################
 # preflight check
 #
+function preflight_function(){
 if [[ $pre_flight == true ]]; then
+rm -f "$tmp/hosts_preflight"
 ssh_command_preflight="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o ConnectTimeout=$preflight_timeout"
+interlace_cmd="$(which interlace) --silent -tL $tmp/hosts -threads $total_instances"
+$interlace_cmd_nobar -c "$ssh_check_command _target_ 2> /dev/null && (timeout $preflight_timeout $ssh_command_preflight _target_ exit || $ssh_exit_command _target_ ) "  #>> /dev/null 2>&1
 $interlace_cmd -c "$ssh_command_preflight _target_ 'echo _target_' >> $tmp/hosts_preflight"
 cat "$tmp/hosts_preflight" | sort -u  > "$tmp/hosts"
 cp "$tmp/hosts_preflight" "$tmp/selected.conf"
@@ -796,7 +802,11 @@ total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
 lines="$(wc -l "$input_file" | awk '{ print $1 }')"
 total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
 instances=$(cat "$tmp/hosts")
+interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances"
 fi
+}
+
+preflight_function
 
 ###########################################################################################################
 #  Parse the default extention from the module
@@ -1004,25 +1014,44 @@ fi
 ###########################################################################################################
 #  This function is spanwed in the background and periodically probes all instances to see if their part of the scan has completed.
 #  When the remote scan process has finished, it creates a file named $HOSTNAME in the remote scan working directory. During the
-#  scan if axiom see's the $HOSTNAME file, download the scan results
+#  scan, axiom checks for each $HOSTNAME file to know that part of the scan has completed.
+#  Once all instances have created their $HOSTNAME file, the results are downloaded and this function exits.
+#  Simple Modules results are downloaded once all instances have completed ( all $HOSTNAMES files need to be downloaded).
+#  One-shot Modules do not wait for the $HOSTNAME file prior to downloading. one-shot module results are downloaded every 40 seconds.
 #
 function downloader () {
 while true; do
 sleep 30
-$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1" 
+$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1"
 ls $tmp/status/inprogress/ | anew -q $tmp/status/completed/hosts 
 cat $tmp/status/completed/hosts | sort -u | wc -l | tee $tmp/status/downloader_instances  >/dev/null 2>&1
 cat $tmp/status/completed/hosts | sort -u | tee $tmp/status/downloader_hosts  >/dev/null 2>&1
-if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
- sleep 10
- downloader
-fi
+
 downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_hosts -threads $(cat $tmp/status/downloader_instances)" 
 if [[ "$command" =~ "_target_" ]]; then
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
 else
+if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
+ sleep 10
+ downloader
+fi
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
+
+###########################################################################################################
+#  Deprovision axiom instances after scan completes if --rm-when-done is in the command
+#
+if [[ "$rm_when_done" == "true" ]]; then
+    for instance in $(cat "$tmp/status/downloader_hosts");
+    do
+     if (( $(instance_ip_cache "$instance" | wc -l) > 0 )); then 
+        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f 2>/dev/null
+        sleep 5
+     fi
+    done
+fi
+
+preflight_function
 
 mv $tmp/status/completed/hosts $tmp/status/completed/hosts.tmp
 cat $tmp/status/completed/hosts.tmp | sort -u >> $tmp/status/completed/hosts
@@ -1091,17 +1120,6 @@ if [[ "$shutdown_when_done" == "true" ]]; then
     for instance in $(cat "$tmp/selected.conf");
     do
         "$AXIOM_PATH/interact/axiom-power" off "$instance" 
-        sleep 0.4
-    done
-fi
-
-###########################################################################################################
-#  Deprovision axiom instances after scan completes if --rm-when-done is in the command
-#
-if [[ "$rm_when_done" == "true" ]]; then
-    for instance in $(cat "$tmp/selected.conf");
-    do
-        "$AXIOM_PATH/interact/axiom-rm" "$instance" -f
         sleep 0.4
     done
 fi
