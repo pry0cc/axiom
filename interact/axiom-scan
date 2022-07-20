@@ -1026,10 +1026,6 @@ $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inpro
 ls $tmp/status/inprogress/ | anew -q $tmp/status/completed/hosts 
 cat $tmp/status/completed/hosts | sort -u | wc -l | tee $tmp/status/downloader_instances  >/dev/null 2>&1
 cat $tmp/status/completed/hosts | sort -u | tee $tmp/status/downloader_hosts  >/dev/null 2>&1
-if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
- sleep 10
- downloader
-fi
 
 downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_hosts -threads $(cat $tmp/status/downloader_instances)" 
 if [[ "$command" =~ "_target_" ]]; then
