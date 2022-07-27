@@ -1029,7 +1029,7 @@ cat $tmp/status/completed/hosts | sort -u | tee $tmp/status/downloader_hosts  >/
 
 downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_hosts -threads $(cat $tmp/status/downloader_instances)" 
 if [[ "$command" =~ "_target_" ]]; then
-$downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
+$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
 else
 if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
  sleep 10
