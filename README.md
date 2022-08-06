@@ -77,7 +77,7 @@ In this demo (sped up out of respect for your time ;) ), we show how easy it is 
 
 
 # Sponsored By SecurityTrails!
-<img src="https://securitytrails.com/images/logo.png" width=400px>
+<img src="https://github.com/pry0cc/axiom/blob/master/screenshots/st.png">
 We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for your free account <a href="https://securitytrails.com/app/signup?utm_source=axiom">here!</a>
 
 # Support
