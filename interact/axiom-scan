@@ -674,13 +674,14 @@ mkdir -p "$inprogress"
 #  Spinup Flag
 #
 if [[ "$spinup" -gt 0 ]]; then
-    echo -e "${Blue}Spinning up fleet with $spinup instances..${Color_Off}"
-
     if [[ "$fleet" == "" ]]; then
-    	"$AXIOM_PATH/interact/axiom-fleet" -i "$spinup"
-    else
-    	"$AXIOM_PATH/interact/axiom-fleet" "$fleet" -i "$spinup"
+    	fleet="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
     fi
+    
+    echo -e "${Blue}Spinning up fleet $fleet with $spinup instances..${Color_Off}"    
+    "$AXIOM_PATH/interact/axiom-fleet" "$fleet" -i "$spinup"
+     spinup_start=01; spinup_end=0${spinup}; for spinup_num in $(seq $spinup_start $spinup_end); do echo $(echo $fleet)0$spinup_num; done >> "$tmp/hosts"
+
     echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
     sleep 60
 fi
@@ -697,7 +698,9 @@ fi
 #  Make a copy of the current SSH config and use it for axiom-scan
 #
 needed_instances="$(wc -l "$input" | awk '{ print $1 }')"
+if [[ "$spinup" == 0 ]]; then
 cat "$AXIOM_PATH/selected.conf" | head -n $needed_instances >> "$tmp/hosts"
+fi
 cp "$tmp/hosts" "$tmp/selected.conf"
 cp "$sshconfig" "$tmp/sshconfig" 
 sshconfig="$tmp/sshconfig"
