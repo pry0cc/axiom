@@ -1,0 +1,4 @@
+[{
+	"command":"python3 /home/op/recon/xnLinkFinder/xnLinkFinder.py -i input -o cli | tee output",
+	"ext":"txt"
+}]
