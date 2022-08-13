@@ -11,7 +11,6 @@
 # axiom-fleet # Spin up three instances, let axiom decide on the fleet prefix"
 # axiom-fleet javis -i 10 # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
 # axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1 # Spin up 25 instances using round robbin region distribution"
-###################################################################
 
 ###########################################################################################################
 # Header
@@ -46,6 +45,7 @@ region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 image_id=""
 instances=false
 time=320
+init_timeout=4
 
 ###########################################################################################################
 # Help Menu
@@ -63,6 +63,8 @@ function usage() {
         echo -e "    The number of instances to spin up"
         echo -e "  -r/--regions <regions> (optional)"
         echo -e "    Supply comma-separated regions to cycle through (default is region in ~/.axiom/axiom.json)"
+        echo -e "  --debug (optional)"            
+        echo -e "    Run with set -xv, warning: very verbose"
         echo -e "  --help (optional)"
         echo -e "    Display this help menu"
 }
@@ -78,6 +80,11 @@ do
         set=false
         if [[ "$i" == 1 ]]; then
             instance="$1"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--debug" ]]; then
+            set -xv
             set=true
             pass+=($i)
         fi
@@ -141,6 +148,21 @@ else
  fi
 fi
 
+
+###########################################################################################################
+# Determin sleep based on provider
+#
+if [[ "$provider" == "do" ]]; then
+ init_sleep=4
+elif [[ "$provider" == "azure" ]]; then
+ init_sleep=4
+elif [[ "$provider" == "ibm" ]]; then
+ init_sleep=4
+elif [[ "$provider" == "linode" ]]; then
+ init_sleep=4
+fi
+
+
 ###########################################################################################################
 # Initialize fleet
 #
@@ -177,12 +199,12 @@ echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
 do
- time=$((time+6))
+ time=$((time+3))
  name="$gen_name$i"
  echo -n -e "$name "
  args=""
 "$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  "$region" &
-sleep 0.6
+sleep $init_sleep
 o=$((o+1))
 done
 echo -n -e "${Color_Off} ]\n"
@@ -254,7 +276,7 @@ echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
 do
-time=$((time+6))
+time=$((time+3))
 name="$gen_name$i"
 echo -n -e "$name "
 args=""
@@ -269,7 +291,7 @@ fi
 # create instance
 #
 "$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  "$regionargs" &
-sleep 0.6
+sleep $init_sleep
 o=$((o+1))
 done
 echo -n -e "${Color_Off} ]\n"

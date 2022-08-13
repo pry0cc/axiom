@@ -224,7 +224,7 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
+        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
         sudo rm -fr /tmp/interlace
         git clone https://github.com/codingo/Interlace.git /tmp/interlace
@@ -236,7 +236,7 @@ if [[ $BASEOS == "Linux" ]]; then
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
         fi
 fi
 

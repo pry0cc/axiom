@@ -140,5 +140,5 @@ if [ "$instances" ]; then
     echo -e "${BGreen}Running parallel file transfer...${Color_Off}"
     interlace --silent -t NULL -cL $AXIOM_PATH/tmp/cmds.txt
 else
-    rsync -e "ssh -o StrictHostKeyChecking=no -F $ssh_conf"  -avzr --progress $args
+    rsync -e "ssh -o StrictHostKeyChecking=no -F $ssh_conf"  -avzr --progress $args --timeout=10
 fi

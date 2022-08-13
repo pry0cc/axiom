@@ -57,7 +57,7 @@ Our third provider for axiom! Please use [this link](https://www.linode.com/?r=2
 # Installation
 ## Docker
 ```
-docker exec -it $(docker run -d -it --platform linux/amd64 ubuntu) sh -c "apt update && apt install git -y && git clone https://github.com/pry0cc/axiom ~/.axiom/ && cd && .axiom/interact/axiom-configure"
+docker exec -it $(docker run -d -it --platform linux/amd64 ubuntu:20.04) sh -c "apt update && apt install git -y && git clone https://github.com/pry0cc/axiom ~/.axiom/ && cd && .axiom/interact/axiom-configure"
 ```
 
 ## Easy Install
@@ -77,7 +77,7 @@ In this demo (sped up out of respect for your time ;) ), we show how easy it is 
 
 
 # Sponsored By SecurityTrails!
-<img src="https://securitytrails.com/images/logo.png" width=400px>
+<img src="https://github.com/pry0cc/axiom/blob/master/screenshots/st.png">
 We are lucky enough to be sponsored by the awesome SecurityTrails! Sign up for your free account <a href="https://securitytrails.com/app/signup?utm_source=axiom">here!</a>
 
 # Support
