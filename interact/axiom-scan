@@ -659,7 +659,7 @@ fi
 ###########################################################################################################
 #  Create temporary directories and set tmp path to be used for logs
 #
-uid="$module+$(date +%s)"
+uid="$module+$(date +%s)$RANDOM"
 tmp="$AXIOM_PATH/tmp/$uid"
 completed="$AXIOM_PATH/tmp/$uid/status/completed/"
 inprogress="$AXIOM_PATH/tmp/$uid/status/inprogress/"
