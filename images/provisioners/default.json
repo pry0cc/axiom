@@ -150,6 +150,9 @@
         "echo 'Installing DNSCewl'",
         "wget -q -O /tmp/DNSCewl https://github.com/codingo/DNSCewl/raw/master/DNScewl && mv /tmp/DNSCewl /usr/bin/DNSCewl && chmod +x /usr/bin/DNSCewl",
 
+        "echo 'Installing dnsgen'",
+        "/bin/su -l op -c 'pip3 install dnsgen'",
+        
         "echo 'Installing dnsrecon'",
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/dnsrecon/Dockerfile -t axiom/dnsrecon'",
 
