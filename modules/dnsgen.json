@@ -1,4 +1,4 @@
 [{
-	"command":"cat input | dnsgen - | tee output",
-	"ext":"txt"
+        "command":"cat input | docker run --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/dnsgen | tee output",
+        "ext":"txt"
 }]
