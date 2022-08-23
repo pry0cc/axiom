@@ -71,12 +71,12 @@ instance_pretty() {
   price=$(linode-cli linodes type-view $type --json|jq -r '.[].price.monthly')
   totalPrice=$(( $price * $linodes))
   header="Instance,Primary Ip,Backend Ip,Region,Memory,Status,\$/M"
-  totals="_,_,_,_,_,Total,\$$totalPrice"
+  totals="_,_,_,Instances,$linodes,Total,\$$totalPrice"
   fields=".[] | [.label,.ipv4[0],.ipv4[1],.region,.specs.memory,.status, \"$price\"]| @csv"
   #printing part
-  (echo "$header" && echo $data|jq -r "$fields" && echo "$totals") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+  #sort -k1 sorts all data by label/instance/linode name
+  (echo "$header" && echo $data|(jq -r "$fields" |sort -k1) && echo "$totals") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
-
 
 # identifies the selected instance/s
 selected_instance() {
