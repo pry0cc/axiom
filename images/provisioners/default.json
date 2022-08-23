@@ -194,6 +194,9 @@
 
         "echo 'Installing Gf-Patterns'",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
+        
+        "echo 'Installing github-subdomains'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/gwen001/github-subdomains@latest'",
 
         "echo 'Installing github-endpoints'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/gwen001/github-endpoints@latest'",
