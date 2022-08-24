@@ -62,11 +62,20 @@ quick_ip() {
 }
 
 instance_pretty() {
-	data=$(instances)
+       data=$(instances)
 
-	i=0
-	for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
-	(echo "Instance,Primary Ip,Backend Ip,Region,Size,Status,\$/M" && echo $data | jq  -r '.[] | [.name, .networks.v4[0].ip_address, .networks.v4[1].ip_address, .region.slug, .size_slug, .status, .size.price_monthly] | @csv' && echo "_,_,_,_,_,Total,\$$i") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+    #number of droplets
+    droplets=$(echo $data|jq -r '.[]|.name'|wc -l )
+
+    i=0
+    for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
+    totalPrice=$i
+    header="Instance,Primary Ip,Backend Ip,Region,Size,Status,\$/M"
+    fields=".[] | [.name, .networks.v4[0].ip_address, .networks.v4[1].ip_address, .region.slug, .size_slug, .status, .size.price_monthly] | @csv"
+    totals="_,_,_,Instances,$droplets,Total,\$$totalPrice"
+    #data is sorted by default by field name    
+    data=$(echo $data | jq  -r "$fields")
+    (echo "$header" && echo "$data" && echo $totals) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 # identifies the selected instance/s
