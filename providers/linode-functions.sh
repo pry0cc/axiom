@@ -89,12 +89,10 @@ get_image_id() {
 	id=$(echo $images |  jq -r ".[] | select(.label==\"$query\") | .id")
 	echo $id
 }
-#deletes instance, if the second argument is set to "true", will not prompt
+
 delete_instance() {
     name="$1"
-    force="$2"
-	id="$(instance_id "$name")"
-    
+  	id="$(instance_id "$name")"  
     linode-cli linodes delete "$id"
 }
 
