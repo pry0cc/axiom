@@ -4,9 +4,11 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 
+output="${Red}No instance supplied, use '\*' if you want to delete all instances, add -f not to be prompted...${Color_Off}"
+
 if [ -z "$1" ]
 then
-	echo -e "${Red}No instance supplied, use '\*' if you want to delete all instances...${Color_Off}"
+	echo -e "$output"
     exit
 fi
 
@@ -33,7 +35,7 @@ then
 		delete_instance "$instance" "$force"
 	done
 else    
-        >&2 echo -e "${Red}No instance supplied, use '\*' if you want to delete all instances...${Color_Off}"
+        >&2 echo -e "$output"
 	exit
 fi
 
