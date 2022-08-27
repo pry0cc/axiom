@@ -19,7 +19,7 @@ Axiom works by pre-installing your tools of choice onto a 'base image', and then
 
 Because you can create many disposable instances very easily, axiom allows you to distribute scans of many different tools including amass arjun aiodnsbrute anti-burl aquatone assetfinder corsy crackmapexec cf-check cngo commix concurl crlfuzz crobat dnscewl dalfox dirdar dnsgen dnsrecon dnsvalidator dnsx erlpopper exclude-cdn feroxbuster fff ffuf ffuz findomain gxss gau gauplus getJS github-endpoints github-subdomains gobuster gorgo gospider gowitness gxss hakrawler http2smugl httprobe httpx jaeles kiterunner kxss linkfinder masscan massdns medusa meg naabu nmap nuclei openredirex paramspider puredns rustscan responder s3scanner scrying shuffledns sn0int sqlmap subfinder subjack subjs testssl thc-hydra tlscout unimap wafw00f waybackurls webscreenshot whois & wpscan. Once installed and setup, you can distribute a scan of a large set of targets across 100-150 instances within minutes and get results extremely quickly. This is called [axiom-scan](https://github.com/pry0cc/axiom/wiki/Scans).
 
-Axiom supports several cloud providers, eventually, axiom should be completely cloud agnostic allowing unified control of a wide variety of different cloud environments with ease. Currently, DigitalOcean, IBM Cloud, Linode and Azure are officially supported providers. Google Compute is partially implemented and AWS is on the roadmap. If you would like prioritization of a feature or provider implementation, please contact me @pry0cc on Twitter and we can discuss :)
+Axiom supports several cloud providers, eventually, axiom should be completely cloud agnostic allowing unified control of a wide variety of different cloud environments with ease. Currently, DigitalOcean, IBM Cloud, Linode, Azure and AWS are officially supported providers. GCP isnt supported but is partially implemented and on the roadmap. If you would like prioritization of a feature or provider implementation, please contact me @pry0cc on Twitter and we can discuss :)
 
 # Resources
 
@@ -73,7 +73,7 @@ If you have any problems with this installer, or if using an unsupported OS plea
 # Demo
 In this demo (sped up out of respect for your time ;) ), we show how easy it is to initialize and ssh into a new instance.
 
-<img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-init-demo.gif" alt="" height=443 width=666px>
+<img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/axiom-init-demo.gif" >
 
 
 # Sponsored By SecurityTrails!
@@ -114,136 +114,135 @@ The awesome referral banners were inspired by [fleex](https://github.com/FleexSe
 
 # Tools to Date
 > for [default](https://github.com/pry0cc/axiom/blob/master/images/provisioners/default.json) provisioner
-- [x]  Amass
-- [x]  Arjun
-- [x]  aiodnsbrute
-- [x]  anew
-- [x]  anti-burl
-- [x]  aquatone
-- [x]  assetfinder
-- [x]  Corsy
-- [x]  CrackMapExec
-- [x]  cent
-- [x]  cf-check
-- [x]  chaos-client
-- [x]  cngo
-- [x]  commix
-- [x]  concurl
-- [x]  crlfuzz
-- [x]  crobat
-- [x]  ctfr
-- [x]  DNSCewl
-- [x]  Docker
-- [x]  dalfox
-- [x]  dirdar
-- [x]  dnscewl
-- [x]  dnsgen
-- [x]  dnsrecon
-- [x]  dnsvalidator
-- [x]  dnsx
-- [x]  ERLPopper
-- [x]  exclude-cdn
-- [x]  feroxbuster
-- [x]  fff
-- [x]  ffuf
-- [x]  ffuz
-- [x]  findomain
-- [x]  Gf-Patterns
-- [x]  Go
-- [x]  Gxss
-- [x]  gau
-- [x]  gauplus
-- [x]  getJS
-- [x]  gf
-- [x]  github-endpoints
-- [x]  github-subdomains
-- [x]  gobuster
-- [x]  google-chrome
-- [x]  gorgo
-- [x]  gospider
-- [x]  gowitness
-- [x]  gron
-- [x]  gxss
-- [x]  hakrawler
-- [x]  http2smugl
-- [x]  httprobe
-- [x]  httpx
-- [x]  Interlace
-- [x]  interactsh-client
-- [x]  jaeles
-- [x]  kiterunner
-- [x]  kxss
-- [x]  LinkFinder
-- [x]  leaky-paths
-- [x]  masscan
-- [x]  massdns
-- [x]  medusa
-- [x]  meg
-- [x]  naabu
-- [x]  nmap
-- [x]  nuclei
-- [x]  OpenRedireX
-- [x]  ParamSpider
-- [x]  phantomjs
-- [x]  proxychains-ng
-- [x]  puredns
-- [x]  qsreplace
-- [x]  RustScan
-- [x]  responder
-- [x]  SecLists
-- [x]  s3scanner
-- [x]  scrying
-- [x]  shuffledns
-- [x]  sn0int
-- [x]  soxy
-- [x]  sqlmap
-- [x]  subfinder
-- [x]  subjack
-- [x]  subjs
-- [x]  testssl
-- [x]  thc-hydra
-- [x]  tlscout
-- [x]  ufw
-- [x]  unimap
-- [x]  wafw00f
-- [x]  waybackurls
-- [x]  webscreenshot
-- [x]  whois
-- [x]  wpscan
+- [x] aiodnsbrute
+- [x] Amass
+- [x] anew
+- [x] anti-burl
+- [x] aquatone
+- [x] Arjun
+- [x] assetfinder
+- [x] axiom
+- [x] axiom-dockerfiles
+- [x] cent
+- [x] cero
+- [x] chaos-client
+- [x] commix
+- [x] concurl
+- [x] Corsy
+- [x] CrackMapExec
+- [x] crlfuzz
+- [x] dalfox
+- [x] dirdar
+- [x] DNSCewl
+- [x] dnsgen
+- [x] dnsrecon
+- [x] dns resolvers by trickest 
+- [x] dnsvalidator
+- [x] dnsx
+- [x] Docker
+- [x] ERLPopper
+- [x] exclude-cdn
+- [x] feroxbuster
+- [x] fff
+- [x] ffuf
+- [x] findomain
+- [x] gau
+- [x] gauplus
+- [x] getJS
+- [x] gf
+- [x] Gf-Patterns
+- [x] github-endpoints
+- [x] github-subdomains
+- [x] Go
+- [x] gobuster
+- [x] google-chrome
+- [x] gorgo
+- [x] gospider
+- [x] gowitness
+- [x] gron
+- [x] Gxss
+- [x] hakrawler
+- [x] hakrevdns
+- [x] httprobe
+- [x] httpx
+- [x] interactsh-client
+- [x] Interlace
+- [x] ipcdn
+- [x] jaeles
+- [x] kiterunner
+- [x] kxss
+- [x] leaky-paths
+- [x] LinkFinder
+- [x] masscan
+- [x] massdns
+- [x] medusa
+- [x] meg
+- [x] naabu
+- [x] nmap
+- [x] nuclei
+- [x] OpenRedireX
+- [x] ParamSpider
+- [x] phantomjs
+- [x] proxychains-ng
+- [x] puredns
+- [x] qsreplace
+- [x] responder.py
+- [x] RustScan
+- [x] s3scanner
+- [x] scrying
+- [x] SecLists
+- [x] shuffledns
+- [x] six2dez dns permutations
+- [x] sqlmap
+- [x] subfinder
+- [x] subjack
+- [x] subjs
+- [x] testssl
+- [x] thc-hydra
+- [x] tlsx
+- [x] trufflehog
+- [x] ufw
+- [x] unimap
+- [x] wafw00f
+- [x] waybackurls
+- [x] webscreenshot
+- [x] wpscan
 
 # Packages Installed via apt-get
 > for [default](https://github.com/pry0cc/axiom/blob/master/images/provisioners/default.json) provisioner
-- [x]  bison
-- [x]  build-essential
-- [x]  fail2ban
-- [x]  firebird-dev
-- [x]  flex
-- [x]  git
-- [x]  grc
-- [x]  jq
-- [x]  libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb
-- [x]  libgcrypt20-dev
-- [x]  libgpg-error-dev
-- [x]  libgtk2.0-dev
-- [x]  libidn11-dev
-- [x]  libmemcached-dev
-- [x]  libmysqlclient-dev
-- [x]  libpcap-dev
-- [x]  libpcre3-dev
-- [x]  libpq-dev
-- [x]  libssh-dev
-- [x]  libssl-dev
-- [x]  libsvn-dev
-- [x]  net-tools
-- [x]  p7zip
-- [x]  python3-pip
-- [x]  ruby-dev
-- [x]  rubygems
-- [x]  ufw
-- [x]  unzip
-- [x]  zsh
-- [x]  zsh-autosuggestions
-- [x]  zsh-syntax-highlighting
+- [x] bison
+- [x] build-essential
+- [x] fail2ban
+- [x] firebird-dev
+- [x] flex
+- [x] git
+- [x] grc
+- [x] jq
+- [x] libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb
+- [x] libgcrypt20-dev
+- [x] libgpg-error-dev
+- [x] libgtk2.0-dev
+- [x] libidn11-dev
+- [x] libmemcached-dev
+- [x] libmysqlclient-dev
+- [x] libpcap-dev
+- [x] libpcre3-dev
+- [x] libpq-dev
+- [x] libssh-dev
+- [x] libssl-dev
+- [x] libsvn-dev
+- [x] net-tools
+- [x] ohmyzsh
+- [x] p7zip
+- [x] python3-pip
+- [x] ruby-dev
+- [x] rubygems
+- [x] ufw
+- [x] unzip
+- [x] zsh
+- [x] zsh-autosuggestions
+- [x] zsh-syntax-highlighting
+
 
 <a href="https://github.com/pry0cc/axiom/wiki" target="_blank"> <img src="screenshots/Referrals/axiom_docs.png"/></a>
 Do you want to add a package to axiom? [Read the wiki!](https://github.com/pry0cc/axiom/wiki/Adding-Simple-Modules)
