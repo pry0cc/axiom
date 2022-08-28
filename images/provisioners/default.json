@@ -231,8 +231,6 @@
         "echo 'Installing httprobe'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/httprobe@latest'",
 
-        "echo 'Installing tlsx'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest'",
         "echo 'Installing httpx'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/httpx/cmd/httpx@latest'",
 
@@ -328,12 +326,15 @@
 
         "echo 'Installing testssl'",
         "git clone --depth 1 https://github.com/drwetter/testssl.sh.git /home/op/recon/testssl.sh",
-
+ 
         "echo 'Installing thc-hydra'",
         "wget  -q -O /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb http://security.ubuntu.com/ubuntu/pool/main/libg/libgcrypt20/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb && sudo apt install -y /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb -qq && rm /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb",
         "apt-get install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird-dev libmemcached-dev libgpg-error-dev libgcrypt20-dev -y -qq",
         "git clone https://github.com/vanhauser-thc/thc-hydra.git /home/op/recon/thc-hydra && cd /home/op/recon/thc-hydra && ./configure && make -s && make -s install && cd",
-
+        
+        "echo 'Installing tlsx'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest'",
+        
         "echo 'Installing trufflehog'",
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/trufflehog/Dockerfile -t axiom/trufflehog'",
         
