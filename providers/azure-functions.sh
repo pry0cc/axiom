@@ -76,7 +76,7 @@ create_instance() {
 	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub  >/dev/null 2>&1 
 
 	az vm open-port --resource-group axiom --name "$name" --port 0-65535 >/dev/null 2>&1 
-	sleep 10
+	sleep 260
 }
 
 instance_pretty() {
