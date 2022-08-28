@@ -43,6 +43,7 @@ fi
 # Determine provider and hotfix Packer install
 #
 version=$(packer version | head -n 1 | cut -d ' ' -f2)
+provider="$(jq -r ".provider" "$AXIOM_PATH/axiom.json")"
 if [[ "$provider" == "do" ]]; then
 if [[ "$version" != "v1.8.1" ]] ; then
 wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
