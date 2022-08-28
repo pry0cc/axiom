@@ -59,6 +59,10 @@ elif [[ "$provider" == "linode" ]]; then
 if [[ "$version" != "v1.8.1" ]] ; then
 wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
 fi
+elif [[ "$provider" == "aws" ]]; then
+if [[ "$version" != "v1.8.1" ]] ; then
+wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
+fi
 fi
 
 
