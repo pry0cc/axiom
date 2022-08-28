@@ -48,6 +48,7 @@ default_expiry=525600000
 quiet=false
 domain=false
 no_select=false
+manual_image_id=false
 
 ###########################################################################################################
 # spinner functions
@@ -184,6 +185,13 @@ do
             pass+=($i)
             pass+=($n)
         fi
+        if [[ "$arg" == "--image-id" ]]; then
+            n=$((i+1))
+            manual_image_id=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
         if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
             usage
             exit
@@ -215,12 +223,17 @@ else
 fi
 
 ###########################################################################################################
-# Get image_id from $image ( default is from axiom.json )  
+# Get image_id from $image ( default is from axiom.json ) or from user supplied manual image id param 
 #
+if [ $manual_image_id != "false" ]
+then
+image_id="$manual_image_id"
+else
 image_id="$(get_image_id "$image")"
 if [ -z "$image_id" ]; then
         echo -e "${BRed}An image has not been found in this region. Do you need to run 'axiom-build'?${Color_Off}"
         exit 1
+fi
 fi
 
 ###########################################################################################################
