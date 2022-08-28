@@ -320,7 +320,7 @@ create_instance() {
   
   aws ec2 run-instances --image-id "$image_id" --count 1 --instance-type --region "$region" "$size" --key-name axiom --security-groups axiom --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$name}]" 2>&1 >> /dev/null
   
-  sleep 10
+  sleep 260
 }
 
 # Function used for splitting $src across $instances and rename the split files.
