@@ -203,7 +203,7 @@ do
  name="$gen_name$i"
  echo -n -e "$name "
  args=""
-"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  "$region" &
+"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image-id "$image_id" --no-select --region  "$region" &
 sleep $init_sleep
 o=$((o+1))
 done
@@ -290,7 +290,7 @@ fi
 
 # create instance
 #
-"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image "$image_name" --no-select --region  "$regionargs" &
+"$AXIOM_PATH"/interact/axiom-init "$name" --quiet --size "$slug" --image-id "$image_id" --no-select --region  "$regionargs" &
 sleep $init_sleep
 o=$((o+1))
 done
