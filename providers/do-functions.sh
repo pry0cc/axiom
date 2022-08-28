@@ -32,7 +32,7 @@ instance_id() {
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[] | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address"
+	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address"
 }
 
 instance_ip_cache() {
@@ -328,8 +328,7 @@ create_instance() {
   keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
   
   doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
-  
-  sleep 10
+  sleep 260
 }
 
 # Function used for splitting $src across $instances and rename the split files.
