@@ -91,8 +91,8 @@ fi
 
 function getUsernameAPIkey {
 email=$(cat ~/.bluemix/config.json  | grep Owner | cut -d '"' -f 4)
-username=$(ibmcloud sl user list | grep $email | tr -s ' ' | cut -d ' ' -f 2)
-accountnumber=$(ibmcloud sl user list | grep $email | tr -s ' ' | cut -d ' ' -f 1)
+username=$(ibmcloud sl user list | grep -i $email | tr -s ' ' | cut -d ' ' -f 2)
+accountnumber=$(ibmcloud sl user list | grep -i $email | tr -s ' ' | cut -d ' ' -f 1)
 token=$(ibmcloud sl user detail $accountnumber --keys  | grep APIKEY | tr -s ' ' | cut -d ' ' -f 2)
 if [ -z "$token" ]
 then
