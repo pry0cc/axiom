@@ -30,7 +30,7 @@ function bash_shell(){
     cp "$HOME"/.bashrc "$HOME"/.bashrcbak >> /dev/null 2>&1
     if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.19.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz && rm go1.19.linux-amd64.tar.gz
     fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
@@ -51,7 +51,7 @@ function zsh_shell(){
     cp "$HOME"/.zshrc "$HOME"/.zshrcbak >> /dev/null 2>&1
     if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.19.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz && rm go1.19.linux-amd64.tar.gz
     fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
@@ -73,7 +73,7 @@ function omz_shell(){
     if ! [ -x "$(command -v go)" ]; then
     echo -e "${Blue}Installing Golang${Color_Off}"
     mkdir -p "${HOME}/go"
-    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    wget -q https://golang.org/dl/go1.19.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz && rm go1.19.linux-amd64.tar.gz
     fi
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
@@ -323,7 +323,14 @@ fi
 #  Install anew if not already installed
 #
 if ! [ -x "$(command -v anew)" ]; then
-go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
+go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
+fi
+
+###########################################################################################################
+#  Install simplehttpserver if not already installed
+#
+if ! [ -x "$(command -v simplehttpserver)" ]; then
+go install -v github.com/projectdiscovery/simplehttpserver/cmd/simplehttpserver@latest >> /dev/null 2>&1
 fi
 
 ###########################################################################################################

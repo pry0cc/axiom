@@ -279,7 +279,7 @@ do
 else
 
 # if gee is installed make sure its up to date, use gee to split the file. 
-GO111MODULE=on go get -v github.com/hahwul/gee >/dev/null 2>&1
+go install -v github.com/hahwul/gee@latest
 escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
 # randomize the target list. To disable randomization, use the --dont-shuffle option.
 if [[ "$shuffle" != "false" ]]; then
@@ -1077,7 +1077,7 @@ done
 #  Install anew if not already installed
 #
 if ! [ -x "$(command -v anew)" ]; then
-go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
+go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
 fi
 
 ###########################################################################################################

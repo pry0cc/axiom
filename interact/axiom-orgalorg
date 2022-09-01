@@ -36,7 +36,7 @@ if test -f "$orgalorgbinary"; then
  echo "Executing axiom-orgalorg"
 else 
  echo "installing orgalorg https://github.com/reconquest/orgalorg"
- go get github.com/reconquest/orgalorg
+ go install github.com/reconquest/orgalorg@latest
 fi
 fi
 }
