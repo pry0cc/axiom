@@ -46,6 +46,7 @@ image_id=""
 instances=false
 time=320
 init_timeout=4
+init_sleep=4
 
 ###########################################################################################################
 # Help Menu
@@ -147,21 +148,6 @@ else
   gen_name="$1"
  fi
 fi
-
-
-###########################################################################################################
-# Determin sleep based on provider
-#
-if [[ "$provider" == "do" ]]; then
- init_sleep=4
-elif [[ "$provider" == "azure" ]]; then
- init_sleep=4
-elif [[ "$provider" == "ibm" ]]; then
- init_sleep=4
-elif [[ "$provider" == "linode" ]]; then
- init_sleep=4
-fi
-
 
 ###########################################################################################################
 # Initialize fleet
