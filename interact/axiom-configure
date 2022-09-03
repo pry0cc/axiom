@@ -1,5 +1,8 @@
 #!/bin/bash
 AXIOM_PATH="$HOME/.axiom"
+if [ -f "$AXIOM_PATH/interact/includes/vars.sh" ] ; then
+source "$AXIOM_PATH/interact/includes/vars.sh"
+fi
 cat << EOF
 
  ▄▄▄      ▒██   ██▒ ██▓ ▒█████   ███▄ ▄███▓
@@ -12,13 +15,100 @@ cat << EOF
   ░   ▒    ░    ░   ▒ ░░ ░ ░ ▒  ░      ░
       ░  ░ ░    ░   ░      ░ ░         ░
 
-The Dynamic Infrastructure Framework for Everybody - by @pry0cc & @0xtavian
+The Dynamic Infrastructure Framework for Everybody - @pry0cc & @0xtavian
 
-Sponsored by SecurityTrails
-Sign up during bug bounty hunter month now!: https://securitytrails.com/bug-bounty-hunters-toolkit?referral_code=axiom
+We are lucky enough to be sponsored by the awesome SecurityTrails! 
+Sign up for your free account here! https://securitytrails.com/app/account?utm_source=axiom
 
 EOF
 
+###########################################################################################################
+# Shell setup functions
+#
+function bash_shell(){
+    echo -e "${Blue}Backing up $(echo "$HOME"/.bashrc) to $(echo "$HOME"/.bashrcbak) just in case.${Color_Off}"
+    cp "$HOME"/.bashrc "$HOME"/.bashrcbak >> /dev/null 2>&1
+    if ! [ -x "$(command -v go)" ]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
+    mkdir -p "${HOME}/go"
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+    echo "export GOPATH=\$HOME/go" >> "${HOME}"/.bashrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin" >> "${HOME}"/.bashrc
+    source "${HOME}"/.bashrc
+    SHELL=$(which bash)
+    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
+    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> "${HOME}"/.bash_profile
+    source ~/.bashrc  >> /dev/null 2>&1
+}
+
+function zsh_shell(){
+    sudo apt install zsh -y
+    echo -e "${Blue}Backing up $(echo "$HOME"/.zshrc) to $(echo "$HOME"/.zshrcbak) just in case.${Color_Off}"
+    cp "$HOME"/.zshrc "$HOME"/.zshrcbak >> /dev/null 2>&1
+    if ! [ -x "$(command -v go)" ]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
+    mkdir -p "${HOME}/go"
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+    echo "export GOPATH=\$HOME/go" >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin"  >>~/.zshrc
+    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc  
+    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
+    source "${HOME}"/.zshrc >> /dev/null 2>&1
+    SHELL=$(which zsh)
+}
+
+function omz_shell(){
+    echo -e "${Blue}Backing up $(echo "$HOME"/.zshrc) to $(echo "$HOME"/.zshrcbak) just in case.${Color_Off}"
+    cp "$HOME"/.zshrc "$HOME"/.zshrcbak >> /dev/null 2>&1
+    sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    if ! [ -x "$(command -v go)" ]; then
+    echo -e "${Blue}Installing Golang${Color_Off}"
+    mkdir -p "${HOME}/go"
+    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    fi
+    export GOPATH=$HOME/go
+    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+    echo "export GOPATH=\$HOME/go" >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin"  >>~/.zshrc
+    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH" >>~/.zshrc
+    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
+    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc  
+    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc   
+    source "${HOME}"/.zshrc  >> /dev/null 2>&1
+    SHELL=$(which zsh)
+}
+
+###########################################################################################################
+# Help Menu
+# 
+function usage() {
+        echo -e "${BWhite}Description:"
+        echo -e "${BWhite}Examples:${Color_Off}"
+        echo -e "  ${Blue}axiom-configure${Color_Off} # kick off axiom configuration wizard"
+        echo -e "  ${Blue}axiom-configure --shell Zsh${Color_Off} # Set default shell to Zsh via command line"
+        echo -e "  ${Blue}axiom-configure --config <axiom.json config data>${Color_Off} # Use plaintext axiom.json data for account setup TODO: support axiom.json as a file"
+        echo -e "  ${Blue}axiom-configure --shell BASH --unattended --config <axiom.json config data> ${Color_Off} # Use bash for default shell, do not promot, use plaintext axiom.json data for account setup"
+        echo -e "${BWhite}Usage:${Color_Off}"
+        echo -e "  --config <axiom.json data>"
+        echo -e "    Setup account with data supplied from the command line (must be vaild data from axiom.json wrapped in single quotes)"
+        echo -e "  --unattended (optional)"
+        echo -e "    Avoid any promots, defaults to Oh My Zsh unless --shell argument is also provided"
+        echo -e "  --shell <Bash, Zsh, OMZ (Oh My Zsh)> (optional)"
+        echo -e "    Choose bash/zsh to add axiom to .bashrc/.zshrc. OMZ installs Oh My Zsh and overwrites .zshrc"
+        echo -e "  --help"
+        echo -e "    Display this help menu"
+}
+
+###########################################################################################################
 # Parse command line arguments 
 #
 i=0
@@ -27,32 +117,51 @@ do
     i=$((i+1))
     if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
         set=false
-        if [[ "$i" == 1 ]]; then
-            input="$1"
-            set=true
-            pass+=($i)
-        fi
         if [[ "$arg" == "--config" ]]; then
             n=$((i+1))
             config=$(echo ${!n})
-
             set=true
             pass+=($i)
             pass+=($n)
         fi
+        if [[ "$arg" == "--unattended" ]]; then
+            unattended=true          
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--shell" ]]; then
+            n=$((i+1))
+            usershell=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
+            usage
+            exit
+            set=true
+            pass+=($i)
+        fi
 fi
 done
 
-if [ -z ${config+x} ]; then
+if [ ! -z ${unattended:+x} ]; then
+echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+echo -e "${Green}Detected unattended option passed from command line...${Color_Off}"
+echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
+if [ -z ${usershell:+x} ]; then
+usershell="omz"
+fi
+elif [ ! -z ${config+x} ]; then
+echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+echo -e "${Green}Detected axiom.json option passed from command line...${Color_Off}"
+echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
+else
 echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
 echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
 read
 echo -e "${Blue}INSTALLING AXIOM...${Color_Off}"
 sleep 1
-else
-echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
-echo -e "${Green}Detected account.json passed from command line...${Color_Off}"
-echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
 fi
 
 echo -e "${BWhite}Installing deps! Please wait :) ${Color_Off}"
@@ -84,14 +193,12 @@ if [[ $BASEOS == "Linux" ]]; then
     else
         OS=$(lsb_release -i | awk '{ print $3 }')
         if ! command -v lsb_release &> /dev/null; then
-            echo "WARNING: This install might not work"
+            echo "WARNING: Unless using Ubuntu latest, this install might not work"
             echo "lsb_release could not be found, unable to determine your distribution"
             OS="unknown-Linux"
             BASEOS="Linux"
-            shell="bash"
         fi
     fi
-
     if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
         echo -e "${Blue}Congrats, you run arch..."
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
@@ -100,71 +207,44 @@ if [[ $BASEOS == "Linux" ]]; then
         # Other dependencies
         sudo pacman -Syu go python-pip net-tools unzip libxslt bc --noconfirm
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -f /tmp/interlace  
-        git clone https://github.com/codingo/Interlace.git /tmp/interlace  
-        cd /tmp/interlace && sudo python3 setup.py install 
-        echo -e "${Blue}Installing gowitness...${Color_Off}"
-        # As the $GOPATH and $PATH are set when configuring the shell,
-        # a temporary variable will be used.
-        #
-        # Would probably suffice with running 'go'...
-        GOPATH_TEMP=$(eval which go)
-        eval GOPATH_TEMP get -u github.com/sensepost/gowitness@2.3.6
-    elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]]; then
+        sudo rm -fr /tmp/interlace
+        git clone https://github.com/codingo/Interlace.git /tmp/interlace
+        cd /tmp/interlace && sudo python3 setup.py install
+        
+    elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]] || [[ $OS == "UbuntuWSL" ]]; then
        if ! command -v sudo &> /dev/null; then
         export DEBIAN_FRONTEND=noninteractive
         apt-get update && apt-get install sudo curl jq tzdata -y -qq
         ip=$(curl -s https://ifconfig.me/)
-        ln -fs /usr/share/zoneinfo/$(curl ipinfo.io/$ip | jq -r .timezone) /etc/localtime
+        ln -fs /usr/share/zoneinfo/$(curl ipinfo.io/"$ip" | jq -r .timezone) /etc/localtime
         dpkg-reconfigure --frontend noninteractive tzdata
-        
        fi
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils -y 
-        echo -e "${Blue}Installing jq...${Color_Off}"
-        sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq 
-        echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
-        echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -f /tmp/interlace 
-        git clone https://github.com/codingo/Interlace.git /tmp/interlace  
-        cd /tmp/interlace && sudo python3 setup.py install 
-        echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -q -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
-
-	elif [[ $OS == "Fedora" ]]; then
-      	echo -e "${Blue}Installing other repo deps...${Color_Off}"
-		    sudo dnf update && sudo dnf -y install mmv bc fzf git rubypick python3-pip curl net-tools unzip util-linux
-		    echo -e "${Blue}Installing jq...${Color_Off}"
-		    sudo wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
-		    echo -e "${Blue}Installing packer...${Color_Off}"
-		    wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
-		    echo -e "${Blue}Installing doctl...${Color_Off}"
-		    wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
-        echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
-
-  elif [[ $OS == "UbuntuWSL" ]]; then
-        echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl net-tools unzip xsltproc bc rsync sudo nano wget bsdmainutils -y 
+        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils openssh-server fail2ban -y 
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
         echo -e "${Blue}Installing Interlace...${Color_Off}"
-        rm -f /tmp/interlace  
-        git clone https://github.com/codingo/Interlace.git /tmp/interlace 
-        cd /tmp/interlace && sudo python3 setup.py install 
-        echo -e "${Blue}Installing gowitness...${Color_Off}"
-        sudo wget -q -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness 
-	fi
+        sudo rm -fr /tmp/interlace
+        git clone https://github.com/codingo/Interlace.git /tmp/interlace
+        cd /tmp/interlace && sudo python3 setup.py install
+
+        elif [[ $OS == "Fedora" ]]; then
+        echo -e "${Blue}Installing other repo deps...${Color_Off}"
+        sudo dnf update && sudo dnf -y install mmv bc fzf git rubypick python3-pip curl net-tools unzip util-linux fail2ban
+        echo -e "${Blue}Installing jq...${Color_Off}"
+        sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        echo -e "${Blue}Installing packer...${Color_Off}"
+        wget -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip
+        fi
 fi
 
 if [[ $BASEOS == "Mac" ]]; then
          echo -e "${Blue}Installing Brew...${Color_Off}"
          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
          echo -e 'Setting permissions'
-         sudo chown -R $(whoami) /usr/local/Homebrew 
+         sudo chown -R $(whoami) /usr/local/Homebrew
          sudo chown -R $(whoami) /usr/local/var/homebrew
          sudo chown -R $(whoami) /usr/local/etc/bash_completion.d /usr/local/lib/pkgconfig /usr/local/share/aclocal /usr/local/share/doc /usr/local/share/info /usr/local/share/locale /usr/local/share/man /usr/local/share/man/man1 /usr/local/share/man/man3 /usr/local/share/man/man5 /usr/local/share/man/man7
          sudo chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions
@@ -177,7 +257,7 @@ if [[ $BASEOS == "Mac" ]]; then
          mkdir -p "${HOME}/go"
          export GOPATH=$HOME/go
          echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
-         echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
+         echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
          echo -e "${Blue}Installing jq...${Color_Off}"
          brew install jq
          echo -e "${Blue}Installing coreutils...${Color_Off}"
@@ -185,152 +265,134 @@ if [[ $BASEOS == "Mac" ]]; then
          echo -e "${Blue}Installing Python3...${Color_Off}"
          brew install python3
          echo -e "${Blue}Installing Interlace...${Color_Off}"
-         rm -f /tmp/interlace  
-         git clone https://github.com/codingo/Interlace.git /tmp/interlace  
-         cd /tmp/interlace && sudo python3 setup.py install 
-         echo -e "${Blue}Installing gowitness...${Color_Off}"
-         wget -q -O /usr/local/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-darwin-amd64
+         sudo rm -fr /tmp/interlace
+         git clone https://github.com/codingo/Interlace.git /tmp/interlace
+         cd /tmp/interlace && sudo python3 setup.py install
          echo -e "${Blue}Installing packer...${Color_Off}"
          brew tap hashicorp/tap
          brew install hashicorp/tap/packer
          brew upgrade hashicorp/tap/packer
-         source ${HOME}/.zshrc
+         source "${HOME}"/.zshrc
          SHELL=$(which zsh)
 fi
 
-if [[ $BASEOS == "Linux" ]]; then
-if [[ $shell == "bash" ]]; then
-    echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-    rm go1.16.3.linux-amd64.tar.gz
-    mkdir -p "${HOME}/go"
-    export GOPATH=$HOME/go
-    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
-    echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
-    source ${HOME}/.bashrc
-    SHELL=$(which bash)
-    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
-    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
-    source ~/.bashrc 
+if [[ $BASEOS == "Linux" ]] ; then
+if [[ $usershell == "omz" ]]|| [[ $usershell == 'Oh my zsh' ]] || [[ $usershell == 'Oh My Zsh' ]] || [[ $usershell == "OMZ" ]] ; then
+omz_shell
+elif [[ $usershell == "bash" ]]|| [[ $usershell == "Bash" ]] || [[ $usershell == "BASH" ]] ; then
+bash_shell
+elif [[ $usershell == "zsh" ]]|| [[ $usershell == "Zsh" ]] || [[ $usershell == "ZSH" ]] ; then
+zsh_shell
 else
 
 # Pick your shell
-echo -e "${Blue}Would you like to use Bash or Oh My Zsh? ${Color_Off}"
+echo -e "${Blue}Choose bash/zsh to add axiom to .bashrc/.zshrc. OMZ installs Oh My Zsh and overwrites .zshrc${Color_Off}"
  PS3="Please select an option : "
-  choices=("bash" "zsh")
+  choices=("Bash" "Zsh" 'Oh My Zsh')
   select choice in "${choices[@]}"; do
    case $choice in
-   bash)
-    echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-    rm go1.16.3.linux-amd64.tar.gz
-    mkdir -p "${HOME}/go"
-    export GOPATH=$HOME/go
-    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH    
-    echo "export GOPATH=\$HOME/go" >> ${HOME}/.bashrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >> ${HOME}/.bashrc
-    source ${HOME}/.bashrc
-    SHELL=$(which bash)
-    echo -e "${Green}You're running Bash! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.bashrc
-    echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" >> ${HOME}/.bash_profile
-    source ~/.bashrc 
+   Bash)
+   bash_shell
   break
    ;;
-  zsh)
-    sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
-    wget -q https://raw.githubusercontent.com/pry0cc/axiom/master/configs/kali-zshrc -O ~/.zshrc -q 
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz 
-    rm go1.16.3.linux-amd64.tar.gz
-    mkdir -p "${HOME}/go"
-    export GOPATH=$HOME/go
-    export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
-    echo "export GOPATH=\$HOME/go" >>~/.zshrc
-    echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:$PATH" >>~/.zshrc
-    echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
-    echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc 
-    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
-    source ${HOME}/.zshrc
-    SHELL=$(which zsh)
-   break
+   Zsh)
+   zsh_shell
+  break
+   ;;
+  'Oh My Zsh')
+   omz_shell
+  break
    ;;
 esac
 done
 fi
 fi
 
-#install gee
 
-echo "Updating gee https://github.com/hahwul/gee"
-GO111MODULE=on go get -v github.com/hahwul/gee
-
-
-if [ ! -d $AXIOM_PATH ]; then
+###########################################################################################################
+# Clone axiom repo
+#
+if [ ! -d "$AXIOM_PATH" ]; then
     echo -e "${Blue}Installing axiom scripts...${Color_Off}"
-    git clone https://github.com/pry0cc/axiom $AXIOM_PATH
+    git clone https://github.com/pry0cc/axiom "$AXIOM_PATH"
 else
-    cd $AXIOM_PATH && git pull
+    cd "$AXIOM_PATH" && git pull
 fi
 
-# Config Flag
+###########################################################################################################
+#  Install anew if not already installed
 #
-if [ -z ${config+x} ]; then
+if ! [ -x "$(command -v anew)" ]; then
+go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
+fi
+
+###########################################################################################################
+# unattended setup flag logic 
+#
+if [ -z ${config:+x} ]; then
+if [[ "$unattended" == "true" ]]; then
+echo "Unattended setup"
+mkdir  -p "$HOME"/.axiom/accounts/
+
+else
+###########################################################################################################
+# Default setup logic ( e.g. when --unattended and --config args are not used
+#
 mkdir -p "${HOME}/.axiom/tmp/"
 "$AXIOM_PATH/interact/account-helpers/generate_amass.sh"
 echo -e "${Blue}Configuring your cloud account...${Color_Off}"
-$AXIOM_PATH/interact/axiom-account-setup
+"$AXIOM_PATH"/interact/axiom-account-setup
+
+
+###########################################################################################################
+# If axiom_rsa doesnt exist, create the SSH key and add to it Packer Builder and axiom.json
+#
+account_path=$(ls -la "$AXIOM_PATH"/axiom.json | rev | cut -d " " -f 1 | rev)
+if [ -f ~/.ssh/axiom_rsa ] ; then
+ echo -e "${Blue}Adding axiom_rsa key to Packer builder${Color_Off}"
+ jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+ cat ~/.ssh/axiom_rsa.pub >"$AXIOM_PATH"/configs/authorized_keys
+
 else
-echo "Parsing account.json file passed from command line"
-provider="$(echo $config | jq -r '.provider')"
-mkdir  -p $HOME/.axiom/accounts/
-account=${provider}$(date +%s)
-echo $config > $HOME/.axiom/accounts/$account.json
-echo $config > $HOME/.axiom/axiom.json
-echo -e "${Blue}Cloud account configuration passed from command line...${Color_Off}"
+ echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub${Color_Off}"
+ ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
+ jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"  >> /dev/null 2>&1
+ cat ~/.ssh/axiom_rsa.pub >"$AXIOM_PATH"/configs/authorized_keys
 fi
-
-# Check if SSH keys are present and add them to account.json, 
-# If no SSH key found generate axiomssh key and add to account.json.
-
-account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
-if [ -f ~/.ssh/id_rsa.pub ] ; then
-
- echo -e "${Blue}Adding id_rsa.pub key Packer Builder${Color_Off}" 
- jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys            
-
-elif [ -f ~/.ssh/id_ed25519.pub ] ; then
- echo -e "${Blue}Adding id_ed25519.pub key Packer Builder${Color_Off}" 
- jq '.sshkey="'id_ed25519'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_ed25519.pub >$AXIOM_PATH/configs/authorized_keys
-
-elif [ -f ~/.ssh/axiomssh.pub ] ; then
- echo -e "${Blue}Adding axiomssh key Packer Builder${Color_Off}"
- jq '.sshkey="'axiomssh'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/axiomssh.pub >$AXIOM_PATH/configs/authorized_keys           
+fi 
 
 else
- echo -e "${Blue}Creating axiom SSH key in ~/.ssh/id_rsa.pub and adding it to Packer Builder${Color_Off}"
- ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
- jq '.sshkey="'id_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/id_rsa.pub >$AXIOM_PATH/configs/authorized_keys
+###########################################################################################################
+# Config parsing logic
+#
+echo "Parsing account.json file passed from command line"
+provider="$(echo "$config" | jq -r '.provider')"
+mkdir  -p "$HOME"/.axiom/accounts/
+account=${provider}$(date +%s)
+echo "$config" > "$HOME"/.axiom/accounts/"$account".json
+echo "$config" > "$HOME"/.axiom/axiom.json
+echo -e "${Blue}Cloud account configuration passed from command line...${Color_Off}"
 fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
+if [[ $unattended == "true" ]] ; then
+echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
+echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+if [ -z ${config+x} ]; then
+"$HOME"/.axiom/interact/axiom-account "$account"  >> /dev/null 2>&1
+fi
+exit 0
+fi
+
 if [ -z ${config+x} ]; then
 echo -e "${BWhite}Beginning first packer build...${Color_Off}"
-cd $AXIOM_PATH/
-$AXIOM_PATH/interact/axiom-build
-cd
+cd "$AXIOM_PATH"/ || exit
+"$AXIOM_PATH"/interact/axiom-build
+cd || exit
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
 else
-$HOME/.axiom/interact/axiom-account $account
+echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+"$HOME"/.axiom/interact/axiom-account "$account"
 fi
+

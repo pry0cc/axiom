@@ -4,6 +4,22 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
+
+poweron() {
+instance_name="$1"
+az vm start -g AXIOM -name $instance_name
+}
+
+poweroff() {
+instance_name="$1"
+az vm stop -g AXIOM --name  $instance_name
+}
+
+reboot(){
+instance_name="$1"
+az vm restart -g AXIOM --name $instance_name
+}
+
 # takes no arguments, outputs JSON object with instances
 instances() {
 	az vm list-ip-addresses
@@ -53,21 +69,22 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
+  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 
 	#location="$(az account list-locations | jq -r ".[] | select(.name==\"$region\") | .displayName")"
 	location="$region"
-	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op >/dev/null 2>&1 
+	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub  >/dev/null 2>&1 
 
 	az vm open-port --resource-group axiom --name "$name" --port 0-65535 >/dev/null 2>&1 
-	sleep 10
+	sleep 260
 }
 
 instance_pretty() {
 	data=$(instances)
-	extra_data=$(az vm list)
+	extra_data=$(az vm list -d)
 
 	(i=0
-	echo '"Instance","IP","Size","Region","$M"'
+	echo '"Instance","IP","Size","Region","Status","$M"'
 
 	for instance in $(echo $data | jq -c '.[].virtualMachine');
 	do
@@ -75,14 +92,15 @@ instance_pretty() {
 		name=$(echo $instance | jq -r '.name')
 		size=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .hardwareProfile.vmSize")
 		region=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .location")
+                power=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .powerState")
 		price_monthly=$(cat $AXIOM_PATH/pricing/azure.json | jq -r ".[].costs[] | select(.id==\"$size\") | .firstParty[].meters[].amount")
 		i=$(echo "$i+$price_monthly" | bc -l)
 
-		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".price_monthly=\"$price_monthly\"")
-		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region,.price_monthly] | @csv'
+		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".powerState=\"$power\""| jq ".price_monthly=\"$price_monthly\"")
+		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region, .powerState, .price_monthly] | @csv'
 	done
 
-	echo "\"_\",\"_\",\"_\",\"Total\",\"\$$i\"") | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	echo "\"_\",\"_\",\"_\",\"_\",\"Total\",\"\$$i\"") | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 
 	i=0
 	#for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
@@ -97,7 +115,7 @@ selected_instance() {
 get_image_id() {
 	query="$1"
 	images=$(az image list)
-	name=$(echo $images | jq -r ".[].name" | grep "$query" | tail -n 1)
+	name=$(echo $images | jq -r ".[].name" | grep -wx "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 	echo $id
 }
@@ -147,10 +165,14 @@ instance_sizes() {
 snapshots() {
 	az image list
 }
+
+get_snapshots() {
+	az image list --output table 
+}
+
 # Delete a snapshot by its name
 delete_snapshot() {
-	name="$1"
-	
+	name="$1"	
 	az image delete --name "$name" --resource-group axiom
 }
 
@@ -243,19 +265,21 @@ query_instances_cache() {
 
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
-	boxes="$(az vm list-ip-addresses)"
-	echo -n "" > $AXIOM_PATH/.sshconfig.new
-	echo -e "\tServerAliveInterval 60\n" >> $AXIOM_PATH/.sshconfig.new
-  echo -e "\tServerAliveCountMax 60\n" >> $AXIOM_PATH/.sshconfig.new
+	boxes="$(az vm list-ip-addresses --resource-group axiom)"
+        sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
+	echo -n "" > "$sshnew"
+	echo -e "\tServerAliveInterval 60\n" >> $sshnew
+  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+  echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $sshnew
 
     
 	for name in $(echo "$boxes" | jq -r '.[].virtualMachine.name')
 	do 
 		ip=$(echo "$boxes" | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
-		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $AXIOM_PATH/.sshconfig.new
+		echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
 
 	done
-	mv $AXIOM_PATH/.sshconfig.new $AXIOM_PATH/.sshconfig
+	mv $sshnew $AXIOM_PATH/.sshconfig
 	
 	if [ "$key" != "null" ]
 	then
@@ -329,5 +353,3 @@ add_dns_record() {
     echo "Needs conversion"
 	#doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
 }
-
-

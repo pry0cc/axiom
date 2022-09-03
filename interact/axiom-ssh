@@ -1,71 +1,240 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+###################################################################
+# Title	: axiom-ssh
+# About: By dynamically generating an SSH config based on your cloud inventory, 
+# axiom-ssh allows you to connect to your axiom instance over their public or private network interfaces, 
+# axiom-ssh can drop you right in a freshly created tmux session on the remote instance, or can be used to
+# attach to a tmux session already spawn ( again on the remote instance ). 
+# All additional SSH args are passed to SSH.
+#
+# Examples: 
+# axiom-ssh <name> -L 8080:127.0.0.1:8080 -D 4040 
+# axiom-ssh testy01 --tmux testy01Session
+# axiom-ssh testy01 --tmux-attach testy01Session
+# axiom-ssh testy01 --just-generate cache
+#
+# TODO: 
+# Make option to pass additional args ( or overwrite args) supplied to tmux session
+###################################################################
+
+###########################################################################################################
+# Header
+#
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
-ssh_config="$AXIOM_PATH/.sshconfig"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
+begin=$(date +%s)
+start="$(pwd)"
+BASEOS="$(uname)"
+account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+case $BASEOS in
+'Darwin')
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+*) ;;
+esac
 
+###########################################################################################################
+# Declare defaut variables
+#
+ssh_config="$AXIOM_PATH/.sshconfig"
 use_tmux=false
+attachonly=false
+spawn=true
 use_mosh=false
 tmux_session="main"
 connected=false
 cache=false
 just_generate=false
-
 args="-F $ssh_config"
+toggle=false
 
-for var in "$@"
+###########################################################################################################
+# Help Menu:
+# 
+function usage() {
+        echo -e "${BWhite}Description:"
+        echo -e "  axiom-ssh dynamically generates axiom's SSH config based on your cloud inventory." 
+        echo -e "  axiom-ssh allows you to connect to your axiom instances over their public or private network interface." 
+        echo -e "  axiom-ssh can drop you right into a freshly created tmux session on the remote instance, and can be used to"
+        echo -e "  attach to a preexisting tmux session." 
+        echo -e "  All additional SSH args (such as port-forwards) are passed to SSH binary.${Color_Off}"
+        echo -e "${BWhite}Examples:${Color_Off}"
+        echo -e "  ${Blue}axiom-ssh testy01${Color_Off} # SSH into instance testy01"
+        echo -e "  ${Blue}axiom-ssh testy01 --tmux mysession1${Color_Off} # SSH into instance testy01 and spawn or attach to tmux session named mysession1"
+        echo -e "  ${Blue}axiom-ssh --just-generate${Color_Off} # Always populate axiom's ssh config (located in ~/.axiom/.sshconfig) with public Ip details"
+        echo -e "  ${Blue}axiom-ssh --just-generate private${Color_Off} # Always populate axiom's ssh config (located in ~/.axiom/.sshconfig) with private Ip details"
+        echo -e "  ${Blue}axiom-ssh --just-generate cache${Color_Off} # Permanently lock/cache axiom's ssh config so it never regenerates (to revert run axiom-ssh --just-generate)" 
+        echo -e "  ${Blue}axiom-ssh testy01 -L 8080:127.0.0.1:8080 -D 4040 ${Color_Off} # Port-forward 8080 to local port 8080 and dynamically port foward port 4040 to testy01"
+        echo -e "${BWhite}Usage:${Color_Off}"
+        echo -e "  <instance name> required string"
+        echo -e "    Instance name supplied as a positional first argument"
+        echo -e "  --mosh/-m <instance name> (optional)"
+        echo -e "    Connect with mosh"
+        echo -e "  --just-generate <public, private, cache/lock> (optional)"
+        echo -e "    Specify when to generate the SSH config file and what IPs to use. Options are public, private, cache/lock ( default is public )"
+        echo -e "  --tmux <tmux session name to create/attach to> (optional)"
+        echo -e "    Connect to your instance and start new tmux session or connect to one (default session name is 'main')"
+        echo -e "  --tmux-attach/-t <tmux session> (optional)"
+        echo -e "    Only attach to tmux session if session name exists. If tmux session doesnt already exist, this will error"
+        echo -e "  --cache (optional)"
+        echo -e "    Temporarily do not generate SSH config and instead connect with cached SSH config"
+        echo -e "  --help (optional)"
+        echo -e "    Display this help menu"
+        echo -e "  <additional args>"
+        echo -e "    All additional SSH args are passed to SSH. If you want additional arguments supplied to your command, simply append them to the command!"
+        echo -e "    ${BWhite}example: axiom-ssh <name> -L 8080:127.0.0.1:8080 -D 4040${Color_Off}" 
+}
+
+###########################################################################################################
+# Parse command line arguments 
+#
+i=0
+for arg in "$@"
 do
-    if [ $var == "--tmux" ]
-    then
-        use_tmux=true
-    elif [[ $var =~ "-t=" ]]
-    then
-		tmux_session="$(echo "$var" | sed 's/=/ /g' | awk '{ print $2 }')"
-    elif [ $var == "--cache" ]
-	then
-		cache=true
-	elif [ $var == "--just-generate" ]
-	then
-		just_generate=true
-	elif [ $var == "-m" ]
-	then
-		use_mosh=true
-	else
-		args="$args $var"
-	fi
+    i=$((i+1))
+    if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+        set=false
+        if [[ "$i" == 1 ]]; then
+            instance="$1"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--tmux" ]]; then
+            n=$((i+1))
+            tmux_session=$(echo ${!n})
+            use_tmux=true
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+
+        if [[ "$arg" == "--tmux-attach" ]] || [[ "$arg" == "-t" ]] || [[ "$arg" == "-t=" ]]; then
+            n=$((i+1))
+            attachonly=true
+            tmux_session=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--just-generate" ]]; then
+            n=$((i+1))
+            just_generate=true
+            toggle=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--mosh" ]]; then
+            n=$((i+1))
+            use_mosh=true
+            instance=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
+            usage
+            exit
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--cache" ]]; then
+            cache=true
+            set=true
+            pass+=($i)
+        fi
+        if  [[ "$set" != "true" ]]; then
+            args="$args $arg"
+        fi
+    fi
 done
 
+###########################################################################################################
+# Display Help Menu
+#
+if [[ "$*" == "--help" ]] || [[ "$*" == "-h" ]] || [[ "$*" == "" ]] || [[ "$*" == "help" ]]; then
+usage
+exit
+fi
+
+###########################################################################################################
+# if --tmux is provided without a name, default to 'main'
+#
+if [ -z ${tmux_session:+x} ]; then
+tmux_session="main"
+fi
+
+###########################################################################################################
+# SSH generate toggle and store toggle in account.json
+#
+if [[ "$toggle" == "public" ]] || [[ "$toggle" == "Public" ]] || [[ "$toggle" == "PUBLIC" || $toggle == "" ]]; then
+jq '.generate_sshconfig="public"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+fi
+
+if [[ "$toggle" == "private" ]] || [[ "$toggle" == "Private" ]] || [[ "$toggle" == "PRIVATE" ]]; then
+jq '.generate_sshconfig="private"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+fi 
+
+if [[ "$toggle" == "cache" ]] || [[ "$toggle" == "Cache" ]] || [[ "$toggle" == "CACHE" ]] || [[ "$toggle" == "Lock" ]]|| [[ "$toggle" == "lock" ]]; then
+jq '.generate_sshconfig="cache"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+fi
+
+###########################################################################################################
+# If --cache flag isnt provided, regenerate axiom's SSH config
+#
 if [ $cache != true ]
 then
-	generate_sshconfig
+generate_sshconfig
 fi
 
+###########################################################################################################
+# If --tmux is in the command, connect to instance and spawn a new tmux session
+#
 if [ $use_tmux == true ]
 then
-	args="$args -t 'tmux new-session -t $tmux_session'"
+args="$args -t 'tmux new-session -t $tmux_session'"
 fi
 
+###########################################################################################################
+# Attach to tmux session by name, if session isnt created this will error
+#
+if [ $attachonly == true ]
+then
+args="$args -t 'tmux attach -t $tmux_session'"
+fi
+
+###########################################################################################################
+# If --mosh is in the command, connect to instance via mosh
+#
 if [ $use_mosh == true ]
 then
-	new_args=""
-
-	for i in $args
-	do
-		if [[ "$i" != "$1" ]] && [[ ! "$i" =~ "-t=" ]]
-		then
-			new_args="$new_args $i"
-		fi
-	done
-	cmd="mosh --ssh='ssh $new_args' $1 -- tmux attach -t $tmux_session -d"
-
-	echo $cmd
+new_args=""
+for i in $args
+do
+if [[ "$i" != "$1" ]] && [[ ! "$i" =~ "-t" ]]
+then
+new_args="$new_args $i"
+fi
+done
+cmd="mosh --ssh='ssh $instance $new_args' $2 -- tmux attach -t $tmux_session -d"
+echo $cmd
 else
-	cmd="ssh $args"
+
+###########################################################################################################
+# Command to run whenever mosh isnt used
+#
+cmd="ssh $instance $args"
 fi
 
-if [ $just_generate == "false" ]
+###########################################################################################################
+# Execute command unless --just-generate is supplied
+#
+if [ "$just_generate" == "false" ]
 then
 	bash -c "$cmd"
 fi
-"$AXIOM_PATH/interact/header.sh"

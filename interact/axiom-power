@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+
+###################################################################
+# Title	: axiom-power                                                                                             
+# Author : 0xtavian                                                
+# Github : https://github.com/0xtavian                                           
+###################################################################
+
+AXIOM_PATH="$HOME/.axiom"
+source "$AXIOM_PATH/interact/includes/vars.sh"
+source "$AXIOM_PATH/interact/includes/functions.sh"
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
+begin=$(date +%s)
+start="$(pwd)"
+BASEOS="$(uname)"
+account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
+accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
+current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+
+
+function usage() {
+  cat << EOF
+  Usage: axiom-power on 'rez\*'  #turns on instances starting with 'rez'
+         axiom-power off '\*'    #turns off all instances
+  Examples:
+  on                             Power on instance by instance name
+  off                           Power off instance by instance name 
+  reboot                           Reboot instance by instance name
+  help | --help | -h                           Print this help menu
+EOF
+exit
+}
+
+###########################################################################################################
+# Declare defaut variables
+on=false
+help=true
+off=false
+reboot=false
+force=false
+
+# Parse command line arguments 
+#
+i=0
+for arg in "$@"
+do
+    i=$((i+1))
+    if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+        set=false
+        if [[ "$i" == 1 ]]; then
+            input="$1"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "on" ]]; then
+            n=$((i+1))
+            on=true
+            instance=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "off" ]]; then
+            n=$((i+1))
+            off=true
+            instance=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "reboot" ]]; then
+            n=$((i+1))
+            reboot=true
+            instance=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
+            usage
+            exit
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--force" ]] || [[ "$arg" == "-f" ]]; then
+            force=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--debug" ]]; then
+            debug="true"
+            set=true
+            pass+=($i)
+        fi
+        if  [[ "$set" != "true" ]]; then
+            args="$args $arg"
+        fi
+
+    fi
+done
+
+# Display Help Menu
+#
+if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]] || [[ "$@" == "help" ]]; then
+usage
+exit
+fi
+
+# Power Off Snapshots
+#
+if [[ "$off" == "true" ]]; then
+    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+
+    if [[ ${#instances} == 0 ]];then
+        usage
+        exit
+    fi
+    for i in $(echo $instances); 
+        do 
+            echo -e "${Yellow}Powering off instance: $i${Color_Off}"
+            poweroff $i $force; 
+        done
+fi
+
+# Power On Snapshots
+#
+if [[ "$on" == "true" ]]; then
+    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+
+    if [[ ${#instances} == 0 ]];then
+        usage
+        exit
+    fi
+
+    for i in $(echo $instances); 
+        do 
+            echo -e "${Yellow}Powering on instance: $i${Color_Off}"
+            poweron $i $force; 
+        done
+fi
+
+# Reboot Snapshots
+#
+if [[ "$reboot" == "true" ]]; then
+    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+  
+  if [[ ${#instances} == 0 ]];then
+        usage
+        exit
+    fi
+
+    for i in $(echo $instances); 
+        do 
+            echo -e "${Yellow}Rebooting instance: $i${Color_Off}"
+            reboot $i $force; 
+        done
+fi

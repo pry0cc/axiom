@@ -21,18 +21,18 @@ doctl compute droplet-action reboot $(instance_id $instance_name)
 
 # takes no arguments, outputs JSON object with instances
 instances() {
-	doctl compute droplet list -o json
+	aws ec2 describe-instances
 }
 
 instance_id() {
 	name="$1"
-	instances | jq ".[] | select(.name==\"$name\") | .id"
+	instances | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .InstanceId"
 }
 
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address"
+	instances | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .PublicIpAddress"
 }
 
 instance_ip_cache() {
@@ -47,35 +47,25 @@ instance_ip_cache() {
 }
 
 instance_list() {
-	instances | jq -r '.[].name'
+	instances | jq -r '.Reservations[].Instances[].Tags?[]?.Value?'
 }
 
 # takes no arguments, creates an fzf menu
 instance_menu() {
-	instances | jq -r '.[].name' | fzf
+	instances | jq -r '.Reservations[].Instances[].Tags?[]?.Value?' | fzf
 }
 
 quick_ip() {
 	data="$1"
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address")
+	ip=$(echo $droplets | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .PublicIpAddress")
 	echo $ip
 }
 
 instance_pretty() {
-       data=$(instances)
+	data=$(instances)
 
-    #number of droplets
-    droplets=$(echo $data|jq -r '.[]|.name'|wc -l )
-
-    i=0
-    for f in $(echo $data | jq -r '.[].size.price_monthly'); do new=$(expr $i + $f); i=$new; done
-    totalPrice=$i
-    header="Instance,Primary Ip,Backend Ip,Region,Size,Status,\$/M"
-    fields=".[] | [.name, .networks.v4[0].ip_address, .networks.v4[1].ip_address, .region.slug, .size_slug, .status, .size.price_monthly] | @csv"
-    totals="_,_,_,Instances,$droplets,Total,\$$totalPrice"
-    #data is sorted by default by field name    
-    data=$(echo $data | jq  -r "$fields")
-    (echo "$header" && echo "$data" && echo $totals) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+	i=0
+	(echo "Instance,IP,Region,Size,Status" && echo $data | jq -r '.Reservations[].Instances[] | select(.State.Name != "terminated") | [.Tags?[]?.Value, .PublicIpAddress, .Placement.AvailabilityZone, .InstanceType, .State.Name] | @csv' && echo "_,_,_,_,_,") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 # identifies the selected instance/s
@@ -85,22 +75,17 @@ selected_instance() {
 
 get_image_id() {
 	query="$1"
-	images=$(doctl compute snapshot list -o json)
-	name=$(echo $images | jq -r ".[].name" | grep -wx "$query" | tail -n 1)
-	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
+	images=$(aws ec2 describe-images --query 'Images[*]' --owners self)
+	name=$(echo $images| jq -r '.[].Name' | grep -wx "$query" | tail -n 1)
+	id=$(echo $images |  jq -r ".[] | select(.Name==\"$name\") | .ImageId")
 	echo $id
 }
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
-    force="$2"
-
-    if [ "$force" == "true" ]
-        then
-        doctl compute droplet delete -f "$name"
-    else
-        doctl compute droplet delete "$name"
-    fi
+    id="$(instance_id "$name")"
+    echo "$id"
+    aws ec2 terminate-instances --instance-ids "$id" 2>&1 >> /dev/null
 }
 
 # TBD 
@@ -143,13 +128,13 @@ list_subdomains() {
 }
 # get JSON data for snapshots
 snapshots() {
-	doctl compute snapshot list -o json
+	aws ec2 describe-images --query 'Images[*]' --owners self 
 }
 
 
 get_snapshots()
 {
-	doctl compute snapshot list
+	(echo "Name,Creation,Image ID" && aws ec2 describe-images --query 'Images[*]' --owners self | jq -r '.[] | [.Name,.CreationDate,.ImageId] | @csv' && echo "_,_,_,_") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 delete_record() {
@@ -206,7 +191,7 @@ query_instances() {
 		if [[ "$var" =~ "*" ]]
 		then
 			var=$(echo "$var" | sed 's/*/.*/g')
-			selected="$selected $(echo $droplets | jq -r '.[].name' | grep "$var")"
+			selected="$selected $(echo $droplets | jq -r '.Reservations[].Instances[] | select(.State.Name != "terminated") | .Tags?[]?.Value' | grep "$var")"
 		else
 			if [[ $query ]];
 			then
@@ -219,7 +204,7 @@ query_instances() {
 
 	if [[ "$query" ]]
 	then
-		selected="$selected $(echo $droplets | jq -r '.[].name' | grep -w "$query")"
+		selected="$selected $(echo $droplets | jq -r '.Reservations[].Instances[].Tags?[]?.Value' | grep -w "$query")"
 	else
 		if [[ ! "$selected" ]]
 		then
@@ -284,10 +269,13 @@ if [[ "$generate_sshconfig" == "private" ]]; then
 
  echo -e "Warning your SSH config generation toggle is set to 'Private' for account : $(echo $current)."
  echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert run: axiom-ssh --just-generate"
- for name in $(echo "$droplets" | jq -r '.[].name')
+ for name in $(echo "$droplets" | jq -r '.Reservations[].Instances[].Tags?[]?.Value')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ ip=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .PublicIpAddress")
+ status=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .State.Name")
+ if [[ "$status" == "running" ]]; then
+ 	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ fi
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 
@@ -298,10 +286,13 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
  #
  else
- for name in $(echo "$droplets" | jq -r '.[].name')
+ for name in $(echo "$droplets" | jq -r '.Reservations[].Instances[].Tags?[]?.Value')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ ip=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .PublicIpAddress")
+ status=$(echo "$droplets" | jq -r ".Reservations[].Instances[] | select(.Tags?[]?.Value==\"$name\") | .State.Name")
+ if [[ "$status" == "running" ]]; then
+ 	echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ fi
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 fi
@@ -320,14 +311,15 @@ create_instance() {
 	region="$4"
 	boot_script="$5"
   sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-  sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/$sshkey.pub | awk '{print $2}' | cut -d : -f 2-)"
-  keyid=$(doctl compute ssh-key import $sshkey \
-    --public-key-file ~/.ssh/$sshkey.pub \
-    --format ID \
-    --no-header 2>/dev/null) ||
-  keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
+  #sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/$sshkey.pub | awk '{print $2}' | cut -d : -f 2-)"
+  #keyid=$(doctl compute ssh-key import $sshkey \
+  #  --public-key-file ~/.ssh/$sshkey.pub \
+  #  --format ID \
+  #  --no-header 2>/dev/null) ||
+  #keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
   
-  doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
+  aws ec2 run-instances --image-id "$image_id" --count 1 --instance-type --region "$region" "$size" --key-name axiom --security-groups axiom --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$name}]" 2>&1 >> /dev/null
+  
   sleep 260
 }
 

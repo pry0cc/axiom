@@ -1,4 +1,4 @@
 [{
-	"command":"gowitness file -f input -P output",
+	"command":"/home/op/go/bin/gowitness file -f input -P output",
 	"ext":""
 }]

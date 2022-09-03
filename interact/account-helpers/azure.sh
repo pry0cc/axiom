@@ -54,7 +54,7 @@ OS=$(lsb_release -i | awk '{ print $3 }')
             OS="unknown-Linux"
             BASEOS="Linux"
    fi
-sudo apt-get update
+sudo apt-get update -qq
 sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg -y -qq
 AZ_REPO=$(lsb_release -cs)
 if [ $AZ_REPO == "kali-rolling" ]; then
@@ -74,7 +74,7 @@ esac
 fi
 curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-get update
+sudo apt-get update -qq
 sudo apt-get install azure-cli -y -qq
 fi
 
@@ -103,7 +103,7 @@ fi
 az login
 az group create -n axiom -l "$region"
 
-bac="$(az ad sp create-for-rbac --query "{ client_id: appId, client_secret: password, tenant_id: tenant }")" 
+bac=$(az ad sp create-for-rbac --role Contributor --query "{ client_id: appId, client_secret: password, tenant_id: tenant }")
 client_id="$(echo $bac | jq -r '.client_id')"
 client_secret="$(echo $bac | jq -r '.client_secret')"
 tenant_id="$(echo $bac | jq -r '.tenant_id')"

@@ -25,91 +25,105 @@ case $BASEOS in
 *) ;;
 esac
 
-
-accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
-current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+accounts=$(ls -A1 "$AXIOM_PATH/accounts/" | grep "json" | sed 's/\.json//g')
+if [ -f ~/.axiom/axiom.json ] ; then
+    current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
+fi
 
 function bootstrap() {
-account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" | grep "\.sh"  | grep -v "generate" | tr '/' ' ' | awk '{ print $NF }' | tr -d '.sh')
-account_str=$(echo $account_helpers | sed 's/ /, /g')
+account_helpers=$(find "$AXIOM_PATH/interact/account-helpers" -name '*.sh' ! -name 'generate*' -execdir basename -s '.sh' {} +)
+account_str=$(echo "$account_helpers" | sed 's/ /, /g')
 provider_path="$AXIOM_PATH/interact/account-helpers/$provider.sh"
 bash "$provider_path" 
 }
 
-
 if [ ! -z "$1" ]
 then
-	path="$AXIOM_PATH/accounts/$1.json"
-	if [[ -f "$path" ]]
-	then
-		echo -e "${BWhite}Selecting $1...${Color_Off}"
-		rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
-		ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"	
-		provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
-    $AXIOM_PATH/interact/axiom-provider $provider
-        if [[ "$provider" == "do" ]]; then
-        echo -e "${Blue}Installing doctl...${Color_Off}"
- if [[ $BASEOS == "Mac" ]]; then
-  brew install doctl
- elif [[ $BASEOS == "Linux" ]]; then
-  OS=$(lsb_release -i | awk '{ print $3 }')
-  if ! command -v lsb_release &> /dev/null; then
-   OS="unknown-Linux"
-   BASEOS="Linux"
-  fi 
- if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
-  sudo pacman -Syu doctl --noconfirm
-   else
-  wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
-  fi
- fi
- token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
- doctl auth init -t "$token" || bootstrap
+path="$AXIOM_PATH/accounts/$1.json"
+if [[ -f "$path" ]]
+then
+echo -e "${BWhite}Selecting $1...${Color_Off}"
+rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
+ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"
+provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
+"$AXIOM_PATH"/interact/axiom-provider "$provider"
+
+# Update doctl and check for valid token. If token isnt valid, kick off account bootstrap
+#
+if [[ "$provider" == "do" ]]; then
+ echo -e "${Blue}Updating doctl...${Color_Off}"
+if [[ $BASEOS == "Mac" ]]; then
+ brew install doctl
+elif [[ $BASEOS == "Linux" ]]; then
+ OS=$(lsb_release -i | awk '{ print $3 }')
+if ! command -v lsb_release &> /dev/null; then
+ OS="unknown-Linux"
+ BASEOS="Linux"
+fi 
+if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
+ sudo pacman -Syu doctl --noconfirm
+fi
+if [[ $OS == "Linux" ]] ; then
+ wget -q -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.66.0/doctl-1.66.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+fi
+token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+doctl auth init -t "$token" || bootstrap
+fi
 fi
 
-        if [[ "$provider" == "linode" ]]; 
-        then
-            
-            echo -e "${Green}Updating linode-cli\n ${Color_Off}"	
-            sudo pip3 install linode-cli --upgrade
-            token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
-            size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
-            region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
-            mkdir -p "$HOME/.config"
-            echo -e "[DEFAULT]\ndefault-user = axiom\n\n[axiom]\ntoken = $token\nregion = $region\ntype = $size\nimage = linode/alpine3.10" > "$HOME/.config/linode-cli"
-            unauthed=$(curl -s -H "Authorization: Bearer $token" https://api.linode.com/v4/account | grep Invalid  | wc -l | tr -d ' ')
-            if [[ "$unauthed" == "1" ]]; then
-             echo -e "Not authenticated to linode-cli"
-             bootstrap
-            fi
-        fi
+# Update Linode-cli and check for valid token. If token isnt valid, kick off account bootstrap
+#
+if [[ "$provider" == "linode" ]]; 
+then
+echo -e "${Green}Updating linode-cli\n ${Color_Off}"
+pip3 install linode-cli --upgrade
+token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
+size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
+region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
+mkdir -p "$HOME/.config"
+echo -e "[DEFAULT]\ndefault-user = axiom\n\n[axiom]\ntoken = $token\nregion = $region\ntype = $size\nimage = linode/alpine3.10" > "$HOME/.config/linode-cli"
+unauthed=$(curl -s -H "Authorization: Bearer $token" https://api.linode.com/v4/account | grep Invalid  | wc -l | tr -d ' ')
+if [[ "$unauthed" == "1" ]]; then
+echo -e "Not authenticated to linode-cli"
+bootstrap
+fi
+fi
 
-        if [[ "$provider" == "ibm" ]]; 
-        then
-           token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
-           ibmcloud login --apikey $token --no-region || bootstrap
-        fi
+# If IBM token isnt valid, kick off account bootstrap
+# TODO: Update ibmcloud cli 
+#
+if [[ "$provider" == "ibm" ]]; 
+then
+ibmcloud update -f
+token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
+ibmcloud login --apikey "$token" --no-region || bootstrap
+fi
 
-        if [[ "$provider" == "azure" ]]; 
-        then
-           az ad signed-in-user show || bootstrap
-        fi
+# If Azure cli isnt logged in, kick off bootstrap
+# TODO: Make sure az is up to date
+# TODO: This likely doesnt play well with multiple account accounts
+# TODO: grep account creds from account.json and authenticate with those 
+#
+if [[ "$provider" == "azure" ]]; 
+then
+az ad signed-in-user show || bootstrap
+fi
 
-		echo -e "${Green}Selected $1 successfully${Color_Off}"
-	else
-		echo -e "${Red}Account name not present${Color_Off}"
-	fi
+echo -e "${Green}Selected $1 successfully${Color_Off}"
 else
-	echo -e "${BWhite}Available Accounts${Color_Off}"
-	echo -n -e "${Blue}"
-	for account in $accounts
-	do
-		if [[ $account == $current ]]
-		then
-			echo "* $account"
-		else
-			echo "  $account"
-		fi
-	done
-	echo -n -e "${Color_Off}"
+echo -e "${Red}Account name not present${Color_Off}"
+fi
+else
+echo -e "${BWhite}Available Accounts${Color_Off}"
+echo -n -e "${Blue}"
+        for account in $accounts
+        do
+                if [[ $account == $current ]]
+                then
+                        echo "* $account"
+                else
+                        echo "  $account"
+                fi
+        done
+        echo -n -e "${Color_Off}"
 fi

@@ -4,7 +4,9 @@ AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
+current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 
+echo -e "Listing instances in account: $(echo $current)" | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 if [ -z $1 ]; then
 	instance_pretty
 else

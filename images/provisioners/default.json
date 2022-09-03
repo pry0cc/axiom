@@ -11,7 +11,7 @@
       "inline": [
         "echo 'Waiting for cloud-init to finish, this can take a few minutes please be patient...'",
         "/usr/bin/cloud-init status --wait",
-        
+
         "fallocate -l 2G /swap && chmod 600 /swap && mkswap /swap && swapon /swap",
         "echo '/swap none swap sw 0 0' | sudo tee -a /etc/fstab",
 
@@ -35,23 +35,21 @@
         "touch /home/op/.cache/motd.legal-displayed",
         "chown -R op:users /home/op",
         "echo 'op:{{ user `op_random_password` }}' | chpasswd",
+        "echo 'ubuntu:{{ user `op_random_password` }}' | chpasswd",
         "echo 'root:{{ user `op_random_password` }}' | chpasswd",
 
-        "echo 'Moving Config files'", 
-        "systemctl disable systemd-resolved.service",
-        "systemctl stop systemd-resolved.service",
-        "mv /tmp/configs/sudoers /etc/sudoers", 
+        "echo 'Moving Config files'",
+        "mv /tmp/configs/sudoers /etc/sudoers",
+        "pkexec chown root:root /etc/sudoers /etc/sudoers.d -R",
         "mv /tmp/configs/bashrc /home/op/.bashrc",
-        "mv /tmp/configs/zshrc /home/op/.zshrc",  
+        "mv /tmp/configs/zshrc /home/op/.zshrc",
         "mv /tmp/configs/sshd_config /etc/ssh/sshd_config",
         "mv /tmp/configs/00-header /etc/update-motd.d/00-header",
         "mv /tmp/configs/authorized_keys /home/op/.ssh/authorized_keys",
-        "mv /tmp/configs/resolv.conf /etc/resolv.conf",
         "mv /tmp/configs/config.ini /home/op/.config/amass/config.ini",
         "mv /tmp/configs/tmux-splash.sh /home/op/bin/tmux-splash.sh",
+        "/bin/su -l op -c 'sudo chmod 600 /home/op/.ssh/authorized_keys'",
         "chown -R op:users /home/op",
-        "chmod 644 /etc/resolv.conf",
-        "chattr +i /etc/resolv.conf",
         "sudo service sshd restart",
         "chmod +x /etc/update-motd.d/00-header",
 
@@ -74,38 +72,41 @@
         "/bin/su -l root -c 'echo \"net.nf_conntrack_max = 1048576\" | sudo tee -a /etc/sysctl.conf'",
         "/bin/su -l root -c 'echo \"net.core.somaxconn = 1048576\" | sudo tee -a /etc/sysctl.conf'",
         "/bin/su -l root -c 'echo \"net.ipv4.ip_local_port_range = 1024 65535\" | sudo tee -a /etc/sysctl.conf'",
-        "/bin/su -l root -c 'echo \"1024 65535\" | sudo tee -a /proc/sys/net/ipv4/ip_local_port_range'", 
-    
-        "echo 'Installing Wordlists'",
+        "/bin/su -l root -c 'echo \"1024 65535\" | sudo tee -a /proc/sys/net/ipv4/ip_local_port_range'",
 
-        "echo 'Installing cent'",
+        "echo 'Downloading Wordlists'",
+
+        "echo 'Downloading cent'",
         "git clone https://github.com/xm1k3/cent.git /home/op/lists/cent",
-        
-        "echo 'Installing leaky-paths'",
+
+        "echo 'Downloading leaky-paths'",
         "git clone https://github.com/ayoubfathi/leaky-paths.git /home/op/lists/leaky-paths",
-       
-        "echo 'Installing permutations'",
+
+        "echo 'Downloading axiom-dockerfiles'",
+        "git clone https://github.com/0xtavian/minimal-pentesting-dockerfiles.git /home/op/lists/axiom-dockerfiles",
+
+        "echo 'Downloading permutations'",
         "wget -q -O /home/op/lists/permutations.txt https://gist.github.com/six2dez/ffc2b14d283e8f8eff6ac83e20a3c4b4/raw",
 
-        "echo 'Installing SecLists'",
+        "echo 'Downloading resolvers'",
+        "wget -q -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/trickest/resolvers/main/resolvers.txt",
+
+        "echo 'Downloading SecLists'",
         "git clone https://github.com/danielmiessler/SecLists.git /home/op/lists/seclists",
 
-        "echo 'Installing resolvers'",
-        "wget -q -O /home/op/lists/resolvers.txt https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt",        
-        
-        "echo 'Installing Tools'", 
-   
+        "echo 'Installing Tools'",
+
         "echo 'Installing aiodnsbrute'",
         "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
 
         "echo 'Installing anew'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/anew@latest'",
-        
+
         "echo 'Installing anti-burl'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/anti-burl@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/anti-burl/Dockerfile -t axiom/anti-burl'",
 
         "echo 'Installing assetfinder'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/assetfinder@latest'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/assetfinder/Dockerfile -t axiom/assetfinder'",
 
         "echo 'Installing Amass'",
         "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
@@ -116,23 +117,26 @@
         "echo 'Installing Arjun'",
         "cd /tmp && git clone https://github.com/s0md3v/Arjun && cd Arjun && sudo python3 setup.py install && cd",
 
-        "echo 'Installing cf-check'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/dwisiswant0/cf-check@latest'",
+        "echo 'Installing axiom'",
+        "/bin/su -l op -c 'git clone https://github.com/pry0cc/axiom.git /home/op/.axiom && cd /home/op/.axiom/interact && ./axiom-configure --shell zsh --unattended'",
 
+        "echo 'Installing cero'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/cero/Dockerfile -t axiom/cero'",
+        
         "echo 'Installing chaos-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest'",
 
         "echo 'Installing commix'",
-        "git clone https://github.com/commixproject/commix.git /home/op/recon/commix",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/commix/Dockerfile -t axiom/commix'",
 
         "echo 'Installing concurl'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/concurl@latest'",
 
         "echo 'Installing Corsy'",
-        "/bin/su -l op -c 'git clone https://github.com/s0md3v/Corsy.git /home/op/recon/Corsy && cd /home/op/recon/Corsy && pip3 install -r requirements.txt && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/corsy/Dockerfile -t axiom/corsy'",
 
         "echo 'Installing CrackMapExec'",
-        "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme", 
+        "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme",
 
         "echo 'Installing crlfuzz'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/dwisiswant0/crlfuzz/cmd/crlfuzz@latest'",
@@ -147,17 +151,17 @@
         "wget -q -O /tmp/DNSCewl https://github.com/codingo/DNSCewl/raw/master/DNScewl && mv /tmp/DNSCewl /usr/bin/DNSCewl && chmod +x /usr/bin/DNSCewl",
 
         "echo 'Installing dnsgen'",
-        "/bin/su -l op -c 'git clone https://github.com/ProjectAnte/dnsgen /home/op/recon/dnsgen && cd /home/op/recon/dnsgen && pip3 install -r requirements.txt && sudo python3 setup.py install && cd'",
-
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/dnsgen/Dockerfile -t axiom/dnsgen'",
+        
         "echo 'Installing dnsrecon'",
-        "/bin/su -l op -c 'git clone https://github.com/darkoperator/dnsrecon.git /home/op/recon/dnsrecon && cd /home/op/recon/dnsrecon && pip3 install -r requirements.txt && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/dnsrecon/Dockerfile -t axiom/dnsrecon'",
 
         "echo 'Installing dnsvalidator'",
         "git clone https://github.com/vortexau/dnsvalidator.git /home/op/recon/dnsvalidator && cd /home/op/recon/dnsvalidator/ && sudo python3 setup.py install",
 
         "echo 'Installing dnsx'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
-   
+
         "echo 'Installing ERLPopper'",
         "git clone https://github.com/maikthulhu/ERLPopper.git /home/op/recon/ERLPopper",
 
@@ -166,7 +170,7 @@
 
         "echo 'Installing feroxbuster'",
         "/bin/su -l root -c 'curl -sL https://raw.githubusercontent.com/epi052/feroxbuster/master/install-nix.sh | bash && mv feroxbuster /usr/bin/'",
-        
+
         "echo 'Installing fff'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/fff@latest'",
 
@@ -180,16 +184,19 @@
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/lc/gau@latest'",
 
         "echo 'Installing gauplus'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/bp0lr/gauplus@latest'",  
-        
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/bp0lr/gauplus@latest'",
+
         "echo 'Installing getJS'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/003random/getJS@latest'",
 
         "echo 'Installing gf'",
         "/bin/su -l op -c 'GO111MODULE=off /usr/local/go/bin/go install github.com/tomnomnom/gf@latest'",
-        
+
         "echo 'Installing Gf-Patterns'",
         "git clone https://github.com/1ndianl33t/Gf-Patterns /home/op/.gf",
+        
+        "echo 'Installing github-subdomains'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/gwen001/github-subdomains@latest'",
 
         "echo 'Installing github-endpoints'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/gwen001/github-endpoints@latest'",
@@ -198,14 +205,17 @@
         "cd /tmp && wget -q -O /tmp/gobuster.7z https://github.com/OJ/gobuster/releases/download/v3.1.0/gobuster-linux-amd64.7z && p7zip -d /tmp/gobuster.7z && sudo mv /tmp/gobuster-linux-amd64/gobuster /usr/bin/gobuster && sudo chmod +x /usr/bin/gobuster",
 
         "echo 'Installing google-chrome'",
-        "wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && sudo apt install -y /tmp/chrome.deb -qq && apt --fix-broken install -qq",         
+        "wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && cd /tmp/ && sudo apt install -y /tmp/chrome.deb -qq && apt --fix-broken install -qq",
+
+        "echo 'Installing gorgo'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/gorgo/Dockerfile -t axiom/gorgo'",
 
         "echo 'Installing gospider'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/jaeles-project/gospider@latest'",
 
         "echo 'Installing gowitness'",
-        "sudo wget -q -O /usr/bin/gowitness https://github.com/sensepost/gowitness/releases/download/2.3.6/gowitness-2.3.6-linux-amd64 && sudo chmod +x /usr/bin/gowitness",
-
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/sensepost/gowitness@latest'",
+ 
         "echo 'Installing gron'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/gron@latest'",
 
@@ -215,6 +225,9 @@
         "echo 'Installing hakrawler'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/hakluke/hakrawler@latest'",
 
+        "echo 'Installing hakrevdns'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/hakluke/hakrevdns@latest'",
+
         "echo 'Installing httprobe'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/httprobe@latest'",
 
@@ -223,6 +236,9 @@
 
         "echo 'Installing interactsh-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest'",
+        
+        "echo 'Installing ipcdn'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/ipcdn/Dockerfile -t axiom/ipcdn'",
 
         "echo 'Installing jaeles'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest && /home/op/go/bin/jaeles config init'",
@@ -234,13 +250,16 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/hacks/kxss@latest'",
 
         "echo 'Installing LinkFinder'",
-        "/bin/su -l op -c 'git clone https://github.com/GerbenJavado/LinkFinder /home/op/recon/LinkFinder && cd /home/op/recon/LinkFinder && pip3 install -r requirements.txt && sudo python3 setup.py install && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/linkfinder/Dockerfile -t axiom/linkfinder'",
 
         "echo 'Installing masscan'",
         "apt install masscan -y -qq",
 
         "echo 'Installing massdns'",
         "git clone https://github.com/blechschmidt/massdns.git /tmp/massdns; cd /tmp/massdns; make -s; sudo mv bin/massdns /usr/bin/massdns",
+
+        "echo 'Installing medusa'",
+        "apt install medusa -y -qq",
 
         "echo 'Installing meg'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/meg@latest'",
@@ -249,16 +268,25 @@
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest'",
 
         "echo 'Installing nmap'",
-        "apt-get install nmap -y -qq",
-        
+        "sudo apt-get -qy --no-install-recommends install build-essential libssl-dev flex bison",
+        "/bin/su -l op -c 'wget https://nmap.org/dist/nmap-7.92.tgz -O /home/op/recon/nmap.tar.gz && cd /home/op/recon/ && tar zxf nmap.tar.gz --transform s/nmap-7.92/nmap/ && rm nmap.tar.gz && cd /home/op/recon/nmap/ && sudo ./configure --without-ndiff --without-zenmap --without-nping  --without-ncat --without-nmap-update --with-libpcap=included && sudo make && sudo make install'",
+
+        "echo 'Installing nmap extra scripts by ivre'",
+        "git clone --depth 1  https://github.com/ivre/ivre.git /home/op/recon/nmap_scripts && cd /home/op/recon/nmap_scripts && git filter-branch --prune-empty --subdirectory-filter  nmap_scripts HEAD",
+        "sudo cp /home/op/recon/nmap_scripts/* /usr/local/share/nmap/scripts && sudo nmap --script-update",
+        "sudo cp /home/op/recon/nmap_scripts/* /home/op/recon/nmap/scripts/ && cd /home/op/recon/nmap && sudo ./nmap --script-update",
+
         "echo 'Installing nuclei'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest && /home/op/go/bin/nuclei'",
 
         "echo 'Installing OpenRedireX'",
-        "/bin/su -l op -c 'git clone https://github.com/devanshbatham/OpenRedireX.git /home/op/recon/OpenRedireX'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/openredirex/Dockerfile -t axiom/openredirex'",
 
         "echo 'Installing ParamSpider'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
+
+        "echo 'Installing phantomjs'",
+        "wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 && tar jxf phantomjs-1.9.8-linux-x86_64.tar.bz2 phantomjs-1.9.8-linux-x86_64/bin/phantomjs && sudo rm phantomjs-1.9.8-linux-x86_64.tar.bz2 && sudo mv phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/",
 
         "echo 'Installing proxychains-ng'",
         "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",
@@ -284,9 +312,6 @@
         "echo 'Installing shuffledns'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/shuffledns/cmd/shuffledns@latest'",
 
-        "echo 'Installing sn0int'",
-        "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list && apt-get update -qq && apt-get install sn0int -y -qq",
-
         "echo 'Installing sqlmap'",
         "git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git /home/op/recon/sqlmap-dev",
 
@@ -301,12 +326,18 @@
 
         "echo 'Installing testssl'",
         "git clone --depth 1 https://github.com/drwetter/testssl.sh.git /home/op/recon/testssl.sh",
-
+ 
         "echo 'Installing thc-hydra'",
         "wget  -q -O /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb http://security.ubuntu.com/ubuntu/pool/main/libg/libgcrypt20/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb && sudo apt install -y /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb -qq && rm /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb",
         "apt-get install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird-dev libmemcached-dev libgpg-error-dev libgcrypt20-dev -y -qq",
         "git clone https://github.com/vanhauser-thc/thc-hydra.git /home/op/recon/thc-hydra && cd /home/op/recon/thc-hydra && ./configure && make -s && make -s install && cd",
-
+        
+        "echo 'Installing tlsx'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest'",
+        
+        "echo 'Installing trufflehog'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/trufflehog/Dockerfile -t axiom/trufflehog'",
+        
         "echo 'Installing unimap'",
         "wget -q -O /tmp/unimap https://github.com/Edu4rdSHL/unimap/releases/download/0.5.1/unimap-linux && mv /tmp/unimap /usr/bin/unimap && chmod +x /usr/bin/unimap",
 
@@ -321,13 +352,15 @@
 
         "echo 'Installing wpscan'",
         "gem install wpscan",
+        
+        "echo 'Removing unneeded Docker images'",
+        "/bin/su -l op -c 'docker image prune -f'",
 
         "/bin/su -l op -c '/usr/local/go/bin/go  clean -modcache'",
-        "/bin/su -l root -c 'rm -r /home/op/go/src/'",
         "/bin/su -l op -c 'wget -q -O gf-completion.zsh https://raw.githubusercontent.com/tomnomnom/gf/master/gf-completion.zsh && cat gf-completion.zsh >> /home/op/.zshrc && rm gf-completion.zsh && cd'",
         "/bin/su -l root -c 'apt-get clean'",
         "echo \"The password for user op is: {{ user `op_random_password` }}\"",
-        "echo \"CgpDb25ncmF0dWxhdGlvbnMsIHlvdXIgYnVpbGQgaXMgYWxtb3N0IGRvbmUhCgogICAgICAgICAgICAgYXhpb20gaXMgc3BvbnNvcmVkIGJ5Li4uCl9fX18gICAgICAgICAgICAgICAgICAgICAgIF8gXyAgICAgICAgX19fX18uICAgICAgICAgXyBfCi8gX19ffCAgX19fICBfX18gXyAgIF8gXyBfXyhfKSB8XyBfICAgfF8gICBffCBfXyBfXyBfKF8pIHxfX18KXF9fXyBcIC8gXyBcLyBfX3wgfCB8IHwgJ19ffCB8IF9ffCB8IHwgfHwgfHwgJ19fLyBfYCB8IHwgLyBfX3wKIF9fXykgfCAgX18vIChfX3wgfF98IHwgfCAgfCB8IHxffCB8X3wgfHwgfHwgfCB8IChffCB8IHwgXF9fIFwKfF9fX18vIFxfX198XF9fX3xcX18sX3xffCAgfF98XF9ffFxfXywgfHxffHxffCAgXF9fLF98X3xffF9fXy8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHxfX18vCgpSZWFkIHRoZXNlIHdoaWxlIHlvdSdyZSB3YWl0aW5nIHRvIGdldCBzdGFydGVkIDopCgogICAgLSBRdWlja3N0YXJ0IEd1aWRlOiBodHRwczovL2dpdGh1Yi5jb20vcHJ5MGNjL2F4aW9tL3dpa2kvQS1RdWlja3N0YXJ0LUd1aWRlCiAgICAtIENoZWF0c2hlZXQ6IGh0dHBzOi8vZ2l0aHViLmNvbS9wcnkwY2MvYXhpb20vd2lraS9DaGVhdHNoZWV0CiAgICAtIEZsZWV0czogaHR0cHM6Ly9naXRodWIuY29tL3ByeTBjYy9heGlvbS93aWtpL0ZsZWV0cyAgICAgCiAgICAtIFNjYW5zOiBodHRwczovL2dpdGh1Yi5jb20vcHJ5MGNjL2F4aW9tL3dpa2kvU2NhbnMKCgo=\" | base64 -d",
+        "echo \"CgpDb25ncmF0dWxhdGlvbnMsIHlvdXIgYnVpbGQgaXMgYWxtb3N0IGRvbmUhCgogICAgICAgICAgICAgYXhpb20gaXMgc3BvbnNvcmVkIGJ5Li4uCl9fX18gICAgICAgICAgICAgICAgICAgICAgIF8gXyAgICAgICAgX19fX18uICAgICAgICAgXyBfCi8gX19ffCAgX19fICBfX18gXyAgIF8gXyBfXyhfKSB8XyBfICAgfF8gICBffCBfXyBfXyBfKF8pIHxfX18KXF9fXyBcIC8gXyBcLyBfX3wgfCB8IHwgJ19ffCB8IF9ffCB8IHwgfHwgfHwgJ19fLyBfYCB8IHwgLyBfX3wKIF9fXykgfCAgX18vIChfX3wgfF98IHwgfCAgfCB8IHxffCB8X3wgfHwgfHwgfCB8IChffCB8IHwgXF9fIFwKfF9fX18vIFxfX198XF9fX3xcX18sX3xffCAgfF98XF9ffFxfXywgfHxffHxffCAgXF9fLF98X3xffF9fXy8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHxfX18vCgpSZWFkIHRoZXNlIHdoaWxlIHlvdSdyZSB3YWl0aW5nIHRvIGdldCBzdGFydGVkIDopCgogICAgLSBRdWlja3N0YXJ0IEd1aWRlOiBodHRwczovL2dpdGh1Yi5jb20vcHJ5MGNjL2F4aW9tL3dpa2kvQS1RdWlja3N0YXJ0LUd1aWRlCiAgICAtIEZpbGVzeXN0ZW0gVXRpbGl0aWVzOiBodHRwczovL2dpdGh1Yi5jb20vcHJ5MGNjL2F4aW9tL3dpa2kvRmlsZXN5c3RlbS1VdGlsaXRpZXMKICAgIC0gRmxlZXRzOiBodHRwczovL2dpdGh1Yi5jb20vcHJ5MGNjL2F4aW9tL3dpa2kvRmxlZXRzICAgICAKICAgIC0gU2NhbnM6IGh0dHBzOi8vZ2l0aHViLmNvbS9wcnkwY2MvYXhpb20vd2lraS9TY2FucwoKCg==\" | base64 -d",
         "touch /home/op/.z",
         "chown -R op:users /home/op",
         "chown root:root /etc/sudoers /etc/sudoers.d -R"

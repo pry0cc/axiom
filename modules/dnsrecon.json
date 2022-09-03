@@ -1,5 +1,5 @@
 [{
-  "command":"python3 -u /home/op/recon/dnsrecon/dnsrecon.py -d _target_ -a -j _output_/_cleantarget_",
-  "ext":"json",
+  "command":"docker run -t --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/dnsrecon -d _target_ -a -j /data/_output_/_cleantarget_",
+  "ext":"dir",
   "threads":"1"
 }]

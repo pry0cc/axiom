@@ -1,113 +1,474 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+###########################################################################################################
+#  Description:
+#    Evaluate shell one-liners or execute single commands on one or more instances in parallel                                                                                                                                                
+#    Specify the fleet prefix, or let axiom use selected.conf by default (located in ~/.axiom/selected.conf)                                                                                                                                  
+#    Optionally execute command(s) in a detached tmux session on the remote instances (commands run in the background)                                                                                                                        
+#    Temporarily prevent axiom's SSH key regeneration and instead connect with a cached SSH config (default is ~/.axiom/.sshconfig)                                                                                                           
+#  Examples:                                                                                                                                                                                                                                  
+#    axiom-exec id # Execute command id across all instances currently selected.conf (located in ~/.axiom/selected.conf)
+#    axiom-exec ifconfig --fleet testy # Execute ifconfig on testy fleet, automatically select all instances in fleet testy
+#    axiom-exec 'sudo apt dist-upgrade -y' -q --cache --fleet OtherFleet --tmux MySession01 # Quietly execute command(s) inside a detacted tmux session on the remote instances with custom session name
+#    axiom-exec whoami -q --cache --sshconfig ~/.axiom/log/exec/axiom-exec+1234567890/sshconfig --fleet oldfleet --tmux # Specify the axiom SSH config to use (default is ~/.axiom/.sshconfig)
+#  Usage:
+#    <commands> required string
+#      Command(s) to run on the remote axiom instances, multiple commands can be wrapped in single or double quotes, but not required
+#    -f/--fleet/--file <fleet prefix or list of instances from a file>
+#      Fleet prefix to execute on (default is ~/.axiom/selected.conf). Automatic wildcard support. Alternatively, can be a list of instances from a file (-f/--fleet/--file myinstances.txt)
+#    -i/--instance <instance name>
+#      Single instance to execute on
+#    --tmux <optional tmux session name>
+#      Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+$TIMESTAMP, or supply a custom tmux session name
+#    --sshconfig <sshconfig_file> (optional string)
+#      Path to axiom's SSH config (default is ~/.axiom/.sshconfig)
+#    -q/--quiet
+#      Disable progress bar, and reduce verbosity
+#    --debug
+#      Enable debug mode (VERY VERBOSE!)
+#    --quick
+#      A faster but less reliable execution
+#    --cache
+#      Temporarily do not generate SSH config and instead connect with cached SSH config
+#    --logs
+#      Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec$TIMESTAMP)
+#    --help
+#      Display this help menu
+
+###########################################################################################################
+# Header
+#
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
-rm -r "$HOME/.ssh/sockets" > /dev/null 2>&1
-mkdir -p "$HOME/.axiom/tmp"
-function help() {
-        echo -e "${BWhite}Usage of axiom-exec${Color_Off}"
-        echo -e "Example Usage: ${Blue}axiom-exec 'id' 'my-fleet*' --cache${Color_Off}"
-        echo -e "  <commands> required positional string"
-        echo -e "   Commands to run on the remote axiom instances, wrapped in single or double quotes"
-        echo -e "  <fleet prefix> positional string"
-        echo -e "   The instance or fleet name to execute the command on, supports wildcard (i.e myfleet*), wrapped in signle or double quotes"
-        echo -e "  --cache positional option"
-        echo -e "    Use SSH cache (works if recently interacted with)"
-} 
+source "$AXIOM_PATH/interact/includes/system-notification.sh"
+begin=$(date +%s)
+start="$(pwd)"
+BASEOS="$(uname)"
+case $BASEOS in
+'Darwin')
+    PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+*) ;;
+esac
 
-if [[ "$@" == "--help" ]] || [[ "$@" == "-h" ]] || [[ "$@" == "" ]]; then
-help
-exit
-fi
-
-droplets=$(instances)
-selected=$(cat $AXIOM_PATH/selected.conf)
-quiet=false
-query=""
-args=""
+###########################################################################################################
+# Declare defaut variables
+#
+set=false
+sshkey=$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey | select( . != null )')
 cache=false
-command="$1"
+quiet=false
+starttime=$(date +"%F-TIME-%T")
+uid="axiom-exec+$(date +%s)"
+tmp="$AXIOM_PATH/tmp/exec/$uid"
+logs="$AXIOM_PATH/logs/exec/$uid"
+sshconfig="$AXIOM_PATH/.sshconfig"
+debug=false
+nobar=false
+use_tmux=false
+instance=false
+keep_logs=false
+quick_execution=false
+pre_flight=true
+preflight_timeout=5
 
-for var in "$@"
+###########################################################################################################
+# Help Menu:
+# TODO add sshkey option to specify ssh key used to authenticate
+# TODO add executing commands from a file
+# TODO add axiom-scp extention for arb upload and download
+#
+function usage() {
+        echo -e "${BWhite}Description:"
+        echo -e "  Evaluate shell one-liners or execute single commands on one or more instances in parallel" 
+        echo -e "  Specify the fleet prefix, or let axiom use selected.conf by default (located in ~/.axiom/selected.conf)"
+        echo -e "  Optionally execute command(s) in a detached tmux session on the remote instances (commands run in the background)" 
+        echo -e "  Temporarily prevent axiom's SSH key regeneration and instead connect with a cached SSH config (default is ~/.axiom/.sshconfig)" 
+        echo -e "${BWhite}Examples:${Color_Off}"
+        echo -e "  ${Blue}axiom-exec id ${Color_Off}# Execute command id across all instances currently selected.conf (located in ~/.axiom/selected.conf)"
+        echo -e "  ${Blue}axiom-exec ifconfig --fleet testy ${Color_Off}# Execute ifconfig on testy fleet, automatically select all instances in fleet testy"
+        echo -e "  ${Blue}axiom-exec 'sudo apt dist-upgrade -y' -q --cache --fleet OtherFleet --tmux MySession01 ${Color_Off}# Quietly execute command(s) inside a detacted tmux session on the remote instances with custom session name" 
+        echo -e "  ${Blue}axiom-exec whoami -q --cache --sshconfig ~/.axiom/log/exec/axiom-exec+1234567890/sshconfig --fleet oldfleet --tmux ${Color_Off}# Specify the axiom SSH config to use (default is ~/.axiom/.sshconfig)"
+        echo -e "${BWhite}Usage:${Color_Off}"
+        echo -e "  <commands> required string"
+        echo -e "    Command(s) to run on the remote axiom instances, multiple commands can be wrapped in single or double quotes, but not required"
+        echo -e "  -f/--fleet/--file <fleet prefix or list of instances from a file>"
+        echo -e "    Fleet prefix to execute on (default is ~/.axiom/selected.conf). Automatic wildcard support. Alternatively, can be a list of instances from a file (-f/--fleet/--file myinstances.txt)"   
+        echo -e "  -i/--instance <instance name>"
+        echo -e "    Single instance to execute on"
+        echo -e "  --tmux <optional tmux session name>"
+        echo -e "    Execute commands in a detacted tmux session (commands run in the background). The default tmux session name is axiom-exec+\$TIMESTAMP, or supply a custom tmux session name"
+        echo -e "  --sshconfig <sshconfig_file> (optional string)"
+        echo -e "    Path to axiom's SSH config (default is ~/.axiom/.sshconfig)"
+        echo -e "  -q/--quiet (optional)"
+        echo -e "    Disable progress bar, and reduce verbosity"
+        echo -e "  --debug (optional)"
+        echo -e "    Enable debug mode (VERY VERBOSE!)"
+        echo -e "  --cache (optional)"
+        echo -e "    Temporarily do not generate SSH config and instead connect with cached SSH config"
+        echo -e "  --logs (optional)"
+        echo -e "    Do not delete logs (logs will be stored in ~/.axiom/logs/exec/axiom-exec\$TIMESTAMP)"
+        echo -e "  --quick (optional)"
+        echo -e "    A faster but less reliable execution"
+        echo -e "  --skip-preflight (optional)"
+        echo -e "    Do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)"
+        echo -e "  --preflight-timeout <int>"
+        echo -e "    Specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 5 seconds"
+        echo -e "  --help"
+        echo -e "    Display this help menu"
+}
+
+###########################################################################################################
+# Parse command line arguments 
+#
+i=0
+for arg in "$@"
 do
-    if [ "$var" == "--cache" ]
-    then
-		cache=true
-	elif [ "$var" == "--quiet" ]
-	then
-		quiet=true
-	elif [ "$var" == "-q" ]
-	then
-		quiet=true
-	elif [ "$var" == "-t" ]
-	then
-		args="-t"
-	fi
-done
-
-if [ $cache != "true" ]
-then
-	generate_sshconfig
-fi
-
-if [ ! -z "$2" ]
-then
-    query="$2"
-    if [[ "$query" =~ "*" ]]
-    then
-		selected=$(query_instances_cache "$query")
-    else
-    	selected="$query"
-    fi
-fi
-
-if [ -z "$1" ]
-then
-    echo "Provide an argument n00b!"
-    exit 0
-fi
-
-total=$(echo $selected | tr ' ' '\n' | wc -l | awk '{ print $1 }')
-cmds_file="$AXIOM_PATH/tmp/$RANDOM-$RANDOM-cmd.txt"
-full=""
-
-touch $cmds_file
-
-i=1
-for name in $selected
-do
-    if [[ "$quiet" != "true" ]]
-    then
-        echo -n -e "${Blue}" 
-    fi
-
-    cmd="$1"
-    rendered=$(echo $cmd | sed "s/\$i/$i/g" | sed "s/\$name/$name/g" | sed "s/\$total/$total/g")
-
-    sshkey=$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey | select( . != null )') 
-     if [ -z "$sshkey" ]
-    then
-      sshkey="id_rsa"
-    fi
-    full="ssh -i "~/.ssh/$sshkey" -F $AXIOM_PATH/.sshconfig -o StrictHostKeyChecking=no \"$name\" $args \"$rendered\""
-    echo "$full" >> $cmds_file
-	
     i=$((i+1))
+    if [[  ! " ${pass[@]} " =~ " ${i} " ]]; then
+        set=false
+        if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]] || [[ "$arg" == "--file" ]] ; then
+            n=$((i+1))
+            fleet=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--instance" ]] || [[ "$arg" == "-i" ]] ; then
+            n=$((i+1))
+            instance=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--tmux" ]]; then
+            n=$((i+1))
+            use_tmux=true
+            tmux_session_name=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--sshconfig" ]]; then
+            n=$((i+1))
+            sshconfig=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]]; then
+            usage
+            exit
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--debug" ]]; then
+            debug=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--cache" ]]; then
+            cache=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--logs" ]]; then
+            keep_logs=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--quiet" ]] || [[ "$arg" == "-q" ]]; then
+            nobar=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--quick" ]]; then
+            quick_execution=true
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--skip-preflight" ]]; then
+            pre_flight=false
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--preflight-timeout" ]] ; then
+            n=$((i+1))
+            preflight_timeout=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if  [[ "$set" != "true" ]]; then
+            args="$args $arg"
+        fi
+    fi
 done
 
-if [[ $total -gt 1 ]]
-then
-	if [[ "$quiet" != "true" ]]
-	then
-    	echo -e "${BWhite}Executing parallel on fleet $name*...${Color_Off}"
-	fi
-	interlace -cL "$cmds_file" -t NULL -threads $i
-else
-	if [[ "$quiet" != "true" ]]
-	then
-		echo -e "${BWhite}Executing on $name...${Color_Off}"
-	fi
-	bash -c "$full"
+###########################################################################################################
+# Debug Flag
+#
+if [[ "$debug" == "true" ]]; then
+ set -xv
+fi 
+
+###########################################################################################################
+# clean_up
+#
+clean_up() {
+kill -0 $remotetailPID 2>  /dev/null && kill -9 $remotetailPID  &> /dev/null
+kill -0 $tailPID 2>  /dev/null && kill -9 $tailPID  &> /dev/null
+kill -0 $downloaderPID 2>  /dev/null && kill -9 $downloaderPID  &> /dev/null
+echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
+$interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/dev/null 2>&1
+$interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
+mv "$tmp" "$logs">/dev/null 2>&1
+if [[ $keep_logs != true ]]; then
+ rm -r $logs >/dev/null 2>&1
+fi
+stty sane
+tput init
+exit 
+}
+
+###########################################################################################################
+# Display Help Menu
+#
+if [[ "$*" == "--help" ]] || [[ "$*" == "-h" ]] || [[ "$*" == "" ]]; then
+ usage
+ exit
 fi
 
-rm $cmds_file
+###########################################################################################################
+# SSH Cache Flag
+#
+if [[ "$cache" == "false" ]]; then
+ generate_sshconfig
+fi
+
+###########################################################################################################
+# Store $args in $commands
+# 
+commands="$args"
+
+###########################################################################################################
+# If --tmux is in the command, connect to instance and spawn a new tmux session
+#
+if [[ $use_tmux == true ]] ;then
+ if [[ -z ${tmux_session_name:+x} ]]; then
+  tmux_session_name=$uid
+ fi
+ commands="tmux new-session -d -s $tmux_session_name \""$commands"\""
+fi
+
+###########################################################################################################
+#  Create temporary directories and set tmp path to be used for logs
+#
+completed="$tmp/status/completed/"
+inprogress="$tmp/status/inprogress/"
+mkdir -p "$tmp/input"
+mkdir -p "$tmp/split"
+mkdir -p "$tmp/output"
+mkdir -p "$tmp/logs"
+mkdir -p "$completed"
+mkdir -p "$inprogress"
+mkdir -p "$tmp/status"
+
+###########################################################################################################
+#  cp the selected.conf to different file names ( one for Interlace, one for selected.conf)
+#  Make a copy of the current SSH config and use it for axiom-scan
+#
+cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
+cp "$tmp/hosts" "$tmp/selected.conf"
+cp "$sshconfig" "$tmp/sshconfig" 
+sshconfig="$tmp/sshconfig"
+
+###########################################################################################################
+#  Create temporary SSH sockets to use with axiom-scan. An advantage of SSH multiplexing is that the overhead
+#  of creating new TCP connections and negotiating the secure connection is eliminated. This allow us to do
+#  subsequent SSH exec operations ( like downloading results etc ) with no additional overhead. 
+#
+mkdir -p "$tmp/sockets"
+socket_tmp=$(echo "$tmp/sockets")
+cat <<EOT >> $(echo $sshconfig)
+Host * 
+    ControlMaster auto 
+    ControlPath $socket_tmp/%r@%h-%p  
+    ControlPersist 600
+EOT
+
+###########################################################################################################
+#  if --fleet isnt provided or has null value, default to selected.conf
+#
+if [[ -z ${fleet:+x} ]]; then
+total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')" 
+instances=$(cat "$tmp/hosts")
+else
+
+###########################################################################################################
+#  if --fleet value is non-null and the value is a file, use selected from file
+#
+ if [[ -f "$fleet" ]] ; then
+  instances=$(cat "$fleet")
+  echo "$instances" | tr ' ' '\n' > "$tmp/hosts"
+  total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
+ 
+###########################################################################################################
+#  else it must the fleet name
+#
+else
+  instances=$(query_instances_cache "$fleet*")
+  echo "$instances" | tr ' ' '\n' > "$tmp/hosts"
+  total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
+ fi
+fi
+
+###########################################################################################################
+#  if --instance is provided, add it to total instances
+#
+if [[ $instance != false ]]; then
+ name=$(query_instances_cache "$instance")
+ echo "$name" | tr ' ' '\n' > "$tmp/hosts"
+ total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
+fi
+
+###########################################################################################################
+#  prepare the default SSH and interlace command and execute the user provided command in parallel
+#
+scan_dir="/tmp/exec/$uid"
+ssh_command="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
+interlace_cmd="$(which interlace) -tL $tmp/hosts  -threads $total_instances"
+interlace_cmd_silent="$(which interlace) -tL $tmp/hosts --silent -threads $total_instances"
+interlace_cmd_nobar="$(which interlace) --silent --no-bar -tL $tmp/hosts -threads $total_instances"
+ssh_exit_command="ssh -F $sshconfig -O exit -o StrictHostKeyChecking=no"
+
+###########################################################################################################
+#  prevents Interlace hangups from hijacking your terminal  
+#
+stty -echoctl
+trap clean_up SIGINT SIGTERM
+
+###########################################################################################################
+# preflight check
+#
+if [[ $pre_flight == true ]]; then
+ssh_command_preflight="ssh -F $sshconfig -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o ConnectTimeout=$preflight_timeout"
+$interlace_cmd_silent -c "$ssh_command_preflight _target_ 'echo _target_' >> $tmp/hosts_preflight"
+cat "$tmp/hosts_preflight" | sort -u  > "$tmp/hosts"
+cp "$tmp/hosts_preflight" "$tmp/selected.conf"
+fi
+
+###########################################################################################################
+#  store bash command in a file and upload it to remote instances with axiom-scp
+#
+echo "$commands" > "$tmp/command"
+$interlace_cmd_nobar -c "$ssh_command _target_ 'mkdir -p $scan_dir'" >/dev/null 2>&1
+
+$interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1; touch $tmp/logs/_target_" 
+
+###########################################################################################################
+#  this function is spanwed in the background and periodically probes all instances to see if their part of the exec has completed.
+#  when the remote exec process has finished, it creates a file named $(hostname) in the remote exec working directory. During the
+#  exec if axiom see's the $(hostname) file, break the loop and exit
+#
+function downloader () {
+while true; do
+sleep 2
+$interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/_target_ $tmp/status/inprogress/_target_ --cache -F=$sshconfig >/dev/null 2>&1" 
+ls $tmp/status/inprogress/ | anew -q $tmp/status/completed/hosts 
+cat $tmp/status/completed/hosts | sort -u | wc -l | tee $tmp/status/downloader_instances  >/dev/null 2>&1
+cat $tmp/status/completed/hosts | sort -u | tee $tmp/status/downloader_hosts  >/dev/null 2>&1
+if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
+ sleep 2
+ downloader
+fi
+downloader_cmd="$(which interlace) --no-bar --silent -tL $tmp/status/downloader_hosts -threads $(cat $tmp/status/downloader_instances)" 
+if [[ "$commands" =~ "_target_" ]]; then
+$downloader_cmd -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cache -F=$sshconfig >/dev/null 2>&1" 
+else
+$downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
+fi
+mv $tmp/status/completed/hosts $tmp/status/completed/hosts.tmp
+cat $tmp/status/completed/hosts.tmp | sort -u >> $tmp/status/completed/hosts
+ if cmp -s $tmp/status/completed/hosts $tmp/hosts ; then
+  kill -9 $(cat $tmp/status/remotetailPID)  >> /dev/null 2>&1
+  wait $(cat $tmp/status/remotetailPID)  >> /dev/null 2>&1 
+ break >> /dev/null 2>&1
+ else
+  downloader
+ fi
+done
+}
+
+###########################################################################################################
+#  interactive mode flag
+# 
+if [[ "$quick_execution" == "false" ]]; then
+
+###########################################################################################################
+#  dont tail if quiet is true
+# 
+if [[ "$quiet" == "false" ]]; then
+    tail -q -f $tmp/logs/* &
+    tailPID=$!
+fi
+
+###########################################################################################################
+#  disable progress bar, reduce verbosity, only terminal output of the command is returned to terminal
+#
+touch $tmp/status/completed/hosts
+touch $tmp/status/completed/status
+sleep 3
+downloader &
+downloaderPID=$!
+$interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
+remotetailPID=$!
+echo $remotetailPID > $tmp/status/remotetailPID
+
+if [[ "$nobar" == "false" ]]; then
+ $interlace_cmd -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"bash -i $scan_dir/command  > >(tee -a $scan_dir/stdout.log) 2> >(tee -a $scan_dir/stderr.log >&2) ; touch $scan_dir/_target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
+ wait $remotetailPID  >> /dev/null 2>&1
+else
+ $interlace_cmd_silent -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"bash -i $scan_dir/command  > >(tee -a $scan_dir/stdout.log) 2> >(tee -a $scan_dir/stderr.log >&2) ; touch $scan_dir/_target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
+ wait $remotetailPID  >> /dev/null 2>&1
+fi
+
+###########################################################################################################
+#  interactive mode logic 
+#
+else
+if [[ "$nobar" == "false" ]]; then
+ $interlace_cmd -c "$ssh_command _target_ '$commands'" 
+ pid=$!
+else
+ $interlace_cmd_nobar -c "$ssh_command _target_  '$commands'"
+ pid=$!
+fi
+fi
+
+###########################################################################################################
+#  keep logs flag aka --logs
+#
+mv "$tmp" "$logs">/dev/null 2>&1
+if [[ $keep_logs != true ]]; then
+ rm -r $logs >/dev/null 2>&1
+fi
+
+###########################################################################################################
+#  kill tmux sessions with any orphaned proceses
+#
+$interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/dev/null 2>&1
+$interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
+
+###########################################################################################################
+# house keeping
+#
+rm -r $socket_tmp >/dev/null 2>&1
+kill -0 $remotetailPID 2>  /dev/null && kill -9 $remotetailPID  &> /dev/null
+kill -0 $tailPID 2>  /dev/null && kill -9 $tailPID  &> /dev/null
+kill -0 $downloaderPID 2>  /dev/null && kill -9 $downloaderPID  &> /dev/null
+wait $tailPID 2>/dev/null
+wait $downloaderPID 2>/dev/null
+stty sane
+tput init

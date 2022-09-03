@@ -47,7 +47,7 @@ OS=$(lsb_release -i | awk '{ print $3 }')
    if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
       sudo pacman -Syu doctl --noconfirm
    else
-      wget -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.45.0/doctl-1.45.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
+      wget -q -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.66.0/doctl-1.66.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
    fi
 fi
 

@@ -1,4 +1,4 @@
 [{
-	"command":"/home/op/bin/gorgo.py -i input -o output",
-	"ext":"txt"
+        "command":"docker run -it --rm --mount type=bind,source=\"$(pwd)\",target=/data axiom/gorgo -U usernames.txt -P passwords.txt -H /data/input --protocols ftp:21,ssh:22 --generate -o /data/output",
+        "ext":"csv"
 }]

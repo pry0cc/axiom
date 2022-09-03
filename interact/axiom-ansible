@@ -1,0 +1,10 @@
+#!/bin/bash
+
+file="$1"
+
+if [[ ! -f "$file" ]];
+    then
+    exit 1
+fi
+
+ansible-playbook "$1" -i ~/.axiom/selected.conf --ssh-common-args "-F $HOME/.axiom/.sshconfig"

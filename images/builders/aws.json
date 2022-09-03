@@ -1,0 +1,31 @@
+{
+	"builders": [
+        {
+            "access_key": "{{ user `aws_access_key` }}",
+            "ami_name": "{{ user `snapshot_name` }}",
+            "instance_type": "{{ user `default_size` }}",
+            "region": "{{ user `region` }}",
+            "secret_key": "{{ user `aws_secret_access_key` }}",
+	    "launch_block_device_mappings": [
+    		{
+      		"device_name": "/dev/sda1",
+      		"volume_type": "gp2",
+      		"volume_size": 20,
+      		"delete_on_termination": true
+ 		}
+	],
+            "source_ami_filter": {
+              "filters": {
+              "virtualization-type": "hvm",
+              "name": "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*",
+              "root-device-type": "ebs"
+              },
+              "owners": ["099720109477"],
+              "most_recent": true
+            },
+            "ssh_username": "ubuntu",
+	    "temporary_key_pair_type": "ed25519",
+            "type": "amazon-ebs"
+        }
+    ]
+}
