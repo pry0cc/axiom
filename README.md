@@ -54,6 +54,9 @@ Our third provider for axiom! Please use [this link](https://www.linode.com/?r=2
 <p align="center">
 <a href="https://cloud.ibm.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/ibm_cloud_referral.png" screenshots/Referrals/azure_referral.png/></a></p>
 
+<p align="center">
+<a href="https://aws.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/aws_dark_referral.png" screenshots/Referrals/aws_dark_referral.png/></a></p>
+
 # Installation
 ## Docker
 ```
