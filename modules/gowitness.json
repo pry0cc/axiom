@@ -1,4 +1,4 @@
 [{
-	"command":"/home/op/go/bin/gowitness file -f input -P output",
-	"ext":""
+        "command":"docker run --rm --mount type=bind,source=\"$(pwd)\",target=/data  leonjza/gowitness gowitness file -f /data/input -P /data/output",
+        "ext":""
 }]
