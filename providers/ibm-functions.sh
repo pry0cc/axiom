@@ -332,11 +332,21 @@ create_instance() {
 }
 
 instance_pretty() {
-	data=$(instances)
-	i=0
-        total=$(echo $data | jq -r '.[].billingItem.hourlyRecurringFee  | select( . != null )' | awk '{sum+=$0} END{print sum}')
-	(echo "Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,Hours used,\$/H" && echo $data | jq  -r '.[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.hoursUsed, .billingItem.recurringFee] | @csv' && echo "_,_,_,_,_,_,_,Total,\$$total") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+    data=$(instances)
+    #number of droplets
+    droplets=$(echo $data|jq -r '.[]|.hostname'|wc -l )
+
+    i=0
+    for f in $(echo $data | jq -r '.[].billingItem.hourlyRecurringFee'); do new=$(bc <<< "$i + $f"); i=$new; done
+    totalPrice=$i
+    header="Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,Hours used,\$/H"
+    fields=".[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.hoursUsed, .billingItem.recurringFee] | @csv"
+    totals="_,_,_,_,_,Instances,$droplets,Total,\$$totalPrice"
+    #data is sorted by default by field name    
+    data=$(echo $data | jq  -r "$fields")
+    (echo "$header" && echo "$data" && echo $totals) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
+
 # Function used for splitting $src across $instances and rename the split files.
 lsplit() {
 	src="$1"
