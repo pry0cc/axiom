@@ -327,7 +327,7 @@ create_instance() {
     --no-header 2>/dev/null) ||
   keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
   
-  doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --wait --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
+  doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
   sleep 260
 }
 
