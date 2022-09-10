@@ -53,8 +53,8 @@
         "sudo service sshd restart",
         "chmod +x /etc/update-motd.d/00-header",
 
-        "echo 'Installing Go'",
-        "wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz",
+        "echo 'Installing Golang 1.19.1",
+        "wget -q https://golang.org/dl/go1.19.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz && rm go1.19.1.linux-amd64.tar.gz",
         "export GOPATH=/home/op/go",
 
         "echo 'Installing Docker'",
@@ -109,7 +109,7 @@
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/assetfinder/Dockerfile -t axiom/assetfinder'",
 
         "echo 'Installing Amass'",
-        "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
+        "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.19.3/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
 
         "echo 'Installing aquatone'",
         "wget -q -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /usr/bin/aquatone",
@@ -178,7 +178,7 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/ffuf/ffuf@latest'",
 
         "echo 'Installing findomain-linux'",
-        "wget -q -O /tmp/findomain https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-linux && mv /tmp/findomain /usr/bin/findomain && chmod +x /usr/bin/findomain",
+        "wget -q -O /tmp/findomain.zip https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-linux.zip && unzip /tmp/findomain.zip -d /usr/bin/ && chmod +x /usr/bin/findomain && rm /tmp/findomain.zip",
 
         "echo 'Installing gau'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/lc/gau@latest'",
