@@ -329,7 +329,7 @@ fi
 #  Install anew if not already installed
 #
 if ! [ -x "$(command -v anew)" ]; then
-go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
+go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
 fi
 
 ###########################################################################################################
