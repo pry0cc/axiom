@@ -28,9 +28,11 @@ EOF
 function bash_shell(){
     echo -e "${Blue}Backing up $(echo "$HOME"/.bashrc) to $(echo "$HOME"/.bashrcbak) just in case.${Color_Off}"
     cp "$HOME"/.bashrc "$HOME"/.bashrcbak >> /dev/null 2>&1
-    if ! [ -x "$(command -v go)" ]; then
-    echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    if [[ -d "/usr/local/go/" ]] ; then
+    echo -e "${Blue}Golang already installed, skipping...${Color_Off}" 
+    else
+    echo -e "${Blue}Installing Golang 1.19.1${Color_Off}"
+    wget -q https://golang.org/dl/go1.19.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz && rm go1.19.1.linux-amd64.tar.gz
     fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
@@ -49,9 +51,11 @@ function zsh_shell(){
     sudo apt install zsh -y
     echo -e "${Blue}Backing up $(echo "$HOME"/.zshrc) to $(echo "$HOME"/.zshrcbak) just in case.${Color_Off}"
     cp "$HOME"/.zshrc "$HOME"/.zshrcbak >> /dev/null 2>&1
-    if ! [ -x "$(command -v go)" ]; then
-    echo -e "${Blue}Installing Golang${Color_Off}"
-    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    if [[ -d "/usr/local/go/" ]] ; then
+    echo -e "${Blue}Golang already installed, skipping...${Color_Off}" 
+    else
+    echo -e "${Blue}Installing Golang 1.19.1${Color_Off}"
+    wget -q https://golang.org/dl/go1.19.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz && rm go1.19.1.linux-amd64.tar.gz
     fi
     mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
@@ -70,11 +74,13 @@ function omz_shell(){
     cp "$HOME"/.zshrc "$HOME"/.zshrcbak >> /dev/null 2>&1
     sudo apt install zsh zsh-syntax-highlighting zsh-autosuggestions -y
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    if ! [ -x "$(command -v go)" ]; then
-    echo -e "${Blue}Installing Golang${Color_Off}"
-    mkdir -p "${HOME}/go"
-    wget -q https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz && rm go1.17.1.linux-amd64.tar.gz
+    if [[ -d "/usr/local/go/" ]] ; then
+    echo -e "${Blue}Golang already installed, skipping...${Color_Off}" 
+    else
+    echo -e "${Blue}Installing Golang 1.19.1${Color_Off}"
+    wget -q https://golang.org/dl/go1.19.1.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz && rm go1.19.1.linux-amd64.tar.gz
     fi
+    mkdir -p "${HOME}/go"
     export GOPATH=$HOME/go
     export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
     echo "export GOPATH=\$HOME/go" >>~/.zshrc
