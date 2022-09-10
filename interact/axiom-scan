@@ -642,6 +642,7 @@ fi
 #
 uid="$module+$(date +%s)$RANDOM"
 tmp="$AXIOM_PATH/tmp/$uid"
+outfile="$start/$module+$(date +%s)"
 completed="$AXIOM_PATH/tmp/$uid/status/completed/"
 inprogress="$AXIOM_PATH/tmp/$uid/status/inprogress/"
 mkdir -p "$tmp/input"
