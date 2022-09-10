@@ -210,7 +210,6 @@ apply_config() {
 
 ###########################################################################################################
 #  Parse the extra arguments passed from the command line and add them to the final command
-#  TODO: use gee's prefix and suffix features instead
 #
 add_extra_args() {
     command="$1"
@@ -244,18 +243,14 @@ add_extra_args() {
 
 ###########################################################################################################
 #  divide the the target list by how many instances are selected (axiom-select). Equally distribute the total target list across the fleet.
-#  If gee is present, use it over bash. gee is an incredibly useful tool for distribution https://github.com/hahwul/gee <3 hahwul
 #
 split_file() {
 file="$1"
 divisor="$2"
 tmp="$3"
-
-# if gee is NOT-installed, use bash
-if ! [ -x "$(command -v gee)" ]; then
-    lines="$(wc -l "$file" | awk '{ print $1 }')"
-    lines_per_file=$(expr $lines / $divisor)
-    [[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
+lines="$(wc -l "$file" | awk '{ print $1 }')"
+lines_per_file=$(expr $lines / $divisor)
+[[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
  
 # randomize the target list. To disable randomization, use the --dont-shuffle option 
 if [[ "$shuffle" != "false" ]]; then
@@ -275,20 +270,6 @@ do
         mv "$tmp/split/$f" "$tmp/input/$instance"
     done
     total=$i
-
-else
-
-# if gee is installed make sure its up to date, use gee to split the file. 
-GO111MODULE=on go get -v github.com/hahwul/gee >/dev/null 2>&1
-escapedtmp=$(echo $tmp | sed 's;/;\\/;g')
-# randomize the target list. To disable randomization, use the --dont-shuffle option.
-if [[ "$shuffle" != "false" ]]; then
-    shuf "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-else
-    cat "$file" | gee -distribute $(cat $tmp/selected.conf | sed -e 's/^/'$escapedtmp'\/input\//' | tr '\n' ' ') &>/dev/null 
-fi
-    total=$(ls $tmp/input | wc -l)
-fi
 }
 
 ###########################################################################################################
@@ -339,7 +320,7 @@ merge_output() {
             mkdir -p "$tmp/dbs/"
             $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache -F=$sshconfig>> /dev/null"
             echo "Merging databases..."
-            gowitness merge --input-path $tmp/ -o gowitness.sqlite3
+            gowitness merge --input-path "$tmp/" -o "$outfile/gowitness.sqlite3"
             echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
         fi
            if [[ "$module" == "naabu-nmap" ]]; then
@@ -740,14 +721,6 @@ else
 fi
 
 ###########################################################################################################
-#  Check total instances does not equal zero
-#
-if [[ "$total_instances" -eq "0" ]]; then
-   echo "error with number of instances, exiting";
-   exit;
-fi
-
-###########################################################################################################
 #  Check is input file is empty
 #
 if [[ "$lines" -eq "0" ]]; then
@@ -815,6 +788,14 @@ fi
 }
 
 preflight_function
+
+###########################################################################################################
+#  Check total instances does not equal zero
+#
+if [[ "$total_instances" -eq "0" ]]; then
+   echo "error with number of instances, exiting";
+   exit;
+fi
 
 ###########################################################################################################
 #  Parse the default extention from the module
