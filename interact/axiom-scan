@@ -79,8 +79,8 @@ Usage:
    axiom-scan inputfile.txt -m ffuf -wD /home/localuser/local-wordlist-to-split-and-upload
    axiom-scan inputfile.txt -m nuclei -w /home/op/nuclei-templates -o outputfile.txt
    axiom-scan inputfile.txt -m nuclei --nuclei-templates /home/localuser/local-custom-nuclei-template-folder/ -anew outputfile.txt
-   axiom-scan inputfile.txt -m gowitness --spinup 10 -oD gowitness-screenshots
-   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan
+   axiom-scan inputfile.txt -m gowitness -oD screenshots-folder --spinup 10 --rm-when-done
+   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan --spinup 100 --rm-when-done --regions us-east,us-southeast,us-central,us-west 
 
 Flags:
 INPUT:
@@ -122,6 +122,7 @@ FLEET:
    --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf)
    --spinup int[]              number of instances to spin up prior to scanning (default uses instances in $HOME/.axiom/selected.conf)
    --rm-when-done              delete the selected instances after the scan completes
+   --regions string[]          round-robin region distribution using comma-separated regions to cycle through (default is region in ~/.axiom/axiom.json)
    --shutdown-when-done        shutdown the selected instance after the scan completes
    -F string[]                 path to custom SSH config file (default is located at $HOME/.axiom/.sshconfig)
    --cache                     do not regenerate SSH config prior to scan, instead use cached config (located at $HOME/.axiom/.sshconfig)
@@ -369,6 +370,7 @@ local_config="false"
 pre_flight=true
 preflight_timeout=10
 max_scan_runtime=0
+cycle_regions="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -473,11 +475,11 @@ do
             set=true
             pass+=($i)
         fi
-	if [[ "$arg" == "--disable-oneshot" ]]; then
+        if [[ "$arg" == "--disable-oneshot" ]]; then
             disable_oneshot="true"
             set=true
-    	    pass+=($i)
-	fi
+            pass+=($i)
+        fi
         if [[ "$arg" == "--quiet" ]]; then
             quiet="true"
             set=true
@@ -556,6 +558,13 @@ do
         if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]]; then
             n=$((i+1))
             fleet=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--regions" ]]; then
+            n=$((i+1))
+            cycle_regions=$(echo ${!n})
             set=true
             pass+=($i)
             pass+=($n)
@@ -656,13 +665,17 @@ mkdir -p "$inprogress"
 #
 if [[ "$spinup" -gt 0 ]]; then
     if [[ "$fleet" == "" ]]; then
-    	fleet="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
+        fleet="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
     fi
-    
-    echo -e "${Blue}Spinning up fleet $fleet with $spinup instances..${Color_Off}"    
-    "$AXIOM_PATH/interact/axiom-fleet" "$fleet" -i "$spinup"
-     spinup_start=01; spinup_end=0${spinup}; for spinup_num in $(seq $spinup_start $spinup_end); do echo $(echo $fleet)0$spinup_num; done >> "$tmp/hosts"
-
+    if [[ "$cycle_regions" == "false" ]]; then
+        echo -e "${Blue}Spinning up fleet $fleet with $spinup instances...${Color_Off}"    
+        "$AXIOM_PATH/interact/axiom-fleet" "$fleet" -i "$spinup" 
+        spinup_start=01; spinup_end=0${spinup}; for spinup_num in $(seq $spinup_start $spinup_end); do echo $(echo $fleet)0$spinup_num; done >> "$tmp/hosts"
+    else
+        echo -e "${Blue}Spinning up fleet $fleet with $spinup instances in regions: $cycle_regions...${Color_Off}"    
+        "$AXIOM_PATH/interact/axiom-fleet" "$fleet" -i "$spinup" -r "$cycle_regions"
+        spinup_start=01; spinup_end=0${spinup}; for spinup_num in $(seq $spinup_start $spinup_end); do echo $(echo $fleet)0$spinup_num; done >> "$tmp/hosts"
+    fi 
     echo -e "${Green}Waiting 60 seconds before scan...${Color_Off}"
     sleep 60
 fi
@@ -978,7 +991,6 @@ fi
 ###########################################################################################################
 #  split target list or copy target list
 # 
-
 if [[ "$split" == "true" ]]; then
     echo -e "${Blue}spliting and distributing input file...${Color_Off}"
     split_file "$input_file" "$total_instances" "$tmp"
@@ -1058,7 +1070,7 @@ done
 #  Install anew if not already installed
 #
 if ! [ -x "$(command -v anew)" ]; then
-go get -u github.com/tomnomnom/anew >> /dev/null 2>&1
+go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
 fi
 
 ###########################################################################################################
