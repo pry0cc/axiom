@@ -121,7 +121,7 @@ OUTPUT:
 FLEET:
    --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf)
    --spinup int[]              number of instances to spin up prior to scanning (default uses instances in $HOME/.axiom/selected.conf)
-   --rm-when-done              delete the selected instances after the scan completes
+   --rm-when-done              delete instance when finished with its job
    --regions string[]          round-robin region distribution using comma-separated regions to cycle through (default is region in ~/.axiom/axiom.json)
    --shutdown-when-done        shutdown the selected instance after the scan completes
    -F string[]                 path to custom SSH config file (default is located at $HOME/.axiom/.sshconfig)
