@@ -32,7 +32,7 @@ instance_id() {
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address"
+	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address" | head -1
 }
 
 instance_ip_cache() {
