@@ -57,7 +57,7 @@ instance_menu() {
 
 quick_ip() {
 	data="$1"
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address")
+	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address"| head -1)
 	echo $ip
 }
 
@@ -300,7 +300,7 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  else
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
+ ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address"| head -1)
  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
