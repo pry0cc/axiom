@@ -24,6 +24,10 @@ instances() {
 	doctl compute droplet list -o json
 }
 
+instances_axiom() {
+	doctl compute droplet list -o json | jq -r '. | select(.[].image.name|test("^axiom"))'
+}
+
 instance_id() {
 	name="$1"
 	instances | jq ".[] | select(.name==\"$name\") | .id"
@@ -32,7 +36,7 @@ instance_id() {
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address"
+	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address" | head -1
 }
 
 instance_ip_cache() {
@@ -273,7 +277,7 @@ generate_sshconfig() {
 accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
 current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
-droplets="$(instances)"
+droplets="$(instances_axiom)"
 echo -n "" > $sshnew
 echo -e "\tServerAliveInterval 60\n" >> $sshnew
 sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
@@ -286,7 +290,7 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert run: axiom-ssh --just-generate"
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address")
+ ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address" | head -1)
  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
@@ -300,7 +304,7 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  else
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
+ ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address" | head -1)
  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
