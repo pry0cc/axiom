@@ -750,18 +750,6 @@ if [[ "$debug" == "true" ]]; then
 fi
 
 ###########################################################################################################
-#  Normalize extension for ffuf and gowitness
-#  This might not be requried anymore
-#
-if [[ "$module" =~ "ffuf" ]]; then
-    ext="csv"
-fi
-
-if [[ "$module" == "gowitness" ]]; then
-    ext=""
-fi
-
-###########################################################################################################
 #  Prevents Interlace hangups from hijacking your terminal  
 #
 stty -echoctl
