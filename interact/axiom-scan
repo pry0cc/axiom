@@ -77,8 +77,9 @@ Usage:
    axiom-scan inputfile.txt -m ffuf -w /home/op/wordlist-on-remote-instance
    axiom-scan inputfile.txt -m ffuf -wL /home/localuser/local-wordlist-to-upload
    axiom-scan inputfile.txt -m ffuf -wD /home/localuser/local-wordlist-to-split-and-upload
-   axiom-scan inputfile.txt -m nuclei -w /home/op/nuclei-templates -o outputfile.txt
-   axiom-scan inputfile.txt -m nuclei --nuclei-templates /home/localuser/local-custom-nuclei-template-folder/ -anew outputfile.txt
+   axiom-scan inputfile.txt -m nuclei -w /home/op/nuclei-templates-on-remote-instances -o outputfile.txt
+   axiom-scan inputfile.txt -m nuclei --nuclei-templates /home/localuser/local-custom-nuclei-template-folder-to-upload/ -o outputfile.txt
+   axiom-scan inputfile.txt -m nuclei --local-config /home/localuser/local-custom-nuclei-config-file-to-upload.yaml -anew outputfile.txt
    axiom-scan inputfile.txt -m gowitness -oD screenshots-folder --spinup 10 --rm-when-done
    axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan --spinup 100 --rm-when-done --regions us-east,us-southeast,us-central,us-west 
 
@@ -94,13 +95,13 @@ MODULE:
 
 WORDLIST:
    -w string[]                           replace _wordlist_ in module with user-provided wordlist (must be a path to a remote wordlist)
-   -wL string[]                          replace _wordlist_ in module with user-provided local wordlist ( must be a path to a local wordlist)
+   -wL string[]                          replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    -wD,--distribute-wordlist string[]    replace _wordlist_ in module with user-provided local wordlist to split and upload (default does not split the wordlist)
    --nuclei-templates string[]           replace _wordlist_ in module with user-provided local folder
 
 CONFIGURATIONS:
    --config string[]           replace _config_ in module with user-provided configuration file (must be a configuration file on the remote instances)
-   --local-config string[]     replace _config_ in module with user-provided local configuration file to upload ( must be a local configuration file)
+   --local-config string[]     replace _config_ in module with user-provided local configuration file to upload (must be a local configuration file)
 
 OPTIMIZATIONS:
    --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
@@ -115,6 +116,7 @@ OUTPUT:
    -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
    -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    -anew string[]       pipe the output to anew before creating the final output file
+   --stdout             only display stdout results to terminal (default displays stdout and stderr to the terminal)
    --quiet              do not display findings to terminal
    --rm-logs            delete remote and local logs after scan completes
 
@@ -371,6 +373,7 @@ pre_flight=true
 preflight_timeout=15
 max_scan_runtime=0
 cycle_regions="false"
+stdout_only="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -570,6 +573,11 @@ do
             pass+=($n)
         fi
         if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]]; then
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--stdout" ]]; then
+            stdout_only="true"
             set=true
             pass+=($i)
         fi
@@ -1062,6 +1070,15 @@ go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
 fi
 
 ###########################################################################################################
+#  display STDOUT only flag (default is false and displays stdout & stderr
+#
+if [[ "$stdout_only" == "true" ]]; then
+stderr_log="/dev/null"
+else
+stderr_log="stderr.log"
+fi
+
+###########################################################################################################
 #  Start the One Shot Module scan by SSH-ing into each instance and running the Interlace command on every remote instance
 #
 if [[ "$command" =~ "_target_" ]] && [[ "$disable_oneshot" != "true" ]]; then
@@ -1071,7 +1088,7 @@ if [[ "$command" =~ "_target_" ]] && [[ "$disable_oneshot" != "true" ]]; then
  sleep 3
  downloader &
  downloaderPID=$!
- timeout $max_scan_runtime $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
+ timeout $max_scan_runtime $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f $stderr_log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
  remotetailPID=$!
  echo $remotetailPID > $tmp/status/remotetailPID
  $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; interlace -threads $threads -tL input -cL command -o output > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
@@ -1088,7 +1105,7 @@ else
  sleep 3
  downloader &
  downloaderPID=$!
- timeout $max_scan_runtime $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
+ timeout $max_scan_runtime $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f $stderr_log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
  remotetailPID=$!
  echo $remotetailPID > $tmp/status/remotetailPID
  $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; bash -i command  > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
