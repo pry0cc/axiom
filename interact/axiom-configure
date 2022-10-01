@@ -262,6 +262,8 @@ if [[ $BASEOS == "Mac" ]]; then
          brew install golang
          mkdir -p "${HOME}/go"
          export GOPATH=$HOME/go
+         echo "export GOPATH=\$HOME/go" >>~/.zshrc
+         echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin"  >>~/.zshrc
          echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
          echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc
          echo -e "${Blue}Installing jq...${Color_Off}"
