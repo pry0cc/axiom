@@ -1,0 +1,6 @@
+[
+    {
+        "command": "/usr/local/bin/dnsvalidator -tL input -o output",
+        "ext": "txt"
+    }
+]
