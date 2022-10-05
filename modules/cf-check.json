@@ -1,4 +1,0 @@
-[{
-        "command":"cat input | docker run --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/cf-check | tee output",
-        "ext":"txt"
-}]
