@@ -1,0 +1,4 @@
+[{
+	"command":"/home/op/go/bin/dnstake -t input -o output",
+	"ext":"txt"
+}]
