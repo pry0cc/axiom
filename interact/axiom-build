@@ -2,12 +2,14 @@
 
 ###########################################################################################################
 # Header
+#
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/system-notification.sh"
 
-# ###########################################################################################################
+############################################################################################################
 # Variable Declarations
+#
 region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 builder="$(jq -r '.provider' "$AXIOM_PATH"/axiom.json)"
 provisioner="$1"
@@ -15,9 +17,11 @@ start_time=$(date +%s)
 op_ssh_password=$(cat /dev/urandom| base64 | head -c 128 | tr -d '+=-' | tr -d '\n' | tr -d /)
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 provider="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.provider')"
+BASEOS="$(uname)"
 
-# ###########################################################################################################
+############################################################################################################
 # Get the provisioner file
+#
 if [ -z "$provisioner" ]; then
     echo -e ""
     echo -e '\033[1mTime to pick your provisioner. Options: default, reconftw, barebones, custom\033[0m'
@@ -55,55 +59,48 @@ if [ -z "$provisioner" ]; then
     fi
 fi
 
-# ###########################################################################################################
+############################################################################################################
 # opportunity to cancel axiom-build
+#
 echo -e "${Red}Now your account is setup, now running axiom-build"
 echo "A build will take about 25 minutes, spin up a temporary instance, and then snapshot it to use for our future boxes"
 echo -e "Starting Build in 5 seconds... Ctrl+C to quit, remember, you can just type axiom-build at any time${Color_Off}"
 sleep 5
 
-# ###########################################################################################################
-# add data to account.json i.e account_path
-snapshot_name=axiom-$provisioner-$(date +%s)
-jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
-jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
-jq '.provisioner="'$provisioner'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
-
-# ###########################################################################################################
-# this code unlikely works but seems to have no consequence: TODO remove 
+############################################################################################################
+# check the provisioner and bulder exist 
+#
 if [ ! -z $1 ]
 then
 	provisioner="$1"
 fi
 prov_path="$AXIOM_PATH/images/provisioners/$provisioner.json"
 builder_path="$AXIOM_PATH/images/builders/$builder.json"
-
 if [ ! -f "$prov_path" ]
 then
 	echo -e "${Red}Error: unfortunately, can not find provisioner path...${Color_Off}"
 	exit
 fi
-	
 if [ ! -f "$builder_path" ]
 then
 	echo -e "${Red}Error: unfortunately, can not find builder path...${Color_Off}"
 	exit
 fi
-###########################################################################################################
 
-# ###########################################################################################################
+############################################################################################################
 # Generate the Packer final provisioner by combining the Cloud Provider builder and provisioner file
+#
+snapshot_name=axiom-$provisioner-$(date +%s)
 image_path="$AXIOM_PATH/images/axiom.json"
 $AXIOM_PATH/interact/axiom-provider "$provider"
 "$AXIOM_PATH"/interact/generate_packer "$builder" "$provisioner"
 
-# ###########################################################################################################
+#############################################################################################################
 # Add SSH Key in account.json to $AXIOM_PATH/configs/authorized_keys
 # If SSH key in account.json doesnt exists, create axiom_rsa SSH key and add that to $AXIOM_PATH/configs/authorized_keys
-#
 # TIPS: if you want to swap out the SSH key axiom uses, just edit the account.json.
 # For example: change key:value pair "sshkey": "id_rsa" to "sshkey": "axiom_rsa" and rerun axiom-build.
-
+#
 account_path=$(ls -la $AXIOM_PATH/axiom.json | rev | cut -d " " -f 1 | rev)
 sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 
@@ -134,24 +131,53 @@ then
 	exit
 fi
 
-# ###########################################################################################################
+#############################################################################################################
 # If axiom_path isnt set, exit
+#
 cd "$AXIOM_PATH"/ || exit
 
-# ###########################################################################################################
+#############################################################################################################
 # change password or fail
+#
 if [ -z "$op_ssh_password" ]; then 
 echo -e "Unable to generate random password for Packer image.. exiting"
 exit 0
 fi
 
-# ###########################################################################################################
+#############################################################################################################
 # Display account.json one last time, since its been updated
+#
 echo -e "${Green}Password for user op is stored in $account_path, for your records${Color_Off}"
-cat "$account_path" | jq
+cat "$account_path" | jq '.do_key = "************************************************************************"'
 
+#############################################################################################################
+# Change packer version for IBM
+#
+if [[ "$provider" == "ibm" ]]; then
+mkdir -p /tmp/packer-ibm/
+ if [[ ! -f /tmp/packer-ibm/packer ]]; then
+  if [[ $BASEOS == "Linux" ]]; then
+   wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && mv packer /tmp/packer-ibm/ && rm /tmp/packer.zip
+  elif [[ $BASEOS == "Darwin" ]]; then
+   wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_darwin_amd64.zip && cd /tmp/ && unzip packer.zip && mv packer /tmp/packer-ibm/ && rm /tmp/packer.zip 
+  fi
+ fi
 
+BASEOS="$(uname)"
+case $BASEOS in
+'Darwin')
+    PATH="/tmp/packer-ibm/:$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+'Linux')
+    PATH="/tmp/packer-ibm:$PATH"
+    ;;
+*) ;;
+esac
+fi
+
+# ###########################################################################################################
 # Execute the Packer binary to build the final image
+#
 counter=0
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nIf this fails, verify the account is properly configured and/or try a different region.${Color_Off}"
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$snapshot_name" "$image_path";
@@ -179,3 +205,10 @@ else
     echo -e "${Green}Sometimes just running a build again can work, so please try at least once: 'axiom-build', thanks!${Color_Off}"
     "$NOTIFY_CMD" "Axiom Info" "Build failed :("
 fi
+
+############################################################################################################
+# add data to account.json i.e account_path
+#
+jq '.op="'$op_ssh_password'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+jq '.provisioner="'$provisioner'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
