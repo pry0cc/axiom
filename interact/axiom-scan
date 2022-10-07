@@ -95,7 +95,7 @@ MODULE:
 
 WORDLIST:
    -w string[]                           replace _wordlist_ in module with user-provided wordlist (must be a path to a remote wordlist)
-   -wL string[]                          replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
+   -wL,--local-wordlist string[]         replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    -wD,--distribute-wordlist string[]    replace _wordlist_ in module with user-provided local wordlist to split and upload (default does not split the wordlist)
    --nuclei-templates string[]           replace _wordlist_ in module with user-provided local folder
 
@@ -516,7 +516,7 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "-wL" ]]; then
+        if [[ "$arg" == "-wL" ]] || [[ "$arg" == "--wordlist-local" ]]; then
             n=$((i+1))
             local_wordlist=$(echo ${!n})
             set=true
@@ -841,7 +841,6 @@ if [[ "$distribute_wordlist" != "false" ]]; then
     fi
 fi
 
-
 ###########################################################################################################
 #  Figure out what config to use 
 #
@@ -1046,9 +1045,8 @@ if [[ "$rm_when_done" == "true" ]]; then
         sleep 5
      fi
     done
-fi
-
 preflight_function
+fi
 
 mv $tmp/status/completed/hosts $tmp/status/completed/hosts.tmp
 cat $tmp/status/completed/hosts.tmp | sort -u >> $tmp/status/completed/hosts
