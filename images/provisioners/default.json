@@ -346,6 +346,9 @@
 
         "echo 'Installing waybackurls'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/waybackurls@latest'",
+        
+        "echo 'Installing dnstake'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/pwnesia/dnstake/cmd/dnstake@latest'",
 
         "echo 'Installing webscreenshot'",
         "/bin/su -l op -c 'pip3 install webscreenshot'",
