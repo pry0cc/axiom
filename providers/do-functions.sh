@@ -287,7 +287,9 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
  ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ if [[ -n "$ip" ]]; then
+  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ fi 
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 
@@ -301,7 +303,9 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
  ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ if [[ -n "$ip" ]]; then
+  echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
+ fi
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 fi
