@@ -349,6 +349,9 @@
         
         "echo 'Installing dnstake'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/pwnesia/dnstake/cmd/dnstake@latest'",
+        
+        "echo 'Installing Gotator'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/Josue87/gotator@latest'",
 
         "echo 'Installing webscreenshot'",
         "/bin/su -l op -c 'pip3 install webscreenshot'",
