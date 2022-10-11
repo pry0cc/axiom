@@ -509,7 +509,7 @@ do
             pass+=($i)
             pass+=($n)
         fi
-        if [[ "$arg" == "-w" ]] || [[ "$arg" == "-t" ]]; then
+        if [[ "$arg" == "-w" ]]; then
             n=$((i+1))
             user_specified_wordlist=$(echo ${!n})
             set=true
