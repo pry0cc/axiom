@@ -6,6 +6,7 @@
             "instance_type": "{{ user `default_size` }}",
             "region": "{{ user `region` }}",
             "secret_key": "{{ user `aws_secret_access_key` }}",
+            "token": "{{ user `aws_session_token` }}",
 	    "launch_block_device_mappings": [
     		{
       		"device_name": "/dev/sda1",

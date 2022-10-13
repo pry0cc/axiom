@@ -64,8 +64,17 @@ while [[ "$SECRET_KEY" == "" ]]; do
 	read SECRET_KEY
 done
 
+echo -e -n "${Green}Please enter your AWS Session Token (optional): \n>> ${Color_Off}"
+read SESSION_TOKEN
+if  [[ "$SESSION_TOKEN" == "" ]]; then
+	echo -e "${BRed}No AWS Session Token Provided, defaulting to none.${Color_Off}"
+fi
+
 aws configure set aws_access_key_id "$ACCESS_KEY"
 aws configure set aws_secret_access_key "$SECRET_KEY"
+if ! [[ "$SESSION_TOKEN" == "" ]]; then
+	aws configure set aws_session_token "$SESSION_TOKEN"
+fi
 
 default_region="us-west-2"
 echo -e -n "${Green}Please enter your default region: (Default '$default_region', press enter) \n>> ${Color_Off}"
@@ -92,7 +101,7 @@ group_rules="$(aws ec2 authorize-security-group-ingress --group-id "$group_id" -
 group_owner_id="$(echo "$group_rules" | jq -r '.SecurityGroupRules[].GroupOwnerId')"
 sec_group_id="$(echo "$group_rules" | jq -r '.SecurityGroupRules[].SecurityGroupRuleId')"
 
-data="$(echo "{\"aws_access_key\":\"$ACCESS_KEY\",\"aws_secret_access_key\":\"$SECRET_KEY\",\"group_owner_id\":\"$group_owner_id\",\"security_group_id\":\"$sec_group_id\",\"region\":\"$region\",\"provider\":\"aws\",\"default_size\":\"$size\"}")"
+data="$(echo "{\"aws_access_key\":\"$ACCESS_KEY\",\"aws_secret_access_key\":\"$SECRET_KEY\",\"aws_session_token\":\"$SESSION_TOKEN\",\"group_owner_id\":\"$group_owner_id\",\"security_group_id\":\"$sec_group_id\",\"region\":\"$region\",\"provider\":\"aws\",\"default_size\":\"$size\"}")"
 
 echo -e "${BGreen}Profile settings below: ${Color_Off}"
 echo $data | jq
