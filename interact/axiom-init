@@ -217,23 +217,23 @@ fi
 # TODO: clean this up
 # TODO: If gen_name is already taken, rerun gen_name
 if [ -z "$1" ] || [[ $1 =~ "--shell" ]] || [[ $1 =~ "--quiet" ]] || [[ $1 =~ "--no-select" ]] || [[ $1 =~ "--restore" ]]|| [[ $1 =~ "--region" ]] || [[ $1 =~ "-r" ]] ||  [[ $1 =~ "--deploy" ]] || [[ $1 =~ "--domain" ]] || [[ $1 =~ "--size" ]] || [[ $1 =~ "--image" ]]; then
-        name="$gen_name"
+    name="$gen_name"
 else
-        name="$1"
+    name="$1"
 fi
 
 ###########################################################################################################
 # Get image_id from $image ( default is from axiom.json ) or from user supplied manual image id param 
 #
-if [ $manual_image_id != "false" ]
+if [ "$manual_image_id" != "false" ]
 then
-image_id="$manual_image_id"
+    image_id="$manual_image_id"
 else
-image_id="$(get_image_id "$image")"
-if [ -z "$image_id" ]; then
+    image_id="$(get_image_id "$image")"
+    if [ -z "$image_id" ]; then
         echo -e "${BRed}An image has not been found in this region. Do you need to run 'axiom-build'?${Color_Off}"
         exit 1
-fi
+    fi
 fi
 
 ###########################################################################################################
@@ -256,13 +256,13 @@ trap 'other_commands' SIGINT
 #
 if [ $quiet == "true" ]
 then
-create_instance "$name" "$image_id" "$size" "$region" &
-PID="$!"
-waitabit "$PID"
-sleep 20
-ip="$(instance_ip "$name")"
-ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
->&2 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
+    create_instance "$name" "$image_id" "$size" "$region" &
+    PID="$!"
+    waitabit "$PID"
+    sleep 20
+    ip="$(instance_ip "$name")"
+    ssh-keygen -R "[$ip]:2266" >>  /dev/null 2>&1
+    >&2 echo -e "${BWhite}Initialized instance '${BGreen}$name${Color_Off}${BWhite}' at '${BGreen}$ip${BWhite}'!"
 else
 
 ###########################################################################################################
@@ -271,7 +271,7 @@ else
 echo -e "${BWhite}Initializing '$name' at '$region' with image '$image'"
 # echo deployment profile when needed
 if [ "$deploy" != false ]; then
-echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
+    echo -e "${BWhite}Deploying '$deploy' after init${Color_Off}"
 fi
 echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
 sleep 5
@@ -299,21 +299,21 @@ fi
 # no_select flag
 #
 if [[ "$no_select" != "true" ]]; then
-echo "$name" > "$AXIOM_PATH"/selected.conf
+    echo "$name" > "$AXIOM_PATH"/selected.conf
 fi
 
 ###########################################################################################################
 # restore flag
 #
 if [ "$restore" != false ]; then
-"$AXIOM_PATH"/interact/axiom-restore "$restore" "$name"
+    "$AXIOM_PATH"/interact/axiom-restore "$restore" "$name"
 fi
 
 ###########################################################################################################
 # deploy flag
 #
 if [ "$deploy" != false ]; then
-"$AXIOM_PATH"/interact/axiom-deploy "$deploy" "$name"
+    "$AXIOM_PATH"/interact/axiom-deploy "$deploy" "$name"
 fi
 
 ###########################################################################################################
@@ -326,5 +326,5 @@ echo "{\"init\":\"$name\",\"ip\":\"$ip\",\"time\":\"$starttime\",\"region\":\"$r
 #
 if [[ $shell == "true" ]];
 then
-axiom-ssh $name
+    axiom-ssh $name
 fi
