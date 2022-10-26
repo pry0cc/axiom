@@ -41,7 +41,7 @@ do
 
     if [[ "$var" == "--profiles" ]]; then
         echo -e "${BWhite}Deployment profiles${Color_Off}"
-        (echo '"ID","Description"'; cat ~/.axiom/profiles/* | jq -r '[.name,.description] | @csv')  | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+        (echo '"ID","Description"'; cat "$AXIOM_PATH/profiles/"* | jq -r '[.name,.description] | @csv')  | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
         exit 0
         fi
     done
