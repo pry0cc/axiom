@@ -116,6 +116,7 @@ OUTPUT:
    -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
    -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    -anew string[]       pipe the output to anew before creating the final output file
+   -tmp-folder string[] path to tmp folder (where logs and output is stored while the scan is running) 
    --stdout             only display stdout results to terminal (default displays stdout and stderr to the terminal)
    --quiet              do not display findings to terminal
    --rm-logs            delete remote and local logs after scan completes
@@ -374,7 +375,7 @@ preflight_timeout=15
 max_scan_runtime=0
 cycle_regions="false"
 stdout_only="false"
-
+tmp_folder="$AXIOM_PATH"
 ###########################################################################################################
 #  Parse command line arguments 
 #
@@ -603,6 +604,13 @@ do
             pass+=($i)
             pass+=($n)
         fi
+        if [[ "$arg" == "-tmp-folder" ]]; then
+            n=$((i+1))
+            tmp_folder=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
         if  [[ "$set" != "true" ]]; then
             args="$args $arg"
         fi
@@ -658,9 +666,10 @@ fi
 #  Create temporary directories and set tmp path to be used for logs
 #
 uid="$module+$(date +%s)$RANDOM"
-tmp="$AXIOM_PATH/tmp/$uid"
-completed="$AXIOM_PATH/tmp/$uid/status/completed/"
-inprogress="$AXIOM_PATH/tmp/$uid/status/inprogress/"
+echo "temp folder $tmp_folder"
+tmp="$tmp_folder/tmp/$uid"
+completed="$tmp_folder/tmp/$uid/status/completed/"
+inprogress="$tmp_folder/tmp/$uid/status/inprogress/"
 mkdir -p "$tmp/input"
 mkdir -p "$tmp/split"
 mkdir -p "$tmp/output"
