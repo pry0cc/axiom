@@ -1,5 +1,6 @@
 #!/bin/bash
 
+AXIOM_PATH="$HOME/.axiom"
 file="$1"
 
 if [[ ! -f "$file" ]];
@@ -7,4 +8,4 @@ if [[ ! -f "$file" ]];
     exit 1
 fi
 
-ansible-playbook "$1" -i ~/.axiom/selected.conf --ssh-common-args "-F $HOME/.axiom/.sshconfig"
+ansible-playbook "$1" -i "$AXIOM_PATH/selected.conf" --ssh-common-args "-F $AXIOM_PATH/.sshconfig"
