@@ -70,8 +70,9 @@ cat << EOF
 axiom-scan provides easy distribution of arbitrary binaries and scripts.
 axiom-scan splits user-provided input files (target lists), wordlists and configuration files and uploads them to a unique scan working directory on the remote instance.
 axiom-scan combines user-provided command-line arguments with commands in the module and executes the final command on the remote instance.
-axiom-scan downloads and merges scan output in a variety of differnet formats, specified by the extention in the module (dir, txt, csv, xml).
-individual scanning operations are executed from a detacted tmux session (\$module+\$timestamp) inside a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
+axiom-scan downloads and merges scan output in a variety of different formats, specified by the extension in the module (dir, txt, csv, xml).
+
+Individual scanning operations are executed from a detacted tmux session (\$module+\$timestamp) inside a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
 
 Usage:
    axiom-scan inputfile.txt -m ffuf -w /home/op/wordlist-on-remote-instance
@@ -104,7 +105,7 @@ CONFIGURATIONS:
    --local-config string[]     replace _config_ in module with user-provided local configuration file to upload (must be a local configuration file)
 
 OPTIMIZATIONS:
-   --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
+   --skip-preflight            do not automatically remove instances that can't be reached (default removes instances from the queue that can't be reached)
    --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
    --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
