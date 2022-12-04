@@ -243,6 +243,9 @@
         "echo 'Installing jaeles'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest && /home/op/go/bin/jaeles config init'",
 
+        "echo 'Installing katana'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/projectdiscovery/katana/cmd/katana@latest'",
+
         "echo 'Installing kiterunner'",
         "/bin/su -l root -c 'wget -q https://github.com/assetnote/kiterunner/releases/download/v1.0.2/kiterunner_1.0.2_linux_amd64.tar.gz ; tar -zxvf kiterunner_1.0.2_linux_amd64.tar.gz ; rm kiterunner_1.0.2_linux_amd64.tar.gz ; mv kr /usr/bin/'",
 
