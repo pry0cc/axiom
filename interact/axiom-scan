@@ -604,7 +604,11 @@ do
             pass+=($n)
         fi
         if  [[ "$set" != "true" ]]; then
-            args="$args $arg"
+            space=" "
+            if [[ $arg =~ $space ]]; then
+              args="$args \"$arg\""
+            else
+              args="$args $arg"
         fi
 
     fi
