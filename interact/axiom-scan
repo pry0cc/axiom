@@ -609,8 +609,8 @@ do
               args="$args \"$arg\""
             else
               args="$args $arg"
+            fi
         fi
-
     fi
 done
 
