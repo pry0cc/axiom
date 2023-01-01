@@ -38,22 +38,12 @@ Axiom supports several cloud providers, eventually, axiom should be completely c
 -   [Installed Packages](#tools-to-date)
 -   [Contributors](#contributors)
 
-# Credits & Traffic Light Indicator
-
-The traffic light indicator shows if there are any issues with axiom and a cloud provider. The traffic light indicator is expected to change overtime as we fix issues. <br>
-Green: No known issues that would prevent using axiom <br>
-Yellow: Possible extra configuration is needed to use axiom <br>
-Red: A fair amount of work is needed to use axiom <br>
-
-
-
-Indicator             |  Cloud Provider
-:-------------------------:|:-------------------------:
-<img align="center" width="50" height="100" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/traffic_light_green.png">  |  <a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/digitalocean_referral.png"/></a> The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd)  </p>
-<img align="center" width="50" height="100" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/traffic_light_green.png"> | <p align="center"> <a href="https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90" target="_blank"> <img src="https://github.com/pry0cc/axiom/blob/3e8dca3d58a02dc71778492a1fe077e769f93edd/screenshots/Referrals/Linode-referral.png"/></a> Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for ~$20~ $100 free credit on Linode :) </p>
-<img align="center" width="50" height="100" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/traffic_light_green.png">  |  <p align="center"> <a href="https://cloud.ibm.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/ibm_cloud_referral.png"/></a> </p>
-<img align="center" width="50" height="100" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/traffic_light_yellow.png">  | <p align="center"> <a href="https://aws.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/aws_dark_referral.png"/></a> </p>
-<img align="center" width="50" height="100" src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/traffic_light_red.png">  | <p align="center"> <a href="https://azure.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/azure_referral.png"/></a> </p>
+# Credits 
+The original and best supported provider for Axiom is Digital Ocean! If you're signing up for a new Digital Ocean account, [please use my link!](https://m.do.co/c/bd80643300bd)  <a href="https://m.do.co/c/bd80643300bd" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/digitalocean_referral.png"/></a>  </p>
+Our third provider for axiom! Please use [this link](https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90) for ~$20~ $100 free credit on Linode :) <p align="center"> <a href="https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90" target="_blank"> <img src="https://github.com/pry0cc/axiom/blob/3e8dca3d58a02dc71778492a1fe077e769f93edd/screenshots/Referrals/Linode-referral.png"/></a>  </p>
+  <p align="center"> <a href="https://cloud.ibm.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/ibm_cloud_referral.png"/></a> </p>
+<p align="center"> <a href="https://aws.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/aws_dark_referral.png"/></a> </p>
+ <p align="center"> <a href="https://azure.com" target="_blank"> <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/azure_referral.png"/></a> </p>
 
 # Installation
 ## Docker
