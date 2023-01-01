@@ -156,10 +156,10 @@ clean_up() {
     echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
     $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/dev/null 2>&1
     $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
-    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
     if [[ "$keeplogs" != "true" ]]; then
      delete_logs
     fi 
+    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
@@ -181,12 +181,12 @@ clean_up() {
 #
 delete_logs() {
  echo -e "${Blue}Deleting remote logs in a backgroud job${Color_Off}"
- axiom-exec "sudo rm -r /home/op/scan/${uid}/" --fleet "$AXIOM_PATH/logs/$uid/selected.conf"  >/dev/null 2>&1 &
-  if [ -d "$AXIOM_PATH/logs/$uid/" ] 
+ $interlace_cmd_nobar -c "$ssh_command _target_ 'sudo rm -r /home/op/scan/${uid}/'"
+  if [ -d "$AXIOM_PATH/tmp/$uid/" ] 
    then
    echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
    start=$(pwd)
-   cd "$AXIOM_PATH/logs/$uid/" || exit 
+   cd "$AXIOM_PATH/tmp/$uid/" || exit 
    ls | grep -v output | xargs rm -r >/dev/null 2>&1
    cd "$start"
   else
@@ -201,14 +201,22 @@ apply_wordlist() {
     command="$1"
     wordlist="$2"
     wordlist_escaped="$(echo "$wordlist" | sed 's/\//\\\//g')"
-    echo "$command" | sed "s/_wordlist_/$wordlist_escaped/g"
-}
+    if [[ "$command" =~ "_wordlist_" ]] ; then
+     echo "$command" | sed "s/_wordlist_/$wordlist_escaped/g"
+    else
+     echo "$command" | sed "s/$/ $wordlist_escaped/g"
+    fi
+ }
 
 apply_config() {
     command="$1"
     config="$2"
     config_escaped="$(echo "$config" | sed 's/\//\\\//g')"
-    echo "$command" | sed "s/_config_/$config_escaped/g"
+    if [[ "$command" =~ "_config_" ]] ; then
+     echo "$command" | sed "s/_config_/$config_escaped/g"
+    else
+     echo "$command" | sed "s/$/ $config_escaped/g"
+    fi
 }
 
 ###########################################################################################################
@@ -941,15 +949,16 @@ fi
 #
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
 
-if [[ "$command" =~ "_wordlist_" ]]; then
+[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
+
+if [[ "$command" =~ "_wordlist_" ]] ||  [[ "$local_wordlist" != "false" ]] || [[ "$nuclei_templates" != "false" ]] || [[ "$distribute_wordlist" != "false" ]]; then
 command="$(apply_wordlist "$command" "$wordlist")"
 fi
 
-if [[ "$command" =~ "_config_" ]]; then
+if [[ "$command" =~ "_config_" ]] ||  [[ "$local_config" != "false" ]]; then
 command="$(apply_config "$command" "$config_file")"
 fi
 
-[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
 escapedcommand=$(echo $command | jq -R -s '.')
 
 ###########################################################################################################
@@ -1143,16 +1152,16 @@ $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/d
 $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
 
 ###########################################################################################################
-#  Move downloaded raw results to log file
-#
-mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
-
-###########################################################################################################
 #  If delete logs is set to true, execute delete_logs function.
 #
 if [[ "$keeplogs" == "false" ]]; then
 delete_logs
 fi
+
+###########################################################################################################
+#  Move downloaded raw results to log file
+#
+mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
 
 ###########################################################################################################
 #  Display exit stats about the scan such as log directory 
