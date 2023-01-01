@@ -907,7 +907,7 @@ if [[ "$distribute_wordlist" != "false" ]]; then
     cp "$tmp/selected.conf" "$tmp/distribute_wordlist/selected.conf"
     # hack to stop overwriting $lines and $tmp and $divisor
     lines1=$lines && tmp1=$tmp && divisor1=$divisor
-    split_file "$distribute_wordlist_filename" "$total_instances" $tmp/distribute_wordlist
+    split_file $(realpath "$distribute_wordlist") "$total_instances" $tmp/distribute_wordlist
     # hack to stop overwriting $lines and $tmp
     lines=$lines1 && tmp=$tmp1 && divisor=$divisor1
     $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" | grep -v "Gen"
