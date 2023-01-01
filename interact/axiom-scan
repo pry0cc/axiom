@@ -153,7 +153,7 @@ clean_up() {
      $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
     fi
     merge_output
-    echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
+    echo -e "${Blue}killing remote processes in a backgroud job${Color_Off}"
     $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/dev/null 2>&1
     $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
     if [[ "$keeplogs" != "true" ]]; then
@@ -163,8 +163,13 @@ clean_up() {
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
-    echo -e "${Blue}Appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
-    echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+    json_stats="{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" 
+    if jq -e . >/dev/null 2>&1 <<<"$json_stats"; then
+     echo -e "${Blue}appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+     echo "$json_stats" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+    else
+     echo -e "${Red}error parsing json runtime statistics, not appending axiom-scan statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+    fi
     echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances: ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets: ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results: ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} |"
     echo -e "${BGreen}runtime: ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date: ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id: ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
     echo -e "${BGreen}output: ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log: ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote: ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen} |"
@@ -180,17 +185,17 @@ clean_up() {
 #  To avoid undesirable scan results after merging, we keep the original un-merged scan result as well as the final merged copy. Everything else pertaining to the scan deleted.
 #
 delete_logs() {
- echo -e "${Blue}Deleting remote logs in a backgroud job${Color_Off}"
+ echo -e "${Blue}deleting remote logs in a backgroud job${Color_Off}"
  $interlace_cmd_nobar -c "$ssh_command _target_ 'sudo rm -r /home/op/scan/${uid}/'"
   if [ -d "$AXIOM_PATH/tmp/$uid/" ] 
    then
-   echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
+   echo -e "${Blue}deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
    start=$(pwd)
    cd "$AXIOM_PATH/tmp/$uid/" || exit 
    ls | grep -v output | xargs rm -r >/dev/null 2>&1
    cd "$start"
   else
-    echo "Error: local log folder does not exist."
+    echo "rrror: local log folder does not exist."
 fi
 }
 
@@ -294,7 +299,7 @@ merge_output() {
      fi
     fi
     if [[ "$ext" == "txt" ]]; then
-        echo "Mode set to txt.. Sorting unique."
+        echo "mode set to txt.. sorting unique."
         find $tmp/output/ -type f -exec cat {} \; | sort -u > $tmp/merge
         output_lines=$(wc -l $tmp/merge | tr -s ' ' | cut -d ' ' -f 1)
         if [[ "$anew" == "true" ]]; then
@@ -1167,8 +1172,14 @@ mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
 #  Display exit stats about the scan such as log directory 
 #  Normalize terminal
 #
-echo -e "${BGreen}Appending axiom-scan runtime statistics to${Color_Off}${Blue} : $AXIOM_PATH/stats.log${Color_Off}"
-echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+
+json_stats="{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}"
+if jq -e . >/dev/null 2>&1 <<<"$json_stats"; then
+ echo -e "${Blue}appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+ echo "$json_stats" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+else
+ echo -e "${Red}error parsing json runtime statistics, not appending axiom-scan statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+fi
 echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances: ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets: ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results: ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} |"
 echo -e "${BGreen}runtime: ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date: ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id: ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
 echo -e "${BGreen}output: ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log: ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote: ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen} |"
