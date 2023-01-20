@@ -6,15 +6,13 @@
 		"client_secret": "{{ user `client_secret` }}",
 		"tenant_id": "{{ user `tenant_id` }}",
 		"subscription_id": "{{ user `subscription_id` }}",
-
 		"managed_image_resource_group_name": "{{ user `resource_group` }}",
 		"managed_image_name": "{{ user `snapshot_name` }}",
-
+		"build_resource_group_name":  "{{ user `resource_group` }}",
 		"os_type": "Linux",
 		"image_publisher": "Canonical",
 		"image_offer": "0001-com-ubuntu-server-focal-daily",
 		"image_sku": "20_04-daily-lts-gen2",
-		"location": "{{ user `region`  }}",
 		"vm_size": "Standard_DS2_v2"
     }
   ]
