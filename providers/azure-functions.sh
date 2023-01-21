@@ -129,7 +129,6 @@ delete_instance() {
 		# Does not delete all of the related resources like other platforms.
         # az vm delete --name "$name" --resource-group $resource_group --yes --debug
 		# recommeded to delete resources by tags instead
-		echo "test"
 		az resource delete --ids $(az resource list --tag "$name"=True -otable --query "[].id" -otsv) >/dev/null 2>&1
 		
 		# when deleting a fleet, there is a virtual network left over from the first VM becuse it's used by the others
