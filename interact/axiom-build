@@ -182,8 +182,7 @@ counter=0
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nIf this fails, verify the account is properly configured and/or try a different region.${Color_Off}"
 
 if [[ $provisioner == "azure" ]]; then
-    rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
-    ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"
+    cp $AXIOM_PATH/axiom.json $AXIOM_PATH/axiom_bck.json
     sed -i "/\"region\"/d" > $AXIOM_PATH/axiom.json
 fi
 
@@ -214,8 +213,7 @@ else
 fi
 
 if [[ $provisioner == "azure" ]]; then
-    rm "$AXIOM_PATH/axiom.json" > /dev/null 2>&1
-    ln -s "$AXIOM_PATH/accounts/$1.json" "$AXIOM_PATH/axiom.json"
+    mv "$AXIOM_PATH/axiom_bck.json" "$AXIOM_PATH/axiom.json"
 fi
 
 ############################################################################################################
