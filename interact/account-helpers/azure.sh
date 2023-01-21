@@ -82,11 +82,10 @@ if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
 curl -L https://aka.ms/InstallAzureCli | bash
 fi
 
-echo -e -n "${Green}Please enter your subscription_id: (Press enter if you only have one subscription) \n>> ${Color_Off}"
+sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
+echo -e -n "${Green}Please enter your subscription_id: (Default is $(echo $sub_id), press enter) \n>> ${Color_Off}"
 read sub_id
-if [[ "$sub_id" == "" ]]; then
-    sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
-fi
+
 echo -e "${Blue}Selected default subscription_id $sub_id ${Color_Off}"
 
 echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
