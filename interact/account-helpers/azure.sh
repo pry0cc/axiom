@@ -82,6 +82,11 @@ if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
 curl -L https://aka.ms/InstallAzureCli | bash
 fi
 
+sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
+echo -e -n "${Green}Please enter your subscription_id: (Default is $(echo $sub_id), press enter) \n>> ${Color_Off}"
+read sub_id
+
+echo -e "${Blue}Selected default subscription_id $sub_id ${Color_Off}"
 
 echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
 
@@ -92,22 +97,40 @@ if [[ "$region" == "" ]]; then
     region="eastus"
 fi
 
-echo -e -n "${Green}Please enter your default size: (Default 'Standard_B1s)', press enter) \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter your default size: (Default 'Standard_B1ls'), press enter) \n>> ${Color_Off}"
 read size
 
 if [[ "$size" == "" ]]; then
-    echo -e "${Blue}Selected default option 'Standard_B1s'${Color_Off}"
-    size="Standard_B1s"
+    echo -e "${Blue}Selected default option 'Standard_B1ls'${Color_Off}"
+    size="Standard_B1ls"
 fi
 
-az login
-az group create -n axiom -l "$region"
+echo -e -n "${Green}Please enter your resource group name: (Default 'axiom'), press enter) \n>> ${Color_Off}"
+read resource_group
 
-bac=$(az ad sp create-for-rbac --role Contributor --query "{ client_id: appId, client_secret: password, tenant_id: tenant }")
+if [[ "$resource_group" == "" ]]; then
+    echo -e "${Blue}Selected default option 'axiom'${Color_Off}"
+    resource_group="axiom"
+fi
+
+echo -e -n "${Green}Please enter your Azure email account: (Example 'test@myazureaccount.com'), press enter) \n>> ${Color_Off}"
+read email
+
+if [[ "$email" == "" ]]; then
+    echo -e "${BRed}No email provided, the account setup will fail${Color_Off}"
+fi
+
+az login 2>/dev/null
+az account set --subscription "$sub_id" 2>/dev/null
+az group create -l "$region" -n "$resource_group" 2>/dev/null
+#az configure --defaults group="$resource_group" 2>/dev/null
+az role assignment create --role "Owner" --assignee "$email" -g ${resource_group} 2>/dev/null
+az provider register --namespace 'Microsoft.Network' --accept-terms 2>/dev/null
+az provider register --namespace 'Microsoft.Compute' --accept-terms 2>/dev/null
+bac=$(az ad sp create-for-rbac --role Owner --scopes "/subscriptions/${sub_id}/resourcegroups/${resource_group}" --name ${resource_group} --query "{ client_id: appId, client_secret: password, tenant_id: tenant }") 2>/dev/null
 client_id="$(echo $bac | jq -r '.client_id')"
 client_secret="$(echo $bac | jq -r '.client_secret')"
 tenant_id="$(echo $bac | jq -r '.tenant_id')"
-sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
 
 echo -e -n "${Green}Please enter your GPG Recipient Email (for encryption of boxes): (optional, press enter) \n>> ${Color_Off}"
 read email
@@ -126,7 +149,7 @@ if [[ "$ans" == "Y" ]]; then
     read appliance_key 
 fi
 
-data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"axiom\",\"provider\":\"azure\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\",\"use_azure_cli_auth\":\"$use_azure_cli_auth\"}")"
+data="$(echo "{\"client_id\":\"$client_id\",\"client_secret\":\"$client_secret\",\"tenant_id\":\"$tenant_id\",\"subscription_id\":\"$sub_id\",\"region\":\"$region\",\"resource_group\":\"$resource_group\",\"provider\":\"azure\",\"default_size\":\"$size\",\"appliance_name\":\"$appliance_name\",\"appliance_key\":\"$appliance_key\",\"appliance_url\":\"$appliance_url\", \"email\":\"$email\",\"use_azure_cli_auth\":\"$use_azure_cli_auth\"}")"
 
 echo -e "${BGreen}Profile settings below: ${Color_Off}"
 echo $data | jq

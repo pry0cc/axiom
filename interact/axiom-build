@@ -180,6 +180,12 @@ fi
 #
 counter=0
 echo -e "${BWhite}Building image $provisioner for provider $builder... This can take up to 25 minutes so please be patient!\nIf this fails, verify the account is properly configured and/or try a different region.${Color_Off}"
+
+if [[ $provisioner == "azure" ]]; then
+    cp $AXIOM_PATH/axiom.json $AXIOM_PATH/axiom_bck.json
+    sed -i "/\"region\"/d" > $AXIOM_PATH/axiom.json
+fi
+
 if packer build -var-file "$AXIOM_PATH"/axiom.json -var "variant=$provisioner" -var "op_random_password=$op_ssh_password" -var "snapshot_name=$snapshot_name" "$image_path";
 then
 	end_time=$(date +%s)
@@ -204,6 +210,10 @@ else
     echo -e "${Yellow}For support, take a screenshot of the last 20 lines and open a issue at https://github.com/pry0cc/axiom/issues${Color_Off}"
     echo -e "${Green}Sometimes just running a build again can work, so please try at least once: 'axiom-build', thanks!${Color_Off}"
     "$NOTIFY_CMD" "Axiom Info" "Build failed :("
+fi
+
+if [[ $provisioner == "azure" ]]; then
+    mv "$AXIOM_PATH/axiom_bck.json" "$AXIOM_PATH/axiom.json"
 fi
 
 ############################################################################################################
