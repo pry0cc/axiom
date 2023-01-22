@@ -46,7 +46,6 @@ if [ $BASEOS == "Mac" ]; then
 brew update && brew install azure-cli
 fi
 
-
 if [ $BASEOS == "Linux" ] ; then
 
 OS=$(lsb_release -i | awk '{ print $3 }')
@@ -54,8 +53,10 @@ OS=$(lsb_release -i | awk '{ print $3 }')
             OS="unknown-Linux"
             BASEOS="Linux"
    fi
+   
 sudo apt-get update -qq
 sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg -y -qq
+
 AZ_REPO=$(lsb_release -cs)
 if [ $AZ_REPO == "kali-rolling" ]; then
 check_version=$(cat /proc/version | awk '{ print $6 $7 }' | tr -d '()' | cut -d . -f 1)
@@ -82,12 +83,26 @@ if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
 curl -L https://aka.ms/InstallAzureCli | bash
 fi
 
+###########################################################################################################
+# Login and get default user email	
+#
+default_email=$(az login | jq -r  '.[].user.name')
+
+###########################################################################################################
+# get the sub_id or use user provided subscription_id
+#
 sub_id="$(az account show --query "{ subscription_id: id }" | jq -r .subscription_id)"
 echo -e -n "${Green}Please enter your subscription_id: (Default is $(echo $sub_id), press enter) \n>> ${Color_Off}"
-read sub_id
+read user_sub_id
+if [[ "$user_sub_id" == "" ]]; then
+    echo -e "${Blue}Selected default subscription_id $sub_id${Color_Off}"
+    else
+    sub_id=$user_sub_id
+fi
 
-echo -e "${Blue}Selected default subscription_id $sub_id ${Color_Off}"
-
+###########################################################################################################
+# get the region or use user provided region
+#
 echo -e -n "${Green}Please enter your default region: (Default 'eastus', press enter) \n>> ${Color_Off}"
 
 read region
@@ -97,6 +112,9 @@ if [[ "$region" == "" ]]; then
     region="eastus"
 fi
 
+###########################################################################################################
+# get the size of the vm to spinup or use user provded size 
+#
 echo -e -n "${Green}Please enter your default size: (Default 'Standard_B1ls'), press enter) \n>> ${Color_Off}"
 read size
 
@@ -105,6 +123,9 @@ if [[ "$size" == "" ]]; then
     size="Standard_B1ls"
 fi
 
+###########################################################################################################
+# get the resource name or use user provided resorce name
+#
 echo -e -n "${Green}Please enter your resource group name: (Default 'axiom'), press enter) \n>> ${Color_Off}"
 read resource_group
 
@@ -113,21 +134,23 @@ if [[ "$resource_group" == "" ]]; then
     resource_group="axiom"
 fi
 
-echo -e -n "${Green}Please enter your Azure email account: (Example 'test@myazureaccount.com'), press enter) \n>> ${Color_Off}"
+###########################################################################################################
+# get the azure email account or use user provided email
+#
+echo -e -n "${Green}Please enter your Azure email account: (Default is $default_email, press enter) \n>> ${Color_Off}"
 read email
 
 if [[ "$email" == "" ]]; then
-    echo -e "${BRed}No email provided, the account setup will fail${Color_Off}"
+   email="$default_email"
 fi
 
-az login 2>/dev/null
 az account set --subscription "$sub_id" 2>/dev/null
 az group create -l "$region" -n "$resource_group" 2>/dev/null
 #az configure --defaults group="$resource_group" 2>/dev/null
 az role assignment create --role "Owner" --assignee "$email" -g ${resource_group} 2>/dev/null
 az provider register --namespace 'Microsoft.Network' --accept-terms 2>/dev/null
 az provider register --namespace 'Microsoft.Compute' --accept-terms 2>/dev/null
-bac=$(az ad sp create-for-rbac --role Owner --scopes "/subscriptions/${sub_id}/resourcegroups/${resource_group}" --name ${resource_group} --query "{ client_id: appId, client_secret: password, tenant_id: tenant }") 2>/dev/null
+bac=$(az ad sp create-for-rbac --role Owner --scopes "/subscriptions/$sub_id/resourcegroups/${resource_group}" --name ${resource_group} --query "{ client_id: appId, client_secret: password, tenant_id: tenant }") 2>/dev/null
 client_id="$(echo $bac | jq -r '.client_id')"
 client_secret="$(echo $bac | jq -r '.client_secret')"
 tenant_id="$(echo $bac | jq -r '.tenant_id')"
