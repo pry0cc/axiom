@@ -127,12 +127,12 @@ instance_exists() {
 
 list_regions() {
 #     doctl compute region list
-      ibmcloud sl vs options | sed -n '/datacenter/,/Size/p' | tr -s ' ' | rev | cut -d  ' ' -f 2 | rev | tail -n +2 | head -n -1 | tr '\n' ','
+      ibmcloud sl vs options | sed -n '/datacenter/,/Size/p' | tr -s ' ' | rev | cut -d  ' ' -f 1| rev | tail -n +2 | head -n -1 | tr '\n' ','
 }
 
 regions() {
 #    doctl compute region list -o json
-     ibmcloud sl vs options | sed -n '/datacenter/,/Size/p' | tr -s ' ' | rev | cut -d  ' ' -f 2 | rev | tail -n +2 | head -n -1 | tr '\n' ','
+     ibmcloud sl vs options | sed -n '/datacenter/,/Size/p' | tr -s ' ' | rev | cut -d  ' ' -f 1 | rev | tail -n +2 | head -n -1 | tr '\n' ','
 }
 
 instance_sizes() {
