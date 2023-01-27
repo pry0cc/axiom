@@ -422,7 +422,7 @@ touch $tmp/status/completed/status
 sleep 3
 downloader &
 downloaderPID=$!
-$interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
+$interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log ; tail -f stderr.log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
 remotetailPID=$!
 echo $remotetailPID > $tmp/status/remotetailPID
 
