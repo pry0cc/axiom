@@ -35,15 +35,27 @@ case $BASEOS in
 esac
 
 
-echo -e "${Blue}Installing aws cli...${Color_Off}"
-if [[ $BASEOS == "Mac" ]]; then
-	curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
-	open AWSCLIV2.pkg
-elif [[ $BASEOS == "Linux" ]]; then
-	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-	cd /tmp
-	unzip awscliv2.zip
-	sudo ./aws/install
+install_aws_cli() {
+  echo -e "${Blue}Installing aws cli...${Color_Off}"
+  if [[ $BASEOS == "Mac" ]]; then
+    curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+    open AWSCLIV2.pkg
+  elif [[ $BASEOS == "Linux" ]]; then
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+    cd /tmp
+    unzip awscliv2.zip
+    sudo ./aws/install
+  fi
+}
+
+is_installed() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+if is_installed "aws"; then
+  echo -e "${BGreen}aws cli is already installed${Color_Off}"
+else
+  install_aws_cli
 fi
 
 function awssetup(){
@@ -84,8 +96,10 @@ fi
 aws configure set default.region "$region"
 
 echo -e "${BGreen}Creating an Axiom Security Group: ${Color_Off}"
+aws ec2 delete-security-group --group-name axiom > /dev/null 2>&1
 sc="$(aws ec2 create-security-group --group-name axiom --description "Axiom SG")"
 group_id="$(echo "$sc" | jq -r '.GroupId')"
+echo -e "${BGreen}Created Security Group: $group_id ${Color_Off}"
 
 ######################################################################################################## we should add this to whitelist your IP - TODO
 group_rules="$(aws ec2 authorize-security-group-ingress --group-id "$group_id" --protocol tcp --port 2266 --cidr 0.0.0.0/0)"
