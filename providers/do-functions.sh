@@ -32,7 +32,7 @@ instance_id() {
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address"
+	instances | jq -r ".[]? | select(.name==\"$name\") | .networks.v4[]? | select(.type==\"public\") | .ip_address" | head -1
 }
 
 instance_ip_cache() {
@@ -57,7 +57,7 @@ instance_menu() {
 
 quick_ip() {
 	data="$1"
-	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address")
+	ip=$(echo $droplets | jq -r ".[] | select(.name == \"$name\") | select(.type==\"public\" )| .networks.v4[].ip_address" | head -1)
 	echo $ip
 }
 
@@ -73,7 +73,7 @@ instance_pretty() {
     header="Instance,Primary Ip,Backend Ip,Region,Size,Status,\$/M"
     fields=".[] | [.name, .networks.v4[0].ip_address, .networks.v4[1].ip_address, .region.slug, .size_slug, .status, .size.price_monthly] | @csv"
     totals="_,_,_,Instances,$droplets,Total,\$$totalPrice"
-    #data is sorted by default by field name    
+    #data is sorted by default by field name
     data=$(echo $data | jq  -r "$fields")
     (echo "$header" && echo "$data" && echo $totals) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
@@ -103,7 +103,7 @@ delete_instance() {
     fi
 }
 
-# TBD 
+# TBD
 instance_exists() {
 	instance="$1"
 }
@@ -177,7 +177,7 @@ add_dns_record() {
     domain="$2"
     ip="$3"
 
-    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip 
+    doctl compute domain records create $domain --record-type A --record-name $subdomain --record-data $ip
 }
 
 msg_success() {
@@ -268,7 +268,7 @@ query_instances_cache() {
 }
 
 #  generate the SSH config depending on the key:value of generate_sshconfig in accout.json
-# 
+#
 generate_sshconfig() {
 accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
 current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
@@ -286,23 +286,23 @@ if [[ "$generate_sshconfig" == "private" ]]; then
  echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert run: axiom-ssh --just-generate"
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address")
+ ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"private\") | .ip_address" | head -1)
  if [[ -n "$ip" ]]; then
   echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
- fi 
+ fi
  done
  mv $sshnew $AXIOM_PATH/.sshconfig
 
- elif [[ "$generate_sshconfig" == "cache" ]]; then 
+ elif [[ "$generate_sshconfig" == "cache" ]]; then
  echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
  echo -e "axiom will never attempt to regenerate the SSH config. To revert run: axiom-ssh --just-generate"
-	
+
  # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
  #
  else
  for name in $(echo "$droplets" | jq -r '.[].name')
  do
- ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address")
+ ip=$(echo "$droplets" | jq -r ".[] | select(.name==\"$name\") | .networks.v4[] | select(.type==\"public\") | .ip_address" | head -1)
  if [[ -n "$ip" ]]; then
   echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
  fi
@@ -330,7 +330,7 @@ create_instance() {
     --format ID \
     --no-header 2>/dev/null) ||
   keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
-  
+
   doctl compute droplet create "$name" --image "$image_id" --size "$size" --region "$region" --enable-ipv6 --user-data-file "$boot_script" --ssh-keys "$keyid" >/dev/null 2>&1
   sleep 260
 }
@@ -368,7 +368,7 @@ lsplit() {
 		mv $i.txt $instance.txt
 		i=$((i+1))
 	done
-	
+
 	cd $orig_pwd
 	echo -n $split_dir
 }
@@ -382,6 +382,6 @@ conf_check() {
 
 	if [[ $l -lt 1 ]]
 	then
-		generate_sshconfig	
+		generate_sshconfig
 	fi
 }
