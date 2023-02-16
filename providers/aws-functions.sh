@@ -5,18 +5,21 @@ source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
 poweron() {
-instance_name="$1"
-doctl compute droplet-action power-on $(instance_id $instance_name)
+  instance_name="$1"
+  id=$(instance_id "$instance_name")
+  aws ec2 start-instances --instance-ids "$id"
 }
 
 poweroff() {
-instance_name="$1"
-doctl compute droplet-action power-off $(instance_id $instance_name)
+  instance_name="$1"
+  id=$(instance_id "$instance_name")
+  aws ec2 stop-instances --instance-ids "$id"
 }
 
-reboot(){
-instance_name="$1"
-doctl compute droplet-action reboot $(instance_id $instance_name)
+reboot() {
+  instance_name="$1"
+  id=$(instance_id "$instance_name")
+  aws ec2 reboot-instances --instance-ids "$id"
 }
 
 # takes no arguments, outputs JSON object with instances
