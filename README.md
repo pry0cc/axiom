@@ -46,7 +46,7 @@ The original and best supported provider for Axiom is Digital Ocean! If you're s
 </a>  
 </p>
 
-The best supported business provider for Axiom is IBM Cloud! If you're signing up for a new IBM Cloud account, [please use my link](https://cloud.ibm.com/docs/overview?topic=overview-tutorial-try-for-free) for $200 free credit!
+The best supported business provider for Axiom is IBM Cloud! If you're signing up for a new IBM Cloud account, [please use this link](https://cloud.ibm.com/docs/overview?topic=overview-tutorial-try-for-free) for $200 free credit!
 <p align="center">
 <a href="https://cloud.ibm.com/docs/overview?topic=overview-tutorial-try-for-free" target="_blank"> 
 <img src="https://raw.githubusercontent.com/pry0cc/axiom/master/screenshots/Referrals/ibm_cloud_referral_new.png"/>
