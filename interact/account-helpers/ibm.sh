@@ -120,6 +120,15 @@ getUsernameAPIkey
 }
 
 
+function create_apikey {
+echo -e -n "${Green}Creating an IAM API key for this profile \n>> ${Color_Off}"
+name="axiom-$(printf '%(%FT%T%z)T\n')"
+key_details=$(ibmcloud iam api-key-create "$name" --output json)
+echo "$key_details" | jq
+ibm_cloud_api_key=$(echo "$key_details" | jq -r .apikey)
+ibmcloud login --apikey=$ibm_cloud_api_key --no-region
+}
+
 function specs {
 echo -e -n "${Green}Please enter your default region: (Default 'dal13', press enter) \n>> ${Color_Off}"
 read region
@@ -188,12 +197,15 @@ types=("SSO" "Username & Password" "API Keys")
      echo "Attempting to authenticate with SSO!"
      ibmcloud login --no-region --sso
      getUsernameAPIkey
+     create_apikey
      specs
      setprofile
      break
      ;;
   "Username & Password")
      ibmcloud login --no-region
+     getUsernameAPIkey
+     create_apikey
      specs
      setprofile
      break
