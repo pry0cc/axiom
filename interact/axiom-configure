@@ -152,22 +152,22 @@ fi
 done
 
 if [ ! -z ${unattended:+x} ]; then
-echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
-echo -e "${Green}Detected unattended option passed from command line...${Color_Off}"
-echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
-if [ -z ${usershell:+x} ]; then
-usershell="omz"
-fi
+ echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+ echo -e "${Green}Detected unattended option passed from command line...${Color_Off}"
+ echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
+  if [ -z ${usershell:+x} ]; then
+   usershell="omz"
+  fi
 elif [ ! -z ${config+x} ]; then
-echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
-echo -e "${Green}Detected axiom.json option passed from command line...${Color_Off}"
-echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
+ echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+ echo -e "${Green}Detected axiom.json option passed from command line...${Color_Off}"
+ echo -e "${Blue}Automatically installing dependencies and begining installation!${Color_Off}"
 else
-echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
-echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
-read
-echo -e "${Blue}INSTALLING AXIOM...${Color_Off}"
-sleep 1
+ echo -e "${Blue}Hello! Welcome to Axiom configuration :)"
+ echo -e "Press enter to install dependencies and begin installation!${Color_Off}"
+ read
+ echo -e "${Blue}INSTALLING AXIOM...${Color_Off}"
+ sleep 1
 fi
 
 echo -e "${BWhite}Installing deps! Please wait :) ${Color_Off}"
@@ -286,11 +286,11 @@ fi
 
 if [[ $BASEOS == "Linux" ]] ; then
 if [[ $usershell == "omz" ]]|| [[ $usershell == 'Oh my zsh' ]] || [[ $usershell == 'Oh My Zsh' ]] || [[ $usershell == "OMZ" ]] ; then
-omz_shell
+ omz_shell
 elif [[ $usershell == "bash" ]]|| [[ $usershell == "Bash" ]] || [[ $usershell == "BASH" ]] ; then
-bash_shell
+ bash_shell
 elif [[ $usershell == "zsh" ]]|| [[ $usershell == "Zsh" ]] || [[ $usershell == "ZSH" ]] ; then
-zsh_shell
+ zsh_shell
 else
 
 # Pick your shell
@@ -331,76 +331,75 @@ fi
 #  Install anew if not already installed
 #
 if ! [ -x "$(command -v anew)" ]; then
-go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
+ go install github.com/tomnomnom/anew@latest >> /dev/null 2>&1
 fi
 
 ###########################################################################################################
-# unattended setup flag logic 
+# unattended setup flag logic
 #
 if [ -z ${config:+x} ]; then
-if [[ "$unattended" == "true" ]]; then
-echo "Unattended setup"
-mkdir  -p "$HOME"/.axiom/accounts/
+ if [[ "$unattended" == "true" ]]; then
+  echo "Unattended setup"
+  mkdir  -p "$HOME"/.axiom/accounts/
 
-else
+ else
 ###########################################################################################################
 # Default setup logic ( e.g. when --unattended and --config args are not used
 #
-mkdir -p "${HOME}/.axiom/tmp/"
-"$AXIOM_PATH/interact/account-helpers/generate_amass.sh"
-echo -e "${Blue}Configuring your cloud account...${Color_Off}"
-"$AXIOM_PATH"/interact/axiom-account-setup
+  mkdir -p "${HOME}/.axiom/tmp/"
+  "$AXIOM_PATH/interact/account-helpers/generate_amass.sh"
+  echo -e "${Blue}Configuring your cloud account...${Color_Off}"
+  "$AXIOM_PATH"/interact/axiom-account-setup
 
 
 ###########################################################################################################
 # If axiom_rsa doesnt exist, create the SSH key and add to it Packer Builder and axiom.json
 #
-account_path=$(ls -la "$AXIOM_PATH"/axiom.json | rev | cut -d " " -f 1 | rev)
-if [ -f ~/.ssh/axiom_rsa ] ; then
- echo -e "${Blue}Adding axiom_rsa key to Packer builder${Color_Off}"
- jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
- cat ~/.ssh/axiom_rsa.pub >"$AXIOM_PATH"/configs/authorized_keys
+   account_path=$(ls -la "$AXIOM_PATH"/axiom.json | rev | cut -d " " -f 1 | rev)
+    if [ -f ~/.ssh/axiom_rsa ] ; then
+     echo -e "${Blue}Adding axiom_rsa key to Packer builder${Color_Off}"
+     jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+     cat ~/.ssh/axiom_rsa.pub >"$AXIOM_PATH"/configs/authorized_keys
 
-else
- echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub${Color_Off}"
- ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
- jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"  >> /dev/null 2>&1
- cat ~/.ssh/axiom_rsa.pub >"$AXIOM_PATH"/configs/authorized_keys
-fi
-fi 
+    else
+      echo -e "${Blue}Creating axiom SSH key in ~/.ssh/axiom_rsa.pub${Color_Off}"
+      ssh-keygen -b 2048 -t rsa -f ~/.ssh/axiom_rsa -q -N ""
+      jq '.sshkey="'axiom_rsa'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"  >> /dev/null 2>&1
+      cat ~/.ssh/axiom_rsa.pub >"$AXIOM_PATH"/configs/authorized_keys
+    fi
+ fi
 
 else
 ###########################################################################################################
 # Config parsing logic
 #
-echo "Parsing account.json file passed from command line"
-provider="$(echo "$config" | jq -r '.provider')"
-mkdir  -p "$HOME"/.axiom/accounts/
-account=${provider}$(date +%s)
-echo "$config" > "$HOME"/.axiom/accounts/"$account".json
-echo "$config" > "$HOME"/.axiom/axiom.json
-echo -e "${Blue}Cloud account configuration passed from command line...${Color_Off}"
+ echo "Parsing account.json file passed from command line"
+ provider="$(echo "$config" | jq -r '.provider')"
+ mkdir  -p "$HOME"/.axiom/accounts/
+ account=${provider}$(date +%s)
+ echo "$config" > "$HOME"/.axiom/accounts/"$account".json
+ echo "$config" > "$HOME"/.axiom/axiom.json
+ echo -e "${Blue}Cloud account configuration passed from command line...${Color_Off}"
 fi
 
 export PATH="$PATH:$HOME/.axiom/interact"
 
 if [[ $unattended == "true" ]] ; then
-echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
-echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
-if [ -z ${config+x} ]; then
-"$HOME"/.axiom/interact/axiom-account "$account"  >> /dev/null 2>&1
-fi
-exit 0
+ echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
+ echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+  if [ ! -z ${config+x} ]; then
+   "$HOME"/.axiom/interact/axiom-account "$account"
+  fi
+  exit 0
 fi
 
-if [ -z ${config+x} ]; then
-echo -e "${BWhite}Beginning first packer build...${Color_Off}"
-cd "$AXIOM_PATH"/ || exit
-"$AXIOM_PATH"/interact/axiom-build
-cd || exit
-echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+if [ -z ${config:+x} ]; then
+ echo -e "${BWhite}Beginning first packer build...${Color_Off}"
+ cd "$AXIOM_PATH"/ || exit
+ "$AXIOM_PATH"/interact/axiom-build
+ cd || exit
+ echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
 else
-echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
-"$HOME"/.axiom/interact/axiom-account "$account"
+ echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
+ "$HOME"/.axiom/interact/axiom-account "$account"
 fi
-
