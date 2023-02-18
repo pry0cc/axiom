@@ -35,6 +35,7 @@ esac
 ###########################################################################################################
 # Declare defaut variables
 #
+provider="$(jq -r '.provider' "$AXIOM_PATH/axiom.json")"
 gen_name="${names[$RANDOM % ${#names[@]}]}$((10 + RANDOM % 20))"
 region="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
 size="$(jq -r '.default_size' "$AXIOM_PATH"/axiom.json)"
@@ -78,6 +79,28 @@ waitabit() {
                 sleep "$delay"
         done
         printf "    \b\b\b\b"
+}
+
+###########################################################################################################
+# DO Region Transfer
+# Transfer image to region if requested in that region yet does not exist. DO only
+#
+region_transfer(){
+if [[ "$provider" == "do" ]]; then
+avail_image_id_regions=$(doctl compute image get "$image_id" -o json| jq -r '.[] | .regions[]')
+requested_image_id_regions="$region"
+
+if [[ "$avail_image_id_regions" != *"$requested_image_id_regions"* ]]; then
+echo -e "${BYellow}You requested image in region ${BRed}$region${BYellow}, however the image ${BRed}$image${BYellow} only exists in ${BRed}$(echo $avail_image_id_regions | tr '\n' ',')"
+echo -e "${BYellow}Axiom will auto transfer your image to new region. This can take a few minutes please be patient..${Color_Off}"
+
+doctl compute image-action transfer $image_id --region $region --wait
+sleep 3
+echo -e  "${BYellow}Image transfer completed... if the above command errored, you might need to pick a different region. Check if image is available in new region with 'axiom-images ls'${Color_Off}"
+echo -e "${BWhite}Waiting 90 seconds before continuing...${Color_Off}"
+sleep 90
+fi
+fi
 }
 
 ###########################################################################################################
@@ -275,6 +298,7 @@ if [ "$deploy" != false ]; then
 fi
 echo -e "${BWhite}INITIALIZING IN 5 SECONDS, CTRL+C to quit... ${Color_Off}"
 sleep 5
+region_transfer
 mkdir -p "$AXIOM_PATH/tmp/"
 create_instance "$name" "$image_id" "$size" "$region" &
 PID="$!"
