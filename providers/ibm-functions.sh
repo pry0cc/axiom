@@ -1,4 +1,3 @@
- 
 #!/bin/bash
 
 AXIOM_PATH="$HOME/.axiom"
@@ -336,14 +335,24 @@ instance_pretty() {
     #number of droplets
     droplets=$(echo $data|jq -r '.[]|.hostname'|wc -l )
 
-    i=0
-    for f in $(echo $data | jq -r '.[].billingItem.hourlyRecurringFee'); do new=$(bc <<< "$i + $f"); i=$new; done
-    totalPrice=$i
-    header="Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,Hours used,\$/H"
-    fields=".[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.hoursUsed, .billingItem.recurringFee] | @csv"
-    totals="_,_,_,_,_,Instances,$droplets,Total,\$$totalPrice"
+    hour_cost=0
+    for f in $(echo $data | jq -r '.[].billingItem.hourlyRecurringFee'); do new=$(bc <<< "$hour_cost + $f"); hour_cost=$new; done
+    totalhourly_Price=$hour_cost
+
+    hours_used=0
+    for f in $(echo $data | jq -r '.[].billingItem.hoursUsed'); do new=$(bc <<< "$hours_used + $f"); hours_used=$new; done
+    totalhours_used=$hours_used
+
+    monthly_cost=0
+    for f in $(echo $data | jq -r '.[].billingItem.orderItem.recurringAfterTaxAmount'); do new=$(bc <<< "$monthly_cost + $f"); monthly_cost=$new; done
+    totalmonthly_Price=$monthly_cost
+
+    header="Instance,Primary Ip,Backend Ip,DC,Memory,CPU,Status,Hours used,\$/H,\$/M"
+    fields=".[] | [.hostname, .primaryIpAddress, .primaryBackendIpAddress, .datacenter.name, .maxMemory, .maxCpu, .powerState.name, .billingItem.hoursUsed, .billingItem.orderItem.hourlyRecurringFee, .billingItem.orderItem.recurringAfterTaxAmount ] | @csv"
+    totals="_,_,_,_,Instances,$droplets,Total Hours,$totalhours_used,\$$totalhourly_Price/hr,\$$totalmonthly_Price/mo" 
+
     #data is sorted by default by field name    
-    data=$(echo $data | jq  -r "$fields")
+    data=$(echo $data | jq  -r "$fields"| sed 's/^,/0,/; :a;s/,,/,0,/g;ta')
     (echo "$header" && echo "$data" && echo $totals) | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
