@@ -126,6 +126,7 @@ do
         if [[ "$arg" == "--config" ]]; then
             n=$((i+1))
             config=$(echo ${!n})
+            config_flag="true"
             set=true
             pass+=($i)
             pass+=($n)
@@ -387,8 +388,8 @@ export PATH="$PATH:$HOME/.axiom/interact"
 if [[ $unattended == "true" ]] ; then
 echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
-if [ -z ${config+x} ]; then
-"$HOME"/.axiom/interact/axiom-account "$account"  >> /dev/null 2>&1
+if [[ $config_flag == "true" ]] ; then
+"$HOME"/.axiom/interact/axiom-account "$account"  
 fi
 exit 0
 fi
@@ -403,4 +404,3 @@ else
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
 "$HOME"/.axiom/interact/axiom-account "$account"
 fi
-

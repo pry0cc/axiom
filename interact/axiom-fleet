@@ -10,7 +10,7 @@
 #
 # axiom-fleet # Spin up three instances, let axiom decide on the fleet prefix"
 # axiom-fleet javis -i 10 # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
-# axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1 # Spin up 25 instances using round robbin region distribution"
+# axiom-fleet jerry -i 25 --regions dal13,lon06,fra05,tok05,syd05 # Spin up 25 instances using round robbin region distribution"
 
 ###########################################################################################################
 # Header
@@ -58,7 +58,7 @@ function usage() {
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
         echo -e "  ${Blue}axiom-fleet -i 10${Color_Off} # Spin up 10 instances with random fleet prefix"
-        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances named jerry01 to jerry25 using Round-robin region distribution"
+        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions dal13,lon06,fra05,tok05,syd05${Color_Off} # Spin up 25 instances named jerry01 to jerry25 using Round-robin region distribution"
         echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  -i/--instances <integer>"
         echo -e "    The number of instances to spin up"

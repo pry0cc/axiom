@@ -81,22 +81,22 @@ Usage:
    axiom-scan inputfile.txt -m nuclei --nuclei-templates /home/localuser/local-custom-nuclei-template-folder-to-upload/ -o outputfile.txt
    axiom-scan inputfile.txt -m nuclei --local-config /home/localuser/local-custom-nuclei-config-file-to-upload.yaml -anew outputfile.txt
    axiom-scan inputfile.txt -m gowitness -oD screenshots-folder --spinup 10 --rm-when-done
-   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan --spinup 100 --rm-when-done --regions us-east,us-southeast,us-central,us-west 
+   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan --spinup 100 --rm-when-done --regions dal13,lon06,fra05,tok05,syd05 
 
 Flags:
 INPUT:
    string[]              required positional first argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
-   --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
    --dont-shuffle        do not randomize input file before uploading (default is to randomize)
+   --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
 
 MODULE:
-   -m string[]           the axiom-scan module to use with the scan
-   --list                print all available modules
+   -m string[]           the axiom-scan module to use with the scan (must be a JSON file in ~/.axiom/modules)
+   --list                print all available modules located in ~/.axiom/modules
 
 WORDLIST:
    -w string[]                           replace _wordlist_ in module with user-provided wordlist (must be a path to a remote wordlist)
-   -wL,--local-wordlist string[]         replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    -wD,--distribute-wordlist string[]    replace _wordlist_ in module with user-provided local wordlist to split and upload (default does not split the wordlist)
+   -wL,--local-wordlist string[]         replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    --nuclei-templates string[]           replace _wordlist_ in module with user-provided local folder
 
 CONFIGURATIONS:
@@ -104,30 +104,30 @@ CONFIGURATIONS:
    --local-config string[]     replace _config_ in module with user-provided local configuration file to upload (must be a local configuration file)
 
 OPTIMIZATIONS:
-   --skip-preflight            do not automatically remove instances that can not be reached (default removes instances from the queue that can not be reached)
-   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
-   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
+   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd'$
+   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
+   --skip-preflight            do not automatically remove instances that can not be reached (default removes instances from the queue that can not be reached)
 
 OUTPUT:
-   -o string[]          output as default (the first ext mentioned in the module) 
-   -oD/-oA string[]     output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
-   -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
-   -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
-   -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    -anew string[]       pipe the output to anew before creating the final output file
-   --stdout             only display stdout results to terminal (default displays stdout and stderr to the terminal)
+   -o string[]          output as default (the first ext mentioned in the module)
+   -oD/-oA string[]     output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
+   -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
+   -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
+   -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    --quiet              do not display findings to terminal
    --rm-logs            delete remote and local logs after scan completes
+   --stdout             only display stdout results to terminal (default displays stdout and stderr to the terminal)
 
 FLEET:
-   --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf)
-   --spinup int[]              number of instances to spin up prior to scanning (default uses instances in $HOME/.axiom/selected.conf)
-   --rm-when-done              delete instance when finished with its job
+   -F string[]                 path to custom SSH config file (default is located at ~/.axiom/.sshconfig)
+   --cache                     do not regenerate SSH config prior to scan, instead use cached config (located at ~/.axiom/.sshconfig)
+   --fleet string[]            supply fleet prefix to use (default uses instances in ~/.axiom/selected.conf)
    --regions string[]          round-robin region distribution using comma-separated regions to cycle through (default is region in ~/.axiom/axiom.json)
+   --rm-when-done              delete instance when finished with its job
    --shutdown-when-done        shutdown the selected instance after the scan completes
-   -F string[]                 path to custom SSH config file (default is located at $HOME/.axiom/.sshconfig)
-   --cache                     do not regenerate SSH config prior to scan, instead use cached config (located at $HOME/.axiom/.sshconfig)
+   --spinup int[]              number of instances to spin up prior to scanning (default uses instances in ~/.axiom/selected.conf)
 
 DEBUG:
    --debug              run with set -xv, warning: very verbose
