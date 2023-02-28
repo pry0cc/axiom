@@ -73,3 +73,17 @@ tput setaf 4; echo "It can take a few minutes for the image to become active"
 tput setaf 6; echo "Once the image is active run axiom-init or axiom-fleet to deploy using your custom image"
 
 fi
+
+
+if [[ "$provider" == "aws" ]]; then
+tput setaf 4; echo "Enter the instance ID to use for axiom-init/axiom-fleet"
+tput setaf 15; aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance_ID:InstanceId,Zone:Placement.AvailabilityZone,State:State.Name,Name:Tags[?Key==`Name`]|[0].Value}' --output table
+tput setaf 6; read awsid
+aws ec2 create-image --instance-id "$awsid" --name $snapshot_name
+jq '.imageid="'$snapshot_name'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
+tput setaf 4; echo "Created image out of EC2 instance"
+tput setaf 6; echo "Updated "$account_path" , replaced imageid $imageid with $snapshot_name"
+tput setaf 4; echo "It can take a few minutes for the image to become active"
+tput setaf 6; echo "Once the image is active run axiom-init or axiom-fleet to deploy using your custom image"
+
+fi
