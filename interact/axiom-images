@@ -138,7 +138,7 @@ fi
 if [[ "$use" == "true" ]]; then
 old="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.imageid')"
 jq '.imageid="'$snapshot'"' <"$account_path">"$AXIOM_PATH"/tmp.json ; mv "$AXIOM_PATH"/tmp.json "$account_path"
-get_snapshots | grep -w $snapshot || { echo -e "${Red}Failed to find snapshot with name: "$snapshot"... exiting${Color_Off}" ; exit 1; }
+get_snapshots | grep $snapshot || { echo -e "${Red}Failed to find snapshot with name: "$snapshot"... exiting${Color_Off}" ; exit 1; }
 echo -e "${Green}Successfully updated imageid $old with new imageid in $snapshot in account: $current${Color_Off}"
 echo -e "${Green}Run axiom-init or axiom-fleet to use it!${Color_Off}"
 fi

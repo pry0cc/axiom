@@ -153,11 +153,14 @@ delete_record_force() {
 
     doctl compute domain records delete $domain $id -f
 }
+
 # Delete a snapshot by its name
 delete_snapshot() {
-	name="$1"
-	image_id=$(get_image_id "$name")
-	doctl compute snapshot delete "$image_id" -f
+    name="$1"
+    image_id=$(get_image_id "$name")
+    snapshot_id="$(aws ec2 describe-images --image-id "$image_id" --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)"
+    aws ec2 deregister-image --image-id "$image_id"
+    aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
 }
 
 add_dns_record() {
