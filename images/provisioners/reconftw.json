@@ -147,7 +147,7 @@
         "echo 'Installing subjs'",
         "/bin/su -l op -c 'go install github.com/lc/subjs@latest'",
         "echo 'Installing amass'",
-        "/bin/su -l op -c 'go install -v github.com/OWASP/Amass/v3/...@master' && cp /home/op/go/bin/amass /usr/bin/amass",
+        "/bin/su -l op -c 'go install -v github.com/owasp-amass/amass/v3/...@master' && cp /home/op/go/bin/amass /usr/bin/amass",
         "echo 'Installing dalfox'",
         "/bin/su -l op -c 'go install github.com/hahwul/dalfox/v2@latest'",
         "echo 'Installing gospider'",
