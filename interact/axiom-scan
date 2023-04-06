@@ -265,16 +265,28 @@ file="$1"
 divisor="$2"
 tmp="$3"
 lines="$(wc -l "$file" | awk '{ print $1 }')"
-lines_per_file=$(expr $lines / $divisor)
-[[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
- 
+lines_per_file=$((lines / divisor))
+extra_lines=$((lines % divisor))
+
 # randomize the target list. To disable randomization, use the --dont-shuffle option 
 if [[ "$shuffle" != "false" ]]; then
     shuf "$file" > "$tmp/split/targets"
 else
 cp "$file" "$tmp/split/targets"
 fi
-cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
+
+# split file 
+first=1
+for ((i=1; i<=divisor; i++)); do
+  last=$((first+lines_per_file-1))
+  if [[ $i -le $extra_lines ]]; then
+    last=$((last+1))
+  fi
+  # echo "Splitting lines $first to $last to file $i"
+  head -n $last "$tmp/split/targets" | tail -n $lines_per_file > $tmp/split/$i
+  first=$((last+1))
+done
+rm $tmp/split/targets
 
 # Rename "xaa" etc  to 1 2 3 4 5
 i=1
