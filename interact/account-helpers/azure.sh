@@ -86,7 +86,7 @@ fi
 ###########################################################################################################
 # Login and get default user email	
 #
-default_email=$(az login | jq -r  '.[].user.name')
+default_email=$(az login --use-device-code | jq -r  '.[].user.name')
 
 ###########################################################################################################
 # get the sub_id or use user provided subscription_id
