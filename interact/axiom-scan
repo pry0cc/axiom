@@ -283,7 +283,7 @@ for ((i=1; i<=divisor; i++)); do
     last=$((last+1))
   fi
   # echo "Splitting lines $first to $last to file $i"
-  head -n $last "$tmp/split/targets" | tail -n $lines_per_file > $tmp/split/$i
+  head -n $last "$tmp/split/targets" | tail -n $((last - first + 1))> $tmp/split/$i
   first=$((last+1))
 done
 rm $tmp/split/targets
