@@ -1,4 +1,0 @@
-[{
-  "command":"/home/op/go/bin/nuclei -update -silent ; /home/op/go/bin/nuclei -ut ; /home/op/go/bin/nuclei -l input -headless -id screenshot -V dir='output'",
-  "ext":""
-}]
