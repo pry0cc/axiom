@@ -1059,7 +1059,7 @@ $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/ --cac
 else
 if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
  sleep 10
- downloader
+ continue
 fi
 $downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
@@ -1085,7 +1085,7 @@ cat $tmp/status/completed/hosts.tmp | sort -u >> $tmp/status/completed/hosts
   wait $(cat $tmp/status/remotetailPID)  >> /dev/null 2>&1 
  break >> /dev/null 2>&1
  else
-  downloader
+  continue
  fi
 done
 }
