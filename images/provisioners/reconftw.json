@@ -125,7 +125,7 @@
         "echo 'Installing getJS'",
         "/bin/su -l op -c 'go install github.com/003random/getJS@latest'",
         "echo 'Installing gau'",
-        "/bin/su -l op -c 'go install github.com/lc/gau@latest'",
+        "/bin/su -l op -c 'go install github.com/lc/gau/v2/cmd/gau@latest'",
         "echo 'Installing dnsx'",
         "/bin/su -l op -c 'go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
         "echo 'Installing tlsx'",

@@ -181,7 +181,7 @@
         "wget -q -O /tmp/findomain.zip https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-linux.zip && unzip /tmp/findomain.zip -d /usr/bin/ && chmod +x /usr/bin/findomain && rm /tmp/findomain.zip",
 
         "echo 'Installing gau'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/lc/gau@latest'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/lc/gau/v2/cmd/gau@latest'",
 
         "echo 'Installing gauplus'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/bp0lr/gauplus@latest'",
