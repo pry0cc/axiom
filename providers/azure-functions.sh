@@ -133,7 +133,11 @@ delete_instance() {
 		
 		# when deleting a fleet, there is a virtual network left over from the first VM becuse it's used by the others
 		# need to figure out how to delete it...
-		
+		# It actually left over a public-ip, network security group and the virutal network, and here is the way to do it
+		az resource delete --ids $(az network public-ip list --query '[?ipAddress==`null`].[id]' -otsv | grep $name) >/dev/null 2>&1
+		az resource delete --ids $(az network nsg list --query "[?(subnets==null) && (networkInterfaces==null)].id" -o tsv | grep $name) >/dev/null 2>&1
+    az resource delete --ids $(az network nic list --query '[?virtualMachine==`null` && privateEndpoint==`null`].[id]' -o tsv | grep $name) >/dev/null 2>&1
+    
     else
     	# az vm delete --name "$name" --resource-group $resource_group
 		echo -e -n "  Are you sure you want to delete $name (y/N) - default NO: "
