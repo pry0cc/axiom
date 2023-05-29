@@ -75,7 +75,7 @@ create_instance() {
 	#location="$(az account list-locations | jq -r ".[] | select(.name==\"$region\") | .displayName")"
 	location="$region"
 
-    az vm create --resource-group $resource_group --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub  >/dev/null 2>&1 
+  az vm create --resource-group $resource_group --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --os-disk-delete-option delete --data-disk-delete-option delete --nic-delete-option delete --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub >/dev/null 2>&1
 	az vm open-port --resource-group $resource_group --name "$name" --port 0-65535 >/dev/null 2>&1 
 	sleep 260
 }
