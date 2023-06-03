@@ -10,7 +10,7 @@
 #
 # axiom-fleet # Spin up three instances, let axiom decide on the fleet prefix"
 # axiom-fleet javis -i 10 # Spin up 10 instances with a fleet prefix of javis, this will create 10 instances named javis01 to javis10."
-# axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1 # Spin up 25 instances using round robbin region distribution"
+# axiom-fleet jerry -i 25 --regions dal13,lon06,fra05,tok05,syd05 # Spin up 25 instances using round robbin region distribution"
 
 ###########################################################################################################
 # Header
@@ -49,6 +49,32 @@ init_timeout=4
 init_sleep=4
 
 ###########################################################################################################
+# DO Region Transfer
+# Transfer image to region if requested in that region yet does not exist. DO only
+#
+region_transfer(){
+if [[ "$provider" == "do" ]]; then
+ avail_image_id_regions=$(doctl compute image get "$image_id" -o json| jq -r '.[] | .regions[]')
+ requested_image_id_regions="$regionargs"
+ if [[ "$avail_image_id_regions" != *"$requested_image_id_regions"* ]]; then
+  echo -e "${Color_Off}]"
+  echo -e "${BYellow}instance ${Blue}"$name"${BYellow} requested image in region ${BRed}$regionargs${BYellow}, however image ${BRed}$image_name${BYellow} only exists in ${BRed}$(echo $avail_image_id_regions | tr '\n' ',')"
+  echo -e "${BYellow}axiom will attempt to transfer image to new region, this can take a few minutes please be patient...${Color_Off}"
+  doctl compute image-action transfer $image_id --region $regionargs --wait
+   if [ $? -eq 0 ]; then
+    echo -e "\033[32mimage transfer succeeded\033[0m"
+    echo -e "${BWhite}waiting 90 seconds before continuing...${Color_Off}"
+    sleep 90
+   else
+    echo -e "${BRed}image transfer failed... you might need to pick a different region. '${BWhite}axiom-region ls${BRed}' to list regions. '${BWhite}axiom-images ls${BRed}' to list images${Color_Off}"
+   fi
+ echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
+ fi
+echo -n -e ${Blue}
+fi 
+}
+
+###########################################################################################################
 # Help Menu
 # 
 function usage() {
@@ -58,7 +84,7 @@ function usage() {
         echo -e "${BWhite}Examples:${Color_Off}"
         echo -e "  ${Blue}axiom-fleet${Color_Off} # Spin up three instances, let axiom decide on the fleet prefix"
         echo -e "  ${Blue}axiom-fleet -i 10${Color_Off} # Spin up 10 instances with random fleet prefix"
-        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions nyc1,lon1,ams3,fra1${Color_Off} # Spin up 25 instances named jerry01 to jerry25 using Round-robin region distribution"
+        echo -e "  ${Blue}axiom-fleet jerry -i 25 --regions dal13,lon06,fra05,tok05,syd05${Color_Off} # Spin up 25 instances named jerry01 to jerry25 using Round-robin region distribution"
         echo -e "${BWhite}Usage:${Color_Off}"
         echo -e "  -i/--instances <integer>"
         echo -e "    The number of instances to spin up"
@@ -279,6 +305,14 @@ regionargs="${regions_to_cycle[o]}"
 #
 if [ -z ${regionargs:+x} ]; then
 regionargs="$(jq -r '.region' "$AXIOM_PATH"/axiom.json)"
+fi
+
+###########################################################################################################
+# DO Region Transfer
+# Transfer image to region if requested in that region yet does not exist. DO only
+#
+if [[ "$provider" == "do" ]]; then
+  region_transfer
 fi
 
 # create instance

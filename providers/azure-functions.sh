@@ -3,37 +3,38 @@
 AXIOM_PATH="$HOME/.axiom"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
+resource_group="$(jq -r '.resource_group' "$AXIOM_PATH"/axiom.json)"
 
 
 poweron() {
 instance_name="$1"
-az vm start -g AXIOM -name $instance_name
+az vm start -g ${resource_group} -name $instance_name --resource-group $resource_group
 }
 
 poweroff() {
 instance_name="$1"
-az vm stop -g AXIOM --name  $instance_name
+az vm stop -g ${resource_group} --name  $instance_name --resource-group $resource_group
 }
 
 reboot(){
 instance_name="$1"
-az vm restart -g AXIOM --name $instance_name
+az vm restart -g ${resource_group} --name $instance_name --resource-group $resource_group
 }
 
 # takes no arguments, outputs JSON object with instances
 instances() {
-	az vm list-ip-addresses
+	az vm list-ip-addresses --resource-group $resource_group
 }
 
 instance_id() {
 	name="$1"
-	az vm list | jq -r ".[] | select(.name==\"$name\") | .id"
+	az vm list --resource-group $resource_group | jq -r ".[] | select(.name==\"$name\") | .id"
 }
 
 # takes one argument, name of instance, returns raw IP address
 instance_ip() {
 	name="$1"
-	az vm list-ip-addresses | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress"
+	az vm list-ip-addresses --resource-group $resource_group | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress"
 }
 
 instance_ip_cache() {
@@ -48,17 +49,17 @@ instance_ip_cache() {
 }
 
 instance_list() {
-	 az vm list | jq -r '.[].name'
+	 az vm list --resource-group $resource_group | jq -r '.[].name'
 }
 
 # takes no arguments, creates an fzf menu
 instance_menu() {
-	 az vm list | jq -r '.[].name' | fzf
+	 az vm list --resource-group $resource_group | jq -r '.[].name' | fzf
 }
 
 quick_ip() {
 	data="$1"
-	ip=$(az vm list-ip-addresses | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
+	ip=$(az vm list-ip-addresses --resource-group $resource_group | jq -r ".[].virtualMachine | select(.name==\"$name\") | .network.publicIpAddresses[].ipAddress")
 	echo $ip
 }
 
@@ -69,19 +70,19 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
-  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+    sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 
 	#location="$(az account list-locations | jq -r ".[] | select(.name==\"$region\") | .displayName")"
 	location="$region"
-	az vm create --resource-group axiom --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub  >/dev/null 2>&1 
 
-	az vm open-port --resource-group axiom --name "$name" --port 0-65535 >/dev/null 2>&1 
+    az vm create --resource-group $resource_group --name "$name" --image "$image_id" --location "$location" --size "$size_slug" --tags "$name"=True --admin-username op --ssh-key-values ~/.ssh/$sshkey.pub  >/dev/null 2>&1 
+	az vm open-port --resource-group $resource_group --name "$name" --port 0-65535 >/dev/null 2>&1 
 	sleep 260
 }
 
 instance_pretty() {
 	data=$(instances)
-	extra_data=$(az vm list -d)
+	extra_data=$(az vm list --resource-group $resource_group -d)
 
 	(i=0
 	echo '"Instance","IP","Size","Region","Status","$M"'
@@ -114,7 +115,7 @@ selected_instance() {
 
 get_image_id() {
 	query="$1"
-	images=$(az image list)
+	images=$(az image list --resource-group $resource_group)
 	name=$(echo $images | jq -r ".[].name" | grep -wx "$query" | tail -n 1)
 	id=$(echo $images |  jq -r ".[] | select(.name==\"$name\") | .id")
 	echo $id
@@ -126,15 +127,19 @@ delete_instance() {
 
     if [ "$force" == "true" ]; then
 		# Does not delete all of the related resources like other platforms.
-        # az vm delete --name "$name" --resource-group axiom --yes --debug
+        # az vm delete --name "$name" --resource-group $resource_group --yes --debug
 		# recommeded to delete resources by tags instead
 		az resource delete --ids $(az resource list --tag "$name"=True -otable --query "[].id" -otsv) >/dev/null 2>&1
 		
 		# when deleting a fleet, there is a virtual network left over from the first VM becuse it's used by the others
 		# need to figure out how to delete it...
-		
+		# It actually left over a public-ip, network security group and the virutal network, and here is the way to do it
+		az resource delete --ids $(az network public-ip list --query '[?ipAddress==`null`].[id]' -otsv | grep $name) >/dev/null 2>&1
+		az resource delete --ids $(az network nsg list --query "[?(subnets==null) && (networkInterfaces==null)].id" -o tsv | grep $name) >/dev/null 2>&1
+    az resource delete --ids $(az network nic list --query '[?virtualMachine==`null` && privateEndpoint==`null`].[id]' -o tsv | grep $name) >/dev/null 2>&1
+    
     else
-    	# az vm delete --name "$name" --resource-group axiom
+    	# az vm delete --name "$name" --resource-group $resource_group
 		echo -e -n "  Are you sure you want to delete $name (y/N) - default NO: "
 		read ans
 		if [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
@@ -159,21 +164,21 @@ regions() {
 
 instance_sizes() {
 	location="$(jq -r '.region?' "$AXIOM_PATH/axiom.json")"
-    az vm list-sizes --location "$location"
+    az vm list-sizes --location "$location" --resource-group $resource_group
 }
 
 snapshots() {
-	az image list
+	az image list --resource-group $resource_group
 }
 
 get_snapshots() {
-	az image list --output table 
+	az image list --output table --resource-group $resource_group
 }
 
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"	
-	az image delete --name "$name" --resource-group axiom
+	az image delete --name "$name" --resource-group $resource_group
 }
 
 msg_success() {
@@ -265,7 +270,7 @@ query_instances_cache() {
 
 # take no arguments, generate a SSH config from the current Digitalocean layout
 generate_sshconfig() {
-	boxes="$(az vm list-ip-addresses --resource-group axiom)"
+	boxes="$(az vm list-ip-addresses --resource-group $resource_group)"
         sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
 	echo -n "" > "$sshnew"
 	echo -e "\tServerAliveInterval 60\n" >> $sshnew

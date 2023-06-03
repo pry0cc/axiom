@@ -1,6 +1,6 @@
 [{
 	"command":"/home/op/go/bin/ffuf -w _wordlist_ -u '_target_/FUZZ' -o _output_/_cleantarget_ ",
     "wordlist":"/home/op/lists/seclists/Discovery/Web-Content/big.txt",
-	"ext":"csv",
+	"ext":"txt",
 	"threads":"1"
 }]

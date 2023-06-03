@@ -70,7 +70,7 @@ cat << EOF
 axiom-scan provides easy distribution of arbitrary binaries and scripts.
 axiom-scan splits user-provided input files (target lists), wordlists and configuration files and uploads them to a unique scan working directory on the remote instance.
 axiom-scan combines user-provided command-line arguments with commands in the module and executes the final command on the remote instance.
-axiom-scan downloads and merges scan output in a variety of differnet formats, specified by the extention in the module (dir, txt, csv, xml).
+axiom-scan downloads and merges scan output in a variety of different formats, specified by the extension in the module (dir, txt, csv, xml).
 individual scanning operations are executed from a detacted tmux session (\$module+\$timestamp) inside a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
 
 Usage:
@@ -81,22 +81,22 @@ Usage:
    axiom-scan inputfile.txt -m nuclei --nuclei-templates /home/localuser/local-custom-nuclei-template-folder-to-upload/ -o outputfile.txt
    axiom-scan inputfile.txt -m nuclei --local-config /home/localuser/local-custom-nuclei-config-file-to-upload.yaml -anew outputfile.txt
    axiom-scan inputfile.txt -m gowitness -oD screenshots-folder --spinup 10 --rm-when-done
-   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan --spinup 100 --rm-when-done --regions us-east,us-southeast,us-central,us-west 
+   axiom-scan inputfile.txt -m nmapx -p- -sV -T4 -v --open -oA nampx-scan --spinup 100 --rm-when-done --regions dal13,lon06,fra05,tok05,syd05 
 
 Flags:
 INPUT:
    string[]              required positional first argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
-   --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
    --dont-shuffle        do not randomize input file before uploading (default is to randomize)
+   --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
 
 MODULE:
-   -m string[]           the axiom-scan module to use with the scan
-   --list                print all available modules
+   -m string[]           the axiom-scan module to use with the scan (must be a JSON file in ~/.axiom/modules)
+   --list                print all available modules located in ~/.axiom/modules
 
 WORDLIST:
    -w string[]                           replace _wordlist_ in module with user-provided wordlist (must be a path to a remote wordlist)
-   -wL,--local-wordlist string[]         replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    -wD,--distribute-wordlist string[]    replace _wordlist_ in module with user-provided local wordlist to split and upload (default does not split the wordlist)
+   -wL,--local-wordlist string[]         replace _wordlist_ in module with user-provided local wordlist (must be a path to a local wordlist)
    --nuclei-templates string[]           replace _wordlist_ in module with user-provided local folder
 
 CONFIGURATIONS:
@@ -104,30 +104,30 @@ CONFIGURATIONS:
    --local-config string[]     replace _config_ in module with user-provided local configuration file to upload (must be a local configuration file)
 
 OPTIMIZATIONS:
-   --skip-preflight            do not automatically remove instances that cant be reached (default removes instances from the queue that cant be reached)
-   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
-   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
+   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd'$
+   --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
+   --skip-preflight            do not automatically remove instances that can not be reached (default removes instances from the queue that can not be reached)
 
 OUTPUT:
-   -o string[]          output as default (the first ext mentioned in the module) 
-   -oD/-oA string[]     output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
-   -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
-   -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
-   -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    -anew string[]       pipe the output to anew before creating the final output file
-   --stdout             only display stdout results to terminal (default displays stdout and stderr to the terminal)
+   -o string[]          output as default (the first ext mentioned in the module)
+   -oD/-oA string[]     output as directory (must also be supplied in the module using "ext":"dir" or "ext":"")
+   -oG string[]         output as greppable, merge and sort unique (must also be supplied in the module using "ext":"oG")
+   -oX string[]         output as XML/HTML (supported for nmap and masscan)(must also be supplied in the module using "ext":"xml")
+   -csv string []       output as csv, extract csv header, merge and sort unique (must also be supplied in the module using "ext":"csv")
    --quiet              do not display findings to terminal
    --rm-logs            delete remote and local logs after scan completes
+   --stdout             only display stdout results to terminal (default displays stdout and stderr to the terminal)
 
 FLEET:
-   --fleet string[]            supply fleet prefix to use (default uses instances in $HOME/.axiom/selected.conf)
-   --spinup int[]              number of instances to spin up prior to scanning (default uses instances in $HOME/.axiom/selected.conf)
-   --rm-when-done              delete instance when finished with its job
+   -F string[]                 path to custom SSH config file (default is located at ~/.axiom/.sshconfig)
+   --cache                     do not regenerate SSH config prior to scan, instead use cached config (located at ~/.axiom/.sshconfig)
+   --fleet string[]            supply fleet prefix to use (default uses instances in ~/.axiom/selected.conf)
    --regions string[]          round-robin region distribution using comma-separated regions to cycle through (default is region in ~/.axiom/axiom.json)
+   --rm-when-done              delete instance when finished with its job
    --shutdown-when-done        shutdown the selected instance after the scan completes
-   -F string[]                 path to custom SSH config file (default is located at $HOME/.axiom/.sshconfig)
-   --cache                     do not regenerate SSH config prior to scan, instead use cached config (located at $HOME/.axiom/.sshconfig)
+   --spinup int[]              number of instances to spin up prior to scanning (default uses instances in ~/.axiom/selected.conf)
 
 DEBUG:
    --debug              run with set -xv, warning: very verbose
@@ -153,18 +153,23 @@ clean_up() {
      $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
     fi
     merge_output
-    echo -e "${Blue}Killing remote processes in a backgroud job${Color_Off}"
+    echo -e "${Blue}killing remote processes in a backgroud job${Color_Off}"
     $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/dev/null 2>&1
     $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
-    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
     if [[ "$keeplogs" != "true" ]]; then
      delete_logs
     fi 
+    mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
     end=$(date +%s)
     runtime=$((end-begin))
     time=$(formatSeconds $runtime)
-    echo -e "${Blue}Appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
-    echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+    json_stats="{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"canceled\"}}}" 
+    if jq -e . >/dev/null 2>&1 <<<"$json_stats"; then
+     echo -e "${Blue}appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+     echo "$json_stats" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+    else
+     echo -e "${Red}error parsing json runtime statistics, not appending axiom-scan statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+    fi
     echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances: ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets: ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results: ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} |"
     echo -e "${BGreen}runtime: ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date: ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id: ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
     echo -e "${BGreen}output: ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log: ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote: ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen} |"
@@ -180,17 +185,17 @@ clean_up() {
 #  To avoid undesirable scan results after merging, we keep the original un-merged scan result as well as the final merged copy. Everything else pertaining to the scan deleted.
 #
 delete_logs() {
- echo -e "${Blue}Deleting remote logs in a backgroud job${Color_Off}"
- axiom-exec "sudo rm -r /home/op/scan/${uid}/" --fleet "$AXIOM_PATH/logs/$uid/selected.conf"  >/dev/null 2>&1 &
-  if [ -d "$AXIOM_PATH/logs/$uid/" ] 
+ echo -e "${Blue}deleting remote logs in a backgroud job${Color_Off}"
+ $interlace_cmd_nobar -c "$ssh_command _target_ 'sudo rm -r /home/op/scan/${uid}/'"
+  if [ -d "$AXIOM_PATH/tmp/$uid/" ] 
    then
-   echo -e "${Blue}Deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
+   echo -e "${Blue}deleting local logs, except for $AXIOM_PATH/logs/$uid/output/ ${Color_Off}"
    start=$(pwd)
-   cd "$AXIOM_PATH/logs/$uid/" || exit 
+   cd "$AXIOM_PATH/tmp/$uid/" || exit 
    ls | grep -v output | xargs rm -r >/dev/null 2>&1
    cd "$start"
   else
-    echo "Error: local log folder does not exist."
+    echo "rrror: local log folder does not exist."
 fi
 }
 
@@ -201,14 +206,22 @@ apply_wordlist() {
     command="$1"
     wordlist="$2"
     wordlist_escaped="$(echo "$wordlist" | sed 's/\//\\\//g')"
-    echo "$command" | sed "s/_wordlist_/$wordlist_escaped/g"
-}
+    if [[ "$command" =~ "_wordlist_" ]] ; then
+     echo "$command" | sed "s/_wordlist_/$wordlist_escaped/g"
+    else
+     echo "$command" | sed "s/$/ $wordlist_escaped/g"
+    fi
+ }
 
 apply_config() {
     command="$1"
     config="$2"
     config_escaped="$(echo "$config" | sed 's/\//\\\//g')"
-    echo "$command" | sed "s/_config_/$config_escaped/g"
+    if [[ "$command" =~ "_config_" ]] ; then
+     echo "$command" | sed "s/_config_/$config_escaped/g"
+    else
+     echo "$command" | sed "s/$/ $config_escaped/g"
+    fi
 }
 
 ###########################################################################################################
@@ -252,16 +265,28 @@ file="$1"
 divisor="$2"
 tmp="$3"
 lines="$(wc -l "$file" | awk '{ print $1 }')"
-lines_per_file=$(expr $lines / $divisor)
-[[ $(expr $lines % $divisor) != 0 ]] && lines_per_file=$(expr $lines_per_file + 1)
- 
+lines_per_file=$((lines / divisor))
+extra_lines=$((lines % divisor))
+
 # randomize the target list. To disable randomization, use the --dont-shuffle option 
 if [[ "$shuffle" != "false" ]]; then
     shuf "$file" > "$tmp/split/targets"
 else
 cp "$file" "$tmp/split/targets"
 fi
-cd "$tmp/split" && split -l $lines_per_file targets && rm targets && cd "$start"
+
+# split file 
+first=1
+for ((i=1; i<=divisor; i++)); do
+  last=$((first+lines_per_file-1))
+  if [[ $i -le $extra_lines ]]; then
+    last=$((last+1))
+  fi
+  # echo "Splitting lines $first to $last to file $i"
+  head -n $last "$tmp/split/targets" | tail -n $((last - first + 1))> $tmp/split/$i
+  first=$((last+1))
+done
+rm $tmp/split/targets
 
 # Rename "xaa" etc  to 1 2 3 4 5
 i=1
@@ -286,7 +311,7 @@ merge_output() {
      fi
     fi
     if [[ "$ext" == "txt" ]]; then
-        echo "Mode set to txt.. Sorting unique."
+        echo "mode set to txt.. sorting unique."
         find $tmp/output/ -type f -exec cat {} \; | sort -u > $tmp/merge
         output_lines=$(wc -l $tmp/merge | tr -s ' ' | cut -d ' ' -f 1)
         if [[ "$anew" == "true" ]]; then
@@ -324,7 +349,7 @@ merge_output() {
             $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache -F=$sshconfig>> /dev/null"
             echo "Merging databases..."
             gowitness merge --input-path "$tmp/" -o "$outfile/gowitness.sqlite3"
-            echo -e "${Green}RUN: '${Blue}gowitness -D gowitness.sqlite3 -P screenshots report serve${Color_Off}' for reporting"
+            echo -e "${Green}RUN: '${Blue}gowitness server -D $outfile/gowitness.sqlite3 -P $outfile/${Color_Off}' for reporting"
         fi
            if [[ "$module" == "naabu-nmap" ]]; then
             echo "Merging naabu and nmap output"
@@ -604,9 +629,13 @@ do
             pass+=($n)
         fi
         if  [[ "$set" != "true" ]]; then
-            args="$args $arg"
+            space=" "
+            if [[ $arg =~ $space ]]; then
+              args="$args \"$arg\""
+            else
+              args="$args $arg"
+            fi
         fi
-
     fi
 done
 
@@ -895,7 +924,7 @@ if [[ "$distribute_wordlist" != "false" ]]; then
     cp "$tmp/selected.conf" "$tmp/distribute_wordlist/selected.conf"
     # hack to stop overwriting $lines and $tmp and $divisor
     lines1=$lines && tmp1=$tmp && divisor1=$divisor
-    split_file "$distribute_wordlist_filename" "$total_instances" $tmp/distribute_wordlist
+    split_file $(realpath "$distribute_wordlist") "$total_instances" $tmp/distribute_wordlist
     # hack to stop overwriting $lines and $tmp
     lines=$lines1 && tmp=$tmp1 && divisor=$divisor1
     $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/distribute_wordlist/input/_target_ _target_:$destination_wordlist --cache -F=$sshconfig >/dev/null 2>&1" | grep -v "Gen"
@@ -937,15 +966,16 @@ fi
 #
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
 
-if [[ "$command" =~ "_wordlist_" ]]; then
+[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
+
+if [[ "$command" =~ "_wordlist_" ]] ||  [[ "$local_wordlist" != "false" ]] || [[ "$nuclei_templates" != "false" ]] || [[ "$distribute_wordlist" != "false" ]]; then
 command="$(apply_wordlist "$command" "$wordlist")"
 fi
 
-if [[ "$command" =~ "_config_" ]]; then
+if [[ "$command" =~ "_config_" ]] ||  [[ "$local_config" != "false" ]]; then
 command="$(apply_config "$command" "$config_file")"
 fi
 
-[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
 escapedcommand=$(echo $command | jq -R -s '.')
 
 ###########################################################################################################
@@ -1139,11 +1169,6 @@ $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux kill-session -t $uid'"  >/d
 $interlace_cmd_nobar -c "$ssh_exit_command _target_ " >/dev/null 2>&1
 
 ###########################################################################################################
-#  Move downloaded raw results to log file
-#
-mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
-
-###########################################################################################################
 #  If delete logs is set to true, execute delete_logs function.
 #
 if [[ "$keeplogs" == "false" ]]; then
@@ -1151,11 +1176,22 @@ delete_logs
 fi
 
 ###########################################################################################################
+#  Move downloaded raw results to log file
+#
+mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
+
+###########################################################################################################
 #  Display exit stats about the scan such as log directory 
 #  Normalize terminal
 #
-echo -e "${BGreen}Appending axiom-scan runtime statistics to${Color_Off}${Blue} : $AXIOM_PATH/stats.log${Color_Off}"
-echo "{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+
+json_stats="{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}"
+if jq -e . >/dev/null 2>&1 <<<"$json_stats"; then
+ echo -e "${Blue}appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+ echo "$json_stats" | tee -a $AXIOM_PATH/stats.log  >> /dev/null 2>&1
+else
+ echo -e "${Red}error parsing json runtime statistics, not appending axiom-scan statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"
+fi
 echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}instances: ${Color_Off}[${Blue} $total_instances ${Color_Off}]${BGreen} | ${BGreen}targets: ${Color_Off}[${Blue} $lines targets ${Color_Off}]${BGreen} | ${BGreen}results: ${Color_Off}[${Blue} $output_lines results ${Color_Off}]${BGreen} |"
 echo -e "${BGreen}runtime: ${Color_Off}[${Blue} $time ${Color_Off}]${BGreen} | ${BGreen}date: ${Color_Off}[${Blue} $starttime ${Color_Off}]${BGreen} | ${BGreen}id: ${Color_Off}[${Blue} "$uid" ${Color_Off}]${BGreen} |"
 echo -e "${BGreen}output: ${Color_Off}[${Blue} $(realpath $outfile) ${Color_Off}]${BGreen} | ${BGreen}log: ${Color_Off}[${Blue} "$AXIOM_PATH/logs/$uid" ${Color_Off}]${BGreen} | ${BGreen}remote: ${Color_Off}[${Blue} "/home/op/scan/$uid" ${Color_Off}] ${BGreen} |"

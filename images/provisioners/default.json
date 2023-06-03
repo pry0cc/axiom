@@ -109,7 +109,7 @@
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/assetfinder/Dockerfile -t axiom/assetfinder'",
 
         "echo 'Installing Amass'",
-        "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.19.3/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
+        "wget -q -O /tmp/amass.zip https://github.com/OWASP/Amass/releases/download/v3.21.2/amass_linux_amd64.zip && cd /tmp/ && unzip /tmp/amass.zip && mv /tmp/amass_linux_amd64/amass /usr/bin/amass",
 
         "echo 'Installing aquatone'",
         "wget -q -O /tmp/aquatone.zip https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip && cd /tmp/ && unzip /tmp/aquatone.zip && mv /tmp/aquatone /usr/bin/aquatone",
@@ -241,7 +241,10 @@
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/ipcdn/Dockerfile -t axiom/ipcdn'",
 
         "echo 'Installing jaeles'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest && /home/op/go/bin/jaeles config init'",
+        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/jaeles-project/jaeles@latest'",
+
+        "echo 'Installing katana'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/projectdiscovery/katana/cmd/katana@latest'",
 
         "echo 'Installing kiterunner'",
         "/bin/su -l root -c 'wget -q https://github.com/assetnote/kiterunner/releases/download/v1.0.2/kiterunner_1.0.2_linux_amd64.tar.gz ; tar -zxvf kiterunner_1.0.2_linux_amd64.tar.gz ; rm kiterunner_1.0.2_linux_amd64.tar.gz ; mv kr /usr/bin/'",
@@ -271,11 +274,6 @@
         "sudo apt-get -qy --no-install-recommends install build-essential libssl-dev flex bison",
         "/bin/su -l op -c 'wget https://nmap.org/dist/nmap-7.92.tgz -O /home/op/recon/nmap.tar.gz && cd /home/op/recon/ && tar zxf nmap.tar.gz --transform s/nmap-7.92/nmap/ && rm nmap.tar.gz && cd /home/op/recon/nmap/ && sudo ./configure --without-ndiff --without-zenmap --without-nping  --without-ncat --without-nmap-update --with-libpcap=included && sudo make && sudo make install'",
 
-        "echo 'Installing nmap extra scripts by ivre'",
-        "git clone --depth 1  https://github.com/ivre/ivre.git /home/op/recon/nmap_scripts && cd /home/op/recon/nmap_scripts && git filter-branch --prune-empty --subdirectory-filter  nmap_scripts HEAD",
-        "sudo cp /home/op/recon/nmap_scripts/* /usr/local/share/nmap/scripts && sudo nmap --script-update",
-        "sudo cp /home/op/recon/nmap_scripts/* /home/op/recon/nmap/scripts/ && cd /home/op/recon/nmap && sudo ./nmap --script-update",
-
         "echo 'Installing nuclei'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest && /home/op/go/bin/nuclei'",
 
@@ -284,9 +282,6 @@
 
         "echo 'Installing ParamSpider'",
         "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
-
-        "echo 'Installing phantomjs'",
-        "wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2 && tar jxf phantomjs-1.9.8-linux-x86_64.tar.bz2 phantomjs-1.9.8-linux-x86_64/bin/phantomjs && sudo rm phantomjs-1.9.8-linux-x86_64.tar.bz2 && sudo mv phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/",
 
         "echo 'Installing proxychains-ng'",
         "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",

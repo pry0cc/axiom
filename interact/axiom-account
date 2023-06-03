@@ -61,8 +61,7 @@ then
                 fi 
                 if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
                     sudo pacman -Syu doctl --noconfirm
-                fi
-                if [[ $OS == "Linux" ]] ; then
+                else
                     wget -q -O /tmp/doctl.tar.gz https://github.com/digitalocean/doctl/releases/download/v1.66.0/doctl-1.66.0-linux-amd64.tar.gz && tar -xvzf /tmp/doctl.tar.gz && sudo mv doctl /usr/bin/doctl && rm /tmp/doctl.tar.gz
                 fi
                 token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
@@ -89,14 +88,73 @@ then
         fi #provider linode
 
         # If IBM token isnt valid, kick off account bootstrap
-        # TODO: Update ibmcloud cli 
         #
-        if [[ "$provider" == "ibm" ]]; 
-        then
-            ibmcloud update -f
-            token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
-            ibmcloud login --apikey "$token" --no-region || bootstrap
+        if [[ "$provider" == "ibm" ]]; then
+         if [[ $BASEOS == "Linux" ]]; then
+          if $(uname -a | grep -qi "Microsoft"); then
+           OS="UbuntuWSL"
+          else
+           OS=$(lsb_release -i | awk '{ print $3 }')
+           if ! command -v lsb_release &> /dev/null; then
+            OS="unknown-Linux"
+            BASEOS="Linux"
+           fi
+          fi
+         if [[ $OS == "Arch" ]] || [[ $OS == "ManjaroLinux" ]]; then
+          echo "Needs Conversation"
+         elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]]; then
+          if ! [ -x "$(command -v ibmcloud)" ]; then
+           echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+           curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          fi
+         elif [[ $OS == "Fedora" ]]; then
+          echo "Needs Conversation"
+	       elif [ $OS == "UbuntuWSL" ]; then
+          if ! [ -x "$(command -v ibmcloud)" ]; then
+           echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+           curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          fi
+          fi
+         fi
+
+         if [[ $BASEOS == "Mac" ]]; then
+          whereis brew
+          if [ ! $? -eq 0 ] || [[ ! -z ${AXIOM_FORCEBREW+x} ]]; then
+           echo -e "${Blue}Installing brew...${Color_Off}"
+           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          else
+           echo -e "${Blue}Checking for brew... already installed, skipping installation.${Color_Off}"
+           echo -e "${Blue}    Note: You can force brew installation by running${Color_Off}"
+           echo -e '    $ AXIOM_FORCEBREW=yes $HOME/.axiom/interact/axiom-configure'
+          fi
+         if ! [ -x "$(command -v ibmcloud)" ]; then
+          echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
+          curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+         fi
+         fi
+
+         #############################################################################################################
+         # Change packer version for IBM
+         #
+         mkdir -p /tmp/packer-ibm/
+         if [[ ! -f /tmp/packer-ibm/packer ]]; then
+          if [[ $BASEOS == "Linux" ]]; then
+           wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && mv packer /tmp/packer-ibm/ && rm /tmp/packer.zip
+          elif [[ $BASEOS == "Darwin" ]]; then
+           wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_darwin_amd64.zip && cd /tmp/ && unzip packer.zip && mv packer /tmp/packer-ibm/ && rm /tmp/packer.zip 
+          fi
         fi
+        # packer check
+         if [[ ! -f "$HOME/.packer.d/plugins/packer-builder-ibmcloud" ]]; then
+          echo -n -e "${Blue}Installing IBM Cloud Packer Builder (https://github.com/IBM/packer-plugin-ibmcloud/):\n y/n >> ${Color_Off}"
+          os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+          mkdir -p ~/.packer.d/plugins/
+          wget https://github.com/IBM/packer-plugin-ibmcloud/releases/download/v1.0.1/packer-builder-ibmcloud_1.0.1_linux_64-bit.tar.gz -O - | tar -xz -C ~/.packer.d/plugins/
+         fi
+         ibmcloud update -f
+         token="$(jq -r '.ibm_cloud_api_key' "$AXIOM_PATH"/accounts/"$1".json)"
+         ibmcloud login --apikey "$token" --no-region || bootstrap
+        fi #end provider ibm
 
         # If Azure cli isnt logged in, kick off bootstrap
         # TODO: Make sure az is up to date

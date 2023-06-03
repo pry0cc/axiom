@@ -1,0 +1,4 @@
+[{
+	"command":"cat input | /home/op/go/bin/Mantra -s | tee output",
+	"ext":"txt"
+}]

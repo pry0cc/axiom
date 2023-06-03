@@ -21,18 +21,18 @@ instance_ip() {
 }
 
 poweron() {
-instance_name="$1"
-linode-cli linodes boot $(instance_id $instance_name)
+    instance_name="$1"
+    linode-cli linodes boot $(instance_id $instance_name)
 }
 
 poweroff() {
-instance_name="$1"
-linode-cli linodes shutdown $(instance_id $instance_name)
+    instance_name="$1"
+    linode-cli linodes shutdown $(instance_id $instance_name)
 }
 
 reboot(){
-instance_name="$1"
-linode-cli linodes reboot $(instance_id $instance_name)
+    instance_name="$1"
+    linode-cli linodes reboot $(instance_id $instance_name)
 }
 
 instance_ip_cache() {
@@ -92,7 +92,7 @@ get_image_id() {
 
 delete_instance() {
     name="$1"
-  	id="$(instance_id "$name")"  
+  	id="$(instance_id "$name")"
     linode-cli linodes delete "$id"
 }
 
@@ -143,9 +143,9 @@ list_subdomains() {
 snapshots() {
 	linode-cli images list --json
 }
-
+# only displays private images 
 get_snapshots() {
-        linode-cli images list 
+    linode-cli images list --is_public false
 }
 
 delete_record() {
@@ -167,8 +167,8 @@ delete_record_force() {
 # Delete a snapshot by its name
 delete_snapshot() {
 	name="$1"
-  image_id=$(get_image_id "$name")	
-	linode-cli images delete "$image_id" 
+    image_id=$(get_image_id "$name")
+	linode-cli images delete "$image_id"
 }
 
 add_dns_record() {
@@ -203,13 +203,11 @@ query_instances() {
 	selected=""
 
 	for var in "$@"; do
-		if [[ "$var" =~ "*" ]]
-		then
+		if [[ "$var" =~ "*" ]]; then
 			var=$(echo "$var" | sed 's/*/.*/g')
 			selected="$selected $(echo $droplets | jq -r '.[].label' | grep "$var")"
 		else
-			if [[ $query ]];
-			then
+			if [[ $query ]]; then
 				query="$query\|$var"
 			else
 				query="$var"
@@ -217,12 +215,10 @@ query_instances() {
 		fi
 	done
 
-	if [[ "$query" ]]
-	then
+	if [[ "$query" ]]; then
 		selected="$selected $(echo $droplets | jq -r '.[].label' | grep -w "$query")"
 	else
-		if [[ ! "$selected" ]]
-		then
+		if [[ ! "$selected" ]];	then
 			echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
 			exit
 		fi
@@ -243,8 +239,7 @@ query_instances_cache() {
 			var=$(echo "$var" | sed 's/*/.*/g')
             selected="$selected $(cat "$ssh_conf" | grep "Host " | awk '{ print $2 }' | grep "$var")"
 		else
-			if [[ $query ]];
-			then
+			if [[ $query ]]; then
 				query="$query\|$var"
 			else
 				query="$var"
@@ -252,12 +247,10 @@ query_instances_cache() {
 		fi
 	done
 
-	if [[ "$query" ]]
-	then
+	if [[ "$query" ]]; then
         selected="$selected $(cat "$ssh_conf" | grep "Host " | awk '{ print $2 }' | grep -w "$query")"
 	else
-		if [[ ! "$selected" ]]
-		then
+		if [[ ! "$selected" ]]; then
 			echo -e "${Red}No instance supplied, use * if you want to delete all instances...${Color_Off}"
 			exit
 		fi
@@ -267,49 +260,43 @@ query_instances_cache() {
 	echo -n $selected
 }
 
-
-
-
 # Generate SSH config specfied in generate_sshconfig key:value in account.json
 #
 generate_sshconfig() {
 	accounts=$(ls -l "$AXIOM_PATH/accounts/" | grep "json" | grep -v 'total ' | awk '{ print $9 }' | sed 's/\.json//g')
 	current=$(ls -lh "$AXIOM_PATH/axiom.json" | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 	droplets="$(instances)"
-        sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
+    sshnew="$AXIOM_PATH/.sshconfig.new$RANDOM"
 	echo -n "" > $sshnew 
 	echo -e "\tServerAliveInterval 60\n" >> $sshnew 
 	sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
 	echo -e "IdentityFile $HOME/.ssh/$sshkey" >> $sshnew 
 	generate_sshconfig="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.generate_sshconfig')"
 
- if [[ "$generate_sshconfig" == "private" ]]; then
- echo -e "Warning your SSH config generation toggle is set to 'Private' for account : $(echo $current)."
- echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert: axiom-ssh --just-generate"
- 
- for name in $(echo "$droplets" | jq -r '.[].label')
- do
- ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
- echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew 
- done
+    if [[ "$generate_sshconfig" == "private" ]]; then
+        echo -e "Warning your SSH config generation toggle is set to 'Private' for account : $(echo $current)."
+        echo -e "axiom will always attempt to SSH into the instances from their private backend network interface. To revert: axiom-ssh --just-generate"
 
+    for name in $(echo "$droplets" | jq -r '.[].label'); do
+        ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[1]")
+        echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew 
+     done
 
-  mv $sshnew  $AXIOM_PATH/.sshconfig
+    mv $sshnew  $AXIOM_PATH/.sshconfig
 
 	elif [[ "$generate_sshconfig" == "cache" ]]; then
-	echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
-	echo -e "axiom will never attempt to regenerate the SSH config. To change edit $HOME/.axiom/account/$current.json"
-	
-  # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
-  #
-	else 
-        for name in $(echo "$droplets" | jq -r '.[].label')
-        do
-                ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]")
-                echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew 
+	    echo -e "Warning your SSH config generation toggle is set to 'Cache' for account : $(echo $current)."
+    	echo -e "axiom will never attempt to regenerate the SSH config. To change edit $HOME/.axiom/account/$current.json"
+
+    # If anything but "private" or "cache" is parsed from the generate_sshconfig in account.json, generate public IPs only
+    #
+	else
+        for name in $(echo "$droplets" | jq -r '.[].label'); do
+            ip=$(echo "$droplets" | jq -r ".[] | select(.label==\"$name\") | .ipv4[0]")
+            echo -e "Host $name\n\tHostName $ip\n\tUser op\n\tPort 2266\n" >> $sshnew
         done
 	mv $sshnew  $AXIOM_PATH/.sshconfig
-fi
+    fi
 }
 
 image_id() {
@@ -349,23 +336,20 @@ lsplit() {
 	rm $src
 	a=1
 
-	for f in $(ls | grep x)
-	do
+	for f in $(ls | grep x); do
 		mv $f $a.txt
 		a=$((a+1))
 	done
 
 	i=1
-	for instance in $(echo $instances | tr ' ' '\n')
-	do
+	for instance in $(echo $instances | tr ' ' '\n'); do
 		mv $i.txt $instance.txt
 		i=$((i+1))
 	done
-	
+
 	cd $orig_pwd
 	echo -n $split_dir
 }
-
 
 # Check if host is in .sshconfig, and if it's not, regenerate sshconfig
 conf_check() {
@@ -373,8 +357,7 @@ conf_check() {
 
 	l="$(cat "$AXIOM_PATH/.sshconfig" | grep "$instance" | wc -l | awk '{ print $1 }')"
 
-	if [[ $l -lt 1 ]]
-	then
+	if [[ $l -lt 1 ]]; then
 		generate_sshconfig	
 	fi
 }

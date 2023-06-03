@@ -60,7 +60,7 @@ sshkey=$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey | select( . != null )')
 cache=false
 quiet=false
 starttime=$(date +"%F-TIME-%T")
-uid="axiom-exec+$(date +%s)"
+uid="$(date +%s)"
 tmp="$AXIOM_PATH/tmp/exec/$uid"
 logs="$AXIOM_PATH/logs/exec/$uid"
 sshconfig="$AXIOM_PATH/.sshconfig"

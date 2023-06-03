@@ -5,18 +5,21 @@ source "$AXIOM_PATH/interact/includes/appliance.sh"
 LOG="$AXIOM_PATH/log.txt"
 
 poweron() {
-instance_name="$1"
-doctl compute droplet-action power-on $(instance_id $instance_name)
+  instance_name="$1"
+  id=$(instance_id "$instance_name")
+  aws ec2 start-instances --instance-ids "$id"
 }
 
 poweroff() {
-instance_name="$1"
-doctl compute droplet-action power-off $(instance_id $instance_name)
+  instance_name="$1"
+  id=$(instance_id "$instance_name")
+  aws ec2 stop-instances --instance-ids "$id"
 }
 
-reboot(){
-instance_name="$1"
-doctl compute droplet-action reboot $(instance_id $instance_name)
+reboot() {
+  instance_name="$1"
+  id=$(instance_id "$instance_name")
+  aws ec2 reboot-instances --instance-ids "$id"
 }
 
 # takes no arguments, outputs JSON object with instances
@@ -150,11 +153,14 @@ delete_record_force() {
 
     doctl compute domain records delete $domain $id -f
 }
+
 # Delete a snapshot by its name
 delete_snapshot() {
-	name="$1"
-	image_id=$(get_image_id "$name")
-	doctl compute snapshot delete "$image_id" -f
+    name="$1"
+    image_id=$(get_image_id "$name")
+    snapshot_id="$(aws ec2 describe-images --image-id "$image_id" --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)"
+    aws ec2 deregister-image --image-id "$image_id"
+    aws ec2 delete-snapshot --snapshot-id "$snapshot_id"
 }
 
 add_dns_record() {
@@ -318,7 +324,7 @@ create_instance() {
   #  --no-header 2>/dev/null) ||
   #keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
   
-  aws ec2 run-instances --image-id "$image_id" --count 1 --instance-type --region "$region" "$size" --key-name axiom --security-groups axiom --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$name}]" 2>&1 >> /dev/null
+  aws ec2 run-instances --image-id "$image_id" --count 1 --instance-type "$size" --region "$region" --security-groups axiom --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$name}]" 2>&1 >> /dev/null
   
   sleep 260
 }

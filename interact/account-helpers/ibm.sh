@@ -81,7 +81,30 @@ if [[ $BASEOS == "Mac" ]]; then
    fi
 fi
 
-# packer check
+#############################################################################################################
+# Change packer version for IBM
+#
+mkdir -p /tmp/packer-ibm/
+ if [[ ! -f /tmp/packer-ibm/packer ]]; then
+  if [[ $BASEOS == "Linux" ]]; then
+   wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_linux_amd64.zip && cd /tmp/ && unzip packer.zip && mv packer /tmp/packer-ibm/ && rm /tmp/packer.zip
+  elif [[ $BASEOS == "Darwin" ]]; then
+   wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.6/packer_1.5.6_darwin_amd64.zip && cd /tmp/ && unzip packer.zip && mv packer /tmp/packer-ibm/ && rm /tmp/packer.zip 
+fi
+
+BASEOS="$(uname)"
+case $BASEOS in
+'Darwin')
+    PATH="/tmp/packer-ibm/:$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+    ;;
+'Linux')
+    PATH="/tmp/packer-ibm:$PATH"
+    ;;
+*) ;;
+esac
+fi
+
+# packer plugin check
 if [[ ! -f "$HOME/.packer.d/plugins/packer-builder-ibmcloud" ]]; then
  echo -n -e "${Blue}Installing IBM Cloud Packer Builder (https://github.com/IBM/packer-plugin-ibmcloud/):\n y/n >> ${Color_Off}"
  os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -119,6 +142,15 @@ ibmcloud login --apikey=$ibm_cloud_api_key --no-region
 getUsernameAPIkey
 }
 
+
+function create_apikey {
+echo -e -n "${Green}Creating an IAM API key for this profile \n>> ${Color_Off}"
+name="axiom-$(printf '%(%FT%T%z)T\n')"
+key_details=$(ibmcloud iam api-key-create "$name" --output json)
+echo "$key_details" | jq
+ibm_cloud_api_key=$(echo "$key_details" | jq -r .apikey)
+ibmcloud login --apikey=$ibm_cloud_api_key --no-region
+}
 
 function specs {
 echo -e -n "${Green}Please enter your default region: (Default 'dal13', press enter) \n>> ${Color_Off}"
@@ -188,12 +220,15 @@ types=("SSO" "Username & Password" "API Keys")
      echo "Attempting to authenticate with SSO!"
      ibmcloud login --no-region --sso
      getUsernameAPIkey
+     create_apikey
      specs
      setprofile
      break
      ;;
   "Username & Password")
      ibmcloud login --no-region
+     getUsernameAPIkey
+     create_apikey
      specs
      setprofile
      break
