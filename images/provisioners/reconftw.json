@@ -53,8 +53,8 @@
         "sudo service sshd restart",
         "chmod +x /etc/update-motd.d/00-header",
 
-        "echo 'Installing Golang 1.20.4'",
-        "wget -q https://go.dev/dl/go1.20.4.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.20.4.linux-amd64.tar.gz && rm go1.20.4.linux-amd64.tar.gz",
+        "echo 'Installing Golang 1.20.5'",
+        "wget -q https://go.dev/dl/go1.20.5.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.20.5.linux-amd64.tar.gz && rm go1.20.5.linux-amd64.tar.gz",
         "export GOPATH=/home/op/go",
 
         "echo 'Installing Docker'",
