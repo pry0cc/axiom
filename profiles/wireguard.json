@@ -3,7 +3,7 @@
 	"description":"Wireguard Server",
 	"install": [
 		"mkdir -p /home/op/vpn",
-        "sudo apt-get update && sudo apt-get -y install wireguard",
+		"sudo apt-get update && sudo apt --fix-broken install -y && sudo apt-get -y install wireguard",  
 		"cd /home/op/vpn && git clone https://github.com/pry0cc/awh && cd awh && ./generate.sh",
         "cp /home/op/vpn/awh/client/client.conf /home/op/vpn/client.conf"
 	],
