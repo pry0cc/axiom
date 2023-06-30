@@ -13,7 +13,23 @@ else
 	name="$1"
 fi
 
-vpn_dst="/tmp/$name.ovpn"
+openvpn_dst="/tmp/$name.ovpn"
+wgvpn_dst="/tmp/$name.conf"
 #ip="$(instance_ip $name)"
-$AXIOM_PATH/interact/axiom-scp "$name":/home/op/vpn/client.ovpn $vpn_dst
-sudo openvpn $vpn_dst
+$AXIOM_PATH/interact/axiom-scp "$name":/home/op/vpn/client.ovpn $openvpn_dst
+$AXIOM_PATH/interact/axiom-scp "$name":/home/op/vpn/client.conf $wgvpn_dst
+
+if [ -f "$wgvpn_dst" ]; then
+	echo "-----"
+	echo "Starting Wireguard."
+	echo "-----"
+	sudo wg-quick up $wgvpn_dst
+	echo "-----"
+    echo "Stop Wireguard: sudo wg-quick down $wgvpn_dst"
+	echo "-----"
+else 
+	echo "-----"
+    echo "Starting OpenVPN."
+	echo "-----"
+	sudo openvpn $openvpn_dst
+fi
