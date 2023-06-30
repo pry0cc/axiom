@@ -7,11 +7,11 @@ source "$AXIOM_PATH/interact/includes/functions.sh"
 single_mode="false"
 
 function ctrlc() {
-	echo -e "${Blue}Cleaning up SSH connections before exiting...${Color_Off}"
-        PIDS=$(ps aux | awk '/ssh -p2266 -o StrictHostKeyChecking=no -D/ && /-R 8080:127.0.0.1:8080 -N/' | grep -v awk | awk '{ print $2 }')
+    echo -e "${Blue}Cleaning up SSH connections before exiting...${Color_Off}"
+        PIDS=$(ps aux | awk '/-p2266 -o StrictHostKeyChecking=no -D/ && /-R 8085:127.0.0.1:8085 -N -f/' | grep -v awk | awk '{ print $2 }')
         for LINE in $PIDS
         do
-             kill -9 $PIDS
+             kill -9 $LINE
         done
         echo -e "${BGreen}Done cleaning up SSH connections and exiting${Color_Off}"
         exit 2
@@ -41,16 +41,16 @@ fi
 i=0
 for instance in $(query_instances_cache "$1" ) 
 do
-	i=$((i+1))
-	ip=$(instance_ip_cache "$instance")
-	append=$(printf "%02d" "$i")
-	port="50$append"
-	
-	ssh -p2266 -o StrictHostKeyChecking=no -D $port op@$ip -R 8080:127.0.0.1:8080 -N 2>&1 >>/dev/null &
-	echo -e "${BWhite}Proxy listener started on $port for $instance...${Color_Off}"
+    i=$((i+1))
+    ip=$(instance_ip_cache "$instance")
+    append=$(printf "%02d" "$i")
+    port="50$append"
+    
+    axiom-ssh $instance -p2266 -o StrictHostKeyChecking=no -D $port -R 8085:127.0.0.1:8085 -N -f 2>&1 >>/dev/null &
+    echo -e "${BWhite}Proxy listener started on $port for $instance...${Color_Off}"
     [[ "$single_mode" == "true" ]] && echo -e "\tserver $ip 127.0.0.1:$port" >> "$tmp/haproxy.cfg"
-	echo "socks5 127.0.0.1 $port" >>proxychains.conf
-	sleep 0.6
+    echo "socks5 127.0.0.1 $port" >>proxychains.conf
+    sleep 0.6
 done
 
 echo -e "${BGreen}Proxies connected and saved in ./proxychains.conf${Color_Off}"
@@ -58,7 +58,19 @@ echo -e "${BGreen}Proxies connected and saved in ./proxychains.conf${Color_Off}"
 if [[ "$single_mode" == "true" ]]; then
     echo -e "${Blue}Building haproxy configuration...${Color_Off}"
     echo -e "FROM haproxy:alpine\nCOPY --chmod=644 haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg" > $tmp/Dockerfile
-    sudo DOCKER_BUILDKIT=1 docker build -t pry0cc/haproxy $tmp
     echo -e "${BGreen}[*]${Green} Started SOCKS5 Listener on '${Blue}0.0.0.0:1337${BGreen}'... CTRL+C TO EXIT${BGreen}...${Color_Off}"
-    sudo docker run --rm --network=host --name axiom-proxy pry0cc/haproxy
+    
+    if [[ $OSTYPE == 'darwin'* ]]; then
+        echo -e "${BGreen}[*]${Green} Starting docker for MacOS'${BGreen}...${Color_Off}"
+        sed -i .bakup_extension "s/127.0.0.1/host.docker.internal/g" "$tmp/haproxy.cfg"
+        DOCKER_BUILDKIT=1 docker build -t pry0cc/haproxy $tmp
+        docker run --rm -p 1337:1337 --name axiom-proxy pry0cc/haproxy
+    else 
+        echo -e "${BGreen}[*]${Green} Starting docker for Linux'${BGreen}...${Color_Off}"
+        sudo DOCKER_BUILDKIT=1 docker build -t pry0cc/haproxy $tmp
+        sudo docker run --rm --net host --name axiom-proxy pry0cc/haproxy
+    fi
+else 
+    echo -e "${BGreen}[*]${Green} Started SOCKS5 for proxychains'... CTRL+C TO EXIT${BGreen}...${Color_Off}"
+    while true; do sleep 10000; done
 fi
