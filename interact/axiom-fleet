@@ -203,17 +203,6 @@ start=$((start+1))
 total_spend_per_instance_rounded="0"
 slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
-price_hourly=0
-if [[ "$provider" == "do" ]]; then
-        sizes=$(instance_sizes)
-        instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-        price_hourly=$(echo "$instance_data" | jq .price_hourly)
-elif [[ "$provider" == "azure" ]]; then
-        price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
-fi
-
-expiry=$(bc <<< "scale=2; $hours * 60")
-expiry=$(bc <<< "scale=2; $expiry - 8")
 echo -n -e "${BWhite}Instances: ${Color_Off}[ ${Blue}"
 o=0
 for i in $(seq -f "%02g" $start $amount)
@@ -257,18 +246,7 @@ start=$((start+1))
 total_spend_per_instance_rounded="0"
 slug=$(cat "$AXIOM_PATH"/axiom.json | jq -r .default_size)  >/dev/null 2>&1
 
-price_hourly=0
-if [[ "$provider" == "do" ]]; then
-        sizes=$(instance_sizes)
-        instance_data=$(echo "$sizes" | jq ".[] | select(.slug==\"$slug\")") >/dev/null 2>&1
-        price_hourly=$(echo "$instance_data" | jq .price_hourly)
-elif [[ "$provider" == "azure" ]]; then
-        price_hourly=$(cat "$AXIOM_PATH"/pricing/azure.json | jq ".[].costs[] | select(.id==\"$slug\") .firstParty[].meters[].perUnitAmount")
-fi
-
-expiry=$(bc <<< "scale=2; $hours * 60")
-expiry=$(bc <<< "scale=2; $expiry - 8")
- IFS=',' read -r -a region_array <<< "$cycle_regions"
+IFS=',' read -r -a region_array <<< "$cycle_regions"
 
 # Basically repeat items, if the fleet is 20 hosts and they only supply 3 regions, loop over them until it reaches 20
 total_regions=$(echo "${region_array[@]}" |  tr ' ' '\n' | wc -l | awk '{ print $1 }')
@@ -283,7 +261,6 @@ regions_to_cycle=()
    k=0
   fi
 done
-
 
 # Remove null element from array and reindex
 #
@@ -329,7 +306,6 @@ while [[ $time -gt 0 ]]; do
  sleep 1
  : $((time--))
 done
-
 "$AXIOM_PATH"/interact/axiom-select "$gen_name*"
 
 echo -e "${BGreen}Fleet started succesfully!\nTo delete your fleet, just run '${Blue}axiom-rm \"$gen_name*\" -f${BGreen}'${Color_Off}"
