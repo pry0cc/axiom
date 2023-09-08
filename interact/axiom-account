@@ -53,6 +53,8 @@ then
             echo -e "${Blue}Updating doctl...${Color_Off}"
             if [[ $BASEOS == "Mac" ]]; then
                 brew install doctl
+                echo -e "${Blue}Installing doctl packer plugin...${Color_Off}"
+                packer plugins install github.com/digitalocean/digitalocean
             elif [[ $BASEOS == "Linux" ]]; then
                 OS=$(lsb_release -i | awk '{ print $3 }')
                 if ! command -v lsb_release &> /dev/null; then
@@ -75,6 +77,10 @@ then
         then
             echo -e "${Green}Updating linode-cli\n ${Color_Off}"
             pip3 install linode-cli --upgrade
+            if [[ $BASEOS == "Mac" ]]; then
+              echo -e "${Blue}Installing linode packer plugin...${Color_Off}"
+              packer plugins install github.com/linode/linode
+            fi
             token="$(jq -r '.do_key' "$AXIOM_PATH"/accounts/"$1".json)"
             size="$(jq -r '.default_size' "$AXIOM_PATH"/accounts/"$1".json)"
             region="$(jq -r '.region' "$AXIOM_PATH"/accounts/"$1".json)"
