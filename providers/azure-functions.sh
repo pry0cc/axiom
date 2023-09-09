@@ -94,11 +94,9 @@ instance_pretty() {
 		size=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .hardwareProfile.vmSize")
 		region=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .location")
                 power=$(echo $extra_data | jq -r ".[] | select(.name==\"$name\") | .powerState")
-		price_monthly=$(cat $AXIOM_PATH/pricing/azure.json | jq -r ".[].costs[] | select(.id==\"$size\") | .firstParty[].meters[].amount")
-		i=$(echo "$i+$price_monthly" | bc -l)
 
-		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".powerState=\"$power\""| jq ".price_monthly=\"$price_monthly\"")
-		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region, .powerState, .price_monthly] | @csv'
+		data=$(echo $instance | jq ".size=\"$size\"" | jq ".region=\"$region\"" | jq ".powerState=\"$power\"")
+		echo $data | jq -r '[.name, .network.publicIpAddresses[].ipAddress, .size, .region, .powerState] | @csv'
 	done
 
 	echo "\"_\",\"_\",\"_\",\"_\",\"Total\",\"\$$i\"") | column -t -s, | tr -d '"' | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'

@@ -1,1 +1,0 @@
-cat input | dnsx -resp | tr -d "[" | tr -d "]" 

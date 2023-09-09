@@ -105,7 +105,7 @@ CONFIGURATIONS:
 
 OPTIMIZATIONS:
    --disable-oneshot           by default, if a module contains the string _target_ it is executed as a one-shot module. Use this flag to force disable
-   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd'$
+   --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
    --skip-preflight            do not automatically remove instances that can not be reached (default removes instances from the queue that can not be reached)
 
@@ -195,7 +195,7 @@ delete_logs() {
    ls | grep -v output | xargs rm -r >/dev/null 2>&1
    cd "$start"
   else
-    echo "rrror: local log folder does not exist."
+    echo "error: local log folder does not exist."
 fi
 }
 
@@ -684,6 +684,14 @@ if [ ! -f $AXIOM_PATH/modules/$module.json ]; then
 fi
 
 ###########################################################################################################
+#  Validate that module is valid json
+#
+if ! jq -e . >/dev/null 2>&1 <<< "$(cat $AXIOM_PATH/modules/$module.json)"; then
+ echo -e "${Red}error parsing json module $AXIOM_PATH/modules/$module.json, not properly formatted json.. exiting${Color_Off}"
+ exit 1
+fi
+
+###########################################################################################################
 #  Create temporary directories and set tmp path to be used for logs
 #
 uid="$module+$(date +%s)$RANDOM"
@@ -725,13 +733,20 @@ if [[ "$cache" == "false" ]]; then
 fi
 
 ###########################################################################################################
+# only use instance if a target is available. example: if input only has 1 url, but 3 instances are used
+# only use 1 instance, unless --dont-split is used
+#
+if [[ "$spinup" == 0 ]] && [[ "$split" == "true" ]]; then
+ needed_instances="$(wc -l "$input" | awk '{ print $1 }')"
+ cat "$AXIOM_PATH/selected.conf" | head -n $needed_instances >> "$tmp/hosts"
+else
+ cat "$AXIOM_PATH/selected.conf" >> "$tmp/hosts"
+fi
+
+###########################################################################################################
 #  cp the selected.conf to different file names ( one for Interlace, one for selected.conf)
 #  Make a copy of the current SSH config and use it for axiom-scan
 #
-needed_instances="$(wc -l "$input" | awk '{ print $1 }')"
-if [[ "$spinup" == 0 ]]; then
-cat "$AXIOM_PATH/selected.conf" | head -n $needed_instances >> "$tmp/hosts"
-fi
 cp "$tmp/hosts" "$tmp/selected.conf"
 cp "$sshconfig" "$tmp/sshconfig" 
 sshconfig="$tmp/sshconfig"
@@ -776,14 +791,6 @@ fi
 if [[ "$lines" -eq "0" ]]; then
    echo "error input file is empty, exiting";
    exit;
-fi
-
-###########################################################################################################
-#  Debug Flag
-#
-if [[ "$debug" == "true" ]]; then
-    set -xv
-    silent=""
 fi
 
 ###########################################################################################################
@@ -1184,7 +1191,6 @@ mv "$AXIOM_PATH/tmp/$uid/" "$AXIOM_PATH/logs/"
 #  Display exit stats about the scan such as log directory 
 #  Normalize terminal
 #
-
 json_stats="{\"scan\":{\"$module\":{\"id\":\"$uid\",\"extra_args\":\"$args\",\"instances\":\"$total_instances\",\"targets\":\"$lines\",\"results\":\"$output_lines\",\"runtime\":\"$time\",\"date\":\"$starttime\",\"command\":$escapedcommand,\"threads\":\"$threads\",\"local_logs\":\"$AXIOM_PATH/logs/$uid\",\"remote_logs\":\"/home/op/scan/$uid\",\"output\":\"$(realpath $outfile)\",\"status\":\"completed\"}}}"
 if jq -e . >/dev/null 2>&1 <<<"$json_stats"; then
  echo -e "${Blue}appending axiom-scan runtime statistics to${Color_Off}${BGreen} : $AXIOM_PATH/stats.log${Color_Off}"

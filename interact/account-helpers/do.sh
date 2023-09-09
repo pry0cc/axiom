@@ -38,6 +38,7 @@ esac
 echo -e "${Blue}Installing doctl...${Color_Off}"
 if [[ $BASEOS == "Mac" ]]; then
 brew install doctl
+packer plugins install github.com/digitalocean/digitalocean
 elif [[ $BASEOS == "Linux" ]]; then
 OS=$(lsb_release -i | awk '{ print $3 }')
    if ! command -v lsb_release &> /dev/null; then

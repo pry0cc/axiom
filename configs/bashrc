@@ -3,6 +3,4 @@
 export PATH="$PATH:$HOME/.rvm/bin"
 export GOPATH=/home/op/go
 export PS1='\[\033[01;32m\]$(whoami)@$(hostname) \[\033[0m\]'
-
-alias msfconsole="rvmsudo ~/Pentesting/Exploitation/msf/msfconsole"
 alias ls="ls --color=auto"
