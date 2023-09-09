@@ -1,5 +1,5 @@
 [{
-    "command":"/home/op/go/bin/puredns bruteforce _wordlist_ _target_ -r /home/op/lists/resolvers.txt  | tee _output_/_target_",
+    "command":"/home/op/go/bin/puredns bruteforce _wordlist_ _target_ -r /home/op/lists/resolvers.txt  | tee _output_/_cleantarget_",
     "ext":"txt",
     "wordlist":"/home/op/lists/seclists/Discovery/DNS/dns-Jhaddix.txt",
     "threads":"1"
