@@ -1,5 +1,5 @@
 keys/*
-.sshconfig
+.sshconfig*
 stats.log
 logs/*
 accounts/*.json
