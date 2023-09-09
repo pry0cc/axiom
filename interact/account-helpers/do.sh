@@ -79,7 +79,7 @@ done
 doctl auth init -t "$token" | grep -vi "using token"
 
 echo -e -n "${Green}Listing available regions with axiom-regions ls \n${Color_Off}"
-axiom-region ls | grep -v false
+doctl compute region list | grep -v false 
 
 default_region=nyc1
 echo -e -n "${Green}Please enter your default region: (Default '$default_region', press enter) \n>> ${Color_Off}"
