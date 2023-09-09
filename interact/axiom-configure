@@ -64,7 +64,6 @@ function zsh_shell(){
     echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH:\$HOME/.local/bin"  >>~/.zshrc
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc  
-    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc 
     source "${HOME}"/.zshrc >> /dev/null 2>&1
     SHELL=$(which zsh)
 }
@@ -88,7 +87,6 @@ function omz_shell(){
     echo "export PATH=\$GOPATH/bin:/usr/local/go/bin:\$PATH" >>~/.zshrc
     echo -e "${Green}You're running ZSH! Installing Axiom to \$PATH...${Color_Off}"
     echo "export PATH=\"\$PATH:\$HOME/.axiom/interact\"" >>~/.zshrc  
-    echo "source $HOME/.axiom/functions/autocomplete.zsh" >>~/.zshrc   
     source "${HOME}"/.zshrc  >> /dev/null 2>&1
     SHELL=$(which zsh)
 }
