@@ -281,7 +281,7 @@
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/openredirex/Dockerfile -t axiom/openredirex'",
 
         "echo 'Installing ParamSpider'",
-        "/bin/su -l op -c 'git clone https://github.com/devanshbatham/ParamSpider.git /home/op/recon/ParamSpider && cd /home/op/recon/ParamSpider && pip3 install -r requirements.txt && cd'",
+        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/paramspider/Dockerfile -t axiom/paramspider'",
 
         "echo 'Installing proxychains-ng'",
         "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",
