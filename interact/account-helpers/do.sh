@@ -78,9 +78,10 @@ done
 
 doctl auth init -t "$token" | grep -vi "using token"
 
-echo -e -n "${Green}Autoselecting default region based on ping...${Color_Off}"
-default_region="$(for region in $(doctl compute region list | grep -v false | grep -v 'Slug' | awk '{ print $1 }'); do echo -n "$region,"; ping -c 1 speedtest-$region.digitalocean.com | grep "avg" | awk '{ print $4 }' | tr "/" ' ' | cut -d " " -f 1; done | sort -k2 -t , -n | head -n 1 | cut -d "," -f 1)"
+echo -e -n "${Green}Listing available regions with axiom-regions ls \n${Color_Off}"
+axiom-region ls | grep -v false
 
+default_region=nyc1
 echo -e -n "${Green}Please enter your default region: (Default '$default_region', press enter) \n>> ${Color_Off}"
 read region
 	if [[ "$region" == "" ]]; then
