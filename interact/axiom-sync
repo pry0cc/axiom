@@ -8,7 +8,7 @@ instance=""
 # help menu
 function help() {
 	echo -e "${BWhite}Usage of axiom-sync${Color_Off}"
-  echo -e "Description: ${Blue}Make a copy of an instances home directoy and sync to your local filesystem.${Color_Off}"
+  echo -e "Description: ${Blue}Download a copy of an instances home directoy to your local filesystem.${Color_Off}"
 	echo -e "Example Usage: ${Blue}axiom-sync instance01 instance02${Color_Off}"
 	echo -e "  <instance> string"
 	echo -e "    Instance name you wish to backup"
@@ -27,9 +27,10 @@ fi
 
 echo -e "${BWhite}Syncing $instance to local file system... ${Color_Off}"
 echo -n -e "${Blue}"
+mkdir -f "$AXIOM_PATH"/sync/
 rsync -avzr -e "ssh -F $AXIOM_PATH/.sshconfig" --progress --include-from="$AXIOM_PATH"/configs/backup-files.txt "$instance":~/ "$AXIOM_PATH"/boxes/"$instance"/
 echo -n -e "${Color_Off}"
-echo -e "${BGreen}Backup of '$instance' successful!${Color_Off}"
+echo -e "${BGreen}Home directoy of '$instance' saved to "$AXIOM_PATH"/sync/!${Color_Off}"
 }
 
 # if no arguments are specified print help menu
