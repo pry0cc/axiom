@@ -1,5 +1,5 @@
 [{
-  "command":"python3 -u /home/op/recon/ParamSpider/paramspider.py -d _target_ --exclude woff,css,js,png,svg,jpg -o _output_/_cleantarget_",
+  "command":"docker run -t --rm -i --mount type=bind,source=\"$(pwd)\",target=/data axiom/paramspider -d _target_ -s | tee output/_cleantarget_",
   "ext":"",
-  "threads":"2"
+  "threads":"1"
 }]
