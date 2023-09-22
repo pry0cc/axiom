@@ -122,7 +122,7 @@ fi
 echo $data | jq > "$AXIOM_PATH/accounts/$title.json"
 echo -e "${BGreen}Saved profile '$title' successfully!${Color_Off}"
 $AXIOM_PATH/interact/axiom-account $title
-echo -e -n "${Yellow}Would you like me to open a ticket to get an image increase to 18GB for you?${Color_Off} [y]/n >> "
+echo -e -n "${Yellow}Would you like me to open a ticket to get an image increase to 25GB for you (you only need to do this once)?${Color_Off} [y]/n >> "
 read acc
 
 if [[ "$acc" == "" ]]; then
