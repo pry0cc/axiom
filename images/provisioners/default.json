@@ -96,14 +96,8 @@
 
         "echo 'Installing Tools'",
 
-        "echo 'Installing aiodnsbrute'",
-        "git clone https://github.com/blark/aiodnsbrute.git /home/op/recon/aiodnsbrute",
-
         "echo 'Installing anew'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/anew@latest'",
-
-        "echo 'Installing anti-burl'",
-        "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/anti-burl/Dockerfile -t axiom/anti-burl'",
 
         "echo 'Installing assetfinder'",
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/assetfinder/Dockerfile -t axiom/assetfinder'",
@@ -134,9 +128,6 @@
 
         "echo 'Installing Corsy'",
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/corsy/Dockerfile -t axiom/corsy'",
-
-        "echo 'Installing CrackMapExec'",
-        "wget -q -O /tmp/cme-ubuntu-latest.zip https://github.com/byt3bl33d3r/CrackMapExec/releases/download/v5.1.7dev/cme-ubuntu-latest.zip && unzip /tmp/cme-ubuntu-latest.zip -d /home/op/recon/ && chmod +x /home/op/recon/cme",
 
         "echo 'Installing crlfuzz'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/dwisiswant0/crlfuzz/cmd/crlfuzz@latest'",
@@ -185,9 +176,6 @@
 
         "echo 'Installing gauplus'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/bp0lr/gauplus@latest'",
-
-        "echo 'Installing getJS'",
-        "/bin/su -l op -c '/usr/local/go/bin/go install github.com/003random/getJS@latest'",
 
         "echo 'Installing gf'",
         "/bin/su -l op -c 'GO111MODULE=off /usr/local/go/bin/go install github.com/tomnomnom/gf@latest'",
@@ -261,9 +249,6 @@
         "echo 'Installing massdns'",
         "git clone https://github.com/blechschmidt/massdns.git /tmp/massdns; cd /tmp/massdns; make -s; sudo mv bin/massdns /usr/bin/massdns",
 
-        "echo 'Installing medusa'",
-        "apt install medusa -y -qq",
-
         "echo 'Installing meg'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/meg@latest'",
 
@@ -283,17 +268,11 @@
         "echo 'Installing ParamSpider'",
         "/bin/su -l op -c 'docker image build - < /home/op/lists/axiom-dockerfiles/paramspider/Dockerfile -t axiom/paramspider'",
 
-        "echo 'Installing proxychains-ng'",
-        "git clone https://github.com/rofl0r/proxychains-ng.git && cd proxychains-ng && make -s && make install -s && cd .. && sudo rm -r proxychains-ng",
-
         "echo 'Installing puredns'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/d3mondev/puredns/v2@latest'",
 
         "echo 'Installing qsreplace'",
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/tomnomnom/qsreplace@latest'",
-
-        "echo 'Installing responder'",
-        "git clone https://github.com/lgandx/Responder.git /home/op/hashes/responder",
 
         "echo 'Installing RustScan'",
         "wget -q -O /tmp/rustscan.deb https://github.com/brandonskerritt/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb && apt install /tmp/rustscan.deb -y -qq",
@@ -321,11 +300,6 @@
 
         "echo 'Installing testssl'",
         "git clone --depth 1 https://github.com/drwetter/testssl.sh.git /home/op/recon/testssl.sh",
- 
-        "echo 'Installing thc-hydra'",
-        "wget  -q -O /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb http://security.ubuntu.com/ubuntu/pool/main/libg/libgcrypt20/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb && sudo apt install -y /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb -qq && rm /tmp/libgcrypt11-dev_1.5.4-3+really1.8.1-4ubuntu1.2_amd64.deb",
-        "apt-get install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird-dev libmemcached-dev libgpg-error-dev libgcrypt20-dev -y -qq",
-        "git clone https://github.com/vanhauser-thc/thc-hydra.git /home/op/recon/thc-hydra && cd /home/op/recon/thc-hydra && ./configure && make -s && make -s install && cd",
         
         "echo 'Installing tlsx'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest'",
