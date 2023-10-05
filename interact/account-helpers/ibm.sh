@@ -54,6 +54,8 @@ if [[ $BASEOS == "Linux" ]]; then
      if ! [ -x "$(command -v ibmcloud)" ]; then
       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
       curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+      echo -e "${Blue}Installing ibmcloud sl (SoftLayer) plugin...${Color_Off}"
+      ibmcloud plugin install sl -q -f
      fi
 elif [[ $OS == "Fedora" ]]; then
   echo "Needs Conversation"
@@ -61,6 +63,8 @@ elif [[ $OS == "Fedora" ]]; then
      if ! [ -x "$(command -v ibmcloud)" ]; then
       echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
       curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+      echo -e "${Blue}Installing ibmcloud sl (SoftLayer) plugin...${Color_Off}"
+      ibmcloud plugin install sl -q -f
      fi
  fi
 fi
@@ -78,6 +82,8 @@ if [[ $BASEOS == "Mac" ]]; then
    if ! [ -x "$(command -v ibmcloud)" ]; then
     echo -e "${Blue}Installing ibmcloud-cli...${Color_Off}"
     curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+    echo -e "${Blue}Installing ibmcloud sl (SoftLayer) plugin...${Color_Off}"
+    ibmcloud plugin install sl -q -f
    fi
 fi
 
@@ -119,7 +125,7 @@ accountnumber=$(ibmcloud sl user list | grep -i $email | tr -s ' ' | cut -d ' ' 
 token=$(ibmcloud sl user detail $accountnumber --keys  | grep APIKEY | tr -s ' ' | cut -d ' ' -f 2)
 if [ -z "$token" ]
 then
-echo -e -n "${Green}Create an IBM Classic API key (for packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
+echo -e -n "${Green}Create an IBM Cloud Classic Infrastructure (SoftLayer) API key (for Packer) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
 read token
 while [[ "$token" == "" ]]; do
 	echo -e "${BRed}Please provide a IBM Cloud Classic API key, your entry contained no input.${Color_Off}"
@@ -131,7 +137,7 @@ fi
 
 
 function apikeys {
-echo -e -n "${Green}Create an IBM Cloud API Key (for ibmcli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
+echo -e -n "${Green}Create an IBM Cloud IAM API key (for ibmcloud cli) here: https://cloud.ibm.com/iam/apikeys (required): \n>> ${Color_Off}"
 read ibm_cloud_api_key
 while [[ "$ibm_cloud_api_key" == "" ]]; do
 	echo -e "${BRed}Please provide a IBM Cloud API key, your entry contained no input.${Color_Off}"
@@ -153,19 +159,25 @@ ibmcloud login --apikey=$ibm_cloud_api_key --no-region
 }
 
 function specs {
+echo -e -n "${Green}Printing available regions..\n${Color_Off}"
+ibmcloud sl  vs options --output json | jq .locations
 echo -e -n "${Green}Please enter your default region: (Default 'dal13', press enter) \n>> ${Color_Off}"
 read region
 if [[ "$region" == "" ]]; then
+
 	echo -e "${Blue}Selected default option 'dal13'${Color_Off}"
 	region="dal13"
 fi
-echo -e -n "${Green}Please enter your default size: (Default '2048', press enter) \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter your default size: (Default '2048', press enter) \n${Color_Off}"
+echo -e -n "${Green}Options: 2048, 4096, 8192, 16384, 32768, 64512\n>> ${Color_Off}"
 read size
 if [[ "$size" == "" ]]; then
 	echo -e "${Blue}Selected default option '2048'${Color_Off}"
   size="2048"
 fi
-echo -e -n "${Green}Please enter amount of CPU Cores: (Default '2', press enter) \n>> ${Color_Off}"
+echo -e -n "${Green}Please enter amount of CPU Cores: (Default '2', press enter) \n${Color_Off}"
+echo -e -n "${Green}Options: 1, 2, 4, 8, 16, 32, 48\n>> ${Color_Off}"
+
 read cpu
 if [[ "$cpu" == "" ]]; then
   echo -e "${Blue}Selected default option '2'${Color_Off}"
