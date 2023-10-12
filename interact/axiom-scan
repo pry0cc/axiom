@@ -1066,14 +1066,6 @@ fi
 $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _target_:$scan_dir/input --cache -F=$sshconfig >/dev/null 2>&1; touch $tmp/logs/_target_" && echo -n -e "[ ${Green}OK${Color_Off} ]\n" || echo -n -e "[ ${Green}FAIL${Color_Off} ]\n" 
 
 ###########################################################################################################
-#  Dont tail if quiet is true
-# 
-if [[ "$quiet" == "false" ]]; then
-    tail -f $tmp/logs/* &
-    tailPID=$!
-fi
-
-###########################################################################################################
 #  This function is spanwed in the background and periodically probes all instances to see if their part of the scan has completed.
 #  When the remote scan process has finished, it creates a file named $HOSTNAME in the remote scan working directory. During the
 #  scan, axiom checks for each $HOSTNAME file to know that part of the scan has completed.
@@ -1138,8 +1130,17 @@ fi
 #
 if [[ "$stdout_only" == "true" ]]; then
 stderr_log="/dev/null"
+tail_suppress_headers="-q" 
 else
 stderr_log="stderr.log"
+fi
+
+###########################################################################################################
+#  Dont tail if quiet is true
+#
+if [[ "$quiet" == "false" ]]; then
+    tail $tail_suppress_headers -f $tmp/logs/* &
+    tailPID=$!
 fi
 
 ###########################################################################################################
