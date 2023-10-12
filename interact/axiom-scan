@@ -88,6 +88,7 @@ INPUT:
    string[]              required positional first argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
    --dont-shuffle        do not randomize input file before uploading (default is to randomize)
    --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
+   --expand-cidr         automatically expand any subnet in the input file (default does not expand subnets)
 
 MODULE:
    -m string[]           the axiom-scan module to use with the scan (must be a JSON file in ~/.axiom/modules)
@@ -399,6 +400,7 @@ max_scan_runtime=0
 cycle_regions="false"
 stdout_only="false"
 unsafe="false"
+expand_cidr="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -582,6 +584,11 @@ do
             set=true
             pass+=($i)
             pass+=($n)
+        fi
+        if [[ "$arg" == "--expand-cidr" ]]; then
+            expand_cidr="true"
+            set=true
+            pass+=($i)
         fi
         if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]]; then
             n=$((i+1))
@@ -1012,6 +1019,16 @@ if [[ "$user_specified_threads" != "" ]]; then
 fi
 
 ###########################################################################################################
+#  expand any cidrs in the target list
+#
+if [[ "$expand_cidr" == "true" ]]; then
+    echo -e "${Blue}expanding cidrs in target list...${Color_Off}"
+    "$AXIOM_PATH/interact/expand_cidr.py" "$input_file" --silent > $tmp/expanded_input
+    input_file=$(echo $tmp/expanded_input)
+    lines="$(wc -l "$input_file" | awk '{ print $1 }')"
+fi
+
+###########################################################################################################
 #  Display some stats prior to scanning
 #
 echo -e "${BGreen}module: ${Color_Off}[${Blue} $module ${Color_Off}]${BGreen} | ${BGreen}module args: ${Color_Off}[${Blue} $args ${Color_Off}] ${BGreen}| ${BGreen}input: ${Color_Off}[${Blue} $lines lines ${Color_Off}]${BGreen} |"
@@ -1019,23 +1036,14 @@ echo -e "${BGreen}instances: ${Blue} $total_instances  ${Color_Off}[${Blue} $(ec
 echo -e "${BGreen}command: ${Color_Off}[${Blue} $command ${Color_Off}]${BGreen} | ${BGreen}ext: ${Color_Off}[${Blue} "$ext" ${Color_Off}]${BGreen} | ${BGreen}threads: ${Color_Off}[${Blue} "$threads" ${Color_Off}]${BGreen}"
 
 ###########################################################################################################
-#  If a One shot Module is used:
-#  Store Interlace command in a file and upload it to remote instances with axiom-scp
+#  Store command in a file and upload it to remote instances with axiom-scp
 #
-if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]] || [[ "$ext" ==  "" ]] || [[ "$ext" == "dir" ]]; then
-    echo "$command" > "$tmp/command"
-    $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
-else
-
-###########################################################################################################
-#  If a Simple Module is used:
-#  Store bash command in a file and upload it to remote instances with axiom-scp
-    echo "$command" > "$tmp/command"
-    $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
-fi
+echo "$command" > "$tmp/command"
+$interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cache -F=$sshconfig >/dev/null 2>&1" >/dev/null 2>&1
 
 ###########################################################################################################
 #  split target list or copy target list
+#  delete expanded_input if --expand-cidr is used
 # 
 if [[ "$split" == "true" ]]; then
     echo -e "${Blue}spliting and distributing input file...${Color_Off}"
@@ -1043,6 +1051,10 @@ if [[ "$split" == "true" ]]; then
     else
     echo -e "${Blue}copying input file to every instance...${Color_Off}"
     for i in $(echo $instances); do cp "$input_file" $tmp/input/$i ; done 
+fi
+
+if [[ "$expand_cidr" == "true" ]]; then
+    rm -f $tmp/expanded_input
 fi
 
 ###########################################################################################################
@@ -1054,7 +1066,7 @@ $interlace_cmd_nobar -c "$AXIOM_PATH/interact/axiom-scp $tmp/input/_target_ _tar
 #  Dont tail if quiet is true
 # 
 if [[ "$quiet" == "false" ]]; then
-    tail -q -f $tmp/logs/* &
+    tail -f $tmp/logs/* &
     tailPID=$!
 fi
 
