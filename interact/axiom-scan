@@ -70,7 +70,7 @@ cat << EOF
 axiom-scan provides easy distribution of arbitrary binaries and scripts.
 axiom-scan splits user-provided input files (target lists), wordlists and configuration files and uploads them to a unique scan working directory on the remote instance.
 axiom-scan combines user-provided command-line arguments with commands in the module (~/.axiom/modules) and executes the final command on the remote instance.
-axiom-scan downloads and merges scan output in a variety of different formats, specified by the extension in the module (dir, txt, csv, xml).
+axiom-scan downloads and merges scan output in a variety of different formats, specified by the extension in the module (dir, txt, csv, xml, none).
 individual scanning operations are executed from a detacted tmux session (\$module+\$timestamp) inside a unique scan working directory (/home/op/scan/\$module+\$timestamp) on the remote instances.
 
 Usage:
@@ -151,7 +151,10 @@ clean_up() {
     if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
      $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/_target_ --cache -F=$sshconfig >/dev/null 2>&1"
     else
-     $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
+      if [[ "$ext" == "none" ]] ; then
+       ext=''
+      fi
+    $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
     fi
     merge_output
     echo -e "${Blue}killing remote processes in a backgroud job${Color_Off}"
@@ -355,12 +358,12 @@ merge_output() {
           echo -e "${Blue}Installing gowitness...${Color_Off}"
           go install github.com/sensepost/gowitness@latest
          fi
-         echo "Downloading gowitness databases..."
-         mkdir -p "$tmp/dbs/"
-         $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache -F=$sshconfig>> /dev/null"
-         echo "Merging databases..."
-         gowitness merge --input-path "$tmp/" -o "$outfile/gowitness.sqlite3"
-         echo -e "${Green}RUN: '${Blue}gowitness server -D $outfile/gowitness.sqlite3 -P $outfile/${Color_Off}' for reporting"
+        echo "Downloading gowitness databases..."
+        mkdir -p "$tmp/dbs/"
+        $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/gowitness.sqlite3 $tmp/dbs/_target_.sqlite3 --cache -F=$sshconfig>> /dev/null"
+        echo "Merging databases..."
+        gowitness merge --input-path "$tmp/" -o "$outfile/gowitness.sqlite3"
+        echo -e "${Green}RUN: '${Blue}gowitness server -D $outfile/gowitness.sqlite3 -P $outfile/${Color_Off}' for reporting"
         fi
     fi
 }
@@ -590,7 +593,7 @@ do
             set=true
             pass+=($i)
         fi
-        if [[ "$arg" == "--fleet" ]] || [[ "$arg" == "-f" ]]; then
+        if [[ "$arg" == "--fleet" ]]; then
             n=$((i+1))
             fleet=$(echo ${!n})
             set=true
@@ -1179,6 +1182,9 @@ else
  $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; bash -i command  > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  wait $remotetailPID  >> /dev/null 2>&1
  $interlace_cmd_nobar -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results' >> $tmp/logs/_target_ 2>&1"
+ if [[ "$ext" == "none" ]] ; then
+  ext=''
+ fi
  $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
 fi
 
