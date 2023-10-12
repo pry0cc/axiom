@@ -1089,7 +1089,7 @@ if [[ "$(cat $tmp/status/downloader_instances)" -eq "0"  ]]; then
  sleep 10
  continue
 fi
-$downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --cache -F=$sshconfig >/dev/null 2>&1"
+$downloader_cmd -c "axiom-scp _target_:$scan_dir/output $tmp/output/_target_.$ext --delete --cache -F=$sshconfig >/dev/null 2>&1"
 fi
 
 ###########################################################################################################
