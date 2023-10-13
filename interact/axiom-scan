@@ -134,7 +134,8 @@ DEBUG:
    --debug              run with set -xv, warning: very verbose
 
 EXTRA ARGS:
-   string[]             supply additional arguments to be passed to the module
+   string[]             supply additional arguments to be passed to the module. axiom automatically interpolates user-provided extra args and passes them to the module. 
+   --extra-args[]       explicitly define extra args. extra args must be wrapped in single quotes. this can be helpful for modules that share the same argument names as axiom
 EOF
 
 }
@@ -404,6 +405,7 @@ cycle_regions="false"
 stdout_only="false"
 unsafe="false"
 expand_cidr="false"
+explicit_exta_args="false"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -498,6 +500,14 @@ do
         if [[ "$arg" == "-F" ]]; then
             n=$((i+1))
             sshconfig=$(echo ${!n})
+            cache="true"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
+        if [[ "$arg" == "--extra-args" ]]; then
+            n=$((i+1))
+            explicit_exta_args=$(echo ${!n})
             cache="true"
             set=true
             pass+=($i)
@@ -997,14 +1007,19 @@ command=${command//_target_/_safe-target_}
 #  If a config is specified add it to the command
 #  Add escaped command value used for $HOME/.axiom/stats.log file
 #
-[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
+if [[ "$explicit_exta_args" != "false" ]]; then
+ args=$(echo "$explicit_exta_args")
+ command="$(add_extra_args "$command" "$args")"
+else
+ [[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
+fi
 
 if [[ "$command" =~ "_wordlist_" ]] ||  [[ "$local_wordlist" != "false" ]] || [[ "$nuclei_templates" != "false" ]] || [[ "$distribute_wordlist" != "false" ]]; then
-command="$(apply_wordlist "$command" "$wordlist")"
+ command="$(apply_wordlist "$command" "$wordlist")"
 fi
 
 if [[ "$command" =~ "_config_" ]] ||  [[ "$local_config" != "false" ]]; then
-command="$(apply_config "$command" "$config_file")"
+ command="$(apply_config "$command" "$config_file")"
 fi
 
 escapedcommand=$(echo $command | jq -R -s '.')
