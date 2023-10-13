@@ -109,6 +109,7 @@ OPTIMIZATIONS:
    --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
    --skip-preflight            do not automatically remove instances that can not be reached (default removes instances from the queue that can not be reached)
+   --unsafe                    do not automatically escape input file (do not prevent unintended shell expansion) in one-shot modules (modules containing the string _target_)
 
 OUTPUT:
    -anew string[]       pipe the output to anew before creating the final output file
@@ -404,6 +405,7 @@ max_scan_runtime=0
 cycle_regions="false"
 stdout_only="false"
 unsafe="false"
+very_unsafe="false"
 expand_cidr="false"
 explicit_exta_args="false"
 
@@ -500,14 +502,6 @@ do
         if [[ "$arg" == "-F" ]]; then
             n=$((i+1))
             sshconfig=$(echo ${!n})
-            cache="true"
-            set=true
-            pass+=($i)
-            pass+=($n)
-        fi
-        if [[ "$arg" == "--extra-args" ]]; then
-            n=$((i+1))
-            explicit_exta_args=$(echo ${!n})
             cache="true"
             set=true
             pass+=($i)
@@ -641,8 +635,21 @@ do
             set=true
             pass+=($i)
         fi
+        if [[ "$arg" == "--extra-args" ]]; then
+            n=$((i+1))
+            explicit_exta_args=$(echo ${!n})
+            cache="true"
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
         if [[ "$arg" == "--unsafe" ]]; then
             unsafe="true"
+            set=true
+            pass+=($i)
+        fi
+        if [[ "$arg" == "--very-unsafe" ]]; then
+            very_unsafe="true"
             set=true
             pass+=($i)
         fi
@@ -1008,6 +1015,7 @@ command=${command//_target_/_safe-target_}
 #  Add escaped command value used for $HOME/.axiom/stats.log file
 #
 if [[ "$explicit_exta_args" != "false" ]]; then
+[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
  args=$(echo "$explicit_exta_args")
  command="$(add_extra_args "$command" "$args")"
 else
@@ -1037,6 +1045,18 @@ if [[ "$user_specified_threads" != "" ]]; then
 fi
 
 ###########################################################################################################
+#  --unsafe flag, do not prevent unintended shell expansion in one-shot modules
+#
+if [[ "$unsafe" != "true" ]] ; then
+ if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
+    echo -e "${Blue}automatically escaping lines in input file...${Color_Off}"
+    printf '%q\n' $(cat "$input_file")> $tmp/escaped_input
+    input_file=$(echo $tmp/escaped_input)
+    lines="$(wc -l "$input_file" | awk '{ print $1 }')"
+ fi
+fi
+
+###########################################################################################################
 #  expand any cidrs in the target list
 #
 if [[ "$expand_cidr" == "true" ]]; then
@@ -1062,7 +1082,8 @@ $interlace_cmd_nobar -c "axiom-scp $tmp/command _target_:$scan_dir/command --cac
 ###########################################################################################################
 #  split target list or copy target list
 #  delete expanded_input if --expand-cidr is used
-# 
+#  delete escaped_input unless --unsafe is not used
+#
 if [[ "$split" == "true" ]]; then
     echo -e "${Blue}spliting and distributing input file...${Color_Off}"
     split_file "$input_file" "$total_instances" "$tmp"
@@ -1073,6 +1094,10 @@ fi
 
 if [[ "$expand_cidr" == "true" ]]; then
     rm -f $tmp/expanded_input
+fi
+
+if [[ "$unsafe" != "true" ]] && [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
+   rm -f $tmp/escaped_input
 fi
 
 ###########################################################################################################
@@ -1159,9 +1184,9 @@ if [[ "$quiet" == "false" ]]; then
 fi
 
 ###########################################################################################################
-#  undocumented --unsafe flag, do not use this unless you know what you are doing
+#  undocumented --very-unsafe flag, do not use this unless you know what you are doing
 #
-if [[ "$unsafe" == "true" ]]; then
+if [[ "$very_unsafe" == "true" ]]; then
  dontexpandcidr="--no-cidr"
 fi
 
