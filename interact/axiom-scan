@@ -860,7 +860,6 @@ if [[ $pre_flight == true ]]; then
    cat "$tmp/hosts_preflight" | sort -u  > "$tmp/hosts"
    cp "$tmp/hosts_preflight" "$tmp/selected.conf"
    total_instances="$(wc -l "$tmp/hosts" | awk '{ print $1 }')"
-   lines="$(wc -l "$input_file" | awk '{ print $1 }')"
    total=$(wc -l "$tmp/selected.conf" | awk '{ print $1 }')
    instances=$(cat "$tmp/hosts")
    interlace_cmd_nobar="$(which interlace) --no-bar --silent -tL $tmp/hosts -threads $total_instances"
@@ -1052,7 +1051,6 @@ if [[ "$unsafe" != "true" ]] ; then
     echo -e "${Blue}automatically escaping lines in input file...${Color_Off}"
     printf '%q\n' $(cat "$input_file")> $tmp/escaped_input
     input_file=$(echo $tmp/escaped_input)
-    lines="$(wc -l "$input_file" | awk '{ print $1 }')"
  fi
 fi
 
@@ -1096,8 +1094,10 @@ if [[ "$expand_cidr" == "true" ]]; then
     rm -f $tmp/expanded_input
 fi
 
-if [[ "$unsafe" != "true" ]] && [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
+if [[ "$unsafe" != "true" ]] ; then
+ if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
    rm -f $tmp/escaped_input
+ fi
 fi
 
 ###########################################################################################################
