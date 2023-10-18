@@ -1017,12 +1017,10 @@ fi
 #  Add escaped command value used for $HOME/.axiom/stats.log file
 #
 if [[ "$explicit_exta_args" != "false" ]]; then
-[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
- args=$(echo "$explicit_exta_args")
- command="$(add_extra_args "$command" "$args")"
-else
- [[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
+ args="${explicit_exta_args} ${args}"
 fi
+
+[[ ! -z "$args" ]] && command="$(add_extra_args "$command" "$args")"
 
 if [[ "$command" =~ "_wordlist_" ]] ||  [[ "$local_wordlist" != "false" ]] || [[ "$nuclei_templates" != "false" ]] || [[ "$distribute_wordlist" != "false" ]]; then
  command="$(apply_wordlist "$command" "$wordlist")"
