@@ -88,6 +88,7 @@ INPUT:
    string[]              required positional first argument must always be an input file, this can be a list of URLs, IPs, hostnames, etc
    --dont-shuffle        do not randomize input file before uploading (default is to randomize)
    --dont-split          do not split input file, upload entire input file to every instance (default is to split the input file)
+   --dont-escape         do not automatically escape input file (do not prevent unintended shell expansion) in one-shot modules (modules containing the string _target_)
    --expand-cidr         automatically expand any subnet in the input file (default does not expand subnets)
 
 MODULE:
@@ -106,10 +107,10 @@ CONFIGURATIONS:
 
 OPTIMIZATIONS:
    --disable-oneshot           by default, if a module contains the string _target_ or _safe-target_ it is executed as a one-shot module. Use this flag to force disable
+   --unsafe                    by default, if a module contains the string _target_, we replace it with _safe-target. Use this flag to force disable
    --max-runtime DURATION[]    kill scan if still running after DURATION. DURATION is a floating point number with an optional suffix: 's' for seconds (the default), 'm' for minutes, 'h' for hours or 'd' for days.
    --preflight-timeout int[]   specifies the timeout (in seconds) used when connecting to the SSH server, instead of using the default 15 seconds
    --skip-preflight            do not automatically remove instances that can not be reached (default removes instances from the queue that can not be reached)
-   --unsafe                    do not automatically escape input file (do not prevent unintended shell expansion) in one-shot modules (modules containing the string _target_)
 
 OUTPUT:
    -anew string[]       pipe the output to anew before creating the final output file
@@ -404,10 +405,10 @@ preflight_timeout=15
 max_scan_runtime=0
 cycle_regions="false"
 stdout_only="false"
-unsafe="false"
-very_unsafe="false"
+escape_input="true"
 expand_cidr="false"
 explicit_exta_args="false"
+safe="true"
 
 ###########################################################################################################
 #  Parse command line arguments 
@@ -644,12 +645,12 @@ do
             pass+=($n)
         fi
         if [[ "$arg" == "--unsafe" ]]; then
-            unsafe="true"
+            safe="false"
             set=true
             pass+=($i)
         fi
-        if [[ "$arg" == "--very-unsafe" ]]; then
-            very_unsafe="true"
+        if [[ "$arg" == "--dont-escape" ]]; then
+            escape_input="false"
             set=true
             pass+=($i)
         fi
@@ -1002,10 +1003,12 @@ fi
 
 ###########################################################################################################
 #  Parse command from module
-#  Transparently replace _target_ with _safe-target_
+#  Transparently replace _target_ with _safe-target_, unless --unsafe is unsed
 #
 command="$(parse_module "$module" "$ext" | jq -r '.command')"
-command=${command//_target_/_safe-target_}  
+if [[ "$safe" == "true" ]]; then
+ command=${command//_target_/_safe-target_}  
+fi
 
 ###########################################################################################################
 #  If command line args are supplied, combine commands in the module with the arguments passed from the command line into final command (i.e. add_extra_args)
@@ -1046,7 +1049,7 @@ fi
 ###########################################################################################################
 #  --unsafe flag, do not prevent unintended shell expansion in one-shot modules
 #
-if [[ "$unsafe" != "true" ]] ; then
+if [[ "$escape_input" == "true" ]] ; then
  if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
     echo -e "${Blue}automatically escaping lines in input file...${Color_Off}"
     printf '%q\n' $(cat "$input_file")> $tmp/escaped_input
@@ -1094,7 +1097,7 @@ if [[ "$expand_cidr" == "true" ]]; then
     rm -f $tmp/expanded_input
 fi
 
-if [[ "$unsafe" != "true" ]] ; then
+if [[ "$escape_input" == "true" ]] ; then
  if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]; then
    rm -f $tmp/escaped_input
  fi
@@ -1184,13 +1187,6 @@ if [[ "$quiet" == "false" ]]; then
 fi
 
 ###########################################################################################################
-#  undocumented --very-unsafe flag, do not use this unless you know what you are doing
-#
-if [[ "$very_unsafe" == "true" ]]; then
- dontexpandcidr="--no-cidr"
-fi
-
-###########################################################################################################
 #  Start the One Shot Module scan by SSH-ing into each instance and running the Interlace command on every remote instance
 #
 if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]&& [[ "$disable_oneshot" != "true" ]]; then
@@ -1203,7 +1199,7 @@ if [[ "$command" =~ "_target_" ]] || [[ "$command" =~ "_safe-target_" ]]&& [[ "$
  timeout $max_scan_runtime $interlace_cmd_nobar -c "$ssh_command _target_ 'cd $scan_dir && touch stderr.log stdout.log && tail -f $stderr_log & tail -f stdout.log' >> $tmp/logs/_target_ 2>&1 " &
  remotetailPID=$!
  echo $remotetailPID > $tmp/status/remotetailPID
- $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; interlace $dontexpandcidr -threads $threads -tL input -cL command -o output > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
+ $interlace_cmd_nobar -c "$ssh_command _target_ 'tmux new -d -s $uid && tmux send-keys -t $uid \"cd $scan_dir; interlace --no-cidr -threads $threads -tL input -cL command -o output > >(tee -a stdout.log) 2> >(tee -a stderr.log >&2) ; touch _target_\" ENTER ' \"&& tmux send-keys -t $uid exit ENTER\""
  wait $remotetailPID  >> /dev/null 2>&1
  $interlace_cmd_nobar -c "$ssh_command _target_ '[ -f $scan_dir/_target_ ] && echo _target_ scan finished || echo _target_ scan was still running but downloading partial results' >> $tmp/logs/_target_ 2>&1"
  $interlace_cmd_nobar -c "axiom-scp _target_:$scan_dir/output/ $tmp/output/_target_ --cache -F=$sshconfig >/dev/null 2>&1"
