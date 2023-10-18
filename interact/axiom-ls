@@ -1,33 +1,57 @@
 #!/usr/bin/env bash
 
+# Set the path to the AXIOM_PATH directory, typically in the user's home directory.
 AXIOM_PATH="$HOME/.axiom"
+
+# Source various Bash script files for functions and configurations.
 source "$AXIOM_PATH/interact/includes/vars.sh"
 source "$AXIOM_PATH/interact/includes/functions.sh"
 source "$AXIOM_PATH/interact/includes/appliance.sh"
-current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null 2>&1
 
-echo -e "Listing instances in account: $(echo $current)" | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+# Get the current instance by extracting it from the axiom.json file.
+current=$(ls -lh "$AXIOM_PATH/axiom.json" | awk '{ print $11 }' | tr '/' '\n' | grep json | sed 's/\.json//g') > /dev/null
+
+echo -e "Listing instances in account: ${current}" | while IFS= read -r line; do
+  ((count++))
+  if ((count % 2 == 0)); then
+    echo -e "\e[0;34m${line}\e[0m"
+  else
+    echo -e "\e[0;37m${line}\e[0m"
+  fi
+done
+
+# Check if any command-line argument is provided.
 if [ -z $1 ]; then
-	instance_pretty
+    # If no argument is provided, call the instance_pretty function.
+    instance_pretty
 else
-	if [[ "$1" == "--json" ]]; then
-		instances
-	elif [[ "$1" == "--list" ]]; then
-		instance_list
-	elif [[ "$1" == "--appliance" ]]; then
-		pretty_appliances
-	else
-		resp=$(query_instances "$1")
-		count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+    if [[ "$1" == "--json" ]]; then
+        # If the argument is "--json," call the "instances" function.
+        instances
+    elif [[ "$1" == "--list" ]]; then
+        # If the argument is "--list," call the "instance_list" function.
+        instance_list
+    elif [[ "$1" == "--appliance" ]]; then
+        # If the argument is "--appliance," call the "pretty_appliances" function.
+        pretty_appliances
+    else
+        # If the argument doesn't match any of the above options, query instances based on the provided argument.
+        resp=$(query_instances "$1")
 
-		if [[ "$count" -gt 1 ]]; then
-			i=1
-			for name in $resp; do
-				echo "$i:$name"
-				i=$((i + 1))
-			done
-		else
-			instance_ip "$1"
-		fi
-	fi
+        # Count the number of elements in the response.
+        count=$(echo $resp | tr ' ' '\n' | wc -l | awk '{ print $1 }')
+
+        # Check if there's more than one instance in the response.
+        if [[ "$count" -gt 1 ]]; then
+            i=1
+            for name in $resp; do
+                # Print a numbered list of instance names.
+                echo "$i:$name"
+                i=$((i + 1))
+            done
+        else
+            # If there's only one instance, call the "instance_ip" function with the provided argument.
+            instance_ip "$1"
+        fi
+    fi
 fi
