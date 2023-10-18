@@ -206,7 +206,9 @@ then
 else
     counter=$((counter+1))
     echo -e "${BRed}Your build failed :( Please take a look at the errors!${Color_Off}"
-    echo -e "${Yellow}This can happen sometimes, if you have a [404] error while using Linode, this is likely because you need to request support for a larger image size to 18GB! ${Color_Off}"
+    echo -e "${Yellow}This can happen sometimes, if you have a [404] error while using Linode, this is likely because you need to request support for a larger image size${Color_Off}"
+    echo -e "${Yellow}If you are using the default provisioner you need to request an increase to 25GB! ${Color_Off}"
+    echo -e "${Yellow}You could try with another provisioner (reconftw is 14 GB in size) ${Color_Off}"
     echo -e "${Yellow}For support, take a screenshot of the last 20 lines and open a issue at https://github.com/pry0cc/axiom/issues${Color_Off}"
     echo -e "${Green}Sometimes just running a build again can work, so please try at least once: 'axiom-build', thanks!${Color_Off}"
     "$NOTIFY_CMD" "Axiom Info" "Build failed :("
