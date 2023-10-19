@@ -140,8 +140,8 @@ cd "$AXIOM_PATH"/ || exit
 # change password or fail
 #
 if [ -z "$op_ssh_password" ]; then 
-echo -e "Unable to generate random password for Packer image.. exiting"
-exit 0
+    echo -e "Unable to generate random password for Packer image.. exiting"
+    exit 0
 fi
 
 #############################################################################################################
@@ -191,7 +191,7 @@ then
 	end_time=$(date +%s)
 	seconds="$(expr $end_time - $start_time)"
 	time=""
-		
+
 	if [[ "$seconds" -gt 59 ]]
 	then
 		minutes=$(expr $seconds / 60)
@@ -204,12 +204,17 @@ then
     echo -e "${Green}To initialize an instance, run axiom-init${Color_Off}"
     "$NOTIFY_CMD" "Axiom Info" "Build completed successfully!"
 else
-    counter=$((counter+1))
-    echo -e "${BRed}Your build failed :( Please take a look at the errors!${Color_Off}"
-    echo -e "${Yellow}This can happen sometimes, if you have a [404] error while using Linode, this is likely because you need to request support for a larger image size to 18GB! ${Color_Off}"
-    echo -e "${Yellow}For support, take a screenshot of the last 20 lines and open a issue at https://github.com/pry0cc/axiom/issues${Color_Off}"
-    echo -e "${Green}Sometimes just running a build again can work, so please try at least once: 'axiom-build', thanks!${Color_Off}"
-    "$NOTIFY_CMD" "Axiom Info" "Build failed :("
+   echo -e "${BRed}Your build failed :( Please take a look at the errors!${Color_Off}" 
+   if [[ "$provider" ==  "linode" ]]; then
+        echo -e "${Yellow}This can happen sometimes, if you have a [404] error while using Linode, this is likely because you need to request support for a larger image size${Color_Off}"
+        echo -e "${Yellow}If you are using the default provisioner you need to request an increase to 25GB! ${Color_Off}"
+        echo -e "${Yellow}You could try with another provisioner (reconftw is 14 GB in size) ${Color_Off}"
+        echo -e "${Yellow}Use 'axiom-images ls' and delete any image before trying to build again ${Color_Off}"
+   fi   
+   echo -e "${Yellow}Verify the account is properly configured and/or try a different region.${Color_Off}"
+   echo -e "${Yellow}For support, take a screenshot of the last 20 lines and open a issue at https://github.com/pry0cc/axiom/issues${Color_Off}"
+   echo -e "${Green}Sometimes just running axiom-build again can work, so please try at least once: 'axiom-build', thanks!${Color_Off}" 
+   "$NOTIFY_CMD" "Axiom Info" "Build failed :("
 fi
 
 if [[ $provisioner == "azure" ]]; then
