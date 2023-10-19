@@ -55,7 +55,6 @@ fi
 
 function setuplinode(){
 echo -e "${BGreen}Sign up for an account using this link for \$20 free credit: https://www.linode.com/?r=23ac507c0943da0c44ce1950fc7e41217802df90\nObtain a personal access token from: https://cloud.linode.com/profile/tokens${Color_Off}"
-echo -e "${Yellow}Warning: You will need to ask Linode support to increase your max image size to 18GB for packer!${Color_off}"
 echo -e -n "${Blue}Do you already have a Linode account? y/n ${Color_Off}"
 read acc 
 
