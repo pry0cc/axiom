@@ -13,7 +13,7 @@ poweron() {
 poweroff() {
   instance_name="$1"
   id=$(instance_id "$instance_name")
-  aws ec2 stop-instances --instance-ids "$id"
+  aws ec2 stop-instances --instance-ids "$id"  | jq -r '.StoppingInstances[0].CurrentState.Name'
 }
 
 reboot() {
@@ -65,10 +65,23 @@ quick_ip() {
 }
 
 instance_pretty() {
-	data=$(instances)
 
-	i=0
-	(echo "Instance,IP,Region,Size,Status" && echo $data | jq -r '.Reservations[].Instances[] | select(.State.Name != "terminated") | [.Tags?[]?.Value, .PublicIpAddress, .Placement.AvailabilityZone, .InstanceType, .State.Name] | @csv' && echo "_,_,_,_,_,") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+    type="$(jq -r .default_size "$AXIOM_PATH/axiom.json")"    
+    #getCosts
+    costs=$(curl -sL 'ec2.shop' -H 'accept: json')
+    header="Instance,Primary IP,Backend IP,Region,Type,Status,\$/M"
+    fields=".Reservations[].Instances[] | select(.State.Name != \"terminated\") | [.Tags?[]?.Value, .PublicIpAddress, .PrivateIpAddress, .Placement.AvailabilityZone, .InstanceType, .State.Name] | @csv"
+	data=$(instances|(jq -r "$fields"|sort -k1))
+    #echo "data $data"
+    numInstances=$(echo "$data"|grep -v '^$'|wc -l)
+
+    if [[ $numInstances -gt 0  ]];then
+        cost=$(echo "$costs"|jq ".Prices[] | select(.InstanceType == \"$type\").MonthlyPrice")
+        data=$(echo "$data" | sed "s/$/,\"$cost\" /")
+        totalCost=$(echo  "$cost * $numInstances"|bc)
+    fi
+    footer="_,_,_,Instances,$numInstances,Total,\$$totalCost"
+	(echo "$header" && echo "$data" && echo "$footer") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 # identifies the selected instance/s
@@ -134,10 +147,13 @@ snapshots() {
 	aws ec2 describe-images --query 'Images[*]' --owners self 
 }
 
-
 get_snapshots()
 {
-	(echo "Name,Creation,Image ID" && aws ec2 describe-images --query 'Images[*]' --owners self | jq -r '.[] | [.Name,.CreationDate,.ImageId] | @csv' && echo "_,_,_,_") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
+    header="Name,Creation,Image ID,Size(GB)"
+    footer="_,_,_,_"
+    fields=".[] | [.Name, .CreationDate, .ImageId, (.BlockDeviceMappings[] | select(.Ebs) | (.Ebs.VolumeSize | tostring))] | @csv"
+    data=$(aws ec2 describe-images --query 'Images[*]' --owners self)
+	(echo "$header" && echo "$data" | (jq -r "$fields"|sort -k1) && echo "$footer") | sed 's/"//g' | column -t -s, | perl -pe '$_ = "\033[0;37m$_\033[0;34m" if($. % 2)'
 }
 
 delete_record() {
