@@ -175,7 +175,7 @@
         "echo 'Installing urlprobe'",
         "/bin/su -l op -c 'go install github.com/1ndianl33t/urlprobe@latest'",
         "echo 'Installing gau'",
-        "/bin/su -l op -c 'go install github.com/lc/gau@latest'",
+        "/bin/su -l op -c 'go install github.com/lc/gau/v2/cmd/gau@latest'",
         "echo 'Installing waybackurls'",
         "/bin/su -l op -c 'go install github.com/tomnomnom/hacks/waybackurls@latest'",
         "echo 'Installing dnsx'",
