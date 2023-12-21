@@ -327,7 +327,8 @@ create_instance() {
 	domain="example.com"
 	cpu="$(jq -r '.cpu' $AXIOM_PATH/axiom.json)"
 	#ibmcloud sl vs create -H "$name" -D "$domain" -c 2 -m 2048 -d dal12 --image 6018238 --wait 5000 -f  2>&1 >>/dev/null &
-	ibmcloud sl vs create -H "$name" -D "$domain" -c "$cpu" -m "$size_slug" -n 1000 -d "$region" --image "$image_id" --wait 5000 -f  2>&1 >>/dev/null 
+	ibmcloud sl vs create -H "$name" -D "$domain" -c "$cpu" -m "$size_slug" -n 1000 -d "$region" --image "$image_id" -f  2>&1 >>/dev/null 
+  sleep 260
 }
 
 instance_pretty() {
