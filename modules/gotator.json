@@ -1,0 +1,4 @@
+[{
+	"command":"/home/op/go/bin/gotator -sub input.txt -perm /home/op/lists/permutations.txt -depth 2 -numbers 5 > output",
+	"ext":"txt"
+}]
