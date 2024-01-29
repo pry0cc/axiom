@@ -177,6 +177,9 @@
         "echo 'Installing gauplus'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install -v github.com/bp0lr/gauplus@latest'",
 
+        "echo 'Installing waymore'",
+        "git clone https://github.com/xnl-h4ck3r/waymore.git /home/op/recon/ && cd /home/op/recon/waymore && sudo python3 setup.py install && sudo pip3 install -r requirements.txt",
+
         "echo 'Installing gf'",
         "/bin/su -l op -c 'GO111MODULE=off /usr/local/go/bin/go install github.com/tomnomnom/gf@latest'",
 
