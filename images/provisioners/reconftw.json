@@ -57,6 +57,10 @@
         "wget -q https://golang.org/dl/go1.20.4.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.20.4.linux-amd64.tar.gz && rm go1.20.4.linux-amd64.tar.gz",
         "export GOPATH=/home/op/go",
 
+        "echo 'Installing Golang 1.22.0'",
+        "/bin/su -l op -c '/usr/local/go/bin/go install golang.org/dl/go1.22.0@latest'",
+        "/bin/su -l op -c '/home/op/go/bin/go1.22.0 download'",
+
         "echo 'Installing Docker'",
         "curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && rm get-docker.sh",
         "sudo usermod -aG docker op",
@@ -149,7 +153,7 @@
         "/bin/su -l op -c '/usr/local/go/bin/go install github.com/KathanP19/Gxss@latest'",
 
         "echo 'Installing httpx'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/httpx/cmd/httpx@latest'",
+        "/bin/su -l op -c 'GO111MODULE=on /home/op/go/bin/go1.22.0 install github.com/projectdiscovery/httpx/cmd/httpx@latest'",
 
         "echo 'Installing interactsh-client'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest'",
