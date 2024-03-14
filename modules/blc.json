@@ -1,0 +1,4 @@
+[{
+    "command":"cat input | /usr/bin/xargs -n1 -I@ /usr/local/bin/blc -rof --filter-level 3 @ | tee output",
+    "ext":"txt"
+}]
