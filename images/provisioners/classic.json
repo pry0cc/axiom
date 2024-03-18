@@ -179,7 +179,7 @@
         "echo 'Installing waybackurls'",
         "/bin/su -l op -c 'go install github.com/tomnomnom/hacks/waybackurls@latest'",
         "echo 'Installing dnsx'",
-        "/bin/su -l op -c 'go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
+        "/bin/su -l op -c 'go1.22.0 install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
         "echo 'Installing shuffledns'",
         "/bin/su -l op -c 'go install github.com/projectdiscovery/shuffledns/cmd/shuffledns@latest'",
         "echo 'Installing chaos client'",

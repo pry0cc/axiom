@@ -155,7 +155,7 @@
         "git clone https://github.com/vortexau/dnsvalidator.git /home/op/recon/dnsvalidator && cd /home/op/recon/dnsvalidator/ && sudo python3 setup.py install",
 
         "echo 'Installing dnsx'",
-        "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
+        "/bin/su -l op -c 'GO111MODULE=on /home/op/go/bin/go1.22.0 install github.com/projectdiscovery/dnsx/cmd/dnsx@latest'",
 
         "echo 'Installing ERLPopper'",
         "git clone https://github.com/maikthulhu/ERLPopper.git /home/op/recon/ERLPopper",
