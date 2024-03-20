@@ -126,7 +126,6 @@ do
         if [[ "$arg" == "--config" ]]; then
             n=$((i+1))
             config=$(echo ${!n})
-            config_flag="true"
             set=true
             pass+=($i)
             pass+=($n)
@@ -227,7 +226,8 @@ if [[ $BASEOS == "Linux" ]]; then
         dpkg-reconfigure --frontend noninteractive tzdata
        fi
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils openssh-server fail2ban -y 
+        apt-get update
+        DEBIAN_FRONTEND=noninteractive sudo apt-get -y install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils fail2ban
         echo -e "${Blue}Installing jq...${Color_Off}"
         sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
         echo -e "${Blue}Installing packer...${Color_Off}"
@@ -388,8 +388,8 @@ export PATH="$PATH:$HOME/.axiom/interact"
 if [[ $unattended == "true" ]] ; then
 echo -e "${BWhite}Axiom install complete. Run axiom-account-setup to use axiom...${Color_Off}"
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
-if [[ $config_flag == "true" ]] ; then
-"$HOME"/.axiom/interact/axiom-account "$account"  
+if [ -z ${config+x} ]; then
+"$HOME"/.axiom/interact/axiom-account "$account"  >> /dev/null 2>&1
 fi
 exit 0
 fi
@@ -404,3 +404,4 @@ else
 echo -e "${BWhite}You may need to restart your shell: $SHELL${Color_Off}"
 "$HOME"/.axiom/interact/axiom-account "$account"
 fi
+
