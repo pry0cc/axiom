@@ -252,6 +252,10 @@
         "echo 'Installing naabu'",
         "/bin/su -l op -c 'GO111MODULE=on /usr/local/go/bin/go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest'",
 
+        "echo 'Install broken link checker'",
+        "/bin/su -l op -c 'apt install npm'",
+        "/bin/su -l op -c 'npm install broken-link-checker -g'",
+
         "echo 'Installing nmap'",
         "sudo apt-get -qy --no-install-recommends install build-essential libssl-dev flex bison",
         "/bin/su -l op -c 'wget https://nmap.org/dist/nmap-7.92.tgz -O /home/op/recon/nmap.tar.gz && cd /home/op/recon/ && tar zxf nmap.tar.gz --transform s/nmap-7.92/nmap/ && rm nmap.tar.gz && cd /home/op/recon/nmap/ && sudo ./configure --without-ndiff --without-zenmap --without-nping  --without-ncat --without-nmap-update --with-libpcap=included && sudo make && sudo make install'",
