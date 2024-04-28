@@ -125,7 +125,7 @@
         "cd /home/op/recon/emailgen && bundle update --bundler",
         "cd /home/op/recon/emailgen && bundle install",
         "echo 'Setting up sn0int repository'",
-        "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.sexy stable main >> /etc/apt/sources.list.d/apt-vulns-sexy.list && apt-get update",
+        "gpg -a --export --keyring /usr/share/keyrings/debian-maintainers.gpg git@rxv.cc | apt-key add - && apt-key adv --keyserver keyserver.ubuntu.com --refresh-keys git@rxv.cc && echo deb http://apt.vulns.xyz stable main >> /etc/apt/sources.list.d/apt-vulns-xyz.list && apt-get update",
         "echo 'Installing fail2ban'",
         "apt-get -y install fail2ban",
         "echo 'Installing sn0int'",
