@@ -93,9 +93,6 @@ function omz_shell(){
     SHELL=$(which zsh)
 }
 
-function is_installed() {
-    type "$1" &>/dev/null
-}
 
 ###########################################################################################################
 # Help Menu
