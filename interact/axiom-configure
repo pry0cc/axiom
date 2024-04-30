@@ -93,6 +93,10 @@ function omz_shell(){
     SHELL=$(which zsh)
 }
 
+function is_installed() {
+    type "$1" &>/dev/null
+}
+
 ###########################################################################################################
 # Help Menu
 # 
@@ -219,23 +223,52 @@ if [[ $BASEOS == "Linux" ]]; then
         cd /tmp/interlace && sudo python3 setup.py install
         
     elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]] || [[ $OS == "Linuxmint" ]] || [[ $OS == "Parrot" ]] || [[ $OS == "Kali" ]] || [[ $OS == "unknown-Linux" ]] || [[ $OS == "UbuntuWSL" ]]; then
-       if ! command -v sudo &> /dev/null; then
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update && apt-get install sudo curl jq tzdata -y -qq
+        if ! command -v sudo &> /dev/null; then
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update && apt-get install sudo -y -qq
+        fi
+
+        # Installing basic tools if not present
+        for pkg in curl jq tzdata; do
+            if ! command -v $pkg &> /dev/null; then
+                sudo apt-get install $pkg -y -qq
+            fi
+        done
+
         ip=$(curl -s https://ifconfig.me/)
-        ln -fs /usr/share/zoneinfo/$(curl ipinfo.io/"$ip" | jq -r .timezone) /etc/localtime
-        dpkg-reconfigure --frontend noninteractive tzdata
-       fi
-        echo -e "${Blue}Installing other repo deps...${Color_Off}"
-        DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install git ruby python3-pip curl iputils-ping net-tools unzip xsltproc bc rsync sudo wget nano bsdmainutils openssh-server fail2ban -y 
-        echo -e "${Blue}Installing jq...${Color_Off}"
-        sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
-        echo -e "${Blue}Installing packer...${Color_Off}"
-        wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && cd /tmp/ && unzip packer.zip && sudo mv packer /usr/bin/ && rm /tmp/packer.zip 
-        echo -e "${Blue}Installing Interlace...${Color_Off}"
-        sudo rm -fr /tmp/interlace
-        git clone https://github.com/codingo/Interlace.git /tmp/interlace
-        cd /tmp/interlace && sudo python3 setup.py install
+        timezone=$(curl -s ipinfo.io/"$ip" | jq -r .timezone)
+        if [ ! -z "$timezone" ]; then
+            sudo ln -fs /usr/share/zoneinfo/"$timezone" /etc/localtime
+            sudo dpkg-reconfigure --frontend noninteractive tzdata
+        fi
+
+        echo -e "${Blue}Installing other repo deps... Cuz sho_luv says so${Color_Off}"
+        # Install other dependencies only if they are not already installed
+        declare -a deps=("git" "ruby" "python3-pip" "net-tools" "unzip" "xsltproc" "bc" "rsync" "wget" "nano" "bsdmainutils" "openssh-server" "fail2ban")
+        for dep in "${deps[@]}"; do
+            if ! command -v $dep &> /dev/null; then
+                sudo apt-get install $dep -y
+            fi
+        done
+
+        # Installing jq specifically if not present
+        if ! command -v jq &> /dev/null; then
+            echo -e "${Blue}Installing jq...${Color_Off}"
+            sudo wget -q -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && sudo chmod +x /usr/bin/jq
+        fi
+
+        # Installing Packer if not present
+        if ! command -v packer &> /dev/null; then
+            echo -e "${Blue}Installing packer...${Color_Off}"
+            wget -q -O /tmp/packer.zip https://releases.hashicorp.com/packer/1.8.1/packer_1.8.1_linux_amd64.zip && sudo unzip -o /tmp/packer.zip -d /usr/local/bin/ && sudo rm /tmp/packer.zip 
+        fi
+
+        # Installing Interlace if not present
+        if ! [ -d /tmp/interlace ]; then
+            echo -e "${Blue}Installing Interlace...${Color_Off}"
+            git clone https://github.com/codingo/Interlace.git /tmp/interlace
+            cd /tmp/interlace && sudo python3 setup.py install
+        fi
 
         elif [[ $OS == "Fedora" ]]; then
         echo -e "${Blue}Installing other repo deps...${Color_Off}"
