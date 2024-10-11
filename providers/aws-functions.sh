@@ -332,17 +332,24 @@ create_instance() {
 	size_slug="$3"
 	region="$4"
 	boot_script="$5"
-  sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
-  #sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/$sshkey.pub | awk '{print $2}' | cut -d : -f 2-)"
-  #keyid=$(doctl compute ssh-key import $sshkey \
-  #  --public-key-file ~/.ssh/$sshkey.pub \
-  #  --format ID \
-  #  --no-header 2>/dev/null) ||
-  #keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
-  
-  aws ec2 run-instances --image-id "$image_id" --count 1 --instance-type "$size" --region "$region" --security-groups axiom --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$name}]" 2>&1 >> /dev/null
-  
-  sleep 260
+	sshkey="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.sshkey')"
+	#sshkey_fingerprint="$(ssh-keygen -l -E md5 -f ~/.ssh/$sshkey.pub | awk '{print $2}' | cut -d : -f 2-)"
+	#keyid=$(doctl compute ssh-key import $sshkey \
+	#  --public-key-file ~/.ssh/$sshkey.pub \
+	#  --format ID \
+	#  --no-header 2>/dev/null) ||
+	#keyid=$(doctl compute ssh-key list | grep "$sshkey_fingerprint" | awk '{ print $1 }')
+	subnet_id="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.subnet_id')"
+	security_group_id="$(cat "$AXIOM_PATH/axiom.json" | jq -r '.security_group_id')"
+	security_group_tags="Key=$(cat "$AXIOM_PATH/axiom.json" | jq -r '.tag_key'),Value=$(cat "$AXIOM_PATH/axiom.json" | jq -r '.tag_value')"
+	if [[ "$security_group_tags" != "" ]]; then
+		tags="[{Key=Name,Value=$name},{${security_group_tags}}]"
+	else
+		tags="[{Key=Name,Value=$name}]"
+	fi
+	aws ec2 run-instances --image-id "$image_id" --count 1 --instance-type "$size" --region "$region" --subnet-id "$subnet_id" --associate-public-ip-address --security-group-id "$security_group_id" --tag-specifications "ResourceType=instance,Tags=${tags}" 2>&1 >>/dev/null
+
+	sleep 260
 }
 
 # Function used for splitting $src across $instances and rename the split files.

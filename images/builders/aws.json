@@ -1,32 +1,38 @@
 {
-	"builders": [
+  "builders": [
+    {
+      "access_key": "{{ user `aws_access_key` }}",
+      "ami_name": "{{ user `snapshot_name` }}",
+      "instance_type": "{{ user `default_size` }}",
+      "region": "{{ user `region` }}",
+      "vpc_id": "{{ user `vpc_id` }}",
+      "security_group_id": "{{user `security_group_id`}}",
+      "subnet_id": "{{ user `subnet_id` }}",
+      "secret_key": "{{ user `aws_secret_access_key` }}",
+      "run_tags": {
+        "{{user `tag_key`}}": "{{user `tag_value`}}"
+      },
+      "launch_block_device_mappings": [
         {
-            "access_key": "{{ user `aws_access_key` }}",
-            "ami_name": "{{ user `snapshot_name` }}",
-            "instance_type": "{{ user `default_size` }}",
-            "region": "{{ user `region` }}",
-            "secret_key": "{{ user `aws_secret_access_key` }}",
-	    "launch_block_device_mappings": [
-    		{
-      		"device_name": "/dev/sda1",
-      		"volume_type": "gp2",
-      		"volume_size": 20,
+          "device_name": "/dev/sda1",
+          "volume_type": "gp2",
+          "volume_size": 20,
           "encrypted": true,
-      		"delete_on_termination": true
- 		}
-	],
-            "source_ami_filter": {
-              "filters": {
-              "virtualization-type": "hvm",
-              "name": "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*",
-              "root-device-type": "ebs"
-              },
-              "owners": ["099720109477"],
-              "most_recent": true
-            },
-            "ssh_username": "ubuntu",
-	    "temporary_key_pair_type": "ed25519",
-            "type": "amazon-ebs"
+          "delete_on_termination": true
         }
-    ]
+      ],
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
+      "ssh_username": "ubuntu",
+      "temporary_key_pair_type": "ed25519",
+      "type": "amazon-ebs"
+    }
+  ]
 }
