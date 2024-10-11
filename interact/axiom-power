@@ -20,13 +20,15 @@ current=$(ls -lh ~/.axiom/axiom.json | awk '{ print $11 }' | tr '/' '\n' | grep 
 
 function usage() {
   cat << EOF
-  Usage: axiom-power on 'rez\*'  #turns on instances starting with 'rez'
-         axiom-power off '\*'    #turns off all instances
+  Usage: axiom-power on 'rez\*'         #turns on instances starting with 'rez'
+         axiom-power off '\*'           #turns off all instances
+         axiom-power on 'rez\*' -i 2    #turns on the 2 first instances of 'rez' fleet
   Examples:
-  on                             Power on instance by instance name
-  off                           Power off instance by instance name 
-  reboot                           Reboot instance by instance name
-  help | --help | -h                           Print this help menu
+  on                                      Power on instance by instance name
+  off                                    Power off instance by instance name 
+  reboot                                    Reboot instance by instance name
+  -i/--instances <integer> (optional)       The number of instances to power
+  help | --help | -h                                    Print this help menu
 EOF
 exit
 }
@@ -38,6 +40,7 @@ help=true
 off=false
 reboot=false
 force=false
+number_instance=false
 
 # Parse command line arguments 
 #
@@ -76,6 +79,14 @@ do
             pass+=($i)
             pass+=($n)
         fi
+        if [[ "$arg" == "-i" ]] || [[ "$arg" == "--instances" ]]; then
+            n=$((i+1))
+            number_instance=true
+            amount=$(echo ${!n})
+            set=true
+            pass+=($i)
+            pass+=($n)
+        fi
         if [[ "$arg" == "--help" ]] || [[ "$arg" == "-h" ]] || [[ "$arg" == "help" ]]; then
             usage
             exit
@@ -109,49 +120,77 @@ fi
 # Power Off Snapshots
 #
 if [[ "$off" == "true" ]]; then
-    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+    instances=$(query_instances "$instance"|sort -u|tr ' ' '\n')
 
-    if [[ ${#instances} == 0 ]];then
+    if [[ ${#instances} == 0 ]]; then
         usage
         exit
     fi
-    for i in $(echo $instances); 
-        do 
-            echo -e "${Yellow}Powering off instance: $i${Color_Off}"
-            poweroff $i $force; 
-        done
+    if [[ "$number_instance" == "true" ]]; then
+        for i in $(seq -f "%02g" 1 "$amount"); 
+            do 
+                instance_i="${instance//\\}"
+                instance_i="${instance_i//\*/$i}"
+                echo -e "${Yellow}Powering off instance: $instance_i${Color_Off}"
+                poweroff $instance_i $force; 
+            done
+    else
+        for i in $(echo $instances); 
+            do 
+                echo -e "${Yellow}Powering off instance: $i${Color_Off}"
+                poweroff $i $force; 
+            done
+    fi
 fi
 
 # Power On Snapshots
 #
 if [[ "$on" == "true" ]]; then
-    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+    instances=$(query_instances "$instance"|sort -u|tr ' ' '\n')
 
-    if [[ ${#instances} == 0 ]];then
+    if [[ ${#instances} == 0 ]]; then
         usage
         exit
     fi
-
-    for i in $(echo $instances); 
-        do 
-            echo -e "${Yellow}Powering on instance: $i${Color_Off}"
-            poweron $i $force; 
-        done
+    if [[ "$number_instance" == "true" ]]; then
+        for i in $(seq -f "%02g" 1 "$amount"); 
+            do
+                instance_i="${instance//\\}"
+                instance_i="${instance_i//\*/$i}"
+                echo -e "${Yellow}Powering on instance: $instance_i${Color_Off}"
+                poweron $instance_i $force; 
+            done
+    else
+        for i in $(echo $instances); 
+            do 
+                echo -e "${Yellow}Powering on instance: $i${Color_Off}"
+                poweron $i $force; 
+            done
+    fi
 fi
 
 # Reboot Snapshots
 #
 if [[ "$reboot" == "true" ]]; then
-    instances=$(query_instances "$@"|sort -u|tr ' ' '\n')
+    instances=$(query_instances "$instance"|sort -u|tr ' ' '\n')
   
   if [[ ${#instances} == 0 ]];then
         usage
         exit
     fi
-
-    for i in $(echo $instances); 
-        do 
-            echo -e "${Yellow}Rebooting instance: $i${Color_Off}"
-            reboot $i $force; 
-        done
+    if [[ "$number_instance" == "true" ]]; then
+        for i in $(seq -f "%02g" 1 "$amount"); 
+            do
+                instance_i="${instance//\\}"
+                instance_i="${instance_i//\*/$i}"
+                echo -e "${Yellow}Rebooting on instance: $instance_i${Color_Off}"
+                reboot $instance_i $force; 
+            done
+    else
+        for i in $(echo $instances); 
+            do 
+                echo -e "${Yellow}Rebooting instance: $i${Color_Off}"
+                reboot $i $force; 
+            done
+    fi
 fi
