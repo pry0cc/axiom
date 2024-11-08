@@ -1,4 +1,4 @@
 [{
-	"command":"/home/op/go/bin/meg -v / input output",
+	"command":"/home/op/go/bin/meg -v _wordlist_ input output",
 	"ext":""
 }]
