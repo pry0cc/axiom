@@ -99,9 +99,11 @@ get_image_id() {
 #deletes instance, if the second argument is set to "true", will not prompt
 delete_instance() {
     name="$1"
-    id="$(instance_id "$name")"
-    echo "$id"
-    aws ec2 terminate-instances --instance-ids "$id" 2>&1 >> /dev/null
+    ids=($(instance_id "$name"))
+    for id in "${ids[@]}"; do
+       echo "$id"
+       aws ec2 terminate-instances --instance-ids "$id" 2>&1 >> /dev/null
+    done
 }
 
 # TBD 
